@@ -1,0 +1,21 @@
+{
+  "elements": {
+    "visual-composer-atarim": {
+      "settings": {
+        "name": "visual-composer-atarim",
+        "metaThumbnailUrl": "[publicPath]/thumbnail.jpg",
+        "metaPreviewUrl": "[publicPath]/preview.jpg",
+        "metaDescription": "WooCommerce element list top-rated products on sale."
+      },
+      "phpFiles": [
+      ]
+    }
+  },
+  "categories": {
+    "WooCommerce": {
+      "elements": [
+        "visual-composer-atarim"
+      ]
+    }
+  }
+}

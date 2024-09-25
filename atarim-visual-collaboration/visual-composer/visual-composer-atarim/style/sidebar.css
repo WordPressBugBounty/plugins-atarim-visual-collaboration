@@ -1,0 +1,82 @@
+.atarimWrapper {
+    padding: 10px;
+    height: 100%;
+    max-height: 100vh;
+    background-color: #fff;
+    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+.sidebar-search-container {
+    position: relative;
+    width: 100%;
+    /* height: 100%; */
+    display: flex;
+    align-items: center;
+}
+.search-box{
+    font-size: 15px;
+    width: 100%;
+    padding: 0 7px;
+    display: flex;
+    align-items: center;
+    border: 1px solid #8791B2;
+    border-radius: 4px
+}
+.close-icon {
+    font-size: 20px;
+    width: 16px;
+    height: 16px;
+}
+.search-input {
+    font-family: 'Roboto', sans-serif;
+    font-size: 12px;
+    width: 100%;
+    border-style: hidden !important;
+    border: none !important;
+    margin: 0px;
+    height: auto;
+    font-weight: 400;
+    outline: none !important;
+    padding: 9px 10px;
+    background-color: inherit !important;
+}
+.search-input:focus,
+.search-input:active {
+        border-color: transparent !important;
+        outline: none !important;
+        border-style: hidden !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+.deleteImage {
+    position: absolute; 
+    color: #fff;
+    right: 5px;
+    top: 5px;
+    cursor: pointer;
+}
+.deleteImage:hover {
+    color: #D51341;
+}
+.commentContent {
+    color: #272d3c;
+    font-size: 14px;
+    word-wrap: break-word;
+}
+.commentNote {
+    background-color: #fff6d6;
+    padding: 10px;
+    border-radius: 5px;
+}
+.commentNoteLink {
+    background-color: #fff6d6;
+    padding: 5px 2px;
+    border-radius: 5px;
+}
+.commentDeleted {
+    opacity: 0.7
+}
+.activeIcon {
+    color: #a0192b ;
+}

@@ -1,0 +1,7420 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+/* Sheet Structure  
+ * - Animation
+ * - General
+ * - Users tab
+ * - Sliders tabs
+ * - Screenshot tab
+ * - Details tab
+ * -- Custom Tagging
+ * - Share tab
+ * - Item Circle
+ * - Chosen DIV Border
+ * - Floating Icon
+ * - Compact Mode
+ * - Chat Box
+ * - Sidebar
+ * - Filter task
+ * - Front End Wizard
+ * - Responsive Mode
+ * - General Tasks pop up
+ * - Unlock Website
+ * - Internal Tasks
+ * - Edit/Delete Comments
+ * - Tooltips
+ * - Plugin Conflicts
+ * - Translation Adaptations
+ * -- RTL
+ * - Mobile
+ * - Bug Fixes
+ * */
+
+
+/**
+ * ----------------------------------------
+ * Animation fade-in-top
+ * ----------------------------------------
+ */
+
+@-webkit-keyframes fade-in-top {
+    0% {
+        -webkit-transform: translateY(-50px);
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    100% {
+        -webkit-transform: translateY(0);
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+@keyframes fade-in-top {
+    0% {
+        -webkit-transform: translateY(-50px);
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    100% {
+        -webkit-transform: translateY(0);
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+/**
+ * ----------------------------------------
+ * Animation fade-in-bottom
+ * ----------------------------------------
+ */
+
+@-webkit-keyframes fade-in-bottom{
+    0% {
+        -webkit-transform: translateY(50%);
+        transform: translateY(50%);
+        opacity: 0;
+    }
+    100% {
+        -webkit-transform: translateY(0);
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+@keyframes fade-in-bottom {
+    0% {
+        -webkit-transform: translateY(50%);
+        transform: translateY(50%);
+        opacity: 0;
+    }
+    100% {
+        -webkit-transform: translateY(0);
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+/**
+ * ----------------------------------------
+ * Animation fade-out
+ * ----------------------------------------
+ */
+
+@-webkit-keyframes fade-out {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+@keyframes fade-out {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+/**
+ * ----------------------------------------
+ * Animation pulse
+ * ----------------------------------------
+ */
+@keyframes wpfpulse {
+    0% {
+        box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.2);
+    }
+    40% {
+        box-shadow: 0 0 15px 5px rgba(0, 0, 0, 0.3);
+    }
+    100% {
+        box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.2);
+    }
+}
+
+/* ------------ General ------------ */
+/* for fixing blank screenshot issue on Bricks theme */
+body.bricks-is-frontend {
+	overflow-x: unset !important;
+}
+/* End */
+
+#wpf_launcher div {
+    padding: 0;
+}
+.grabbable {
+    cursor: move;
+    cursor: grab;
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+}
+a {
+    outline: none !important;
+}
+#menu-posts-wpfeedback {
+    display: none !important;
+}
+object.wpf_none_comment,
+.popover.wpf_comment_container .popover-body::before,
+.popover.wpf_comment_container .popover-body::after {
+    box-sizing: border-box;
+}
+.wpf_comment_container .popover-body::-webkit-scrollbar,
+.wpf_sidebar_container::-webkit-scrollbar,
+div#wpf_general_comment_tabs::-webkit-scrollbar {
+    width: 7px;
+    transition: all 0.2s ease-in !important;
+}
+.wpf_comment_container .popover-body::-webkit-scrollbar-thumb,
+.wpf_sidebar_container::-webkit-scrollbar-thumb,
+div#wpf_general_comment_tabs::-webkit-scrollbar-thumb {
+    background: #dee2e6c9;
+    border-radius: 50px;
+    transition: all 0.2s ease-in !important;
+}
+.wpf_comment_container .popover-body::-webkit-scrollbar-thumb:hover,
+.wpf_sidebar_container::-webkit-scrollbar-thumb:hover,
+div#wpf_general_comment_tabs::-webkit-scrollbar-thumb:hover {
+    background: #dee2e6 !important;
+}
+.wpf_comment_container a:focus,
+.wpf_comment_container button:focus {
+    outline: none !important;
+}
+.wpf_comment_container.popover-body {
+    padding: 15px 15px 10px 15px;
+}
+.popover.wpf_comment_container {
+    width: 360px;
+    font-family: 'Roboto', sans-serif;
+    max-width: 360px !important;
+    z-index: 214748365 !important;
+    border-radius: 7px;
+    display: inline-block;
+    opacity: 0;
+	-webkit-animation-name: fadeIn;
+    animation-name: fadeIn;
+    -webkit-animation-duration: 0.5s;
+    animation-duration: 0.5s;
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
+}
+.popover.wpf_comment_container .popover-body {
+    padding: 10px 10px 4px 10px !important;
+}
+.wpf_general_task_wrapper, .wpf_approve_page_wrapper {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#wpf_general_comment {
+    z-index: 999999999 !important;
+}
+#wpf_general_comment_tabs
+{
+    padding-top: 10px;
+}
+div#wpf_general_comment_tabs a,
+.popover.wpf_comment_container a,
+.popover.wpf_comment_container label,
+.popover.wpf_comment_container button,
+.wpf_comment_container button {
+    text-decoration: none !important;
+    box-shadow: none !important;
+}
+.wpf_comment_container ul {
+    margin-left: 0 !important;
+    margin-top: 0;
+    border: none;
+    width: auto;
+    margin-bottom: -1px;
+}
+.wpf_current_chat_box {
+    margin-bottom: 10px !important;
+}
+.wpf_comment_container.bs-popover-auto[x-placement^=right]>.arrow::before,
+.wpf_comment_container.bs-popover-right>.arrow::before {
+    border-right-color: #ffffff !important;
+    left: 1px !important;
+    border-width: 0.5rem 0.5rem 0.5rem 0 !important;
+}
+.popover .arrow::after, .popover .arrow::before {
+    position: absolute;
+    display: block;
+    content: "";
+    border-color: transparent;
+    border-style: solid;
+}
+.wpf_comment_container.bs-popover-auto[x-placement^=left]>.arrow::before,
+.wpf_comment_container.bs-popover-left>.arrow::before {
+    border-left-color: #ffffff !important;
+    right: 1px !important;
+    border-width: 0.5rem 0 0.5rem 0.5rem !important;
+}
+.wpf_comment_container .form-group {
+    margin-bottom: 8px !important;
+}
+.wpf_comment_container .form-group span {
+    font-size: 12px;
+    font-weight: bold;
+    color: #cc1816;
+}
+.form-group .wpf_form_group_editor {
+    background: #ecf3f9;
+    background-color: rgba(109, 93, 243, 0.07) !important;
+    position: relative;
+    border-radius: 8px;
+}
+.wpf_comment_container textarea.form-control {
+    font-size: 14px;
+    font-family: 'Roboto', sans-serif;
+    padding: 5px 10px;
+    min-height: 80px;
+    border-radius: 7px;
+    width: 100%;
+    color: #000000;
+    text-transform: unset;
+    font-weight: normal;
+    height: auto;
+    line-height: 1.2 !important;
+    max-width: 100%;
+    min-width: 100%;
+    display: block;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    box-shadow: none !important;
+    outline: none !important;
+}
+.wpf_comment_container .nav-tabs .nav-link {
+    padding: 0;
+	border: 0;
+	outline: none;
+	box-shadow: none;
+    position: relative;
+    text-align: center;
+    float: right;
+    font-size: 16px;
+    background-color: transparent;
+    transition: all 0.2s ease-in !important;
+    display: flex !important;
+	justify-content: center !important;
+	align-items: center !important;
+    cursor: pointer !important;
+}
+.wpf_comment_container .nav-tabs .nav-item.show .nav-link,
+.wpf_comment_container .nav-tabs .nav-link.active {
+    z-index: 10;
+    position: relative;
+    opacity: 1;
+    border-color: #dee2e6 #dee2e6 #fff !important;
+}
+.wpf_comment_container .nav-tabs .nav-link:hover {
+    border-color: transparent;
+    opacity: 1;
+}
+.wpf_comment_container .tab-content {
+    overflow: hidden;
+    display: block;
+    border: inherit;
+    letter-spacing: 0.03em;
+    margin-top: 0px !important;
+}
+.wpf_comment_container .tab-content::before {
+    display: none !important;
+}
+.wpf_comment_container .tab-content > .tab-pane.active {
+    display: inline-block;
+    width: 100%;
+    margin-bottom: 15px;
+    border-radius: 0 0px 10px 10px;
+    -webkit-animation: fade-in-top 0.2s cubic-bezier(0.390, 0.575, 0.565, 1.000) both;
+    animation: fade-in-top 0.2s cubic-bezier(0.390, 0.575, 0.565, 1.000) both !important;
+}
+.wpf_comment_container .hide,
+.hide {
+    display: none;
+}
+.wpf_comment_container .popover-body .close, .wpf_comment_container .popover-content .close {
+    font-size: 30px;
+    color: #e54f6d !important;
+    float: right;
+    font-weight: 400;
+    line-height: 1;
+    text-shadow: 0 1px 0 #fff;
+    text-decoration: none !important;
+    height: 36px!important;
+    width: 36px!important;
+    display: flex!important;
+    justify-content: center!important;
+    align-items: center!important;
+    border-radius: 8px!important;
+	margin-top: 0 !important;
+    cursor: pointer !important;
+}
+.wpf_comment_container .popover-body .close:hover, .wpf_comment_container .popover-content .close:hover {
+	background-color: rgba(109, 93, 243, 0.07) !important;
+}
+.bs-popover-bottom>.arrow.wpf_arrow:before {
+    border-bottom-color: #fff !important;
+    margin-top: 1px;
+}
+.bs-popover-auto[x-placement^=bottom]>.wpf_arrow::before,
+.bs-popover-bottom>.wpf_arrow::before {
+    border-bottom-color: #fff !important;
+}
+
+.wpf_sidebar_container div,
+.wpf_sidebar_container.wpf_graphics span {
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+/* ------------ Users tab  ------------ */
+
+.popover.wpf_comment_container ul.wp_feedback_filter_checkbox, .wpf_tag_autocomplete buttonuser, .popover.wpf_comment_container ul.wp_feedback_filter_checkbox.user, .wpf_wizard_modal ul.wp_feedback_filter_checkbox.user {
+    max-height: 120px !important;
+    overflow-y: auto;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+ul.wp_feedback_filter_checkbox.user li,
+ul.wp_feedback_filter_checkbox.user label {
+    cursor: pointer;
+    position: relative;
+}
+ul.wp_feedback_filter_checkbox.user input[type=checkbox] {
+    display: none;
+}
+div#wpf_wizard_notifications input + label:before {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 15px;
+    margin-bottom: -2px;
+    margin-right: 5px;
+    margin-left: -5px;
+    border-radius: 3px;
+    border: 2px solid #363d4d !important;
+    opacity: 0.6;
+    transition: all .12s, border-color .08s !important;
+	box-sizing: content-box;
+}
+div#wpf_wizard_notifications input:checked + label:before {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 15px;
+    margin-bottom: -2px;
+    margin-right: 5px;
+    margin-left: -5px;
+    border-radius: 3px;
+    border: 2px solid #363d4d !important;
+    opacity: 0.6;
+    transition: all .12s, border-color .08s !important;
+}
+div#wpf_wizard_notifications input:checked + label:after {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 1px;
+    left: 0px;
+    width: 5px;
+    height: 10px;
+    border: solid #363d4d;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+	box-sizing: content-box;
+}
+.wpf_checkbox label {
+    margin-bottom: 10px !important;
+    position: relative;
+}
+/* ------------ Sliders tabs  ------------ */
+
+.anim-slider {
+    border-bottom: 7px solid #dee2e6;
+    box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.15);
+    padding-bottom: 1px;
+    position: relative;
+    width: 100%;
+}
+.anim-slider input[type="radio"] {
+    display: none;
+}
+.anim-slider label {
+    float: left;
+    width: 25%;
+    text-align: center;
+    cursor: pointer;
+    transition: color .5s !important;
+    font-size: 12px !important;
+    font-family: 'Roboto', sans-serif;
+    color: #6c757d;
+    font-weight: 400 !important;
+    padding-top: 20px;
+    text-transform: initial;
+    display: inline-block !important;
+    letter-spacing: 0.01071em !important;
+}
+.anim-slider label:hover {
+    text-decoration: underline;
+}
+.anim-slider input:checked + label {
+    color: #272D3C !important;
+}
+.anim-slider label:last-of-type::after {
+    display: block;
+    width: 15px;
+    height: 15px;
+    background-color: var(--main-wpf-color);
+    content: "";
+    position: absolute;
+    bottom: -8px;
+    border-radius: 50%;
+    left: 0;
+    margin-left: -0.6em;
+    transition: left 0.5s !important;
+}
+.anim-slider input:checked:nth-of-type(1) ~ label:last-of-type::after {
+    left: 11%;
+}
+.anim-slider input:checked:nth-of-type(2) ~ label:last-of-type::after {
+    left: 35%;
+}
+.anim-slider input:checked:nth-of-type(3) ~ label:last-of-type::after {
+    left: 61%;
+}
+.anim-slider input:checked:nth-of-type(4) ~ label:last-of-type::after {
+    left: 86%;
+}
+/* ------------ Screenshot tab  ------------ */
+
+.wpf_screenshot_button {
+    background-color: var(--main-wpf-color);
+    color: #fff;
+    font-size: 14px;
+    text-align: center;
+    font-family: 'Roboto', sans-serif;
+    border-radius: 50px;
+    padding: 10px 5px;
+    line-height: 1.4;
+    margin-top: 5px;
+    -webkit-transition: all 0.2s ease-in;
+    -moz-transition: all 0.2s ease-in;
+    -ms-transition: all 0.2s ease-in;
+    -o-transition: all 0.2s ease-in;
+    transition: all 0.2s ease-in !important;
+    letter-spacing: 0 !important;
+	font-weight: 500 !important;
+    margin-bottom: 5px !important;
+}
+.wpf_screenshot_button:hover {
+    opacity: 1!important;
+	filter: brightness(90%) !important;
+    transition: filter 0.3s ease-in-out !important;
+}
+.wpfb_screenshot_class:before {
+    content: "";
+    width: 150px;
+    height: 150px;
+    background-size: contain;
+    background-color: #fff;
+    position: fixed;
+    left: calc(50% - 75px);
+    top: calc(50% - 75px);
+}
+.wpfb_screenshot_class {
+    filter: grayscale(0%) brightness(200%) contrast(200%);
+    -webkit-filter: grayscale(0%) brightness(200%) contrast(200%);
+    background-color: transparent !important;
+    -webkit-transition: all 0.2s ease-in;
+    -moz-transition: all 0.2s ease-in;
+    -ms-transition: all 0.2s ease-in;
+    -o-transition: all 0.2s ease-in;
+    transition: all 0.2s ease-in !important;
+}
+@-webkit-keyframes appear {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+@keyframes appear {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+a.wpf_screenshot_img_link img {
+    border-radius: 8px !important;
+    max-width: 100% !important;
+    aspect-ratio: 16 / 9 !important;
+    border: 1px solid #A4ABC5 !important;
+    object-fit: cover !important;
+    display: block !important;
+	margin-top: 0 !important;
+    transition: all linear .2s !important;
+    box-sizing: border-box;
+}
+/* ------------ Details tab  ------------ */
+
+ul.wpf_details_tab_inner {
+    padding: 0;
+    margin: 0;
+}
+.wpf_comment_container .popover-body li,
+#wpf_general_comment_tabs ul li {
+    font-size: 12px;
+    line-height: 1.5;
+    color: #000000;
+    margin-left: 0;
+    margin-top: 0 !important;
+    margin-bottom: 0;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+.wpf_comment_container .popover-body li:not(.meassage_area_main ul li, .meassage_area_main ol li),
+#wpf_general_comment_tabs ul li:not(.meassage_area_main ul li, .meassage_area_main ol li) {
+    list-style: none;
+}
+.wpf_comment_container .popover .nav-tabs {
+    border-bottom: none;
+}
+.wpf_comment_container > .arrow {
+    width: .5rem !important;
+    height: 1rem !important;
+    border-style: none !important;
+}
+.wpf_comment_files_wrapper {
+    display: grid !important;
+    gap: 8px !important;
+    box-sizing: border-box;
+}
+.wpf_comment_images {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+    width: 100% !important;
+}
+.wpf_comment_each_img {
+    position: relative !important;
+}
+.wpf_comment_images img {
+    height: 100% !important;
+    width: 100% !important;
+    aspect-ratio: 1 / 1 !important;
+    object-fit: cover !important;
+    display: block !important;
+    filter: none !important;
+    object-fit: cover !important;
+    border-radius: 10px !important;
+    box-shadow: 0px 1.54px 9.239px 0px rgba(0, 0, 0, 0.25) !important;
+}
+.wpf_comment_documents {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    box-sizing: border-box;
+}
+.wpf_comment_each_doc {
+    display: flex !important;
+    background-color: #fff !important;
+    padding: 5px !important;
+    margin-top: 0 !important;
+    border-radius: 8px !important;
+    align-items: center !important;
+    gap: 5px !important;
+    box-shadow: rgba(0, 0, 51, 0.06) 0px 1px 3px 1px, rgba(0, 0, 0, 0.1) 0px 1px 5px 0px !important;
+    transition: box-shadow .1s ease-in-out !important;
+    justify-content: space-between !important;
+    text-decoration: none !important;
+    font-family: 'Roboto', sans-serif !important;
+    text-align: left !important;
+    text-decoration: none !important;
+    min-width: 250px !important;
+    position: relative !important;
+    box-sizing: border-box;
+}
+.wpf_doc_container {
+    display: flex !important;
+    gap: 8px !important;
+}
+.wpf_doc_img_container {
+    height: 42px !important;
+    min-width: 42px !important;
+    border-radius: 5px !important;
+    max-width: 42px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background-color: var(--main-wpf-color) !important;
+    box-sizing: border-box;
+}
+.wpf_doc_img_container.pdf {
+    background: #E72D67 !important;
+}
+.wpf_doc_img_container.txt {
+    background-color: #279AF1 !important;
+}
+.wpf_doc_img_container.zip {
+    background: #FFA532 !important;
+}
+.wpf_doc_img_container img {
+    width: auto !important;
+}
+.wpf_doc_meta_container {
+    display: flex !important;
+    flex-direction: column !important;
+    box-sizing: border-box;
+}
+.wpf_doc_name {
+    max-width: 175px !important;
+    word-wrap: break-word !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    color: #272D3C !important;
+    text-decoration: none !important;
+    font-family: 'Roboto', sans-serif !important;
+    font-weight: 400 !important;
+    font-size: 14px !important;
+    line-height: 21px !important;
+    box-sizing: border-box;
+}
+.wpf_doc_size {
+    color: #A4ABC5 !important;
+    text-decoration: none !important;
+    font-family: 'Roboto', sans-serif !important;
+    text-align: left !important;
+    font-weight: 400 !important;
+    font-size: 14px !important;
+    margin-bottom: 0 !important;
+    line-height: 21px !important;
+}
+.wpf_file_icons {
+    height: 100% !important;
+    width: 100% !important;
+    top: 0 !important;
+    margin-top: 0 !important;
+    position: absolute !important;
+    border-radius: 8px !important;
+    left: 0 !important;
+    opacity: 0 !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column;
+    align-items: center !important;
+    justify-content: center !important;
+    background-color: rgba(47, 50, 106, 0.70) !important;
+    transition: all 0.3s ease-out !important;
+    cursor: pointer !important;
+}
+.wpf_file_icons:hover {
+    opacity: 1 !important;
+}
+.wpf_preview_icon {
+    opacity: 1 !important;
+    margin-top: 0 !important;
+    font-size: 22px !important;
+    cursor: pointer !important;
+    color: #fff !important;
+}
+.wpf_delete_icon {
+    position: absolute !important;
+    opacity: 1 !important;
+    right: 10px !important;
+    top: 10px !important;
+    font-size: 20px !important;
+    margin-top: 0 !important;
+    width: auto !important;
+    color: #fff !important;
+    cursor: pointer !important;
+}
+/* ------------ Custom Tagging ------------ */
+
+.mfp-wrap .modal {
+    display: block;
+}
+button.wpf_upload_button:after {
+    content: none !important;
+}
+span.wpf_tag_name a {
+    margin-left: 5px;
+    color: var(--main-wpf-color) !important;
+    line-height: 0px !important;
+}
+.wpf_comment_container span.wpf_tag_name {
+    display: inline-flex;
+    background: #e2e4e7;
+    transition: all .2s cubic-bezier(.4, 1, .4, 1) !important;
+    margin-right: 5px;
+    margin-top: 5px;
+    border-radius: 12px;
+    padding: 0 4px 0 8px;
+    font-size: 12px;
+    align-items: center;
+}
+input.wpf_tag {
+    padding: initial;
+    width: 100%;
+    margin-bottom: 5px;
+    height: 40px;
+    box-shadow: none;
+    border-radius: 5px;
+}
+.wpf_icon_title {
+    display: block;
+    text-align: left;
+    font-weight: 700;
+    margin-top: 5px;
+    font-size: 12px;
+    letter-spacing: 0.015em;
+    line-height: 1.4;
+    margin-bottom: 5px;
+}
+div#wpf_share_page_btn .wpf_icon_title {
+    margin-top: 10px;
+}
+.wpf_tag_autocomplete input {
+    font-size: 12px !important;
+    font-family: inherit !important;
+    border-radius: 5px !important;
+}
+.wpf_tag_autocomplete {
+    position: relative !important;
+}
+.wpf_tag_autocomplete button {
+    position: absolute;
+    right: 10px;
+    top: 0px;
+    bottom: 0;
+    width: 24px;
+    margin-bottom: 0px;
+    height: 40px;
+    background-color: transparent !important;
+    opacity: 0.9;
+    cursor: pointer;
+    margin-top: 0px !important;
+    box-shadow: none !important;
+}
+.wpf_tag_autocomplete button i {
+    vertical-align: top;
+    position: absolute;
+    top: 10px;
+    right: 0px;
+    color: var(--main-wpf-color);
+}
+.wpf_comment_container button.wpf_tag_submit_btn:hover,
+.wpf_comment_container button.wpf_tag_submit_btn:focus {
+    background: transparent !important;
+}
+.wpf_tag_autocomplete-items {
+    font-size: 12px;
+    border: 1px solid #dee2e6;
+    position: absolute;
+    background-color: #fff;
+    width: 100%;
+    top: 35px;
+    border-radius: 0px 0px 7px 7px;
+    cursor: pointer;
+    max-height: 115px;
+    overflow-y: auto;
+    z-index: 10000;
+}
+.wpf_tag_autocomplete-items div {
+    padding: 5px 15px;
+    -webkit-transition: all 0.2s ease-in;
+    -moz-transition: all 0.2s ease-in;
+    -ms-transition: all 0.2s ease-in;
+    -o-transition: all 0.2s ease-in;
+    transition: all 0.2s ease-in !important;
+}
+.wpf_tag_autocomplete-items div:hover {
+    background-color: #dee2e6;
+    font-weight: 700;
+}
+.wpf_tag_autocomplete-items .wpf_tag_autocomplete-active {
+    background-color: var(--main-wpf-color) !important;
+    color: #ffffff;
+}
+span.wpf_task_tag_more {
+    position: relative;
+}
+/* ------------ Share tab ------------ */
+
+span.wpf_share_task_link {
+    color: rgba(0, 0, 0, 0.7);
+    font-size: 14px;
+    letter-spacing: 0.015em;
+    background-color: #d6fdd9;
+    padding: 4px 35px 5px 10px !important;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    display: flex;
+    line-height: 1.3;
+    overflow: hidden;
+    text-align: left;
+    position: relative;
+    box-sizing: border-box;
+    width: 100%;
+    align-content: stretch;
+    align-items: center;
+    margin-bottom: 5px;
+}
+a.wpf_copy_task_icon {
+    position: absolute;
+    right: 0;
+    top: 2px;
+    height: 35px;
+    width: 30px;
+    padding-left: 10px;
+    padding-top: 10px;
+    background-color: #d6fdd9;
+    box-sizing: border-box;
+}
+.wpf_success_wpf_share_link {
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.015em;
+    background-color: #3ed696;
+    padding: 10px 5px 5px 10px !important;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    line-height: 1.3;
+    width: 100%;
+    height: 40px;
+    -webkit-transition: all 0.2s ease-out;
+    -moz-transition: all 0.2s ease-out;
+    -ms-transition: all 0.2s ease-out;
+    -o-transition: all 0.2s ease-out;
+    transition: all 0.2s ease-out !important;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+.wpf_remove_login_box {
+    position: relative;
+}
+label.wpf_remove_login_label {
+    font-size: 12px !important;
+    color: #000 !important;
+    position: relative !important;
+    text-align: left;
+}
+input.wpf_remove_login_task_link {
+    width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: none !important;
+}
+label.wpf_remove_login_label:before {
+    content: '';
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    margin-bottom: -2px;
+    margin-right: 2px;
+    margin-left: 0;
+    border-radius: 3px;
+    border: 2px solid #363d4d !important;
+    opacity: 0.6;
+    transition: all .12s, border-color .08s !important;
+	box-sizing: content-box;
+}
+.wpf_remove_login_box input:checked + label:after {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 3px;
+    left: 7px;
+    width: 5px;
+    height: 10px;
+    border: solid #363d4d;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+	box-sizing: content-box !important;
+}
+.wpf_wizard_modal label.wpf_remove_login_label:after {
+    top: 5px !important;
+}
+div#wpf_wizard_notifications input:checked + label:after {
+    top: 5px !important;
+}
+
+/* ------------ Item Circle  ------------ */
+
+.wpfb-point {
+    position: absolute!important;
+    overflow: hidden;
+    border-radius: 15% 50% 50% 50%;
+    border: 2px solid #fff!important;
+    text-decoration: none;
+    font-family: roboto,sans-serif;
+    font-weight: 500;
+    font-size: 12px !important;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 50%);
+    width: 32px !important;
+    height: 32px !important;
+    line-height: 32px;
+    box-sizing: border-box;
+    vertical-align: middle;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff!important;
+    animation: wpfpulse 2s infinite!important;
+    z-index: 199997;
+    transition: background .35s ease,opacity .35s ease!important;
+    cursor: pointer;
+    background: #000;
+}
+.wpfb-point:active,
+.wpfb-point:focus {
+    opacity: 0.7 !important;
+    text-decoration: none;
+}
+.wpfb-point:hover {
+    opacity: 0.4 !important;
+    text-decoration: none;
+}
+.pending-review_custom {
+    background: #fcd227;
+}
+.in-progress_custom {
+    background: #ffa532;
+}
+.completed_custom {
+    background: #3ed696;
+}
+.low_custom {
+    background: #3ed696;
+}
+.medium_custom {
+    background: #fcd227;
+}
+.high_custom {
+    background: #ffa532;
+}
+.critical_custom {
+    background: #ff5a48;
+}
+.wpfb-point.complete .gg-check {
+    margin: 0;
+    z-index: 0px;
+}
+.wpf_bubble_num_wrapper {
+    color: #fff !important;
+}
+.wpf_bubble_num_wrapper.marked_internal {
+    opacity: 0.3;
+}
+.open_custom .wpf_task_number {
+   background: #000 !important;
+}
+.pending-review_custom .wpf_task_number {
+    background: #fcd227 !important;
+    position: relative;
+    z-index: 0;
+    color: rgba(0,0,0,0.9) !important;;
+}
+.in-progress_custom .wpf_task_number {
+    background: #ffa532 !important;
+    position: relative;
+    z-index: 0;
+}
+.open_custom .low_custom,
+.open_custom .medium_custom,
+.open_custom .high_custom,
+.open_custom .critical_custom,
+.in-progress_custom .low_custom,
+.in-progress_custom .medium_custom,
+.in-progress_custom .high_custom,
+.in-progress_custom .critical_custom,
+.pending-review_custom .low_custom,
+.pending-review_custom .medium_custom,
+.pending-review_custom .high_custom,
+.pending-review_custom .critical_custom,
+.complete_custom .low_custom,
+.complete_custom .medium_custom,
+.complete_custom .high_custom,
+.complete_custom .critical_custom {
+    border-radius: 50%;
+    position: absolute;
+    top: -20px;
+    right: -15px;
+    width: 32px;
+    height: 32px;
+    box-shadow: 0px 1px 11px #00000042;
+    transform: rotate(-44deg);
+    border: 0px;
+    display: block !important;
+}
+
+/* ------------ Chosen DIV Border ------------ */
+
+.outer div {
+    position: absolute;
+    border-top: 2px dashed red;
+    z-index: 165000;
+    animation: wpfpulse 2s infinite !important;
+}
+.outer div:nth-child(3),
+.outer div:nth-child(4) {
+    border-right: 2px dashed red;
+    animation: wpfpulse 2s infinite !important;
+}
+/* ------------ Floating Icon ------------ */
+
+#wpf_launcher {
+    position: fixed;
+    z-index: 214748365;
+    right: 0;
+    bottom: 0;
+}
+.wpf_start_comment {
+    display: block;
+    text-align: center;
+    padding: 7px 0px;
+    line-height: 1.2;
+    -webkit-transition: all 0.2s ease-in;
+    -moz-transition: all 0.2s ease-in;
+    -ms-transition: all 0.2s ease-in;
+    -o-transition: all 0.2s ease-in;
+    transition: all 0.2s ease-in !important;
+}
+svg#wpf_icon path#wpf_exc_mark,
+svg#wpf_icon circle#wpf_exc_circle {
+    fill: #363c4d;
+}
+svg#wpf_icon {
+    width: 100%;
+    padding: 8px 15px 6px 15px;
+}
+#wpf_launcher ::before, #wpf_launcher ::after {
+    box-sizing: border-box;
+}
+a.wpf_filter_tab_btn.cloud_dashboard_btn svg {
+    width: 20px !important;
+    display: block;
+    padding: 0px 0!important;
+    margin: auto;
+    height: 32px;
+}
+#wpf_launcher .wpf_sidebar_container .wpf_sidebar_header.wpf_col3 button,
+#wpf_launcher button.wpf_tab_sidebar.wpf_thispage.wpf_active, 
+#wpf_launcher button.wpf_tab_sidebar.wpf_allpages.wpf_active, 
+#wpf_launcher button.wpf_tab_sidebar.wpf_backend.wpf_active,
+#wpf_launcher button.wpf_tab_sidebar.wpf_frontend.wpf_active,
+#wpf_launcher button.wpf_tab_sidebar {
+    box-shadow: none;
+    border-radius: 0 !important;
+    letter-spacing: 0px !important;
+}
+#wpf_launcher{
+	opacity:0;
+}
+.wpf_launcher_loaded {
+opacity: 1 !important;
+-webkit-transition: all 0.5s ease-out;
+-moz-transition: all 0.5s ease-out;
+-ms-transition: all 0.5s ease-out;
+-o-transition: all 0.5s ease-out;
+transition: all 0.5s ease-out;
+}
+#wpf_enable_comment .wpf_bottom_left .message {
+    color: #e54f6d;
+    font-size: 12px;
+    padding-left: 13px;
+    display: flex;
+    letter-spacing: 0.2px;
+    font-weight: 700;
+}
+
+/* ------------ Compact Mode ------------ */
+
+.wpf-compact-launcher {
+    position: fixed !important;
+    cursor: pointer;
+    z-index: 199998;
+    right: 0 !important;
+    top: 0;
+    display: block;
+    text-align: right;
+    max-width: 380px;
+}
+.wpf_wizard_modal .wistia_responsive_padding {
+    border-radius: 10px;
+    overflow: hidden;
+}
+/* ------------ Chat Box ------------ */
+
+.wpf_current_chat_box {
+    max-height: 350px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+    border: 1px solid #dee2e6;
+    padding: 10px;
+}
+.wpf_current_chat_box .task-author {
+    display: block;
+}
+li.wpf_other {
+    width: 100%;
+    padding: 0px 0px 10px 0px !important;
+    -webkit-animation: fade-in-top 0.6s cubic-bezier(0.390, 0.575, 0.565, 1.000) both;
+    animation: fade-in-top 0.6s cubic-bezier(0.390, 0.575, 0.565, 1.000) both !important;
+    color: #000000;
+}
+.wpf-comment-container {
+    display: flex;
+    flex-wrap: nowrap;
+    position: relative;
+    color: #272d3c;
+    font-size: 14px;
+    word-wrap: break-word;
+    width: 100%;
+    line-height: 1.4;
+    box-sizing: border-box;
+}
+.wpf_author:not(.is_info) .wpf-author-img, .wpf_other:not(.is_info) .wpf-author-img {
+    min-width: 32px;
+    height: 32px;
+    width: 32px;
+    border-radius: 4px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1;
+    color: #fff;
+    text-transform: uppercase;
+    background-color: rgb(39, 154, 241);
+}
+.wpf_author:not(.is_info) .wpf-author-img img, .wpf_other:not(.is_info) .wpf-author-img img {
+    height: 32px;
+    width: 32px;
+    border-radius: 4px;
+    margin: 0 !important;
+}
+.wpf_author.is_info .wpf-author-img img, .wpf_other.is_info .wpf-author-img img {
+    -webkit-appearance: none !important;
+    fill: none;
+    color: #A4ABC5;
+    width: 18px;
+    height: 18px;
+    margin-right: 5px;
+    margin-top: 2px;
+}
+.wpf_author .wpf-comment-wrapper, .is_info .wpf-comment-wrapper {
+    flex-grow: 1 !important;
+    width: calc(100% - 40px);
+}
+.wpf_author:not(.is_info) .wpf-comment-wrapper {
+    overflow: hidden;
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    padding: 10px 12px !important;
+    background: rgba(109, 93, 243, 0.07) !important;
+    border-radius: 3px 16px 16px !important;
+    gap: 3px !important;
+    margin-left: 8px !important;
+}
+.wpf_other:not(.is_info) .wpf-comment-wrapper {
+    flex-grow: 1 !important;
+    width: calc(100% - 42px);
+    overflow: hidden;
+}
+.wpf_other:not(.is_info) .wpf-comment-wrapper {
+    overflow: hidden;
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    padding: 10px 12px !important;
+    background: rgba(109, 93, 243, 0.07) !important;
+    border-radius: 3px 16px 16px !important;
+    gap: 3px !important;
+    margin-left: 8px !important;
+}
+li.wpf_author {
+    padding: 5px 10px;
+    width: 80%;
+    margin-left: 10%;
+    -webkit-animation: fade-in-top 0.6s cubic-bezier(0.390, 0.575, 0.565, 1.000) both;
+    animation: fade-in-top 0.6s cubic-bezier(0.390, 0.575, 0.565, 1.000) both !important;
+    list-style: none !important;
+    color: #000000;
+}
+.chat_text {
+    font-family: 'Roboto', sans-serif;
+    white-space: pre-wrap;
+    cursor: auto;
+    line-height: 1.4 !important;
+}
+.wpf_author:not(.is_info) .chat_text, .wpf_other:not(.is_info) .chat_text {
+    margin-top: 5px;
+}
+.wpf_author.is_note .wpf-comment-wrapper {
+    border: 1px solid rgb(252, 210, 38) !important;
+    background: rgba(252, 210, 39, 0.07) !important;
+    box-sizing: border-box !important;
+}
+.wpf_note_html {
+    color: #272D3C !important;
+    padding: 1px 5px !important;
+    font-family: Roboto, Helvetica, Arial, sans-serif !important;
+    font-weight: 500 !important;
+    font-size: 11px !important;
+    margin-left: 5px !important;
+    border-radius: 4px !important;
+    background-color: #FCD227 !important;
+    text-transform: uppercase;
+}
+.wpf_current_chat_box .meassage_area_main img {
+    overflow: hidden;
+    width: auto !important;
+    margin: auto;
+    display: block;
+    max-width: 100%;
+	border-radius: 5px;	
+    -webkit-transition: all 0.3s ease-out;
+    -moz-transition: all 1s ease-out;
+    -ms-transition: all 1s ease-out;
+    -o-transition: all 1s ease-out;
+    transition: all 1s ease-out !important;
+    }
+
+.wpf_current_chat_box .meassage_area_main img:hover {
+    box-shadow: 0 6px 24px 0 rgba(18, 43, 70, .12);
+}
+ul.wpf_current_chat_box:empty {
+    display: none;
+}
+.wpfb-point.active_comment {
+    pointer-events: none;
+}
+/* ------------ Sidebar ------------ */
+
+.wpf_sidebar_container {
+    width: 280px !important;
+	max-width: 100vw !important;
+    background-color: transparent !important;
+    max-height: 85vh!important;
+    min-height: 40vh!important;
+	margin: 0 !important;
+    position: fixed;
+    box-shadow: 0em 0em 1em 0em rgba(0, 0, 0, 0.1);
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+    letter-spacing: 0;
+    right: -300px;
+    top: 10%;
+    display: flex !important;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    border-radius: 16px !important;
+    border: 1px solid rgba(255, 255, 255, 0.70);
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0px 0px 0px 0px rgba(0, 0, 51, 0.00), 0px 12px 60px 0px rgba(0, 0, 0, 0.15), 0px 0px 85px 0px rgba(0, 0, 85, 0.00), 0px 16px 34px 0px rgba(0, 6, 46, 0.00);
+    overflow: hidden;
+    cursor: default;
+}
+.wpf_sidebar_container:before {
+    content: "";
+    border-radius: 16px;
+    display: block;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    overflow: hidden;
+    left: 0;
+    filter: saturate(0.5) brightness(1.1);
+    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(24px);
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: rgba(0, 0, 51, 0.06) 0px 0px 0px 1px, rgba(0, 0, 0, 0.15) 0px 12px 60px 0px, rgba(0, 0, 85, 0.024) 0px 16px 64px 0px, rgba(0, 6, 46, 0.196) 0px 16px 36px -20px;
+    top: 0;
+    z-index: -1;
+}
+.wpf_sidebar_container p {
+    margin: 0 !important;
+    margin-top: 5px !important;
+}
+.wpf_sidebar_options {
+    text-align: center;
+    padding: 15px;
+    flex: 1;
+    flex-grow: 0;
+}
+.wpf_sidebar_filter.wpf_col2 div#container {
+    overflow: hidden;
+    margin-top: 0px;
+}
+.wpf_sidebar_container .wpf_filter_tab div#container .wpf_active {
+    border: 1px solid #dee2e6;
+    padding: 0 10px 10px;
+    margin: 0;
+    border-radius: 0 0 7px 7px;
+    -webkit-animation: fade-in-top 0.2s cubic-bezier(0.390, 0.575, 0.565, 1.000) both;
+    animation: fade-in-top 0.2s cubic-bezier(0.390, 0.575, 0.565, 1.000) both !important;
+}
+.wpf_tab_sidebar {
+    font-size: 14px !important;
+    font-family: 'Roboto', sans-serif !important;
+    color: #272D3C !important;
+    font-weight: 500;
+    line-height: 20px;
+    cursor: pointer !important;
+    margin-bottom: 5px !important;
+    margin-top: 5px !important;
+	font-weight: 500 !important;
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+}
+.wpf_tab_sidebar:hover {
+	color: #6D5DF3 !important;
+}
+.wpf_filter_tab {
+    padding: 8px 10px;
+}
+#wpf_launcher .wpf_general_task_thispage {
+    float: right;
+    color: var(--main-wpf-color) !important;
+    background-color: #dee2e6;
+    font-weight: 700;
+    padding: 7px 10px 5px 5px;
+    border-radius: 50px;
+    transition: all 0.2s ease-in !important;
+}
+#wpf_launcher .wpf_general_task_thispage:hover {
+    color: #fff !important;
+    background-color: var(--main-wpf-color) !important;
+}
+a.wpf_general_task_thispage i.fa.fa-plus-circle {
+    font-size: 18px;
+    margin: -4px 5px 0px 0px !important;
+    display: inline-block;
+    vertical-align: middle;
+}
+#wpf_launcher a.wpf_filter_tab_btn {
+    float: left;
+    text-align: center;
+    border: 1px solid transparent;
+    border-top-left-radius: 7px;
+    border-top-right-radius: 7px;
+    font-size: 16px;
+    color: var(--main-wpf-color) !important;
+    background-color: transparent;
+    height: 35px;
+    width: 32px !important;
+    line-height: 2;
+    opacity: 0.3;
+    outline: none;
+    margin-bottom: -1px;
+    transition: all 0.2s ease-in !important;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-content: stretch;
+    align-items: center;
+}
+#wpf_launcher a.wpf_filter_tab_btn:hover {
+    opacity: 1;
+}
+#wpf_launcher a.cloud_dashboard_btn {
+    display: block;
+    width: 30px;
+    padding: 0;
+}
+#wpf_launcher a.cloud_dashboard_btn object {
+    pointer-events: none;
+    width: 20px;
+    margin-top: 6px;
+}
+a.wpf_filter_tab_btn.wpf_active {
+    color: var(--main-wpf-color) !important;
+    z-index: 10;
+    position: relative;
+    background-color: #fff;
+    border-color: #dee2e6 #dee2e6 #fff !important;
+    opacity: 1 !important;
+}
+.wpf_sidebar_content {
+    overflow-y: auto;
+    overflow-x: hidden;
+    flex: 1;
+    flex-grow: 1;
+    padding-bottom: 10px !important;
+}
+.wpf_no_task_img img {
+    width: 100%;
+}
+.wpf_no_task_title {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    margin-bottom: 10px !important;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif !important;
+    color: #4A5568 !important;
+    text-align: center !important;
+}
+.wpf_no_task_desc {
+    font-size: 14px !important;
+    margin-top: 10px !important;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif !important;
+    max-width: 80% !important;
+    margin: 0 auto !important;
+    line-height: 1.2 !important;
+    text-align: center !important;
+    color: #4A5568 !important;
+}
+.wpf_sidebar_footer {
+    background-color: #dee2e6;
+    text-align: center;
+    font-size: 12px;
+    flex: 1;
+    flex-grow: 0;
+}
+.wpf_sidebar_footer img {
+    max-width: 100px;
+    max-height: 24px;
+    margin: -5px 2px -7px 2px;
+    display: inline-block;
+    -webkit-transition: all 0.2s ease-in;
+    -moz-transition: all 0.2s ease-in;
+    -ms-transition: all 0.2s ease-in;
+    -o-transition: all 0.2s ease-in;
+    transition: all 0.2s ease-in !important;
+}
+.wpf_sidebar_footer:hover img {
+    max-width: 110px;
+    max-height: 30px;
+    margin: -10px -6px -8px 0px;
+}
+.wpf_sidebar_footer a {
+    display: block;
+    padding: 14px;
+    color: var(--main-wpf-color) !important;
+}
+.wpf_sidebar_footer a:hover {
+    color: var(--main-wpf-color) !important;
+}
+.wpf_sidebar_footer span {
+    font-size: 15px;
+    font-weight: 700;
+}
+.wpf_task_pagename {
+    font-weight: 400;
+    font-family: 'Roboto', sans-serif;
+    margin-top: 0;
+    font-size: 14px;
+    color: #565c6b;
+    line-height: 1.4 !important;
+}
+.wpf_hide,
+.wpfb-point.complete,
+.wpf_general_hide {
+    display: none;
+}
+a.wpfb-point.complete {
+    background-color: #3ed696 !important;
+	line-height: 31px;
+	color: rgba(0,0,0,0.9) !important;
+}
+
+#wpf_enable_comment p {
+    display: inline-block;
+    margin: 0 15px 0 0;
+}
+
+.wpf_sidebar_dashboard svg {
+    margin-left: 5px;
+}
+.wpfb_screenshot_class:before {
+    content: "";
+    width: 150px;
+    height: 150px;
+    background-size: contain;
+    background-color: #fff;
+    position: fixed;
+    left: calc(50% - 75px);
+    top: calc(50vh - 75px)
+}
+.wpfb_screenshot_class {
+    background-color: transparent !important;
+    -webkit-animation: appear 1s ease 1s 1 normal both;
+    animation: appear 1s ease 1s 1 normal both !important;
+}
+.popover.fade.show {
+    opacity: 1 !important;
+}
+@-webkit-keyframes appear {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+@keyframes appear {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+.popover a:hover,
+.popover a:active,
+.popover a:focus {
+    outline: none !important;
+}
+.wpf_sidebar_container ul {
+    padding: 0;
+}
+li.current_page_task, li.current_page_general_task {
+    list-style: none;
+    position: relative;
+    margin-left: 0;
+    padding: 10px 10px;
+    outline: none !important;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: left;
+    justify-content: space-between;
+    border-radius: 10px;
+    border: 1px solid #EFF2F6;
+    background: #FFF !important;
+    margin-bottom: 10px !important;
+	transition: none !important;
+	height: 70px !important;
+    box-sizing: content-box;
+}
+li.current_page_task:hover, li.current_page_general_task:hover {
+    outline: 2px solid #A4ABC5 !important;
+}
+li.current_page_task.wpf_active {
+    outline: 2px solid #6D5DF3 !important;
+    background-color: rgba(109, 93, 243, 0.07) !important;
+}
+.wpf_task_info {
+    display: flex;
+}
+.wpf_task_meta {
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-between;
+}
+.wpf_user_avatar {
+    display: flex;
+}
+.wpf_user_avat {
+    display: flex;
+    text-transform: uppercase !important;
+    align-items: center;
+    justify-content: center;
+    color: #FFF;
+    font-family: Roboto;
+    font-size: 8px;
+    font-weight: 700;
+    line-height: normal;
+    border-radius: 4px;
+    overflow: hidden;
+    box-sizing: border-box;
+	height: 20px !important;
+    width: 20px !important;
+    margin: 0!important;
+    outline: 1px solid #FFFFFF !important;
+}
+.wpf_user_avat img {
+    width: 100%;
+}
+.wpf_user_avat:nth-child(odd) {
+    background-color: rgb(39, 154, 241) !important;
+}
+.wpf_user_avat:nth-child(even) {
+    background-color: rgb(255, 90, 72) !important;
+}
+.wpf_user_avat:not(:last-child) {
+    margin-right: -4px !important;
+}
+.wpf_thispage_tab .wpf_task_number:hover{
+    background-color: #e54f6d !important;
+    color: #e54f6d !important;
+}
+.wpf_thispage_tab .wpf_task_number:before {
+    content: "";
+    box-sizing: border-box;
+    display: block;
+    transform: scale(var(--ggs, 1));
+    width: 5px;
+    height: 5px;
+    border: 2px solid;
+    border-radius: 100px;
+    position: absolute;
+    color: #fff;
+    transition: all 0.2s ease-in !important;
+    opacity: 0;
+    z-index: 1;
+}
+.wpf_thispage_tab .wpf_task_number:hover:before {
+    opacity: 1;
+}
+.wpf_thispage_tab .wpf_task_number:after {
+    content: "";
+    display: block;
+    box-sizing: border-box;
+    position: absolute;
+    width: 11px;
+    height: 11px;
+    box-shadow: -5px -5px 0 -3px, 5px 5px 0 -3px, 5px -5px 0 -3px, -5px 5px 0 -3px;
+    transform: rotate(0deg);
+    color: #fff;
+    transition: all 0.2s ease-in !important;
+    opacity: 0;
+    z-index: 1;
+}
+.wpf_thispage_tab .wpf_task_number:hover:after  {
+    transform: rotate(45deg);
+    opacity: 1;
+}
+.wpf_thispage_tab.wpf_container {
+	background-color: transparent !important;
+}
+.wpf_task_sum {
+    display: inline-block;
+    vertical-align: top;
+    margin-left: 10px;
+    width: calc(100% - 45px);
+    text-align: left;
+    color: #4B4B4B;
+    font-size: 15px;
+    font-family: 'Roboto', sans-serif;
+    transition: all 0.2s ease-in !important;
+}
+level.task-author {
+    display: flex;
+    font-size: 14px;
+    color: #272D3C;
+    font-weight: 500;
+    line-height: 15px;
+    text-transform: capitalize;
+}
+level.task-author span {
+    font-weight: 400;
+    display: inline-block;
+    color: #A4ABC5;
+    box-sizing: border-box;
+    margin: 0 0 0 5px !important;
+}
+level.task-author span:last-child {
+    flex-grow: 1;
+    text-align: right;
+}
+.note-tooltip {
+    height: 15px;
+    width: 15px;
+    min-width: 15px !important;
+    border: 1px solid #E72D67;
+    border-radius: 15px;
+    background-color: #E72D67 !important;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 12px;
+    line-height: 15px;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+}
+.note-tooltip:before {            
+    position : absolute;
+    content : attr(data-note-tooltip);
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 18px;
+    top: 30px;
+    display: none;
+    text-align: left;
+    left: 0;
+    text-transform: initial;
+    background: #fff;
+    color: #E72D67;
+}
+.note-tooltip:hover:before {
+    padding: 10px;
+    display: block;
+    z-index: 9;
+    border-radius: 8px;
+    background: #FFF;
+    box-shadow: 0px 0px 0px 0px rgba(0, 0, 51, 0.00), 0px 12px 60px 0px rgba(0, 0, 0, 0.15), 0px 0px 85px 0px rgba(0, 0, 85, 0.00), 0px 16px 34px 0px rgba(0, 6, 46, 0.00);
+    backdrop-filter: blur(5px);
+}
+span.wpf_task_type, span.wpf_task_tag, span.wpf_task_tag_more {
+    color: #A4ABC5;
+    text-transform: capitalize;
+    font-size: 12px;
+    font-weight: 400;
+    padding: 0px 3px;
+    border-radius: 5px;
+    display: inline-block;
+    margin-right: 5px;
+    border: 1px solid #A4ABC5;
+}
+span.wpf_task_tag_more {
+    border: none;
+    margin-left: -5px;
+} 
+.wpf_task_label {
+    margin-top: -1px;
+}
+.wpf_task_label span {
+    width: 18px;
+    height: 18px;
+    text-align: center;
+    border-radius: 50%;
+    color: #fff;
+    margin: 1px 1px 0px 1px;
+    font-weight: 100;
+    display: inline-block;
+    font-size: 10px;
+    line-height: 1.9;
+}
+span.task_status {
+    width: 17px;
+    height: 17px;
+}
+.tab-pane ul {
+    margin: 0;
+    padding: 0;
+}
+.current_page_task_list {
+    line-height: 1.2 !important;
+    white-space: normal;
+    font-size: 14px !important;
+    color: #272D3C !important;
+    max-width: 90%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+}
+.current_page_task_list p {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.current_page_task_list p:not(:first-child) {
+	display: none !important;
+}
+#wpf_already_comment p.wpf_btn,
+#pushed_to_media p.wpf_btn,
+#wpf_reconnecting_task p.wpf_btn {
+    margin: 0;
+}
+div#wpf_already_comment,
+div#pushed_to_media,
+div#wpf_reconnecting_task,
+div#wpf_reconnecting_enabled {
+    position: fixed;
+    margin: auto;
+    color: #333 !important;
+    border-radius: 6px;
+    font-size: 14px;
+    text-align: left;
+    padding: 10px 25px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 700;
+    top: 50px;
+    left: 25px;
+    max-width: 95%;
+    z-index: 199999;
+    opacity: 1;
+    width: 350px;
+    background-color: #3ed696;
+    line-height: 1.5;
+    letter-spacing: 0.02em;
+    box-shadow: 0em 0em 1em 0.1em rgba(0, 0, 0, 0.2);
+}
+.wpf_notice_text {
+    font-weight: 400;
+}
+.wpf-notice-unsafe {
+    position: unset;
+}
+.wpf_sidebar_generaltask a {
+    width: 100%;
+    display: inline-block;
+    background-color: var(--main-wpf-color) !important;
+    padding: 10px;
+    border-radius: 7px;
+    color: #fff !important;
+    font-size: 14px;
+    font-weight: bold;
+    transition: 0.5s !important;
+    margin-bottom: 10px;
+    text-decoration: none !important;
+}
+.wpf_sidebar_generaltask a:hover {
+    opacity: 0.8;
+}
+.wpf_sidebar_dashboard a {
+    width: 100%;
+    display: inline-block;
+    background-color: #efefef;
+    padding: 10px;
+    border-radius: 7px;
+    color: var(--main-wpf-color) !important;
+    font-size: 14px;
+    font-weight: bold;
+    transition: 0.5s !important;
+}
+.wpf_sidebar_dashboard:hover a {
+    background-color: #d6d6d6;
+}
+.wpf_sidebar_dashboard i {
+    margin-left: 5px;
+    font-size: 18px;
+}
+.wpf_sidebar_checkboxes input[type=checkbox] {
+    display: none;
+}
+.wpf_sidebar_checkboxes input[type="checkbox"] + label:before {
+    content: '';
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    margin-bottom: -2px;
+    margin-right: 5px;
+    margin-left: -5px;
+    border-radius: 3px;
+    border: 2px solid #363d4d !important;
+    opacity: 0.6;
+    transition: all .12s, border-color .08s !important;
+}
+.wpf_sidebar_checkboxes input[type="checkbox"]:checked + label:after {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 3px;
+    height: 7px;
+    border: solid #363d4d;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    box-sizing: content-box !important;
+}
+div#wpf_task_visibility input[type="checkbox"]:checked + label:after {
+    top: 2px;
+    left: 7.5px;
+    width: 5px;
+    height: 12px;
+}
+label.wpf_visibility_title {
+    display: block;
+    text-align: left;
+    color: #4a5568;
+    /*font-weight: 700;*/
+    margin-top: 10px;
+    font-size: 12px;
+    margin-bottom: 0;
+}
+.wpf_sidebar_checkboxes label {
+    font-size: 12px;
+    text-align: left;
+    position: relative;
+    margin: 0 !important;
+}
+.wpf_task_label .wpf_pending-review,
+.wpf_task_label .wpf_medium {
+    background-color: #fcd227;
+}
+.wpf_task_label .wpf_high,
+.wpf_task_label .wpf_in-progress {
+    background-color: #ffa532;
+}
+.wpf_task_label .wpf_complete,
+.wpf_task_label .wpf_low {
+    background-color: #3ed696;
+}
+.wpf_task_label .wpf_open,
+.wpf_task_label .wpf_critical {
+    background-color: #ff5a48;
+}
+#wpf_tasks span.wpf_tag_name {
+    display: inline-flex;
+    background: #e2e4e7;
+    transition: all .2s cubic-bezier(.4, 1, .4, 1) !important;
+    margin-right: 5px;
+    border-radius: 12px;
+    padding: 5px 8px;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+/*------sidebar-New Desing css Start------*/
+.top_tabs {
+    width: calc(100% - 15px);
+    margin: 10px auto 5px auto;
+    display: flex;
+    justify-content: space-between;
+}
+.wpf_sidebar_top2 {
+    display: flex;
+}
+.wpf_sidebar_search {
+    display: flex;
+    cursor: pointer;
+}
+.wpf_search_field {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-height: 0px;
+    overflow: hidden;
+    -webkit-transition: max-height .3s ease-in-out;
+    -moz-transition: max-height .3s ease-in-out;
+    -o-transition: max-height .3s ease-in-out;
+    transition: max-height .3s ease-in-out;
+    border-color: rgba(0, 0, 0, 0.23);
+}
+.wpf_search_field.active {
+    max-height: 40px;
+    margin-bottom: 10px;
+}
+.wpf_sidebar_header input.wpf_search_title {
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px !important;
+    margin: 0px !important;
+    height: 40px !important;
+    font-weight: 400 !important;
+    outline: none !important;
+    padding: 3px 10px !important;
+    border: 1px solid #A4ABC5 !important;
+    line-height: 1.5 !important;
+    border-radius: 8px !important;
+    min-height: unset !important;
+    box-shadow: unset !important;
+    width: calc(100% - 20px) !important;
+    box-sizing: border-box;
+}
+.wpf_sidebar_content.nothingfound {
+    background: url(../images//nothingfound.svg) 100% 30% no-repeat;
+    -webkit-animation: fade-in-top 0.5s cubic-bezier(0.390, 0.575, 0.565, 1.000) both;
+    animation: fade-in-top 0.5s cubic-bezier(0.390, 0.575, 0.565, 1.000) both !important;
+}
+.wpf_sidebar_content.nothingfound:before {
+    content: "No Results Found";
+    font-weight: 700;
+    text-align: center;
+    display: block;
+    padding-top: 10%;
+    height: 90%;
+    background-color: rgb(255 255 255 / 50%);
+}
+.wpf_sidebarmenu {
+    display: flex;
+    cursor: pointer;
+    position: relative;
+}
+.wpf_sidebarmenu,
+.wpf_sidebar_search {
+    padding: 5px 7px !important;
+    max-width: 36px !important;
+    width: 36px !important;
+    background-color: transparent!important;
+    border-radius: 8px !important;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: center !important;
+    align-items: center!important;
+    min-height: 36px!important;
+    max-height: 36px!important;
+    min-width: 36px !important;
+    max-width: 36px !important
+}
+.wpf_sidebarmenu > img,
+.wpf_sidebar_search > img {
+    height: 18px !important;
+}
+.wpf_sidebarmenu:hover,
+.wpf_sidebar_search:hover {
+	background-color: rgba(109, 93, 243, 0.07) !important;
+}
+.wpf_sidebar_submenu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 190px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.75);
+    box-shadow: 0px 2px 13px 0px rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(12px);
+    flex-direction: column;
+    z-index: 9;
+    overflow: hidden;
+    padding: 10px 10px !important;
+    border-radius: 16px !important;
+}
+.wpf_sidebar_showsubmenu {
+    display: flex;
+}
+.wpf_sidebar_submenu div:not(:first-child) {
+    margin-top: 5px;
+}
+.wpf_filter_check {
+    margin-right: 5px;
+    opacity: 0;
+}
+.active_check {
+    opacity: 1;
+}
+.wpf_sidebar_container ul, .wpf_sidebar_tabs {
+    width: calc(100% - 15px);
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    margin: 2px auto 10px auto !important;
+}
+.wpf_sidebar_tabs {
+    margin-bottom: 10px !important;
+}
+.wpf_sidebar_container ul li .wpf_task_sum {
+    margin-left: 0;
+}
+.wpf_sidebar_container ul li:hover level.task-author {
+    color: #272D3C !important;
+}
+.wpf_sidebar_container .wpf_sidebar_header button.wpf_tab_sidebar.wpf_active {
+    color: #279af1 !important;
+}
+.wpf_sidebar_container .wpf_sidebar_header button.wpf_tab_sidebar:hover {
+    color: #279af1 !important;
+}
+.wpf_sidebar_container .wpf_sidebar_header {
+    position: relative;
+}
+.wpf_sidebar_top1, .wpf_side_switch {
+    display: flex;
+    align-items: center;
+}
+.wpf_side_switch {
+    cursor: pointer;
+    visibility: hidden;
+}
+.wpf_sidebar_left {
+    -moz-transition: all 1s linear;
+    -webkit-transition: all 1s linear;
+    transition: all 1s linear
+}
+.wpf_sidebar_left.down{
+    -ms-transform: rotate(180deg);
+    -moz-transform: rotate(180deg);
+    -webkit-transform: rotate(180deg);
+    transform: rotate(180deg);
+}
+.wpf_hide_sidebar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+.left30 {
+    left: 30px;
+}
+.wpf_tab_wrapper {
+    border-radius: 7px;
+    border: 1px solid #C3C2C2;
+    box-shadow: 0px 0px 3px 0px rgba(0, 0, 0, 0.10);
+    padding: 2px 2px !important;
+}
+.wpf_tab_container {
+    display: flex;
+    position: relative;
+}
+.wpf_task_tab, .wpf_page_tab {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+    font-size: 14px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    color: #6D5DF3 !important;
+    flex: 1;
+    text-align: center;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: color 1s ease !important;
+}
+.wpf_tab_active {
+    position: absolute;
+    height: 100%;
+    width: 50%;
+    background-color: var(--main-wpf-color) !important;
+    border-radius: 5px;
+    left: 0;
+    z-index: -1;
+    transition: left 1s ease !important;
+}
+.wpf_tab_active.right {
+    left: 50%;
+}
+.wpf_active_tab {
+	color: #ffffff !important;
+    cursor: default !important;
+}
+.wpf_sidebar_container .wpf_filter_tab {
+    display: none;
+}
+.custom_today,
+.custom_yesterday,
+.custom_Weekly,
+.custom_this_month,
+.custom_year,
+.custom_other {
+    background: #ecf3f9;
+    text-align: left;
+    padding: 0 20px;
+    text-transform: uppercase;
+    font-weight: 400;
+    color: #363d4d;
+    font-family: 'Roboto', sans-serif;
+    display: flex;
+    align-items: center;
+    height: 30px;
+    font-size: 13px;
+}
+
+ul#wpf_thispage_container_today > li:first-child:before {
+    content: "TODAY";
+    display: none;
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+    width: calc(100% + 40px);
+    background-color: #ecf3f9;
+    position: absolute;
+    top: -31px;
+    padding: 5px 20px;
+    left: -20px;
+    right: -20px;
+}
+
+ul#wpf_thispage_container_yesterday > li:first-child {
+    margin-top: 31px !important;
+}
+
+ul#wpf_thispage_container_yesterday > li:first-child:before, .wpf_sidebar_content .sidebar_list_header:before {
+    content: "YESTERDAY";
+    display: block;
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+    width: calc(100% + 40px);
+    background-color: #ecf3f9;
+    position: absolute;
+    top: -31px;
+    padding: 5px 20px;
+    left: -20px;
+    right: -20px;
+}
+
+ul#wpf_thispage_container_this_week > li:first-child {
+    margin-top: 31px !important;
+}
+
+ul#wpf_thispage_container_this_week > li:first-child:before {
+    content: "THIS WEEK";
+    display: block !important;
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+    width: calc(100% + 40px) !important;
+    background-color: #ecf3f9;
+    position: absolute;
+    top: -31px;
+    padding: 5px 20px;
+    left: -20px;
+    right: -20px;
+}
+
+ul#wpf_thispage_container_this_month > li:first-child {
+    margin-top: 31px !important;
+}
+
+ul#wpf_thispage_container_this_month > li:first-child:before {
+    content: "THIS MONTH";
+    display: block !important;
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+    width: calc(100% + 40px) !important;
+    background-color: #ecf3f9;
+    position: absolute;
+    top: -31px;
+    padding: 5px 20px;
+    left: -20px;
+    right: -20px;
+}
+
+ul#wpf_thispage_container_year > li:first-child {
+    margin-top: 31px !important;
+}
+
+ul#wpf_thispage_container_year > li:first-child:before {
+    content: "THIS YEAR";
+    display: block !important;
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+    width: calc(100% + 40px) !important;
+    background-color: #ecf3f9;
+    position: absolute;
+    top: -31px;
+    padding: 5px 20px;
+    left: -20px;
+    right: -20px;
+}
+
+ul#wpf_thispage_container_other > li:first-child {
+    margin-top: 31px !important;
+}
+
+ul#wpf_thispage_container_other > li:first-child:before {
+    content: "OTHER";
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+    display: block !important;
+    width: calc(100% + 40px) !important;
+    background-color: #ecf3f9;
+    position: absolute;
+    top: -31px;
+    padding: 5px 20px;
+    left: -20px;
+    right: -20px;
+}
+
+ul#wpf_allpages_container_today > li:first-child:before {
+    content: "TODAY";
+    display: none;
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+    width: calc(100% + 40px);
+    background-color: #ecf3f9;
+    position: absolute;
+    top: -31px;
+    padding: 5px 20px;
+    left: -20px;
+    right: -20px;
+}
+
+ul#wpf_allpages_container_yesterday > li:first-child {
+    margin-top: 31px !important;
+}
+
+ul#wpf_allpages_container_yesterday > li:first-child:before {
+    content: "YESTERDAY";
+    display: block;
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+    width: calc(100% + 40px);
+    background-color: #ecf3f9;
+    position: absolute;
+    top: -31px;
+    padding: 5px 20px;
+    left: -20px;
+    right: -20px;
+}
+
+ul#wpf_allpages_container_this_week > li:first-child {
+    margin-top: 31px !important;
+}
+
+ul#wpf_allpages_container_this_week > li:first-child:before {
+    content: "THIS WEEK";
+    display: block;
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+    width: calc(100% + 40px);
+    background-color: #ecf3f9;
+    position: absolute;
+    top: -31px;
+    padding: 5px 20px;
+    left: -20px;
+    right: -20px;
+}
+
+ul#wpf_allpages_container_this_month > li:first-child {
+    margin-top: 31px !important;
+}
+
+ul#wpf_allpages_container_this_month > li:first-child:before {
+    content: "THIS MONTH";
+    display: block;
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+    width: calc(100% + 40px);
+    background-color: #ecf3f9;
+    position: absolute;
+    top: -31px;
+    padding: 5px 20px;
+    left: -20px;
+    right: -20px;
+}
+
+ul#wpf_allpages_container_year > li:first-child {
+    margin-top: 31px !important;
+}
+
+ul#wpf_allpages_container_year > li:first-child:before {
+    content: "THIS YEAR";
+    display: block;
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+    width: calc(100% + 40px);
+    background-color: #ecf3f9;
+    position: absolute;
+    top: -31px;
+    padding: 5px 20px;
+    left: -20px;
+    right: -20px;
+}
+
+
+ul#wpf_allpages_container_other > li:first-child {
+    margin-top: 31px !important;
+}
+
+ul#wpf_allpages_container_other > li:first-child:before {
+    content: "OTHER";
+    display: block;
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+    width: calc(100% + 40px);
+    background-color: #ecf3f9;
+    position: absolute;
+    top: -31px;
+    padding: 5px 20px;
+    left: -20px;
+    right: -20px;
+}
+
+ul#wpf_backend_container_today > li:first-child {
+    margin-top: 31px !important;
+}
+
+ul#wpf_backend_container_today > li:first-child:before {
+    content: "TODAY";
+    display: block;
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+    width: calc(100% + 40px);
+    background-color: #ecf3f9;
+    position: absolute;
+    top: -31px;
+    padding: 5px 20px;
+    left: -20px;
+    right: -20px;
+}
+
+ul#wpf_backend_container_yesterday > li:first-child {
+    margin-top: 31px !important;
+}
+
+ul#wpf_backend_container_yesterday > li:first-child:before {
+    content: "YESTERDAY";
+    display: block;
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+    width: calc(100% + 40px);
+    background-color: #ecf3f9;
+    position: absolute;
+    top: -31px;
+    padding: 5px 20px;
+    left: -20px;
+    right: -20px;
+}
+
+ul#wpf_backend_container_this_week > li:first-child {
+    margin-top: 31px !important;
+}
+
+ul#wpf_backend_container_this_week > li:first-child:before {
+    content: "THIS WEEK";
+    display: block;
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+    width: calc(100% + 40px);
+    background-color: #ecf3f9;
+    position: absolute;
+    top: -31px;
+    padding: 5px 20px;
+    left: -20px;
+    right: -20px;
+}
+
+ul#wpf_backend_container_this_month > li:first-child {
+    margin-top: 31px !important;
+}
+
+ul#wpf_backend_container_this_month > li:first-child:before {
+    content: "THIS MONTH";
+    display: block;
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+    width: calc(100% + 40px);
+    background-color: #ecf3f9;
+    position: absolute;
+    top: -31px;
+    padding: 5px 20px;
+    left: -20px;
+    right: -20px;
+}
+
+ul#wpf_backend_container_year > li:first-child {
+    margin-top: 31px !important;
+}
+
+ul#wpf_backend_container_year > li:first-child:before {
+    content: "YEAR";
+    display: block;
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+    width: calc(100% + 40px);
+    background-color: #ecf3f9;
+    position: absolute;
+    top: -31px;
+    padding: 5px 20px;
+    left: -20px;
+    right: -20px;
+}
+
+ul#wpf_backend_container_other > li:first-child {
+    margin-top: 31px !important;
+}
+
+ul#wpf_backend_container_other > li:first-child:before {
+    content: "OTHER";
+    display: block;
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+    width: calc(100% + 40px);
+    background-color: #ecf3f9;
+    position: absolute;
+    top: -31px;
+    padding: 5px 20px;
+    left: -20px;
+    right: -20px;
+}
+ul#wpf_backend_container_today > li:first-child {
+    margin-top: 31px !important;
+}
+
+ul#wpf_backend_container_today > li:first-child:before {
+    content: "TODAY";
+    display: block;
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+    width: calc(100% + 40px);
+    background-color: #ecf3f9;
+    position: absolute;
+    top: -31px;
+    padding: 5px 20px;
+    left: -20px;
+    right: -20px;
+}
+
+ul#wpf_backend_container_yesterday > li:first-child {
+    margin-top: 31px !important;
+}
+
+ul#wpf_backend_container_yesterday > li:first-child:before {
+    content: "YESTERDAY";
+    display: block;
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+    width: calc(100% + 40px);
+    background-color: #ecf3f9;
+    position: absolute;
+    top: -31px;
+    padding: 5px 20px;
+    left: -20px;
+    right: -20px;
+}
+
+ul#wpf_backend_container_this_week > li:first-child {
+    margin-top: 31px !important;
+}
+
+ul#wpf_backend_container_this_week > li:first-child:before {
+    content: "THIS WEEK";
+    display: block;
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+    width: calc(100% + 40px);
+    background-color: #ecf3f9;
+    position: absolute;
+    top: -31px;
+    padding: 5px 20px;
+    left: -20px;
+    right: -20px;
+}
+
+ul#wpf_backend_container_this_month > li:first-child {
+    margin-top: 31px !important;
+}
+
+ul#wpf_backend_container_this_month > li:first-child:before {
+    content: "THIS MONTH";
+    display: block;
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+    width: calc(100% + 40px);
+    background-color: #ecf3f9;
+    position: absolute;
+    top: -31px;
+    padding: 5px 20px;
+    left: -20px;
+    right: -20px;
+}
+
+ul#wpf_backend_container_year > li:first-child {
+    margin-top: 31px !important;
+}
+
+ul#wpf_backend_container_year >li:first-child:before {
+    content: "YEAR";
+    display: block;
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+    width: calc(100% + 40px);
+    background-color: #ecf3f9;
+    position: absolute;
+    top: -31px;
+    padding: 5px 20px;
+    left: -20px;
+    right: -20px;
+}
+
+ul#wpf_backend_container_other > li:first-child {
+    margin-top: 31px !important;
+}
+
+ul#wpf_backend_container_other > li:first-child:before {
+    content: "OTHER";
+    display: block;
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+    width: calc(100% + 40px);
+    background-color: #ecf3f9;
+    position: absolute;
+    top: -31px;
+    padding: 5px 20px;
+    left: -20px;
+    right: -20px;
+}
+
+ul#wpf_frontend_container_today > li:first-child {
+    margin-top: 31px !important;
+}
+
+ul#wpf_frontend_container_today > li:first-child:before {
+    content: "TODAY";
+    display: block;
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+    width: calc(100% + 40px);
+    background-color: #ecf3f9;
+    position: absolute;
+    top: -31px;
+    padding: 5px 20px;
+    left: -20px;
+    right: -20px;
+}
+
+ul#wpf_frontend_container_yesterday > li:first-child {
+    margin-top: 31px !important;
+}
+
+ul#wpf_frontend_container_yesterday > li:first-child:before {
+    content: "YESTERDAY";
+    display: block;
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+    width: calc(100% + 40px);
+    background-color: #ecf3f9;
+    position: absolute;
+    top: -31px;
+    padding: 5px 20px;
+    left: -20px;
+    right: -20px;
+}
+
+ul#wpf_frontend_container_this_week > li:first-child {
+    margin-top: 31px !important;
+}
+
+ul#wpf_frontend_container_this_week > li:first-child:before {
+    content: "THIS WEEK";
+    display: block;
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+    width: calc(100% + 40px);
+    background-color: #ecf3f9;
+    position: absolute;
+    top: -31px;
+    padding: 5px 20px;
+    left: -20px;
+    right: -20px;
+}
+
+ul#wpf_frontend_container_this_month > li:first-child {
+    margin-top: 31px !important;
+}
+
+ul#wpf_frontend_container_this_month > li:first-child:before {
+    content: "THIS MONTH";
+    display: block;
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+    width: calc(100% + 40px);
+    background-color: #ecf3f9;
+    position: absolute;
+    top: -31px;
+    padding: 5px 20px;
+    left: -20px;
+    right: -20px;
+}
+
+ul#wpf_frontend_container_year > li:first-child {
+    margin-top: 31px !important;
+}
+
+ul#wpf_frontend_container_year > li:first-child:before {
+    content: "YEAR";
+    display: block;
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+    width: calc(100% + 40px);
+    background-color: #ecf3f9;
+    position: absolute;
+    top: -31px;
+    padding: 5px 20px;
+    left: -20px;
+    right: -20px;
+}
+
+ul#wpf_frontend_container_other > li:first-child {
+    margin-top: 31px !important;
+}
+
+ul#wpf_frontend_container_other > li:first-child:before {
+    content: "OTHER";
+    display: block;
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+    width: calc(100% + 40px);
+    background-color: #ecf3f9;
+    position: absolute;
+    top: -31px;
+    padding: 5px 20px;
+    left: -20px;
+    right: -20px;
+}
+.wpf_sidebar_container .close_sidebar {
+	border: 0;
+	outline: none;
+	background: transparent;
+	position: absolute;
+	right: 10px;
+	top: 14px;
+	cursor: pointer;
+	padding: 0;
+    z-index: 9;
+}
+.wpf_sidebar_container .close_sidebar svg {
+	height: 14px;
+	width: 14px;
+}
+.wpf_sidebar_container .close_sidebar:hover svg {
+	opacity: 0.8;
+}
+.wpf_sidebar_container .no_task_found {
+	padding: 20px;
+    text-align: center;
+    justify-content: center;
+    font-size: 16px;
+    color: rgba(0,0,0,0.2);
+}
+p.note_task_become_general {
+    color: #e54f6d;
+    margin-top: 5px;
+    font-size: 85%;
+    font-weight: 400;
+}
+
+/*----------------Some website plus icon disappeared on frontend-------------------*/
+
+.popover.wpf_comment_container i.fa,
+#wpf_launcher i.fa,
+#wpf_launcher .fa-plus {
+    margin: 0px;
+    background: unset;
+    padding: unset;
+}
+/* ---------- Filter task ---------- */
+
+button.wpf_filter.wpf_filter_taskstatus {
+    margin-right: 2%;
+}
+div#wpf_task_filter_btn {
+    border: 1px solid #dee2e6;
+    padding: 0 10px 10px;
+    margin: 0;
+    border-radius: 0 0 7px 7px;
+    -webkit-animation: fade-in-top 0.2s cubic-bezier(0.390, 0.575, 0.565, 1.000) both;
+    animation: fade-in-top 0.2s cubic-bezier(0.390, 0.575, 0.565, 1.000) both !important;
+}
+button.wpf_filter:hover,
+button.wpf_filter.wpf_active {
+    background-color: var(--main-wpf-color) !important;
+    color: #fff !important;
+}
+label.wpf_filter_title {
+    display: block;
+    text-align: left;
+    color: var(--main-wpf-color);
+    margin-top: 10px;
+    font-size: 12px;
+}
+ul#wpf_sidebar_filter_task_status,
+ul#wpf_sidebar_filter_task_priority {
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: row;
+    -ms-flex-direction: row;
+    flex-direction: row;
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    -webkit-justify-content: space-between;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    -webkit-align-content: stretch;
+    -ms-flex-line-pack: stretch;
+    align-content: stretch;
+    -webkit-align-items: flex-start;
+    -ms-flex-align: start;
+    align-items: flex-start;
+}
+.wpf_filter_checkbox li {
+    float: left;
+    font-size: 11px;
+    text-align: left;
+    font-weight: 700;
+    list-style: none;
+    margin-top: 5px;
+    -webkit-order: 0;
+    -ms-flex-order: 0;
+    order: 0;
+    -webkit-flex: 0 1 auto;
+    -ms-flex: 0 1 auto;
+    flex: 0 1 auto;
+    -webkit-align-self: auto;
+    -ms-flex-item-align: auto;
+    align-self: auto;
+    margin-left: 0;
+}
+.wpf_filter_checkbox li label {
+    cursor: pointer !important;
+    font-size: 11px !important;
+    margin-left: 0 !important;
+    position: relative;
+	font-weight: 700;
+}
+ul#wpf_sidebar_filter_task_status.wpf_filter_checkbox li:nth-child(1),
+ul#wpf_sidebar_filter_task_priority.wpf_filter_checkbox li:nth-child(4) {
+    color: #ff5a48;
+}
+ul#wpf_sidebar_filter_task_status.wpf_filter_checkbox li:nth-child(2),
+ul#wpf_sidebar_filter_task_priority.wpf_filter_checkbox li:nth-child(3) {
+    color: #ffa532;
+}
+ul#wpf_sidebar_filter_task_status.wpf_filter_checkbox li:nth-child(3),
+ul#wpf_sidebar_filter_task_priority.wpf_filter_checkbox li:nth-child(2) {
+    color: #fcd227;
+}
+ul#wpf_sidebar_filter_task_status.wpf_filter_checkbox li:nth-child(4),
+ul#wpf_sidebar_filter_task_priority.wpf_filter_checkbox li:nth-child(1) {
+    color: #3ed696;
+}
+.wpf_filter_checkbox input:checked + label:after {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 3px;
+    left: 7px;
+    width: 3px;
+    height: 7px;
+    border: solid #363d4d;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    box-sizing: content-box !important;
+}
+.wpf_filter_checkbox input + label:before {
+    content: '';
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    margin-bottom: -2px;
+    margin-right: 2px;
+    margin-left: 0;
+    border-radius: 3px;
+    border: 2px solid #363d4d !important;
+    opacity: 0.6;
+    transition: all .12s, border-color .08s !important;
+	box-sizing: content-box !important;
+}
+.wpf_filter_checkbox li input {
+    display: none;
+}
+a.wpf_sidebar_filter_reset_task_status,
+a.wpf_sidebar_filter_reset_task_priority {
+    display: none !important;
+    color: var(--main-wpf-color) !important;
+}
+
+/* ---------- Front End Wizard ---------- */
+
+.wpf_wizard_container {
+    position: fixed;
+    z-index: 199999;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    backdrop-filter: blur(3px);
+    background-color: rgba(0, 0, 0, 0.5);
+    -webkit-animation-name: fadeIn;
+    animation-name: fadeIn;
+    -webkit-animation-duration: 0.5s;
+    animation-duration: 0.5s;
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
+    cursor: default;
+}
+.wpf_wizard_modal {
+    width: 360px;
+    max-width: 88%;
+    box-shadow: 0em 0em 3em 0em rgba(0, 0, 0, 0.13);
+    border: 1px solid #efefef;
+    background-color: #fff !important;
+    text-align: center;
+    font-family: arial, sans-serif;
+    font-size: 14px;
+	-webkit-animation: fade-in-top 0.5s cubic-bezier(0.390, 0.575, 0.565, 1.000) both;
+    animation: fade-in-top 0.5s cubic-bezier(0.390, 0.575, 0.565, 1.000) both !important;
+    box-sizing: border-box !important;
+    padding: 10px !important;
+	border-radius: 16px !important;
+}
+.wpf_wizard_page {
+    margin-bottom: 15px;
+}
+.wpf_wizard_button {
+    border-radius: 5px;
+    border: none;
+    padding: 10px 25px;
+    font-size: 14px;
+    cursor: pointer;
+    color: #272d3c;
+    font-weight: 700;
+	text-align: center;
+    text-decoration: none;
+    font-family: 'Roboto', sans-serif;
+    background-color: #3ed696 !important;
+    display: block;
+    -webkit-transition: all 0.2s ease-in;
+    -moz-transition: all 0.2s ease-in;
+    -ms-transition: all 0.2s ease-in;
+    -o-transition: all 0.2s ease-in;
+    transition: all 0.2s ease-in !important;
+}
+.wpf_wizard_button:hover {
+    opacity: 0.8;
+}
+.wpf_wizard_title {
+    font-size: 22px !important;
+    font-weight: 500 !important;
+    color: #272D3C !important;
+    font-family: 'Roboto', sans-serif !important;
+    line-height: 1.1;
+	margin-bottom: 10px;
+}
+.wpf_wizard_modal b, .wpf_wizard_modal {
+    font-family: 'Roboto', sans-serif !important;
+    font-size: 14px !important;
+    color: #272D3C !important;
+}
+.wpf_wizard_user {
+    display: flex;
+    justify-content: space-around;
+}
+.wpf_wizard_choice {
+    width: 30%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #efefef;
+    vertical-align: top;
+    min-height: 150px;
+    background-color: #fff;
+    cursor: pointer;
+    -webkit-transition: all 0.2s ease-in;
+    -moz-transition: all 0.2s ease-in;
+    -ms-transition: all 0.2s ease-in;
+    -o-transition: all 0.2s ease-in;
+    transition: all 0.2s ease-in !important;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.wpf_wizard_choice:hover {
+    background-color: #ECF3F9;
+}
+.wpf_wizard_choice_title {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 5px;
+	color: #272D3C !important;
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.1;
+}
+.wpf_wizard_choice img {
+    width: 70px;
+    margin: 5px auto;
+}
+.wpf_wizard_desc {
+    font-size: 80%;
+    margin-top: 5px;
+}
+.wpf_wizard_user input[type=radio]:checked+label {
+    background-color: #efefef;
+}
+.wpf_wizard_page input {
+    display: none !important;
+}
+.wpf_wizard_notifications_check .wpf_checkbox {
+    margin-bottom: 7px;
+    min-height: 22px;
+}
+.wpf_wizard_notifications_check .wpf_checkbox label {
+    margin-bottom: 10px !important;
+    position: relative;
+    font-size: 14px !important;
+}
+.wpf_wizard_notifications_check {
+    text-align: left;
+    border: 1px solid #efefef;
+    padding-left: 13px;
+    padding-top: 7px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    color: #000000;
+}
+.wpf_website_limit_modal {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+btn#wpf_wizard_done_button {
+    margin-top: 15px;
+}
+li.wpf_other.magic_msg_replied {
+    padding: 5px 10px !important;
+}
+li.wpf_other.magic_msg_replied a {
+    width: 100%;
+    border: none !important;
+    margin-top: 10px;
+    background-color: var(--main-wpf-color) !important;
+    color: #fff !important;
+    font-size: 14px;
+    text-align: center;
+    font-family: 'Roboto', sans-serif;
+    border-radius: 5px;
+    padding: 12px 5px !important;
+    font-weight: 700;
+    -webkit-transition: all 0.2s ease-in;
+    -moz-transition: all 0.2s ease-in;
+    -ms-transition: all 0.2s ease-in;
+    -o-transition: all 0.2s ease-in;
+    transition: all 0.2s ease-in !important;
+    height: auto;
+    line-height: initial;
+    margin-right: 0;
+    margin-bottom: 0;
+    text-transform: none;
+    display: block;
+}
+.bs-popover-auto[x-placement^=right], .bs-popover-right {
+    margin-left: 0.5rem;
+}
+.popover {
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1.5;
+    text-align: left;
+    text-decoration: none;
+    text-shadow: none;
+    text-transform: none;
+    letter-spacing: normal;
+    word-break: normal;
+    word-spacing: normal;
+    white-space: normal;
+    line-break: auto;
+    font-size: .875rem;
+    word-wrap: break-word;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, .2);
+}
+.bs-popover-right>.arrow {
+    left: calc((0.5rem + 0px) * -1) !important;
+    margin: 0.3rem 0;
+}
+.bs-popover-left>.arrow {
+    right: calc((0.5rem + 0px) * -1) !important;
+    margin: 0.3rem 0;
+    left: unset;
+}
+.popover .arrow {
+    position: absolute;
+    display: block;
+}
+.popover-header:empty {
+    display: none;
+}
+.popover-header {
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0;
+    font-size: 1rem;
+    background-color: #f7f7f7;
+    border-bottom: 1px solid #ebebeb;
+    border-top-left-radius: calc(0.3rem - 1px);
+    border-top-right-radius: calc(0.3rem - 1px);
+}
+.popover-body {
+    color: #212529;
+}
+.nav {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    list-style: none;
+}
+.nav-tabs .nav-link {
+    border-top-left-radius: 0.25rem;
+    border-top-right-radius: 0.25rem;
+}
+.nav-link {
+    display: block;
+}
+.wpf_comment_container .tab-content > .tab-pane {
+    display: none;
+}
+.wpf_comment_container .popover-body ul.nav.nav-tabs li:before,
+ul.wp_feedback_filter_checkbox.user li:before,
+#wpf_general_comment_tabs ul li:before,
+#wpf_sidebar_filter_task_status li:before,
+#wpf_sidebar_filter_task_priority li:before {
+    content: none;
+}
+.wpf_comment_container .popover-body ul.nav.nav-tabs li,
+ul.wp_feedback_filter_checkbox.user li,
+.wpf_comment_container .popover-body li,
+#wpf_sidebar_filter_task_status li,
+#wpf_sidebar_filter_task_priority li {
+    padding: 0;
+}
+.wpf_comment_container .popover-body ul.nav.nav-tabs li {
+    cursor: pointer;
+}
+.wpf_comment_container ul {
+    padding: inherit;
+}
+
+.wpf_tag_autocomplete input {
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, .2);
+    border-radius: .3rem;
+    padding-left: 10px;
+}
+.wpf_confirm_dialog .wpf-close {
+    float: right;
+    font-size: 20px;
+    margin-top: -5px;
+    color: var(--main-wpf-color) !important;
+    float: right;
+    font-weight: 700;
+    line-height: 1;
+    text-shadow: 0 1px 0 #fff;
+    opacity: .5;
+    text-decoration: none;
+    font-style: normal;
+    cursor: pointer;
+}
+
+@media only screen and (max-width: 479px) {
+    .wpf_wizard_choice img {
+        float: left;
+        margin: 0 10px 0 0;
+    }
+    .wpf_wizard_choice_title {
+        display: inline-block;
+        margin-top: 15px;
+    }
+    .wpf_wizard_choice {
+        width: 80%;
+        text-align: left;
+        min-height: auto;
+        margin-bottom: 10px;
+    }
+}
+/* ---------- Responsive Mode ---------- */
+.wpf_responsive_modal_wrap {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #0a0a0a !important;
+    z-index: 10000000000;
+    text-align: center;
+	background-color: rgba(255, 255, 255, 0.85);
+    -webkit-animation-name: fadeIn;
+    animation-name: fadeIn;
+    -webkit-animation-duration: 0.5s;
+    animation-duration: 0.5s;
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
+}
+.wpf_responsive_modal_wrap:before {
+    content: "";
+    background-image: url(../images/BG-pattern.png);
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0.2;
+    background-size: contain;
+    z-index: -1;
+}
+.wpf_responsive_modal_wrap:after {
+    background-image: url(../images/Loader-slider-WPFeedback.svg);
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 60px;
+    content: "";
+    position: absolute;
+    top: 40%;
+    width: 60px;
+    height: 50px;
+    display: block;
+    left: calc(50% - 30px);
+    z-index: -1;
+}
+
+a.wpf_close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+}
+.wpf_responsive_modal {
+    -webkit-animation: fade-in-top 0.5s cubic-bezier(0.390, 0.575, 0.565, 1.000) both;
+    animation: fade-in-top 0.5s cubic-bezier(0.390, 0.575, 0.565, 1.000) both !important;
+    animation-delay: 2s !important;
+    border-radius: 5px;
+    display: flex;
+    overflow: hidden;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    cursor: default;
+}
+.wpf_responsive_modal iframe {
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+}
+.wpf_responsive_icons {
+    position: absolute;
+    top: 70px;
+    background-color: #fff;
+    box-shadow: 0em 0em 3em 0em rgb(0 0 0 / 70%);
+    border-radius: 0 5px 5px 0;
+    border: 1px solid #efefef;
+    z-index: 10;
+    cursor: default !important;
+}
+a.wpf_responsive_icon {
+    display: block;
+    text-align: left;
+    font-size: 14px !important;
+    color: #272d3c !important;
+    font-weight: 400;
+    font-family: roboto,sans-serif !important;
+    padding: 10px 11px;
+    -webkit-transition: all 0.2s ease-in;
+    -moz-transition: all 0.2s ease-in;
+    -ms-transition: all 0.2s ease-in;
+    -o-transition: all 0.2s ease-in;
+    transition: all 0.2s ease-in !important;
+    cursor: pointer !important;
+}
+a.wpf_responsive_icon:hover {
+    background: #ecf3f9;
+}
+.wpf_responsive_active_tab {
+    background: #69DC9D !important;
+}
+
+a.wpf_responsive_icon span {
+    width: 22px;
+    height: 22px;
+    display: inline-block;
+    vertical-align: middle;
+    text-align: center;
+    margin-right: 3px;
+	color: rgb(74, 85, 104);
+}
+
+a.wpf_responsive_icon i {
+    display: block;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-top: 0;
+}
+.wpf_responsive_icons_bar {
+    position: relative;
+    border: 1px solid #A4ABC5;
+    margin-left: 10px;
+    border-radius: 8px !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+	height: 36px;
+    width: 36px;
+    box-sizing: border-box;
+    cursor: pointer;
+    background-color: #fff;
+}
+.wpf_responsove_options {
+    visibility: hidden;
+    position: absolute;
+    top: -120px;
+    left: 0;
+    height: 110px;
+    width:  105px;
+    background: #FFFFFF;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.27);
+    border-radius: 5px;
+    transition: opacity 244ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, transform 163ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    padding: 10px 0px !important;
+    box-sizing: border-box;
+}
+.wpf_desktop_view, .wpf_tab_view, .wpf_mobile_view {
+    font-family: 'Roboto', sans-serif;
+    height: 30px;
+    font-size: 14px;
+    font-weight: 400;
+    padding: 0px 15px !important;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    color: #000;
+}
+.wpf_desktop_view span, .wpf_tab_view span, .wpf_mobile_view span {
+    width: 52px;
+}
+.wpf_desktop_view {
+    cursor: default;
+}
+.wpf_desktop_view, .wpf_desktop_view:hover, .wpf_tab_view:hover, .wpf_mobile_view:hover {
+    background-color: #ECF3F9;
+}
+select#wpf_scale_effect {
+    border: none;
+    border-top: 1px solid #dee2e6;
+    font-size: 14px;
+	border-radius: 0;
+}
+a.wpf_close.wpf_back_responsive {
+    color: #fff !important;
+    left: 5px;
+    top: 20px;
+    right: auto;
+    background-color: #e54f6d;
+    font-size: 14px !important;
+    border-radius: 50px;
+    padding: 0 10px 0 0;
+}
+a.wpf_close.wpf_back_responsive i {
+    display: inline-block;
+    vertical-align: middle;
+}
+.wpf_responsive_modal .iframe_holder {
+    -webkit-transition: all 0.3s ease-in;
+    -moz-transition: all 0.3s ease-in;
+    -ms-transition: all 0.3s ease-in;
+    -o-transition: all 0.3s ease-in;
+    transition: all 0.3s ease-in !important;
+    background-color: #fff;
+    padding: 60px 15px;
+    border-radius: 25px;
+    position: relative;
+    box-shadow: 0em 0em 3em 0em rgb(0 0 0 / 70%);
+}
+.wpf_responsive_modal .iframe_holder:before {
+    content: "";
+    width: 16px;
+    height: 16px;
+    position: absolute;
+    left: calc(50% - 8px);
+    top: 25px;
+    background-color: #ccc;
+    border-radius: 50px;
+}
+.wpf_responsive_modal .iframe_holder:after {
+    content: "";
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    left: calc(50% - 20px);
+    bottom: 10px;
+    border-radius: 50px;
+    border: 1px solid #e6e9ec;
+}
+.wpf_iframe_wrap {
+    width: 100%;
+    height: 100%;
+	background-image: url(../images/Loader-slider-WPFeedback.svg);
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 60px;
+}
+.iframe_holder iframe {
+    max-width: 100% !important;
+    max-height: 100% !important;
+}
+/*Responsive mode scale css*/
+.wpf_scale_50 {
+    -ms-transform: scale(0.50);
+    -moz-transform: scale(0.50);
+    -o-transform: scale(0.50);
+    -webkit-transform: scale(0.50);
+    transform: scale(0.50);
+}
+.wpf_scale_75 {
+    -ms-transform: scale(0.75);
+    -moz-transform: scale(0.75);
+    -o-transform: scale(0.75);
+    -webkit-transform: scale(0.75);
+    transform: scale(0.75);
+}
+.wpf_scale_100 {
+    -ms-transform: scale(1);
+    -moz-transform: scale(1);
+    -o-transform: scale(1);
+    -webkit-transform: scale(1);
+    transform: scale(1);
+}
+.wpf_scale_125 {
+    -ms-transform: scale(1.25);
+    -moz-transform: scale(1.25);
+    -o-transform: scale(1.25);
+    -webkit-transform: scale(1.25);
+    transform: scale(1.25);
+}
+.wpf_scale_150 {
+    -ms-transform: scale(1.50);
+    -moz-transform: scale(1.50);
+    -o-transform: scale(1.50);
+    -webkit-transform: scale(1.50);
+    transform: scale(1.50);
+}
+
+/* ---------- General Tasks pop up ---------- */
+
+a.wpf_general_task_close, .wpf_approve_pg_close, a.wpf_close {
+    font-size: 30px !important;
+    margin-top: -7px;
+    color: #e54f6d !important;
+    float: right;
+    font-weight: 400;
+    line-height: 1;
+    text-decoration: none;
+}
+a.wpf_general_task_close:hover,
+a.wpf_general_task_close:active,
+a.wpf_general_task_close:focus,
+a.wpf_approve_pg_close:hover,
+a.wpf_approve_pg_close:active,
+a.wpf_approve_pg_close:focus {
+    text-decoration: none !important;
+}
+div#wpf_general_comment_tabs {
+    text-align: left;
+    margin-top: -10px;
+    margin-bottom: -10px;
+}
+/* ------------ Unlock Website ------------ */
+.wpf_locked_modal svg {
+    width: 75px;
+    display: block;
+    margin: auto;
+    margin-bottom: 15px;
+}
+.wpf_unlock_website_btn {
+    margin: auto;
+}
+.wpf_locked_modal a {
+    color: #279af1;
+    text-decoration: underline;
+}
+/* ------------ Internal Tasks ------------ */
+.wpf_mark_internal, .wpf_mark_note {
+    height: 36px !important;
+    padding: 0 !important;
+    width: 36px !important;
+    color: var(--main-wpf-color) !important;
+	cursor: pointer;
+    border-radius: 8px !important;
+	border-width: 1px !important;
+}
+.wpf_bottom_buttons .wpf_mark_internal, .wpf_bottom_buttons .wpf_mark_note {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+}
+.wpf_mark_internal img, .wpf_mark_note img {
+    margin: auto !important;
+    height: 18px;
+} 
+.wpf_bottom_buttons .wpf_mark_note {
+    background-color: transparent !important;
+}
+.wpf_mark_internal, .wpf_mark_note {
+    position: relative;
+    border-width: 1px !important;
+    border-style: solid;
+    border-color: #B3BDCD !important;
+    border-radius: 7px !important;
+    background-color: transparent !important;
+    margin-right: 5px !important;
+}
+.wpf_mark_note.disabled, .wpf_mark_internal.disabled {
+    opacity: .4 !important;
+    cursor: not-allowed !important;
+}
+.wpf_mark_note.wpf_newtask {
+    display: none !important;
+}
+.wpf_mark_note:hover {
+    background-color: #FCD227 !important;
+}
+.wpf_mark_note img path {
+    fill: #000;
+}
+.wpf_mark_internal:hover {
+    background-color: #272D3C !important;
+    border: 1px solid #272D3C !important;
+}
+.wpf_mark_internal:not(.wpf_is_internal):hover img {
+    filter: invert(1);
+}
+.wpf_chat_reply .wpf_mark_internal, .wpf_chat_reply .wpf_mark_note {
+    top: 2px;
+}
+#send_chat {
+    margin-right: 5px;
+}
+.wpf_chevron_wrapper {
+    position: absolute;
+    left: 4px;
+    top: 3px;
+    bottom: 3px;
+    -webkit-transition: all 0.2s ease-out;
+    -moz-transition: all 0.2s ease-out;
+    -ms-transition: all 0.2s ease-out;
+    -o-transition: all 0.2s ease-out;
+    transition: all 0.2s ease-out;
+}
+.wpf_task_info span.wpf_chevron_wrapper {
+    top: 6px;
+    left: 7px;
+}
+.wpfb-internal span.wpf_bubble_num_wrapper, .wpfb-internal:hover .wpf_chevron_wrapper {
+    opacity: 0;
+}
+.wpfb-internal:hover span.wpf_bubble_num_wrapper, .wpfb-internal .wpf_chevron_wrapper {
+    opacity: 1;
+}
+.wpfb-internal .wpf_chevron_wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.wpfb-internal.complete .wpf_chevron_wrapper {
+    background: inherit;
+}
+.wpf_hide_users_for_internal_tasks {
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.015em;
+    background-color: #3ed696;
+    padding: 10px 5px 5px 10px !important;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    line-height: 1.3;
+    width: 100%;
+    height: auto;
+    -webkit-transition: all 0.2s ease-out;
+    -moz-transition: all 0.2s ease-out;
+    -ms-transition: all 0.2s ease-out;
+    -o-transition: all 0.2s ease-out;
+    transition: all 0.2s ease-out !important;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    display: block;
+}
+.wpf_is_internal {
+    background-color: #272D3C !important;
+    color: #fff !important;
+}
+.wpf_chevron_wrapper .wpf-internal-img {
+    height: 18px;
+    width: 18px;
+}
+/*.wpf_is_internal .wpf-internal-img {
+    filter: invert(1);
+}*/
+.wpf_is_internal.wpf_mark_internal_task_center .wpf-internal-img {
+    filter: none;
+}
+
+/* ------------ Edit/Delete Comments ------------ */
+.wpf-edit-delete-wrapper {
+    background-color: #fff;
+    padding: 4px 7px;
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    border-radius: 5px;
+	opacity: 0;
+    -webkit-transition: all 0.2s ease-out;
+    -moz-transition: all 0.2s ease-out;
+    -ms-transition: all 0.2s ease-out;
+    -o-transition: all 0.2s ease-out;
+    transition: all 0.2s ease-out;
+}
+.wpf_comment_container ul li:not(.temp_comment_class):hover .wpf-edit-delete-wrapper {
+    opacity: 1;
+}
+.wpf-edit-delete-wrapper a {
+    color: #A4ABC5;
+}
+.wpf_edit_box_active {
+    margin-right: 7px;
+}
+.wpf-edit-delete-wrapper a:hover {
+    color: #4a5568;
+}
+span.wpf-is-edited {
+    color: #272D3C !important;
+    font-size: 12px !important;
+    margin-right: 5px !important;
+}
+span.wpf-is-edited:hover .edit_tooltip_text {
+    visibility: visible;
+}
+span.wpf_tooltiptext.edit_tooltip_text {
+    visibility: hidden;
+    width: auto;
+    white-space: nowrap;
+    background-color: rgb(54, 61, 77);
+    color: #fff !important;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 5px;
+    font-weight: 500 !important;
+    position: absolute;
+    z-index: 1;
+    bottom: 0;
+    left: 80%;
+    margin-left: -50px;
+}
+button.wpf_edit_comment_btn {
+    height: 36px !important;
+    padding: 0 13px !important;
+    border-radius: 4px !important;
+    border: 0 !important;
+    color: #272d3c !important;
+    align-items: center;
+    background: #69DC9D !important;
+    letter-spacing: 0.05em !important;
+    font-family: 'Roboto', sans-serif !important;
+    outline: none !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
+    text-transform: none !important;
+    font-weight: 400 !important;
+    margin-bottom: 0 !important;
+    margin-right: 10px;
+    margin-top: 5px;
+}
+a.wpf-cancel-edit-comment {
+    color: #272d3c !important;
+}
+textarea.form-control.wpfb-edit-comment {
+    background: #ecf3f9;
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px solid #dee2e6;
+    font-size: 12px;
+	margin-top: 5px;
+    display: none;
+}
+/* ------------ Tooltips ------------ */
+  
+  .wpf_mark_internal .wpf_tooltiptext, .wpf_mark_note .wpf_tooltiptext, .wpf_comment_container .nav-item .wpf_tooltiptext, .task_comment .wpf_tooltiptext {
+    visibility: hidden;
+    background-color: rgb(54, 61, 77);
+    color: #fff !important;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 5px;
+    font-weight: 500 !important;
+    position: absolute;
+    z-index: 1;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -50px;
+  }
+  .wpf_mark_internal .wpf_tooltiptext, .wpf_mark_note .wpf_tooltiptext, .task_comment .wpf_tooltiptext {
+    width: auto;
+    white-space: nowrap;
+  }
+  .wpf_comment_container .nav-item .wpf_tooltiptext {
+    width: 400px !important;
+    font-size: 12px !important;
+  }
+  
+  .wpf_mark_note_task_center:hover .note_tooltip_text,
+  .wpf_mark_note:hover .note_tooltip_text,
+  .unmark_internal_tooltip:hover .unmark_internal_tooltip_text,
+  .wpf_mark_internal.wpf_is_internal:hover .unmark_internal_tooltip_text,
+  .mark_internal_tooltip:hover .mark_internal_tooltip_text,
+  .new_internal_tooltip:hover .new_internal_tooltip_text,
+  .wpf_user_tab:hover .user_tooltip_text,
+  .wpf_prio_tab:hover .urgency_tooltip_text,
+  .wpf_stat_tab:hover .status_tooltip_text,
+  .wpf_scrn_tab:hover .ss_tooltip_text,
+  .wpf_deta_tab:hover .info_tooltip_text,
+  .task_comment:hover .comment_tooltip_text {
+    visibility: visible;
+  }
+/* ------------ Plugin Conflicts ------------ */
+
+/* Conflict with microthemer plugin*/
+
+#css-group-icons .styling-option-icons .pg-icon {
+    box-sizing: unset !important;
+}
+/* Conflict with Virtue - Premium theme collapse*/
+
+.kad-nav-collapse.top_mobile_menu_collapse.collapse.show {
+    height: auto !important;
+}
+.popover.wpf_comment_container .popover-content ul li {
+    list-style: none;
+    font-size: 12px;
+    margin: inherit;
+}
+/* Conflict with Divi Version: 3.21.1 theme collapse*/
+
+.popover.wpf_comment_container i.fa,
+#wpf_launcher i.fa {
+    margin: 0px;
+    background: unset;
+    padding: unset;
+}
+.wpf_comment_container .fa.fa-trash:before {
+    content: "\f1f8";
+}
+nav ul.nav {
+    display: inherit;
+}
+.popover.wpf_comment_container.fade.in {
+    opacity: 1;
+}
+div#elementor-lightbox {
+    z-index: 999999;
+}
+/* ---------- Translation Adaptations ---------- */
+
+button.wpf_tab_sidebar:lang(fr),
+button.wpf_tab_sidebar:lang(es),
+button.wpf_tab_sidebar:lang(it),
+button.wpf_tab_sidebar:lang(de),
+button.wpf_filter:lang(de) {
+    height: 50px !important;
+    padding: 5px !important;
+}
+button.wpf_tab_sidebar:lang(nl) {
+    padding: 15px 3px !important;
+}
+a.wpf_sidebar_filter_reset_task_status:lang(fr),
+a.wpf_sidebar_filter_reset_task_priority:lang(fr),
+a.wpf_sidebar_filter_reset_task_status:lang(de),
+a.wpf_sidebar_filter_reset_task_priority:lang(de),
+a.wpf_sidebar_filter_reset_task_status:lang(es),
+a.wpf_sidebar_filter_reset_task_priority:lang(es),
+a.wpf_sidebar_filter_reset_task_status:lang(it),
+a.wpf_sidebar_filter_reset_task_priority:lang(it),
+a.wpf_sidebar_filter_reset_task_status:lang(nl),
+a.wpf_sidebar_filter_reset_task_priority:lang(nl) {
+    -moz-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+    transform: rotate(0deg);
+    margin-top: 0;
+    margin-right: 10px;
+}
+.wpf_filter_checkbox li:last-child:lang(fr),
+.wpf_filter_checkbox li:last-child:lang(de),
+.wpf_filter_checkbox li:last-child:lang(es),
+.wpf_filter_checkbox li:last-child:lang(it),
+.wpf_filter_checkbox li:last-child:lang(nl) {
+    margin-right: 0;
+}
+.wpf_filter_checkbox li:lang(fr),
+.wpf_filter_checkbox li:lang(de),
+.wpf_filter_checkbox li:lang(es),
+.wpf_filter_checkbox li:lang(it),
+.wpf_filter_checkbox li:lang(nl) {
+    width: 23.7%;
+}
+div#wpf_filter_taskstatus:lang(fr),
+div#wpf_filter_taskpriority:lang(fr),
+div#wpf_filter_taskstatus:lang(de),
+div#wpf_filter_taskpriority:lang(de),
+div#wpf_filter_taskstatus:lang(es),
+div#wpf_filter_taskpriority:lang(es),
+div#wpf_filter_taskstatus:lang(it),
+div#wpf_filter_taskpriority:lang(it),
+div#wpf_filter_taskstatus:lang(nl),
+div#wpf_filter_taskpriority:lang(nl) {
+    border-bottom: 1px solid #efefef;
+}
+.wpf_sidebar_checkboxes:lang(es),
+.wpf_sidebar_checkboxes:lang(it) {
+    vertical-align: top;
+}
+/*===== RTL ===========*/
+
+.rtl .wpf_wizard_notifications_check,
+.rtl .wpf_comment_container ul {
+    text-align: right;
+}
+.rtl .wpf_wizard_modal textarea.form-control {
+    margin-bottom: 10px;
+}
+.rtl .wpf_comment_container .popover-body .close,
+.rtl .wpf_comment_container .popover-content .close,
+.rtl a.wpf_general_task_close,
+.rtl a.wpf_approve_pg_close {
+    float: left;
+}
+.rtl li.wpf_other {
+    margin-right: 25px;
+}
+.rtl .wpf_comment_container ul {
+    padding-right: 0;
+    margin-right: 0;
+    direction: rtl;
+}
+.rtl div#wpf_wizard_notifications input:checked + label:before {
+    margin-left: 5px;
+}
+.rtl i.gg-share {
+    margin-right: 16px;
+}
+.rtl div#wpf_wizard_notifications input + label:before {
+    margin-left: 2px;
+}
+.rtl .wpf_remove_login_box input:checked + label:after,
+.rtl .wpf_filter_checkbox input:checked + label:after {
+    right: 7px;
+    content: "";
+}
+.rtl .wpf_sidebar_checkboxes label,
+.rtl label.wpf_visibility_title,
+.rtl label.wpf_reports_title,
+.rtl label.wpf_filter_title {
+    text-align: right;
+}
+.rtl div#wpf_wizard_notifications input:checked + label:after,
+.rtl div#wpf_task_visibility input[type="checkbox"]:checked + label:after {
+    right: 10px;
+    content: "";
+}
+.rtl .anim-slider label {
+    float: right;
+}
+.rtl .anim-slider label:last-of-type::after {
+    left: auto;
+    transition: 0.5s;
+}
+.rtl .anim-slider input:checked:nth-of-type(1) ~ label:last-of-type::after {
+    right: 9%;
+}
+.rtl .anim-slider input:checked:nth-of-type(2) ~ label:last-of-type::after {
+    right: 35%;
+}
+.rtl button.wpf_tab_sidebar {
+    float: right;
+    margin: 0;
+}
+.rtl .wpf_sidebar_content,
+.rtl .wpf_sidebar_container ul {
+    padding-right: 3px;
+}
+.rtl .wpf_task_sum {
+    text-align: right;
+    padding-right: 35px;
+}
+.rtl .complete .wpf_task_number i.gg-check {
+    margin-right: 4px;
+}
+.rtl a.wpfb-point.complete .gg-check {
+    margin-right: 8px;
+}
+.rtl .anim-slider input:checked:nth-of-type(3) ~ label:last-of-type::after {
+    right: 59%;
+}
+.rtl .anim-slider input:checked:nth-of-type(4) ~ label:last-of-type::after {
+    right: 85%;
+}
+.rtl a.wpf_task_delete_btn i.fa.fa-trash {
+    margin-left: 5px !important;
+}
+.rtl .wpf_sidebar_checkboxes input[type="checkbox"]:checked + label:before {
+    margin-left: 5px;
+}
+.rtl .wpf_sidebar_checkboxes input[type="checkbox"] + label:before {
+    margin-left: 2px;
+}
+.rtl button.wpf_filter:last-child {
+    margin: -5px;
+}
+.rtl .wpf_comment_container button {
+    margin: 0;
+}
+.rtl .wpf_icon_title,
+.rtl label.wpf_remove_login_label {
+    text-align: right;
+}
+.rtl a.wpf_copy_task_icon {
+    padding-right: 10px;
+}
+.rtl .wpf_comment_container span.wpf_tag_name {
+    padding: 2px 8px 0 0px;
+}
+.rtl span.wpf_tag_name a {
+    margin-right: 3px;
+    line-height: 0px !important;
+}
+.rtl button.wpf_tag_submit_btn {
+    left: 5px;
+    right: auto;
+}
+.rtl label.wpf_remove_login_label:before,
+.rtl .wpf_filter_checkbox input + label:before,
+.rtl #wpf_launcher .wpf_general_task_thispage i.gg-add {
+    margin-left: 5px;
+}
+.rtl #wpf_launcher .wpf_general_task_thispage {
+    padding: 7px 0px 5px 10px;
+}
+.rtl a.wpf_filter_tab_btn i.gg-eye {
+    margin-right: 3px;
+}
+.rtl .wpf_report_trigger a {
+    margin-right: 0;
+}
+.rtl .wpf_report_trigger a:nth-child(3) {
+    margin-right: 2% !important;
+}
+/* RTL */
+
+.popover.wpf_comment_container:lang(he) {
+    direction: rtl;
+}
+.wpf_comment_container .popover-body .close:lang(he),
+.wpf_comment_container .popover-content .close:lang(he),
+.wpf_topbar_right:lang(he) {
+    float: left;
+}
+.wpf_topbar_left:lang(he) {
+    float: right;
+}
+a.wpf_button_upload:lang(he) {
+    margin-left: 10px;
+}
+.wpf_graphics_version:lang(he) {
+    margin-right: 0;
+    margin-left: 15px;
+}
+.wpf_graphics_button:lang(he) {
+    margin-left: 10px;
+}
+#wpf_launcher a.wpf_filter_tab_btn i.gg-share:lang(he) {
+    margin-right: 19px;
+}
+.wpf_comment_container .nav-tabs .nav-link i.gg-share:lang(he) {
+    margin-right: 17px;
+}
+#wpf_launcher a.wpf_filter_tab_btn i.gg-eye:lang(he) {
+    margin-right: 4px;
+}
+.wpf_body:lang(he) {
+    margin-right: 300px;
+}
+body.wpf_graphics .wpf_topbar:lang(he) {
+    right: 0;
+}
+ul.wp_feedback_filter_checkbox.user input[type="checkbox"]:checked + label:lang(he):after,
+div#wpf_wizard_notifications input:checked + label:lang(he):after,
+div#wpf_task_visibility input[type="checkbox"]:checked + label:lang(he):after,
+.wpf_filter_checkbox input:checked + label:lang(he):after {
+    right: 10px;
+    top: 3px;
+}
+.wpf_remove_login_box input:checked + label:lang(he):after,
+.wpf_filter_checkbox input:checked + label:lang(he):after {
+    right: 7px;
+}
+.wpf_filter_checkbox input + label:lang(he):before,
+.wpf_sidebar_checkboxes input[type="checkbox"] + label:lang(he):before {
+    margin-left: 3px;
+}
+ul.wp_feedback_filter_checkbox.user input[type="checkbox"] + label:lang(he):before,
+div#wpf_wizard_notifications input + label:lang(he):before,
+label.wpf_remove_login_label:lang(he):before {
+    margin-left: 5px !important;
+}
+.wpf_icon_title:lang(he),
+label.wpf_remove_login_label:lang(he) {
+    text-align: right !important;
+}
+a.wpfb-point.complete .gg-check:lang(he) {
+    margin-right: 8px;
+}
+.complete .wpf_task_number i.gg-check:lang(he) {
+    margin-right: 4px;
+}
+.wpf_report_trigger a:lang(he) {
+    margin-right: 0;
+}
+.wpf_report_trigger a:lang(he):nth-child(3) {
+    margin-right: 2%;
+}
+.anim-slider label:lang(he) {
+    float: right;
+}
+.anim-slider label:lang(he):last-of-type::after {
+    left: auto;
+    transition: 0.5s;
+}
+.anim-slider input:checked:nth-of-type(1) ~ label:lang(he):last-of-type::after {
+    right: 9%;
+}
+.anim-slider input:checked:nth-of-type(2) ~ label:lang(he):last-of-type::after {
+    right: 35%;
+}
+.anim-slider input:checked:nth-of-type(3) ~ label:lang(he):last-of-type::after {
+    right: 59%;
+}
+.anim-slider input:checked:nth-of-type(4) ~ label:lang(he):last-of-type::after {
+    right: 85%;
+}
+.popover.wpf_comment_container .popover-body .form-group button.wpf_upload_button:lang(he) {
+    margin-right: 0 !important;
+    margin-left: 10px;
+}
+button.wpf_upload_button i:lang(he) {
+    margin-right: 10px;
+}
+label.wpf_filter_title:lang(he),
+label.wpf_reports_title:lang(he),
+label.wpf_visibility_title:lang(he),
+.wpf_sidebar_checkboxes label:lang(he) {
+    text-align: right;
+}
+
+/*===== Bug Fixes ===========*/
+
+.wpf_comment_container .tab-content ul:not(.meassage_area_main ul) {
+    margin: 0 !important;
+    padding: 0 !important;
+	padding-top: 0 !important;
+    margin-bottom: 10px !important;
+    overflow-x: hidden;
+    background-color: #fff !important;
+}
+ul.wpf_current_chat_box:empty {
+    display: none;
+}
+.wpfb-point.active_comment {
+    pointer-events: none;
+}
+.popover.wpf_comment_container a.ui-slider-handle.ui-state-default.ui-corner-all {
+    background: var(--main-wpf-color) !important;
+    cursor: pointer;
+}
+.popover.wpf_comment_container .ui-slider-range.ui-widget-header.ui-slider-range-min {
+    background: var(--main-wpf-color) !important;
+}
+input#search-field {
+    box-sizing: unset;
+}
+.popover.wpf_comment_container .popover-content {
+    padding: .5rem .75rem;
+    color: #212529;
+}
+.wpf_sidebar_header.wpf_col2 button.wpf_tab_sidebar {
+    width: 50%;
+}
+.popover.wpf_comment_container ul li a .fa {
+    margin: 0px;
+}
+.popover.wpf_comment_container .chat_text, .wpf_wizard_container.wpf_comment_container .chat_text {
+    color: #272d3c;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: normal;
+    margin: 0 !important;   
+}
+.wpf-comment-container .meassage_area_main {
+    width: 380px;
+    max-width: 100%;
+}
+.popover.wpf_comment_container .chat_text p, .wpf_wizard_container.wpf_comment_container .chat_text p {
+    margin: 0 !important;
+    font-size: 14px !important;
+    font-weight: 400;
+    line-height: 1.4 !important;
+}
+.meassage_area_main iframe {
+    border: 0px !important;
+    border-radius: 8px !important;
+}
+.wpf_update_error {
+    font-size: 12px;
+    font-weight: bold;
+    color: #cc1816;
+}
+.fusion-modal.modal .modal-header {
+    display: flow-root;
+}
+/*Conflict with WooCommerce TM Extra Product Options plugin setting Backend*/
+
+.transition.tm-animated {
+    animation-fill-mode: initial !important;
+}
+
+.wpf_sidebar_container ul li.complete_custom .wpf_task_number,
+.wpf_sidebar_container ul li.complete .wpf_task_number {
+    color: rgba(0,0,0,0.9) !important;
+    font-weight: 500;
+}
+
+.open_custom .wpf_task_number, .pending-review_custom .wpf_task_number, .in-progress_custom .wpf_task_number, .complete_custom .wpf_task_number, .wpf_task_number {
+    width: 32px;
+    min-width: 32px;
+    height: 32px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.9);
+    font-family: 'Roboto', sans-serif;
+    font-weight: 700 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin: 0;
+    overflow: hidden;
+    border-radius: 15% 50% 50% 50%;
+    transition: all 0.2s ease-in !important;
+    background: var(--main-wpf-color);
+}    
+.wpf_sidebar_container ul li.complete_custom .wpf_task_number,
+.wpf_sidebar_container ul li.complete .wpf_task_number {
+    background-color: #69dc9e;
+}
+.wpf_sidebar_container .wpf_task_number {
+    margin-right: 10px !important;
+}
+.anim-slider input.open_radio + label {
+    color: #363D4D ;
+}
+.wpf_sidebar_content .wpf_container .wpf_task_sum {
+    width: calc(100% - 35px);
+}
+/* Version 2.0 */
+.wpf_green_btn, .wpf_blue_btn, .wpf_red_btn, .wpf_screenshot_button {
+    height: 36px !important;
+    padding: 0 12px !important;
+    display: flex;
+    border-radius: 8px !important;
+    border: 0 !important;
+    font-size: 14px !important;
+    color: #272d3c !important;
+    align-items: center;
+    background: #69DC9D !important;
+    letter-spacing: 0.05em !important;
+    font-family: 'Roboto', sans-serif !important;
+    outline: none !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
+    text-transform: none !important;
+    font-weight: 400 !important;
+}        
+.wpf_blue_btn img,
+.wpf_blue_btn svg,
+.wpf_red_btn img,
+.wpf_red_btn svg {
+    height: 12px;
+    margin-right: 6px;
+    fill: transparent;
+}
+.wpf_green_btn svg {
+    height: 12px;
+    margin-right: 6px;
+}
+a#wpf_comment_mode_general_task {
+    text-decoration: unset !important;
+}
+.wpf_green_btn:hover,.wpf_green_btn:focus {
+    background: #63d598;
+    outline: none;
+}
+button#open_approve_modal {
+    pointer-events: none;
+    margin-left: 10px;
+}
+.wpf_not_approved {
+    background: transparent !important;
+	pointer-events: all !important;
+    color: #272D3C !important;
+    border: 2px solid #69DC9E !important;
+    height: 36px;
+    padding: 10px;
+    margin-left: 10px;
+    border-radius: 5px;
+    font-weight: 500 !important;
+    letter-spacing: 0!important;
+}
+.wpf_not_approved svg {
+    display: none;
+}
+.wpf_screenshot_button, #wpf_bottom_bar .wpf_report_trigger a {
+	background: #3c424f;
+	font-size: 12px;
+	color: rgba(255,255,255,0.99);
+	justify-content: center;
+}
+#wpf_bottom_bar .wpf_report_trigger a {
+	border-radius: 4px;
+	text-decoration: none;
+}
+.wpf_blue_btn {
+    color: rgba(255,255,255,0.99);
+    background: #363c4d;
+    position: relative;
+    outline: none;
+}
+.wpf_blue_btn:hover,.wpf_blue_btn:focus,
+.wpf_screenshot_button:hover,.wpf_screenshot_button:focus,
+#wpf_bottom_bar .wpf_report_trigger a:hover,
+#wpf_bottom_bar .wpf_report_trigger a:focus {
+    background: #2c3242;
+    outline: none;
+    color: rgba(255,255,255,0.99);
+}
+.wpf_red_btn {
+    color: rgba(255,255,255,0.99);
+    background: #f3325c;  
+}
+.wpf_red_btn:hover,.wpf_red_btn:focus  {
+    background: #e32851;
+    outline: none;
+    color: rgba(255,255,255,0.99);
+}
+.wpf_bottom_right .tasks-btn .number {
+    position: absolute;
+    right: 1px;
+    top: 3px;
+    height: 22px;
+    min-width: 22px;
+    border: 0;
+    background: #279af1;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: 0;
+    padding: 0 4px;
+	box-sizing: border-box;
+}
+
+/* popup icons design start here */
+.wpf_comment_container .nav-tabs .nav-item.show .nav-link,
+.wpf_comment_container .nav-tabs .nav-link.active,
+.wpf_comment_container .tab-content>.active {
+	border: 0;
+	padding: 0;
+}
+.wpf_comment_container .nav-tabs {
+	padding-bottom: 10px;
+}
+.wpf_comment_container .nav-tabs .nav-item {
+    height: 36px!important;
+    width: 36px!important;
+    margin-right: 0 !important;
+    display: flex!important;
+    justify-content: center!important;
+    align-items: center!important;
+  	border-radius: 8px !important;
+}
+.wpf_comment_container .nav-tabs .nav-item:hover {
+    background-color: rgba(109, 93, 243, 0.07) !important;
+}
+.wpf_comment_container .nav-tabs .nav-item.active {
+    background-color: rgba(109, 93, 243, 0.07) !important;
+}
+.wpf_comment_container .nav-tabs .nav-item svg {
+    height: 18px;
+    width: 18px !important;
+    opacity: 1!important;
+    color: #8791B2 !important;
+}
+.popover.wpf_comment_container {
+	box-shadow: 0 0 15px rgba(0,0,0,0.20);
+	border-color: #fff;
+    cursor: default;
+    border-radius: 16px !important;
+}
+
+.wpf_comment_container .wpf_upload_button {
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    color: #002157 !important;
+    width: 20px;
+    cursor: pointer !important;
+    position: absolute;
+    bottom: 8px !important;
+    right: 8px !important;
+}    
+.wpf_comment_container .wpf_upload_button img {
+    width: 18px;
+    margin-top: 2px;
+
+}
+.wpf_comment_container .wpf_upload_button .wpf_total_files {
+    display: none;
+}
+.wpf_comment_container .wpf_upload_button .wpf_total_files.active {
+    display: block;
+    position: absolute;
+    color: #fff;
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 700;
+    top: -5px;
+    left: -5px;
+    height: 15px;
+    width: 15px;
+    border-radius: 50%;
+    text-align: center;
+    transform: scale(1);
+    background: rgb(0, 33, 87);
+    box-shadow: 0 0 0 0 rgba(0, 33, 87, 1);
+    animation: pulse-blue 2s infinite;
+}
+@keyframes pulse-blue {
+	0% {
+		transform: scale(0.95);
+		box-shadow: 0 0 0 0 rgba(0, 33, 87, 0.7);
+	}
+	
+	70% {
+		transform: scale(1);
+		box-shadow: 0 0 0 10px rgba(0, 33, 87, 0);
+	}
+	
+	100% {
+		transform: scale(0.95);
+		box-shadow: 0 0 0 0 rgba(0, 33, 87, 0);
+	}
+}
+.wpf_comment_container .arrow.wpf_arrow:after {
+	display: none;
+}
+/*Filter*/
+.wpf_comment_container .tab-pane .anim-slider {
+	margin-bottom: 8px;
+	border-bottom: 0;
+}
+.wpf_comment_container .tab-pane .anim-slider label {
+	font-size: 12px;
+}
+.wpf_comment_container .tab-pane .anim-slider::before {
+    content: '';
+    display: table;
+    width: 100%;
+    clear: both;
+    background: #eaeaea;
+    height: 8px;
+    margin-top: 10px;
+    margin-bottom: -12px;
+    border-radius: 8px;
+}
+.wpf_comment_container .tab-pane .anim-slider label:last-of-type::after {
+	background: #363d4d;
+	border: 2px solid #fff;
+	height: 20px;
+	width: 20px;
+	bottom: -15px;
+    pointer-events: none;
+}
+.wpf_comment_container .anim-slider input.low_radio + .low_label,
+.wpf_comment_container .anim-slider input.medium_radio + .medium_label,
+.wpf_comment_container .anim-slider input.high_radio + .high_label,
+.wpf_comment_container .anim-slider input.critical_radio + .critical_label {
+	font-size: 12px;
+}
+.wpf_comment_container .anim-slider input:checked + label {
+	text-decoration: none;
+    pointer-events:none;
+}
+.wpf_comment_container .wpf_remove_login_box input[type="checkbox"] + label, .wpf_comment_container .wpf_remove_login_box input[type="radio"] + label {
+	padding-left: 0;
+	display: flex;
+	align-items: center;
+}
+.wpf_comment_container .wpf_tag_autocomplete input[type=text] {
+	border: 1px solid #e3ebf6;
+	padding: 7px;
+	margin: 0;
+	height: 36px;
+    box-sizing: border-box;
+}
+.wpf_comment_container .wpf_tag_autocomplete input[type=text]:focus {
+    box-shadow: none !important;
+    outline: none !important;
+}
+.wpf_comment_container .wpf_tag_autocomplete button {
+	height: 36px;
+	border: 0;
+}
+.wpf_comment_container .wpf_tag_autocomplete button i {
+	top: 6px;
+	color: #3c424f;
+}
+/*Filter*/
+/*  comment part design start here */
+.wpf_comment_container .wpf_current_chat_box .wpf_author,
+.wpf_comment_container .wpf_current_chat_box .wpf_author .is_info,
+.wpf_comment_container .wpf_current_chat_box .is_image{
+	width: 100%;
+	border-radius: 0px 8px 8px 8px;
+	padding: 0px 0px 15px 0px !important;
+	border: 0;
+	font-family: 'Roboto', sans-serif;
+}
+
+.wpf_comment_container .wpf_current_chat_box .wpf_author {
+    width: 100%;
+}
+
+/* rich text editor css by Pratap */
+.wpf-editor {
+    min-height: 80px;
+    width: 100%;
+    border-radius: 8px;
+    font-family: 'Roboto', sans-serif !important;
+    color: #4a5568 !important;
+    font-size: 14px !important;
+    text-transform: unset;
+    font-weight: normal;
+    height: auto;
+    line-height: 1.2 !important;
+    max-width: 100%;
+    min-width: 100%;
+    display: block;
+    box-shadow: none !important;
+    outline: none !important;
+    box-sizing: border-box;
+}
+.wpf-editor .ql-editor {
+    min-height: 80px;
+    max-height: 80px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 15px 15px 10px 15px;
+}
+.wpf-editor .ql-editor p {
+    font-family: 'Roboto', sans-serif !important;
+    color: #4a5568 !important;
+    font-size: 14px !important;
+    text-transform: unset;
+    font-weight: normal;
+    line-height: 1.2 !important;
+}
+.ql-editor.ql-blank::before {
+	font-style: normal !important;
+}
+.wpf-tc-editor {
+    min-height: 100px;
+    border: none;
+    width: 100%;
+    box-sizing: border-box;
+}
+.wpf-tc-editor .ql-editor {
+    min-height: 100px;
+    max-height: 100px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 10px;
+}
+.ql-tooltip-editor input[type="text"] {
+    margin-top: 0 !important;
+}
+.meassage_area_main ol, .meassage_area_main ul {
+    padding-inline-start: 12px;
+}
+.meassage_area_main ol {
+    margin-left: 2px;
+}
+.meassage_area_main ul {
+    list-style-type: disc;
+    margin-left: 4px;
+}
+#wpf_comment {
+    display: none;
+}
+.wpf_comment_container .form-group textarea.form-control {
+    display: none;
+	font-family: 'Roboto', sans-serif !important;
+	color: #4a5568 !important;
+	font-size: 12px !important;
+}
+
+.wpf_comment_container .wpf_current_chat_box .is_image {
+	padding: 0;
+	max-width: 95%;
+	overflow: hidden;
+}
+li.wpf_other.is_image a {
+    display: block;
+}
+.wpf_comment_container .wpf_current_chat_box .is_image .meassage_area_main {
+    border-radius: 8px;
+    background: #edf3ff;
+    max-width: 100%;
+    width: auto !important;
+    overflow: hidden;
+    padding: 5px;
+    position: relative;
+}
+.wpf_comment_container .wpf_current_chat_box .is_image .meassage_area_main:hover:before {
+    content: "";
+    background-color: rgb(59 54 106 / 50%);
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    -webkit-animation-name: fadeIn;
+    animation-name: fadeIn;
+    -webkit-animation-duration: 0.5s;
+    animation-duration: 0.5s;
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
+}
+
+.wpf_comment_container .wpf_current_chat_box .is_image .meassage_area_main .wpf_image_open {
+    position: absolute;
+    left: 48%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    cursor: pointer;
+    opacity: 0;
+	margin-left: 10px;
+	-webkit-transition: all 0.2s ease-out;
+	-moz-transition: all 0.2s ease-out;
+	-ms-transition: all 0.2s ease-out;
+	-o-transition: all 0.2s ease-out;
+	transition: all 0.2s ease-out;
+    }
+span.wpf_image_open:hover:after {
+    content: "Open Image in New Window";
+    position: absolute;
+    width: 170px;
+    background-color: #fff;
+    margin-left: -60px;
+    text-align: center;
+    border-radius: 5px;
+    margin-top: 30px;
+}
+.wpf_comment_container .wpf_current_chat_box .is_image .meassage_area_main .wpf_image_open svg {
+	height: 24px;
+	width: auto;
+}
+.wpf_comment_container .wpf_current_chat_box .is_image .meassage_area_main .wpf_image_download {
+	position: absolute;
+    left: 40%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    cursor: pointer;
+    opacity: 0;
+	-webkit-transition: all 0.2s ease-out;
+	-moz-transition: all 0.2s ease-out;
+	-ms-transition: all 0.2s ease-out;
+	-o-transition: all 0.2s ease-out;
+	transition: all 0.2s ease-out;
+}
+span#wpf_push_media:hover:after {
+    content: "Push Image to Media Folder";
+    position: absolute;
+    width: 170px;
+    background-color: #fff;
+    margin-left: -60px;
+    text-align: center;
+    border-radius: 5px;
+    margin-top: 30px;
+}
+
+.wpf_comment_container .wpf_current_chat_box .is_image .meassage_area_main .wpf_image_download svg {
+	height: 24px;
+	width: auto;
+}
+.wpf_comment_container .wpf_current_chat_box .is_image .meassage_area_main .wpf_image_delete {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    cursor: pointer;
+    opacity: 0;
+	-webkit-transition: all 0.2s ease-out;
+	-moz-transition: all 0.2s ease-out;
+	-ms-transition: all 0.2s ease-out;
+	-o-transition: all 0.2s ease-out;
+	transition: all 0.2s ease-out;
+}
+.wpf_comment_container .wpf_current_chat_box .is_image .meassage_area_main .wpf_image_delete svg {
+	height: 16px;
+	width: 16px;
+	fill: #fff;
+	color: #fff;
+}
+.wpf_comment_container .wpf_current_chat_box .is_image .meassage_area_main:hover .wpf_image_download,
+.wpf_comment_container .wpf_current_chat_box .is_image .meassage_area_main:hover .wpf_image_delete,
+.wpf_comment_container .wpf_current_chat_box .is_image .meassage_area_main:hover .wpf_image_open {
+	opacity: 1;
+    z-index: 1;
+}
+.wpf_current_chat_box .meassage_area_main img:hover {
+	box-shadow: none;
+}
+.wpf_comment_container .wpf_current_chat_box .task-author {
+	font-weight: 500;
+    font-size: 14px;
+    color: #272D3C;
+	display: flex;
+	justify-content: space-between;
+}
+.wpf_comment_container .wpf_current_chat_box .task-author .author-name {
+    max-width: 150px;
+    line-height: 18px;
+    position: relative;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    letter-spacing: 0 !important;
+}
+.wpf_comment_container .wpf_current_chat_box .task-author span {
+	margin-top: 2px;
+	margin-right: 0;
+	font-size: 14px;
+    color: #A4ABC5;
+    font-weight: 400;
+    text-transform: lowercase !important;
+}
+.wpf_comment_container .wpf_current_chat_box .is_info {
+    border-radius: 5px !important;
+    width: 95% !important;
+    text-align: left !important;
+}
+.wpf_comment_container .wpf_current_chat_box .is_info level.task-author {
+    float: right !important;
+}
+.wpf_comment_container .wpf_current_chat_box .is_info .task-author,
+.wpf_comment_container .wpf_current_chat_box .is_info p {
+	color: #4a5568;
+}
+.wpf_comment_container .wpf_current_chat_box .is_info .meassage_area_main span.taskStatusMsg {
+    font-weight: 700;
+    text-transform: capitalize;
+}
+.wpf_comment_container .wpf_current_chat_box .is_info .meassage_area_main {
+	text-align: left;
+}
+.wpf_comment_container .form-group {
+	position: relative;
+}
+.wpf_comment_container .form-group textarea.form-control {
+	background: #ecf3f9;
+	border-radius: 8px;
+	padding: 15px;
+	border: 0;
+}
+
+/* Bottom Bar */
+.wpf_bottombar_section {
+    position: fixed;
+	left: 50%;
+    bottom: -100px;
+    transform: translate(-50%, 0);
+    width: 100%;
+    max-width: 950px !important;
+    z-index: 2147483647;
+    padding-inline: 0px !important;
+    padding-block: 0px !important;
+}
+#wpf_bottom_bar {
+	width: 100%;
+	padding: 0;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+    border-radius: 16px;
+    cursor: default;
+    background-color: transparent !important;
+	border-top: none !important;
+	box-shadow: none !important;
+	background: transparent !important;
+}
+#wpf_bottom_bar:before {
+    content: "";
+    border-radius: 16px;
+    display: block;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    overflow: hidden;
+    left: 0;
+    filter: saturate(0.5) brightness(1.1);
+    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(24px);
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: rgba(0, 0, 51, 0.06) 0px 0px 0px 1px, rgba(0, 0, 0, 0.15) 0px 12px 60px 0px, rgba(0, 0, 85, 0.024) 0px 16px 64px 0px, rgba(0, 6, 46, 0.196) 0px 16px 36px -20px;
+    top: 0;
+    z-index: -1;
+}
+#wpf_bottom_bar .wpf_row {
+    display: flex;
+    height: 54px;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    font-family: 'Roboto', sans-serif !important;
+    padding: 0 10px !important;
+    box-sizing: border-box !important;
+}
+#wpf_bottom_bar .wpf_progress_bar {
+	width: 100%;
+	display: flex;
+	position: absolute;
+	top: 0;
+    display: none;
+}
+#wpf_bottom_bar .wpf_progress_bar .red-pb,
+#wpf_bottom_bar .wpf_progress_bar .blue-pb,
+#wpf_bottom_bar .wpf_progress_bar .yellow-pb,
+#wpf_bottom_bar .wpf_progress_bar .green-pb {
+	height: 5px;
+}
+#wpf_bottom_bar .wpf_progress_bar .red-pb {
+	background: #e54f6d;
+}
+#wpf_bottom_bar .wpf_progress_bar .blue-pb {
+	background: #363c4d;
+}
+#wpf_bottom_bar .wpf_progress_bar .orange-pb {
+	background: #ffa532;
+}
+#wpf_bottom_bar .wpf_progress_bar .yellow-pb {
+	background: #fcd227;
+}
+#wpf_bottom_bar .wpf_progress_bar .green-pb {
+	background: #69dc9e;
+}
+.wpf_btn_hover:hover {
+    background-color: #ECF3F9 !important;
+}
+#wpf_bottom_bar .footer-logo {
+    height: 35px;
+    width: 35px;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#wpf_bottom_bar .footer-logo a {
+    line-height: normal !important;
+    height: 100% !important;
+	width: 100% !important;
+}
+#wpf_bottom_bar .footer-logo img {
+    max-width: 36px !important;
+    max-height: 36px !important;
+    margin: 0 !important;
+    cursor: pointer !important;
+    border-radius: 8px !important;
+}
+#wpf_bottom_bar .wpf_bottom_left,
+#wpf_bottom_bar .wpf_bottom_right,
+#wpf_bottom_bar .wpf_bottom_middle {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+}
+#wpf_bottom_bar .wpf_bottom_middle {
+    justify-content: center;
+    position: relative;
+}
+#wpf_bottom_bar .wpf_bottom_right {
+	justify-content: flex-end;
+}
+#wpf_bottom_bar .tasks-btn {
+	margin: 0 10px;
+}
+a#wpf_comment_mode_general_task svg path {
+    stroke: #363d4d !important;
+}
+.wpf_bc_text {
+    color: #272D3C;
+    font-family: Roboto;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400 !important;
+}
+.wpf_bc_switch {
+    position: relative;
+    display: inline-block;
+    width: 45px !important;
+    height: 24px !important;
+    border-radius: 34px !important;
+    margin: 0 8px !important;
+	outline: 4px solid rgba(109, 93, 243, 0.3) !important;
+}
+.wpf_bc_switch_slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+.wpf_bc_switch_slider:before {
+    position: absolute;
+    content: "";
+    height: 20px !important;
+	width: 20px !important;
+    left: -3px;
+    bottom: 2px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+.wpf_bc_switch_slider.wpf_bc_switch_round {
+    border-radius: 34px;
+}
+.wpf_bc_switch_slider.wpf_bc_switch_round:before {
+    border-radius: 50%;
+}
+.wpf_bc_switch_slider:not(.active_browse) {
+    background-color: var(--main-wpf-color) !important;
+}
+.wpf_bc_switch_slider:not(.active_browse):before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+}
+.wpf_bottom_middle .icons-block {
+	text-align: center;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	display: flex;
+	align-items: flex-end;
+}
+.wpf_bottom_middle .icons-block li {
+	text-align: center;
+	margin: 0 12px;
+}
+.wpf_bottom_middle .icons-block li a {
+	color: #4a5568;
+	font-family: 'Roboto', sans-serif;
+	font-size: 12px;
+	text-decoration: none;
+}
+.wpf_bottom_middle .icons-block li a:hover span,
+.wpf_bottom_middle .icons-block li a.wpf_active span {
+	color: #279af1;
+}
+.wpf_bottom_middle .icons-block li svg {
+	display: flex;
+	margin: 0 auto;
+	height: 16px;
+	width: auto;
+	margin-bottom: 3px;
+    fill: transparent;
+}
+.wpf_bottom_middle .icons-block .pro svg {
+	height: 16px;
+	width: 16px;
+}
+.wpf_bottom_middle .icons-block li span {
+	display: block;
+	line-height: normal;
+}
+.wpf_icon_box .wpf_icon_title {
+	display: flex;
+	align-items: center;
+}
+.wpf_icon_title svg {
+	width: auto;
+	height: 18px;
+	margin-right: 6px;
+}
+/* Share version 2 css by Pratap start */
+.avc_invite_share_wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+    backdrop-filter: blur(3px);
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 2147483650;
+    cursor: default;
+}
+.avc_close_share_container {
+    position: -webkit-sticky;
+    position: sticky;
+    top: -10px;
+    text-align: end;
+    margin-bottom: 5px;
+    margin-top: -10px;
+}
+.avc_close_share_container span {
+    display: inline-block;
+    color: #e54f6d !important;
+    font-size: 38px;
+    line-height: 18px !important;
+    transform: rotate(45deg);
+    text-shadow: 0 1px 0 #fff;
+    cursor: pointer;
+    margin-right: -10px;
+    font-weight: 100;
+}
+.avc_invite_title {
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 22px;
+    line-height: 23px;
+    color: #272D3C;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.avc_invite_subtitle {
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 16px;
+    color: #272D3C;
+    margin-bottom: 25px;
+}
+.avc_invite_share_container {
+    width: 90%;
+    max-height: 90vh;
+    max-width: 600px;
+    box-shadow: 0em 0em 3em 0em rgba(0,0,0,0.13);
+    padding: 40px !important;
+    border-radius: 18px;
+    border: 1px solid #ECF3F9;
+    background-color: #fff !important;
+    overflow-y: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    -webkit-animation: fade-in-top 0.5s cubic-bezier(0.390, 0.575, 0.565, 1.000) both;
+    animation: fade-in-top 0.5s cubic-bezier(0.390, 0.575, 0.565, 1.000) both !important;
+    box-sizing: border-box;
+}
+.avc_invite_share_container::-webkit-scrollbar {
+    display: none;
+}
+.avc_invite_wrapper {
+    max-height: 20vh;
+    overflow: auto;
+}
+.avc_invite_wrapper::-webkit-scrollbar, .avc_shared_user_list::-webkit-scrollbar { 
+    width: 5px;
+}
+.avc_invite_wrapper::-webkit-scrollbar-thumb, .avc_shared_user_list::-webkit-scrollbar-thumb {
+    background: #e3ebf6c9;
+    border-radius: 50px;
+}
+.avc_invite_wrapper::-webkit-scrollbar-track, .avc_shared_user_list::-webkit-scrollbar-track {
+    background: white;
+}
+.avc_each_invite {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px !important;
+    border: 1px solid #EFF2F6;
+    border-radius: 5px;
+}
+.avc_each_invite:not(:first-child) {
+    margin-top: 5px;
+}
+.avc_invite_fields {
+    display: flex;
+    width: 80%;
+}
+.avc_each_invite input {
+    min-height: 36px !important;
+    padding: 0 10px !important;
+    line-height: 2;
+    font-size: 14px !important;
+    border-radius: 8px !important;
+    border: 1px solid rgba(0, 0, 0, 0.23) !important;
+    background-color: #fff !important;
+    color: #2c3338 !important;
+    width: 50% !important;
+    box-sizing: border-box;
+}
+.avc_each_invite input::-webkit-input-placeholder { /* Edge */
+    color: #ccc;
+    font-weight: 400 !important;
+    font-size: 14px;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+}
+.avc_each_invite input:-ms-input-placeholder { /* Internet Explorer 10-11 */
+    color: #ccc;
+    font-weight: 400 !important;
+    font-size: 14px;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+} 
+.avc_each_invite input::placeholder {
+    color: #ccc;
+    font-weight: 400 !important;
+    font-size: 14px;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+}
+.avc_invite_name {
+    margin-right: 10px;
+}
+.avc_add_remove_invite {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex: 1;
+}
+.avc_add_invite, .avc_remove_invite {
+    border-radius: 8px !important;
+    color: #000 !important;
+    font-size: 0.875rem !important;
+    box-shadow: 0px 0px 0px 0px !important;
+    box-sizing: border-box !important;
+    transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,border 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms  !important;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif  !important;
+    font-weight: 500  !important;
+    letter-spacing: 0.02857em  !important;
+    text-transform: uppercase;
+    border: 0  !important;
+    margin: 0  !important;
+    display: inline-flex  !important;
+    outline: 0  !important;
+    position: relative;
+    align-items: center;
+    user-select: none;
+    vertical-align: middle;
+    -moz-appearance: none;
+    justify-content: center;
+    -webkit-appearance: none;
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer  !important;
+    padding: 0px !important;
+}
+.avc_add_invite {
+    width: 36px !important;
+    height: 36px !important;
+    background-color: #ECF3F9 !important;
+}
+.avc_remove_invite {
+    width: 36px !important;
+    height: 36px !important;
+    visibility: hidden;
+    background-color: unset !important;
+}
+.avc_add_invite:hover {
+    background-color: #D5E2F3 !important;
+}
+.avc_remove_invite:hover {
+    background-color: #D5E2F3 !important;
+}
+.avc_add_inivite_svg, .avc_remove_inivite_svg {
+    fill: currentColor;
+    display: inline-block;
+    font-size: 1.2rem;
+    transition: fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    flex-shrink: 0;
+    user-select: none;
+    width: 24px;
+}
+#send_invite {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #ECF3F9;
+    color: rgba(0, 0, 0, 0.26);
+    font-weight: 500;
+    font-size: 14px;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    border-radius: 5px;
+    padding: 0px 16px !important;
+    width: 100%;
+    min-height: 36px;
+    width: 110px !important;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    margin-left: auto;
+    box-sizing: border-box;
+}
+.send_invite_active {
+    background-color: #3ed696 !important;
+    color: #272d3c !important;
+    cursor: pointer;
+}
+.send_invite_active:hover {
+    background-color: #33bf84 !important;
+}
+.avc_invite_error_container, .avc_suc_err_container {
+    position: fixed;
+    top: 50px;
+    right: -375px;
+}
+.avc_invite_error_msg1, .avc_invite_error_msg2, .avc_invite_error_msg3, .avc_invite_error_msg4 {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    font-weight: 400;
+    color: #272D3C;
+    box-shadow: 0 4px 4px 0 rgba(0,0,0,.25);
+    padding: 15px 15px !important;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    background-color: #fff;
+}
+.avc_succ_icon {
+    width: 26px;
+    height: 26px;
+    background-color: #3ed696;
+    position: relative;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+.avc_succ_icon:before {
+    content: '';
+    position: absolute;
+    width: 9px;
+    height: 4px;
+    background-color: white;
+    top: 13px;
+    -webkit-transform: rotate(45deg);
+    -moz-transform: rotate(45deg);
+    transform: rotate(45deg);
+    left: 4px;
+    border-radius: 1px;
+}
+.avc_succ_icon:after {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 4px;
+    background-color: white;
+    top: 11px;
+    -webkit-transform: rotate(-45deg);
+    -moz-transform: rotate(-45deg);
+    transform: rotate(-45deg);
+    right: 4px;
+    border-radius: 1px;
+}
+.avc_err_icon {
+    width: 26px;
+    height: 26px;
+    background-color: #E72D67;
+    position: relative;
+    border-radius: 50%;
+    margin-right: 10px;
+ }
+.avc_err_icon:before {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 4px;
+    background-color: white;
+    top: 11px;
+    -webkit-transform: rotate(45deg);
+    -moz-transform: rotate(45deg);
+    transform: rotate(45deg);
+    left: 5px;
+    border-radius: 1px;
+}
+.avc_err_icon:after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 4px;
+    background-color: white;
+    top: 11px;
+    -webkit-transform: rotate(-45deg);
+    -moz-transform: rotate(-45deg);
+    transform: rotate(-45deg);
+    right: 5px;
+    border-radius: 1px;
+}
+.avc_red_border {
+    border: 2px solid #e54f6d !important;
+}
+.avc_shared_container {
+    margin-bottom: 25px;
+}
+.avc_shared_user_list {
+    max-height: 25vh;
+    overflow: auto;
+}
+.avc_share_or, .avc_invited_user_title {
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    color: #272D3C;;
+    width: 100%;
+    height: 22px;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+.avc_invited_user {
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    padding: 10px !important;
+    border: 1px solid #EFF2F6;
+    border-radius: 5px;
+}
+.avc_invited_user:not(:last-child) {
+    margin-bottom: 5px;
+}
+.avc_ivi_user_img {
+    min-width: 45px;
+    height: 45px;
+    width: 45px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 1;
+    color: #fff;
+    text-transform: uppercase;
+    background-color: var(--main-wpf-color);
+}
+.avc_ivi_user_info {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+}
+.avc_ivi_user_name {
+    margin-left: 15px;
+    font-size: 14px;
+    font-weight: 400;
+    color: #A4ABC5;
+}
+.avc_ivi_user_name span {
+    color: #272D3C;
+    font-weight: 500;
+}
+.avc_user_share_action {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+}
+.avc_delete_ivi_user {
+    cursor: pointer;
+    color: #E72D67;
+    height: 36px;
+    width: 36px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #A4ABC5 !important;
+    background-color: #FFFFFF !important;
+    margin-left: 10px;
+    border-radius: 8px;
+}
+.avc_delete_ivi_user:hover {
+    background-color: #ECF3F9 !important;
+}
+.avc_share_button {
+    width: 130px;
+}
+.avc_share_page_link_input {
+    position: absolute;
+    z-index: -999;
+    opacity: 0;
+    width: 0px;
+}
+.avc_copy_link_icon {
+    display: flex;
+    align-items: center;
+    text-decoration: unset !important;
+    padding: 8px 12px !important;
+    border: 1px solid#8791B2;
+    border-radius: 5px;
+    height: 36px !important;
+    box-sizing: border-box;
+    color: #272D3C !important;
+}
+.avc_copy_link_icon:hover {
+    background-color: #ECF3F9;
+}
+.avc_copy_link_icon img {
+    margin-right: 5px;
+}
+.avc_share_page_container {
+   display: flex;
+   align-items: center;
+   border: 1px solid #EFF2F6;
+   height: 45px;
+   border-radius: 5px;
+}
+.avc_share_link_container {
+    display: flex;
+    flex-grow: 1;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 5px 5px 15px !important;
+    box-sizing: border-box;
+}
+.avc_share_link {
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #A4ABC5;
+    line-height: 17px;;
+}
+.avc_copy_pagelink {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-decoration: unset !important;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    color: #272D3C !important;
+    width: 55px !important;
+    height: 36px !important;
+    background-color: #3ED696 !important;
+    border-radius: 5px !important;
+}
+a.avc_copy_pagelink {
+    color: #272D3C !important;
+}
+.avc_invite_success, .avc_delete_success, .avc_invite_fail {
+    display: none; 
+    align-items: center;
+    font-size: 16px;
+    font-weight: 400;
+    color: #272D3C;
+    box-shadow: 0 4px 4px 0 rgba(0,0,0,.25);
+    padding: 15px 15px !important;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    background-color: #fff;
+}
+.avc_hidden_user_structure {
+    display: none;
+}
+/* End */
+
+.wpf-graphics-modal .wpf_inner_container,
+.wpf_inner_container .img_desc {
+	text-align:left;
+}
+.wpf_inner_container .img_desc {
+	margin-top: 15px;
+	display: inline-block;
+	width: 100%;
+}
+
+
+/*wpf_bottom_filter-Desing css Start-*/
+#wpf_bottom_bar #wpf_bottom_filter {
+	position: relative;
+	width: 100%;
+}
+#wpf_bottom_bar #wpf_bottom_filter .wpf_list, #wpf_bottom_bar #wpf_site_milestone_wpf_list {
+    position: absolute;
+    border-radius: 5px 5px 0px 0px;
+    padding: 0 8px 10px;
+    max-width: 350px;
+    width: 100%;
+    background: #fff;
+    font-family: 'Roboto', sans-serif !important;
+}
+
+#wpf_bottom_bar #wpf_bottom_filter .wpf_list.wpf_active, #wpf_bottom_bar #wpf_site_milestone_wpf_list.wpf_active {
+    animation: fade-in-bottom 0.2s cubic-bezier(0.390, 0.575, 0.565, 1.000) both !important;
+    border: 1px solid #d3d4d4;
+    border-bottom: none;
+    bottom: 46px;
+}
+#wpf_bottom_bar #wpf_site_milestone_wpf_list > .milestone_item_container > .milestone_item_container_header {
+    display: flex;
+    justify-content: space-between;
+}
+#wpf_bottom_bar #wpf_bottom_filter #wpf_task_status_filter_btn{
+	margin-left: -91px;
+}
+#wpf_bottom_bar #wpf_bottom_filter #wpf_task_priority_filter_btn{
+	margin-left: -32px;
+}
+#wpf_bottom_bar #wpf_bottom_filter #wpf_task_visibility {
+    margin-left: -35px;
+}
+#wpf_bottom_bar #wpf_bottom_filter #wpf_report_btn {
+    margin-left: 33px;
+}
+#wpf_bottom_bar #wpf_bottom_filter #wpf_share_page_btn {
+    margin-left: 93px;
+}
+#wpf_bottom_bar #wpf_site_milestone_wpf_list {
+    margin-left: 18em;
+}
+ul.wp_feedback_filter_checkbox label {
+    display: flex !important;
+    justify-content: flex-start;
+    align-items: center;
+    font-size: 14px !important;
+}
+.wpf_comment_btn {
+    background-color: #3ED696!important;
+    color: #272d3c !important;
+    margin-left: 0px;
+    font-weight: 500 !important;
+    font-size: 16px !important;
+    height: 40px !important;
+}
+.wpf_comment_btn.task_comment {
+    height: 36px !important;
+    width: 36px !important;
+    font-size: 16px !important;
+    position: relative;
+    padding: 0px !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.wpf_comment_btn.disabled {
+    opacity: .4 !important;
+    cursor: not-allowed !important;
+}
+.wpf_comment_btn.task_comment img {
+    height: 22px;
+}
+.wpf_comment_btn.task_comment.guest_comment {
+    width: 95px !important; 
+}
+.wpf_comment_btn:hover {
+    filter: brightness(90%) !important;
+    transition: filter 0.3s ease-in-out !important;
+	background-color: #3ED696!important;
+}
+#wpf_bottom_bar .wpf_comment_btn {
+    background : var(--main-wpf-color) !important;
+    color: #fff !important;
+}
+#wpf_bottom_bar .wpf_comment_btn img {
+    height: 18px;
+    margin-right: 5px;
+}
+.wpf_comment_btn svg {
+	color: white;
+	height: 20px;
+}
+#wpf_bottom_bar #wpf_bottom_filter .wpf_list .wpf_filter_title,
+#wpf_bottom_bar #wpf_bottom_filter .wpf_list .wpf_visibility_title,
+#wpf_bottom_bar #wpf_bottom_filter .wpf_list .wpf_sidebar_checkboxes label,
+#wpf_bottom_bar #wpf_bottom_filter .wpf_list label.wpf_reports_title,
+#wpf_bottom_bar #wpf_bottom_filter .wpf_list .wpf_icon_title {
+	font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+
+}
+#wpf_bottom_bar #wpf_bottom_filter .wpf_list .wpf_filter_title {
+	margin-bottom: 0;
+}
+#wpf_bottom_bar #wpf_bottom_filter .wpf_list .wpf_sidebar_checkboxes label {
+	padding-left: 0;
+	display: flex;
+    align-items: center;
+}
+#wpf_bottom_bar #wpf_bottom_filter .wpf_list .wpf_filter_title svg {
+	height: 12px;
+	width: auto;
+}
+#wpf_bottom_bar #wpf_bottom_filter .wpf_filter_checkbox {
+	padding: 0;
+	margin: 0;
+}
+#wpf_bottom_bar #wpf_bottom_filter .wpf_filter_checkbox input + label:before,
+#wpf_bottom_bar .wpf_remove_login_box label.wpf_remove_login_label:before,
+#wpf_bottom_bar #wpf_bottom_filter .wpf_sidebar_checkboxes input[type="checkbox"] + label:before, 
+.wpf_comment_container .tab-content label.wpf_remove_login_label::before {
+	margin-left: 0;
+	margin-bottom: 0;
+	margin-right: 6px;
+}
+.wpf_visibility_container {
+    height: 36px;
+    width: 36px;
+    box-sizing: border-box;
+    border: 1px solid #A4ABC5;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    margin: 0 10px;
+    position: relative;
+}
+#wpf_task_visibility {
+    position: absolute;
+    top: -130px;
+    right: 0;
+    height: 110px;
+    width: 165px;
+    background: #FFFFFF;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.27);
+    border-radius: 5px;
+    transition: opacity 244ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, transform 163ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    padding: 15px !important;
+    box-sizing: border-box;
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+}
+#wpf_task_visibility .wpf_sidebar_checkboxes input[type="checkbox"] + label:before {
+    min-height: 18px;
+    min-width: 18px;
+}
+#wpf_task_visibility input[type=checkbox] + label {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px !important;
+    color: #000;
+}
+.wpf_comment_mode_general_task, .wpf_inbox_link_wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px !important;
+    font-family: 'Roboto' !important;
+    font-style: normal;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+    box-sizing: border-box;
+    background-color: #fff !important;
+    color: #272D3C !important;
+    border: 1px solid #A4ABC5 !important;
+    height: 36px !important;
+    width: 36px !important;
+}
+.wpf_comment_mode_general_task {
+    margin-right: 10px;
+}
+.wpf_inbox_link_wrapper {
+    margin-left: 10px;
+}
+#wpf_bottom_bar #wpf_bottom_filter .wpf_filter_checkbox input:checked + label::after,
+.wpf_comment_container .tab-content .wpf_remove_login_box input:checked + label::after
+{
+	top: 3px;
+	left: 7px;
+}
+
+#wpf_bottom_bar #wpf_bottom_filter .wpf_filter_checkbox input[type=radio] + label, #wpf_bottom_bar .wpf_remove_login_box input[type=checkbox] + label, #wpf_bottom_bar .wpf_remove_login_box input[type=radio] + label {
+    padding-left: 0;
+    display: flex;
+    align-items: center;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+/*--checkbox---design start here-*/
+.wpf_comment_container .wp_feedback_filter_checkbox.user label {
+	border-radius: 8px !important;
+    padding: 5px !important;
+    background-color: rgba(109, 93, 243, 0.07);
+}
+.wpf_comment_container ul.wp_feedback_filter_checkbox.user li input:not(:checked) + label {
+    border: 1px solid #A4ABC5;
+    background-color: transparent !important;
+}
+.wpf_comment_container ul.wp_feedback_filter_checkbox.user li input:checked + label {
+    border: 1px solid var(--main-wpf-color);
+}
+ul.wp_feedback_filter_checkbox.user {
+    margin-bottom: 8px !important;
+}
+ul.wp_feedback_filter_checkbox.user li {
+    margin-bottom: 8px !important;
+}
+.wpf_notify_user_container {
+    display: flex;
+    width: 100%;
+    gap: 8px !important;
+}
+.wpf_notify_user_avatar {
+    height: 24px !important;
+    width: 24px !important;
+    min-width: 24px !important;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 8px !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-transform: uppercase;
+    border-radius: 6px;
+    color: #fff;
+}
+.wpf_notify_user_name {
+    max-width: 125px !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    text-overflow: ellipsis !important;
+    line-height: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    text-transform: capitalize;
+    letter-spacing: 0!important;
+	color: #272D3C!important;
+	font-weight: 400!important;
+}
+.wpf_notify_status {
+    margin-left: auto;
+    font-size: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    line-height: 2 !important;
+}
+.wpf_will_notify {
+    color: var(--main-wpf-color);
+    font-weight: 400!important;
+	letter-spacing: 0.00938em;
+}
+.wpf_will_notify svg {
+    height: 12px;
+    width: 12px;
+    color: var(--main-wpf-color);
+    margin-left: 2px;
+}
+.wpf_will_not_notify {
+    color:#A4ABC5 !important;
+	font-weight: 400!important;
+	letter-spacing: 0.00938em;
+}
+ul.wp_feedback_filter_checkbox.user li:nth-child(odd) .wpf_notify_user_avatar {
+    background-color: rgb(39, 154, 241) !important;
+}
+ul.wp_feedback_filter_checkbox.user li:nth-child(even) .wpf_notify_user_avatar {
+    background-color: rgb(255, 90, 72) !important;
+}
+ul.wp_feedback_filter_checkbox.user li input:not(:checked) + label .wpf_will_notify {
+    display: none;
+}
+ul.wp_feedback_filter_checkbox.user li input:checked + label .wpf_will_not_notify {
+    display: none;
+}
+div#wpf_wizard_notifications input:checked + label:before {
+	margin-left: 0;
+	height: 15px;
+	width: 16px;
+}
+div#wpf_wizard_notifications input:checked + label:after {
+	left: 6px;
+}
+
+/*Chat box radius*/
+.wpf_current_chat_box .wpf_other {
+	border-radius: 8px 0px 8px 8px;
+}
+.wpf_page_loader {
+    position: absolute;
+    z-index: 1999;
+    width: 100%;
+    overflow: visible;
+    margin: auto;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background-image: url(../images/Loader-slider-WPFeedback.svg);
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-color: rgba(255, 255, 255, 0.5);
+    background-size: 40px;
+}
+/*Chat box radius End*/
+
+/* Scroll */
+.wpf_sidebar_content::-webkit-scrollbar, .wpf_comment_container .tab-content ul::-webkit-scrollbar, .scrollbar-outer::-webkit-scrollbar, .wpf_upload_file_view_wrapper::-webkit-scrollbar { 
+    width: 7px;
+}
+.wpf_sidebar_content::-webkit-scrollbar-thumb, .wpf_comment_container .tab-content ul::-webkit-scrollbar-thumb, .scrollbar-outer::-webkit-scrollbar-thumb {
+    background: #e3ebf6c9;
+    border-radius: 50px;
+}
+.wpf_upload_file_view_wrapper::-webkit-scrollbar-thumb {
+    background: #dee2e6c9 !important;
+    border-radius: 50px;
+}
+.wpf_sidebar_content::-webkit-scrollbar-track, .wpf_comment_container .tab-content ul::-webkit-scrollbar-track, .scrollbar-outer::-webkit-scrollbar-track {
+    background: white;
+}
+.wpf_upload_file_view_wrapper::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+/* END */
+@media (min-width: 1024px) {
+    .wpf_hide_sidebar_wrapper {
+        display: none;
+    }
+}
+@media (min-width: 1500px) {
+	#wpf_bottom_bar .wpf_bottom_left,
+	#wpf_bottom_bar .wpf_bottom_right {
+		width: calc(50% - 135px);
+	}
+	#wpf_enable_comment .wpf_bottom_left {
+		width: auto;
+	}	
+}
+@media (min-width: 1014px) and (max-width: 1135px) {
+	.wpf_bottom_middle .icons-block li {
+		margin: 0px 12px;
+	}
+
+}
+@media (max-width: 1180px) {
+	.wpf_bottom_middle .icons-block li {
+		margin: 0px 8px;
+	}
+
+    #wpf_bottom_bar .tasks-btn span.title, .wpf_responsive_icons_bar {
+        display: none !important;
+    }
+
+	 a#wpf_comment_mode_general_task svg, #wpf_bottom_bar .tasks-btn svg {
+	 	height: 16px;
+	 	width: 16px;
+	 	margin: 0;
+	 }
+
+	 .wpf_bottom_middle .icons-block {
+	 	font-size: 12px;
+	 }
+
+	 #wpf_bottom_bar #wpf_bottom_filter #wpf_task_visibility {
+        margin-left: -30px;
+    }
+    #wpf_bottom_bar #wpf_bottom_filter #wpf_report_btn {
+        margin-left: 30px;
+    }
+    #wpf_bottom_bar #wpf_bottom_filter #wpf_share_page_btn {
+        margin-left: 82px;
+    }
+}
+@media (max-width: 767px) {
+	#wpf_bottom_bar .wpf_row {
+		flex-wrap: wrap;
+		height: auto;
+		padding: 10px 0 !important;
+	}
+	#wpf_bottom_bar #wpf_bottom_filter .wpf_list {
+		bottom: 75px;
+		max-width: 100%;
+	}
+	#wpf_bottom_bar #wpf_bottom_filter #wpf_task_filter_btn,
+	#wpf_bottom_bar #wpf_bottom_filter #wpf_task_visibility,
+	#wpf_bottom_bar #wpf_bottom_filter #wpf_report_btn,
+	#wpf_bottom_bar #wpf_bottom_filter #wpf_share_page_btn {
+		margin-left: 0;
+	}
+	#wpf_bottom_bar #wpf_bottom_filter #wpf_task_status_filter_btn, #wpf_bottom_bar #wpf_bottom_filter #wpf_task_priority_filter_btn  {
+	    margin-left: 0;
+	}
+	#wpf_bottom_bar #wpf_bottom_filter .wpf_list {
+		border-radius: 8px;
+		border: 1px solid #e3e3e3;
+	}
+	#wpf_bottom_bar #wpf_bottom_filter .wpf_list:before {
+		display: none;
+	}
+	#wpf_enable_comment .wpf_bottom_left .message {
+    	width: 100%;
+    	font-size: 12px;
+	}
+}
+@media (max-width: 1024px) {
+	#wpf_bottom_bar .footer-logo, #wpf_bottom_bar .arrow-down {
+    	max-width: 85px !important;
+	}
+}
+@media (max-width: 558px) {
+	#wpf_bottom_bar .footer-logo, #wpf_bottom_bar .arrow-down {
+    	display: none !important;
+	}
+}
+@media (max-width: 722px) {
+	div#wpf_site_milestone {
+    	display: none !important;
+	}
+	button.wpf_green_btn.approve-page {
+    	margin-left: 10px;
+	}
+	#wpf_enable_comment .wpf_bottom_left .message {
+    	width: 100%;
+		margin-bottom: 5px;
+	}
+    .wpf_bottom_left {
+        max-width: 100%;
+    }
+	#wpf_bottom_bar .wpf_comment_btn {
+    	margin: 0;
+    	margin-right: -10px;
+	}
+
+}
+@media (max-width: 360px) {
+	#wpf_bottom_bar .tasks-btn span.title {
+    display: none !important;
+	}
+	#wpf_bottom_bar .tasks-btn svg {
+    margin: 0;
+	}
+}
+/*21-01-2020 */
+.popover-body textarea, #wpf_general_comment_tabs textarea {
+	margin: 0 0 5px 0;
+}
+.popover-body .wpf_bottom_buttons, #wpf_general_comment_tabs .wpf_bottom_buttons {
+    margin-top: 13px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.wpf_button_section1, .wpf_button_section2 {
+    display: flex;
+}
+.wpf_complete_task_anim {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    z-index: -1;
+    transform: translate(-45%, 0px);
+}
+.mark_as_complete_lable {
+    color: rgb(135, 145, 178) !important;
+    font-size: 14px !important;
+    font-family: 'Roboto', sans-serif !important;
+    height: 36px !important;
+    border: 1px solid #A4ABC5 !important;
+    background-color: transparent !important;
+    line-height: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    max-width: 36px !important;
+    border-radius: 8px !important;
+    padding: 0 11px !important;
+    overflow: hidden !important;
+    transition: max-width .2s ease-in-out !important;
+    cursor: pointer !important;
+    box-sizing: border-box !important;
+}
+.mark_as_complete_lable.wpf_newtask {
+    display: none !important;
+}
+.mark_as_complete_lable:hover {
+    max-width: 100% !important;
+    background-color: rgba(109, 93, 243, 0.07) !important;
+}
+.mark_as_complete_lable svg {
+    height: 14px !important;
+    width: 14px !important;
+    min-width: 14px !important;
+    min-height: 14px !important;
+    max-width: 14px !important;
+    max-height: 14px !important;
+}
+.wpf_task_completed_text, .wpf_task_complete_text {
+    width: 0px !important;
+    overflow: hidden !important;
+    transition: width .2s, opacity .2s !important;
+    opacity: 0 !important;
+    display: block !important;
+    margin-left: 0 !important;
+    white-space: nowrap !important;
+    color: inherit !important;
+    font-size: inherit !important;
+    font-weight: 400 !important;
+}
+.mark_as_complete_checkbox:checked + .mark_as_complete_lable:hover .wpf_task_completed_text {
+    width: 100% !important;
+    margin-left: 6px !important;
+    opacity: 1 !important;
+    white-space: nowrap !important;
+}
+.mark_as_complete_checkbox:not(:checked) + .mark_as_complete_lable:hover .wpf_task_complete_text {
+    width: 100% !important;
+    margin-left: 6px !important;
+    opacity: 1 !important;
+    white-space: nowrap !important;
+    transition: width .2s, opacity .2s !important;
+}
+.mark_as_complete_checkbox:checked + label {
+    border: 1px solid #3ED696 !important;
+    color: #3ED696 !important;
+}
+a.wpfb-point.complete .gg-check {
+    margin-left: 4px;
+    margin-top: 4px;
+    color: #fff !important;
+}
+.wpf_sidebar_content .complete .gg-check {
+    margin-top: 2px;
+    margin-left: 1px;
+    color: #fff;
+    transition: all 0.2s ease-in !important;
+}
+div#wpf_thispage .complete .wpf_task_number:hover .gg-check {
+    color: transparent;
+}
+body .wpf_checkbox_label {
+    padding-left: 0 !important;
+    display: flex !important;
+    align-items: center;
+    font-size: 14px !important;
+    color: #272d3c !important;
+    position: relative !important;
+    text-align: left;
+    font-weight: normal;
+    line-height: 1.5;
+    letter-spacing: 0px !important;
+    margin-bottom: 0;
+    cursor: pointer;
+}
+body .wpf_checkbox {
+	width: 0 !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	display: none !important;
+}
+div#wpf_initial_settings_third_step label.wpf_checkbox_label {
+    margin-bottom: 10px !important;
+}
+html body .wpf_checkbox_label::before
+{
+	content: '';
+	display: inline-block;
+	width: 15px;
+	height: 15px;
+	border-radius: 3px;
+    border: 2px solid #363d4d !important;
+	opacity: 0.6;
+	transition: all .12s, border-color .08s !important;
+	margin-left: 0 !important;
+	margin-bottom: 0 !important;
+	margin-right: 5px !important;
+	box-sizing: content-box !important;
+}
+table.form-table.wpf_fields .wpf_checkbox {
+    display: inline-block !important;
+    margin-bottom: 10px !important;
+    margin-right: 5px !important;
+}
+table.form-table.wpf_fields .wpf_checkbox_label {
+    display: inline-block !important;
+    margin-bottom: 10px !important;
+}
+table.form-table.wpf_fields .wpf_checkbox_label:before {
+	display: none !important;
+}
+.img_desc {
+	margin-bottom: 10px;
+	display: block;
+}
+.wpf_title_secondery {
+	margin: 10px 0;
+	display: flex;
+	align-items: center;
+}
+.wpf_title_secondery a ,.wpfeedback_powered_by .wpf_title a,.wpf_settings_col .wpf_title a{
+	margin-left: 3px !important;
+	display: inline-flex;
+}
+.wpfeedback_powered_by .wpf_title ,.wpf_settings_col .wpf_title{
+	display: flex;
+	align-items: center;
+}
+#wpf_sidebar_filter_task_status li:first-child label {
+	color: #363D4D !important;
+}
+#wpf_sidebar_filter_task_status li:nth-child(2) label {
+	color: #ffa532 !important;
+}
+#wpf_sidebar_filter_task_status li:nth-child(3) label {
+	color: #fcd227 !important;
+}
+#wpf_sidebar_filter_task_status li:nth-child(4) label {
+	color: #3ed696 !important;
+}
+#wpf_filter_taskpriority li:first-child label {
+	color: #3ed696 !important;
+}
+#wpf_filter_taskpriority li:nth-child(2) label {
+	color: #fcd227 !important;
+}
+#wpf_filter_taskpriority li:nth-child(3) label {
+	color: #ffa532 !important;
+}
+#wpf_filter_taskpriority li:nth-child(4) label {
+	color: #ff5a48 !important;
+}
+#wpf_bottom_bar #wpf_bottom_filter .wpf_list .wpf_filter_title,
+#wpf_bottom_bar #wpf_bottom_filter .wpf_visibility_title,
+#wpf_bottom_bar #wpf_bottom_filter .wpf_reports_title,
+#wpf_bottom_bar #wpf_bottom_filter .wpf_icon_title {
+	font-weight: 700;
+}
+#wpf_bottom_bar #wpf_bottom_filter .wpf_list .wpf_filter_title svg,
+#wpf_bottom_bar #wpf_bottom_filter .wpf_visibility_title svg,
+#wpf_bottom_bar #wpf_bottom_filter .wpf_reports_title svg,
+#wpf_bottom_bar #wpf_bottom_filter .wpf_icon_title svg{
+  margin-right: 5px !important;
+  display: inline-block;
+}
+#wpf_bottom_bar #wpf_bottom_filter .wpf_visibility_title svg,
+#wpf_bottom_bar #wpf_bottom_filter .wpf_icon_title svg,
+#wpf_bottom_bar #wpf_bottom_filter .wpf_icon_title svg
+{
+	width: 20px;
+}
+#wpf_bottom_bar #wpf_bottom_filter .wpf_visibility_title svg {
+	width: 16px !important;
+
+}
+#wpf_bottom_bar #wpf_bottom_filter .wpf_visibility_title, 
+#wpf_bottom_bar #wpf_bottom_filter .wpf_reports_title,
+#wpf_bottom_bar #wpf_bottom_filter .wpf_icon_title  {
+	display: flex;
+	align-items: center;
+}
+#wpf_bottom_bar #wpf_bottom_filter .wpf_reports_title svg {
+	width: 16px;
+}
+#wpf_bottom_bar .tasks-btn {
+	border: 1px solid #A4ABC5 !important;
+	background: #fff;
+    border-radius: 5px;
+    height: 36px;
+    width: 36px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+span#wpf_image_download {
+    display: none;
+}
+
+.wpf_bottom_left {
+    max-width: calc(100% - 225px);
+}
+
+.pickr .pcr-button{
+    border-radius: 5px !important;
+    border:solid;
+    width:100% !important;
+    height: 3.5em !important;
+    z-index: 2 !important;
+}
+#wpf_comment_mode_general_task span, #disable_comment_a span {
+    cursor: pointer !important;
+    line-height: 18px !important;
+}
+
+body.active_comment.wpf_remap div, body.active_comment.wpf_remap span, body.active_comment.wpf_remap, body.active_comment.wpf_remap header, body.active_comment.wpf_remap footer, body.active_comment.wpf_remap section {
+    cursor: move !important;
+}
+
+a#wpf_comment_mode_general_task {
+    position: relative !important;
+}
+.wpf_collab_user_list {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 8px !important;
+    font-size: 12px !important;
+    background-color: #279AF1 !important;
+    text-align: center;
+    color: rgb(255, 255, 255);
+    position: relative;
+    margin-right: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer !important;
+    box-sizing: border-box;
+}
+.wpf_current_user_name {
+    font-size: 14px !important;
+    text-transform: uppercase;
+}
+.wpf_total_collab_users {
+    color: #FFFFFF !important;
+    background-color: var(--main-wpf-color) !important;
+    border-radius: 18px !important;
+    padding: 0 6px !important;
+    font-size: 14px !important;
+    position: absolute !important;
+    right: -6px !important;
+    top: -7px !important;
+    height: 20px !important;
+    width: auto !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.wpf_collab_users_wrapper {
+    visibility: hidden;
+    display: flex;
+    height: auto !important;
+    max-width: 230px !important;
+    width: 200px !important;
+    animation: scale-up 0.2s ease-in-out !important;
+    animation-fill-mode: forwards !important;
+    border-radius: 16px !important;
+    box-shadow: 0px 2px 13px 0px rgba(0, 0, 0, 0.15) !important;
+    cursor: default !important;
+    flex-direction: column !important;
+    grid-row-gap: 10px !important;
+    row-gap: 10px !important;
+    position: absolute !important;
+    bottom: 45px !important;
+    padding: 15px !important;
+    transform-origin: bottom left !important;
+    box-sizing: border-box;
+}
+.wpf_collab_users_wrapper:before {
+    background-color: #ffffff !important;
+    content: "";
+    border-radius: 16px;
+    display: block;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    overflow: hidden;
+    left: 0;
+    filter: saturate(0.5) brightness(1.1);
+    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(24px);
+    background-color: rgba(255, 255, 255, 0.9);
+    top: 0;
+    z-index: -1;
+    box-sizing: border-box;
+}
+.wpf_collab_user_container {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+    box-sizing: border-box;
+}
+.wpf_each_collab_user {
+    display: flex;
+}
+.wpf_collab_user_avatar {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
+    text-align: center;
+    color: rgb(255, 255, 255);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-transform: uppercase;
+}
+.wpf_each_collab_user:nth-child(odd) .wpf_collab_user_avatar {
+    background-color: rgb(39, 154, 241) !important;
+}
+.wpf_each_collab_user:nth-child(even) .wpf_collab_user_avatar {
+    background-color: rgb(255, 90, 72) !important;
+}
+.wpf_collab_user_name {
+    color: #272D3C !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    max-width: 125px !important;
+    text-overflow: ellipsis !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    font-family: "Roboto", "Arial", sans-serif !important;
+    text-transform: capitalize;
+    display: flex;
+    align-items: center;
+    margin-left: 8px !important;
+}
+.wpf_share_btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 14px;
+    color: #272D3C;
+    cursor: pointer;
+    border: 2px solid #3ED696 !important;
+    height: 36px !important;
+    padding: 0 10px !important;
+    box-sizing: border-box !important;
+    border-radius: 8px !important;
+    background-color: #fff;
+}
+.wpf_share_btn img {
+    margin-right: 5px !important;
+}
+.wpf_share_btn .wpf_tooltip, .wpf_general_btn .wpf_tooltip {
+    color: #fff !important;
+    padding: 2px 6px !important;
+    position: absolute !important;
+    font-size: 12px !important;
+    font-family: Roboto, sans-serif !important;
+    font-weight: 400 !important;
+    line-height: 1.43 !important;
+    border-radius: 5px !important;
+    letter-spacing: 0 !important;
+    background-color: #4a5566 !important;
+    width: 290px;
+    z-index: 1;
+    text-align: left;
+    visibility: hidden;
+}
+.wpf_share_btn .wpf_tooltip {
+    top: -50px;
+}
+.wpf_general_btn .wpf_tooltip {
+    top: -65px;
+}
+.wpf_share_btn:hover .wpf_tooltip, .wpf_general_btn:hover .wpf_tooltip {
+    visibility: visible !important;
+}
+a#disable_comment_a {
+    position: relative !important;
+}
+    
+a#disable_comment_a svg {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    left: 0;
+    width: 100%;
+    padding-right: calc(100% - 15px);
+    padding-left: 5px;
+    padding-top: 6px !important;
+    padding-bottom: 7px !important;
+    box-sizing: border-box !important;
+    opacity:0;
+}
+
+/* ------------ Mobile ------------ */
+@media (max-width: 601px) {
+    .wpf_share_btn, .wpf_visibility_container, .footer-logo {
+        display: none !important;
+    }
+}
+@media (max-width: 782px) {
+    #wpf_launcher {
+        top: 46px;
+    }
+    .logged-in .wpf_sidebar_container {
+        height: calc(100vh - 46px);
+        top: 46px !important;
+    }
+    .wpf_comment_container .form-group textarea.form-control:focus {
+        font-size: 16px !important;
+    }
+}
+@media (max-width: 400px) {
+    div#wpf_enable_comment {
+        margin: auto;
+        width: 300px;
+        left: 10px;
+    }
+    .popover.wpf_comment_container {
+        margin: 0;
+        opacity: 0;
+        top: auto !important;
+        position: fixed !important;
+        bottom: 80px !important;
+        left: 15px !important;
+        transform: none !important;
+        width: calc(100% - 30px);
+        display: inline-block;
+        max-height: 80vh;
+        overflow-y: auto;
+	}
+}
+.wpf_current_chat_box {
+    max-height: 30vh;
+}
+ul.task_comments_content:empty {
+    display: none;
+}
+ul.task_comments_content {
+    max-height: 350px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    padding: 10px;
+}
+.wpf_loader {
+    position: absolute;
+    z-index: 1999;
+    width: 95%;
+    overflow: visible;
+    margin: auto;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background-image: url(../images/Loader-slider-WPFeedback.svg);
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-color: rgba(255, 255, 255, 0.5);
+    background-size: 60px;
+}
+.wpf_sidebar_loader {
+    position: absolute;
+    z-index: 1999;
+    width: 100%;
+    overflow: visible;
+    margin: auto;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background-image: url(../images/Loader-slider-WPFeedback.svg);
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-color: rgba(255, 255, 255, 0.5);
+    background-size: 60px;
+}
+.wpf_loading {
+    color: #A4ABC5;
+    width: 100%;
+    height: 25px;
+    padding: 5px 0px !important;
+    font-size: 14px;
+    text-align: center;
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 500;
+    line-height: 1.334;
+    letter-spacing: 0em;
+    display: none;
+}
+.wpf_report_trigger a {
+    background-color: #dee2e6;
+    width: 49%;
+    display: inline-block;
+    border-radius: 50px;
+    color: var(--main-wpf-color);
+    font-size: 12px;
+    transition: 0.2s !important;
+    padding: 8px 0;
+    text-align: center;
+    margin-right: 2%;
+    line-height: 1.4;
+}
+.wpf_report_trigger a:hover {
+    background-color: #b0b7bf;
+}
+.wpf_report_trigger a:nth-child(3) {
+    margin-right: 0;
+}
+label.wpf_reports_title {
+    display: block;
+    text-align: left;
+    color: var(--main-wpf-color);
+    font-weight: 700;
+    margin-top: 10px;
+    font-size: 12px;
+    line-height: 1.4;
+    margin-bottom: 5px;
+}
+span#wpf_front_report_sent_span {
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.015em;
+    background-color: #3ed696;
+    padding: 10px !important;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    line-height: 1.3;
+    width: calc(100% - 20px);
+    margin-top: 5px;
+    text-align: left;
+    -webkit-transition: all 0.2s ease-out;
+    -moz-transition: all 0.2s ease-out;
+    -ms-transition: all 0.2s ease-out;
+    -o-transition: all 0.2s ease-out;
+    transition: all 0.2s ease-out !important;
+    position: absolute;
+    bottom: 10px;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+.wpf_list svg {
+    fill: transparent !important;
+}
+/* Cursor text style => v2.0.9 */
+.wpf_cursor_note {
+    background-color: #4a5568 !important;
+    color: #fff !important;
+    font-family: roboto,sans-serif !important;
+    font-size: 12px !important;
+    border-radius: 5px !important;
+    padding: 2px 6px !important;
+    width: 150px;
+    }
+
+
+/*are checkout fix*/
+.woocommerce-checkout .wpf_uploadfile {
+    display: block !important;
+  }
+  .woocommerce-checkout .wfacp_footer_sec_for_script {
+    display: block;
+}
+/* Approve Page Modal */
+.wpf_wizard_modal.wpf_approve_modal {
+    max-width: 600px !important;
+    padding: 40px !important;
+    width: 500px;
+    text-align: left !important;
+}
+.wpf_approve_pg_close {
+    margin-top: -20px !important;
+}
+.wpf_approve_modal label {
+    font-size: 14px !important;
+    margin: 0 !important;
+    cursor: pointer;
+    margin-left: 5px !important;
+}
+.wpf_approve_check {
+    display: flex;
+    align-items: center;
+    padding: 9px 9px;
+    border: 1px solid #A4ABC5;
+    border-radius: 4px;
+    margin: 15px 0;
+}
+.wpf_approve_modal button.approve-page {
+    width: 100%;
+    justify-content: center;
+}
+#approve_error{
+    font-size: 12px;
+    font-weight: bold;
+    color: #cc1816;
+}
+.wpf_comment_container ul.nav.nav-tabs {
+    background: white;
+}
+/*Edit Delete feature*/
+.wpfb-edit-comment-wrapper{
+    display: none;
+    width: 100%;
+}
+
+/* ---------- SUpport fix ---------- */
+.wpf_comment_container .tab-content>*:not(.active):not(.tab-pane) {
+    display: block;
+    padding: 0 !important;
+}
+.wpf_comment_container .tab-content .tab-pane {
+    padding: 0 !important;
+}
+.wpf_comment_container .tab-content .tab-pane li {
+	margin-bottom: 12px !important;
+    line-height: 14px !important;
+}
+/* ------------ Project Stages ------------ */
+#wpf_bottom_bar #wpf_site_milestone_wpf_list.wpf_active {
+	bottom: 55px;
+}
+div#wpf_site_milestone_wpf_list .wpf_loader_3.wpf_active {
+    padding: 30px 15px;
+    position: initial;
+}
+.wpf_milestone_popover {
+    position: relative;
+}
+div#wpf_site_milestone_wpf_list:before {
+    content: "";
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 6px 6px 0px 6px;
+    border-color: #ffffff transparent transparent transparent;
+    line-height: 0px;
+    position: absolute;
+    bottom: -6px;
+    z-index: 999;
+    left: 35%;
+}
+
+.wpf_milestone_item_container_header {
+    display: flex;
+    justify-content: space-between;
+}
+.wpf_milestone_item_container_header a {
+    color: #E72D67 !important;
+    text-decoration: none !important;
+	font-size: 30px;
+    line-height: 1;
+}
+.wpf_milestone_item_container {
+    font-size: 12px !important;
+}
+#wpf_site_milestone {
+    display: none;
+    flex-flow: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-left: 10px !important;
+    cursor: pointer;
+}
+#wpf_site_milestone > .wpf_milestone_content {
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: flex-start;
+    margin-left: 5px;
+}
+
+.wpf_countdown_title {
+    font-size: 14px;
+	overflow: hidden;
+    max-width: 130px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+	line-height: 1.2;
+}
+.wpf_countdown_timer {
+    font-size: 22px;
+    font-weight: 700;
+	line-height: 1;
+}
+.wpf_milestone_item > ul {
+    list-style-type: none;
+    padding: 0;
+    display: flex;
+    flex-flow: row;
+    justify-content: space-between;
+    align-items: center;
+    margin: 5px 0 !important;
+}
+
+.wpf_milestone_item > ul.completed {
+    text-decoration: line-through;
+}
+.wpf_milestone_item > ul > li {
+    display: flex !important;
+	align-items: center !important;
+}
+.wpf_milestone_item > ul > li > span {
+
+    margin-right: 0.5rem;
+    font-size: 1.1rem;
+    line-height: 1.1rem;
+}
+.wpf_milestone_item > ul > li > span > svg {
+    fill: var(--wp--preset--color--foreground) !important;
+}
+.wpf_milestone_item > ul > li.wpf_in_progress {
+    color: #E72D67 !important;
+}
+.wpf_milestone_item > ul > li.wpf_in_progress > span > svg {
+    fill: #E72D67 !important;
+}
+.wpf_milestone_item > ul > li.wpf_done > span {
+    
+    color: #56DBA3 !important;
+}
+.wpf_milestone_item > ul > li.wpf_done > span > svg {
+    fill: #56DBA3 !important;
+}
+.wpf_milestone_item > ul > li:last-child {
+    color: #A4ABC5;
+}
+
+/* Upgrade popup css by Pratap */
+.wpf-uf-pop-wrapper, .wpf-le-pop-wrapper {
+    display: none;
+    position: fixed;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.95);
+    height: 100%;
+    font-size: 14px !important;
+    color: #363d4d !important;
+    text-decoration: none !important;
+    font-family: 'Roboto', sans-serif;
+    z-index: 2147483659 !important;
+    top: 0;
+    left: 0;
+    cursor: default;
+}
+.wpf-uf-pop-container, .wpf-le-pop-container {
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+.wpf-uf-popup, .wpf-le-popup {
+    box-shadow: 0em 0em 3em 0em rgb(0 0 0 / 13%);
+    border-radius: 5px;
+    border: 1px solid #e3ebf6;
+    background-color: #fff !important;
+    max-width: 98%;
+	box-sizing: border-box;
+    margin: 0 auto;
+    position: relative;
+	max-height: 90vh;
+    overflow-y: auto;
+	-webkit-animation: fade-in-top 0.5s cubic-bezier(0.390, 0.575, 0.565, 1.000) both;
+    animation: fade-in-top 0.5s cubic-bezier(0.390, 0.575, 0.565, 1.000) both !important;
+}
+.wpf-uf-popup {
+    width: 750px;
+    padding: 20px;
+
+}
+.wpf-le-popup {
+    padding: 45px 80px;
+    width: 530px;
+    text-align: center;
+}
+.wpf-uf-close-popup, .wpf-le-close-popup {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    color: #E72D67 !important;
+    cursor: pointer;
+}
+.wpf-uf-popup-title {
+	line-height: 0.9 !important;
+    font-size: 22px;
+    font-weight: 700;
+}
+.wpf-le-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #272D3C;
+    margin-top: 20px;
+    margin-bottom: 16px;
+}
+.wpf-le-detail {
+    margin-bottom: 30px;
+}
+.wpf-uf-popup p {
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+    margin: 1em 0 0 0 !important;
+}
+.wpf-uf-popup-plans, .wpf-le-popup-plans {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.wpf-uf-popup-image {
+    flex: auto 1 0;
+    width: 480px;
+    max-width: 100%;
+    margin-left: -20px;
+	position: relative;
+}
+.wpf-uf-popup-image:before {
+    width: 40%;
+    height: 10%;
+    display: block;
+    content: "";
+    left: 30%;
+    top: 45%;
+    position: absolute;
+    box-shadow: 0px 0px 90px 80px #292170;
+    z-index: -1;
+    border-radius: 50%;
+}
+.wpf-uf-popup-image img {
+    max-width: 100%;
+}
+.wpf-uf-plan, .wpf-le-plan {
+    width: 100%;
+    min-height: 200px;
+    border-radius: 5px 5px;
+    display: flex;
+	background-color: #fff;
+    flex-direction: column;
+    justify-content: space-between;
+	box-sizing: border-box;
+}
+.wpf-uf-plan {
+    padding: 15px 15px;
+    border: 1px solid #e3ebf6;
+}
+.wpf-uf-plan-title {
+	font-size: 18px !important;
+    font-weight: 700;
+	}
+.wpf-uf-plan-detail {
+    font-size: 14px !important;
+    line-height: 24px !important;
+    font-weight: 400 !important;
+    margin: 5px 0 10px 0;
+}
+.wpf-uf-plan a, .wpf-le-plan a {
+	color: #272d3c !important;
+	text-decoration: none !important;
+}
+.wpf-uf-plan a:focus, .wpf-le-plan a:focus {
+    box-shadow: none;
+}
+.wpf-uf-plan-btn, .wpf-le-plan-btn {    
+	color: #272d3c !important;
+    background-color: #3ed696;
+    border-radius: 5px;
+    font-size: 14px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+	height: 36px;
+    padding: 0 20px;
+    border: none;
+	box-sizing: border-box;
+	display: flex;
+	align-items: center;
+    justify-content: center;
+    -webkit-transition: all 0.2s ease-in;
+    -moz-transition: all 0.2s ease-in;
+    -ms-transition: all 0.2s ease-in;
+    -o-transition: all 0.2s ease-in;
+    transition: all 0.2s ease-in;
+}
+.wpf-uf-plan-btn :hover, .wpf-le-plan-btn :hover {
+    background-color: #33bf84;
+}
+.wpf-uf-webmaster-notice, .wpf-uf-otheruser-notice {
+    color: #E72D67;
+}
+@media only screen and (max-width: 700px) {
+	.wpf-uf-popup-image {
+		width: 100%;
+		margin: auto;
+	}
+	.wpf-uf-popup-plans, .wpf-le-popup-plans {
+		display: block;
+	}
+}
+
+/* Launcher CSS */
+.wpf_launch_comment_mode {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    position: fixed !important;
+    z-index: 214748366 !important;
+    right: 0 !important;
+    top: calc(25% - 23px) !important;
+    width: 55px !important;
+    height: 55px !important;
+    flex-shrink: 0 !important;
+    border-radius: 8px 0px 0px 8px !important;
+    cursor: grab;
+    pointer-events: auto !important;
+    box-shadow: 0px 3px 20px 6px rgba(0, 0, 0, .025), 0px 0px 7px 2px rgba(0, 0, 0, .05) !important;
+    background: #ffffff !important;
+    transition: 0.8s !important;
+}
+.hide_comment_mode {
+    right: -85px !important
+}
+.wpf_launch_comment_mode img {
+    border-radius: 8px !important;
+	max-height: 35px !important;
+    max-width: 35px !important;
+	height: auto !important;
+    width: 100% !important;
+    margin: 0 !important;
+    user-select: none !important;
+    -webkit-user-drag: none !important;
+}
+.wpf_total_task_number {
+    position: absolute !important;
+    top: -5px !important;
+    left: -5px !important;
+    background-color: #E72D67 !important;
+    border-radius: 15px !important;
+    color: #ffffff !important;
+    height: 20px !important;
+    width: auto !important;
+    display: none;
+    justify-content: center !important;
+    align-items: center !important;
+    font-size: 14px !important;
+    padding: 0 6px !important;
+    line-height: 1 !important;
+}
+
+/* Sidebar -> page tab CSS */
+#wpf_all_pages {
+    position: relative;
+    width: calc(100% - 15px);
+    margin: 0 auto;
+    padding: 2px 0 !important;
+    height: 100%;
+    font-family: 'Roboto', sans-serif !important;
+}
+.wpf_page_list {
+    height: calc(475px - 40px);
+    overflow-y: scroll;
+    padding: 2px !important;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+    padding-bottom: 35px !important;
+}
+.wpf_page_list::-webkit-scrollbar {
+    display: none;
+}
+.wpf_no_page_found img {
+    width: 100%;
+}
+.wpf_no_page_header {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    margin-bottom: 0 !important;
+    color: #4A5568 !important;
+    display: flex !important;
+    padding: 0 !important;
+    text-align: center !important;
+    flex-direction: column !important;
+    line-height: 18px !important;
+}
+.wpf_no_page_body {
+    color: #272D3C !important;
+    display: flex !important;
+    padding: 0 !important;
+    text-align: center !important;
+    flex-direction: column !important;
+    font-size: 14px !important;
+    margin-top: 10px !important;
+    line-height: 1.2;
+}
+.wpf_each_page {
+    background: #FFFFFF !important;
+    cursor: pointer !important;
+    padding: 10px !important;
+    position: relative !important;
+    margin-bottom: 10px !important;
+    border: 1px solid #EFF2F6 !important;
+    border-radius: 12px !important;
+    box-sizing: border-box !important;
+    margin: 0 auto;
+}
+.wpf_each_page:hover, .wpf_each_page.active {
+    background: rgba(164, 171, 197, 0.1) !important;
+    border-radius: 12px !important;
+    outline: 2px solid #A4ABC5 !important;
+    box-sizing: border-box !important;
+}
+.wpf_page_header {
+    display: flex;
+    align-items: center;
+}
+.wpf_page_title {
+    color: #272D3C;
+    font-family: Roboto;
+    font-size: 14px !important;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 100%;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 1; /* number of lines to show */
+    line-clamp: 1; 
+    -webkit-box-orient: vertical;
+}
+.wpf_page_task_total {
+    margin-left: 5px !important;
+    display: flex !important;
+}
+.wpf_page_task_total img {
+    width: 15px !important;
+}
+.wpf_task_cout {
+    border-radius: 20px !important;
+    background-color: #E72D67 !important;
+    color: #FFFFFF !important;
+    padding: 0px 6px !important;
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 14px !important;
+	height: 20px !important;
+    letter-spacing: 0 !important;
+}
+.wpf_delete_page {
+    margin-left: auto !important;
+    display: none;
+    height: 15px !important;
+	width: 15px !important;
+}
+.wpf_each_page:hover .wpf_delete_page {
+    display: flex !important;
+}
+.wpf_page_content {
+    margin-top: 10px;
+    background-color: #fff !important;
+    width: 100% !important;
+    box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.16) !important;
+    border-radius: 8px !important;
+    position: relative;
+    overflow: hidden;
+}
+.wpf_page_content img {
+    width: 100% !important;
+    object-fit: cover !important;
+    aspect-ratio: 16 / 9 !important;
+}
+.wpf_approved_label {
+    position: absolute;
+    left: 5px;
+    bottom: 5px;
+    background-color: #3ED696 !important;
+    color: #FFF;
+    font-family: Roboto;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 500;
+    text-align: center;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.30);
+    padding: 2px 4px !important;
+}
+.approved {
+    border: 2px solid #3ED696 !important;
+}
+.wpf_add_page {
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    background-color: #3ED696 !important;
+    text-align: center;
+    padding: 8px 0 !important;
+    border-radius: 5px !important;
+    cursor: pointer;
+    color: #272D3C !important;
+    transition: filter .25s linear !important;
+    font-family: 'Roboto', sans-serif !important;
+}
+.wpf_disabled {
+    background-color: #d4d6dd !important;
+    cursor: not-allowed !important;
+}
+.wpf_add_page:hover {
+    filter: brightness(90%) !important;
+    transition: filter .25s linear !important;
+}
+
+/* upload file CSS */
+.wpf_multifile_wrapper, .wpf_image_preview_wrappper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    backdrop-filter: blur(3px);
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9999999999;
+    display: none;
+    cursor: default;
+}
+.wpf_multifile_container, .wpf_image_preview_container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.wpf_multifile_box {
+    background-color: rgb(255, 255, 255);
+    color: rgba(0, 0, 0, 0.87);
+    transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    border-radius: 18px !important;
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 11px 15px -7px, rgba(0, 0, 0, 0.14) 0px 24px 38px 3px, rgba(0, 0, 0, 0.12) 0px 9px 46px 8px;
+    margin: 32px;
+    position: relative;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100% - 64px);
+    max-width: 600px;
+    padding: 40px 40px;
+}
+.wpf_multifile_box h2 {
+    font-size: 22px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    color: #272d3c !important;
+    padding: 0px 0px 20px 0px !important;
+    font-family: "Roboto", sans-serif !important;
+    letter-spacing: 0 !important;
+    margin: 0px !important;
+}
+.wpf_multifile_box h2 span {
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    line-height: 1.2 !important;
+    width: auto !important;
+    max-width: 460px !important;
+    color: #272d3c !important;
+    margin: 10px 0 5px 0;
+    font-family: "Roboto", sans-serif !important;
+    letter-spacing: 0 !important;
+}
+.wpf_multifile_close {
+    font-size: 25px !important;
+    color: #E72D67 !important;
+    position: absolute !important;
+    cursor: pointer !important;
+    right: 20px !important;
+    font-weight: 400 !important;
+    line-height: 1 !important;
+    text-shadow: none !important;
+    text-decoration: none !important;
+    height: 36px !important;
+    width: 36px !important;
+    padding: 0 !important;
+    border: none !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    background-color: transparent !important;
+    outline: none !important;
+    border-radius: 8px !important;
+    top: 20px !important;
+}
+.wpf_multifile_close,
+.wpf_multifile_cancel {
+	box-shadow: none!important;
+}
+.wpf_multifile_form {
+    width: 500px !important;
+    height: 257px !important;
+    color: #272D3C;
+    cursor: pointer;
+    padding: 20px;
+    display: flex;
+    font-size: 14px;
+    align-items: center;
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 500;
+    justify-content: center;
+    border-style: dashed;
+    border-width: 2px;
+    flex-direction: column;
+    background-color: rgba(109, 93, 243, .07) !important;
+    outline: 2px dashed #6d5df3 !important;
+    border-radius: 8px !important;
+    margin-top: 2px !important;
+    border: none !important;
+}
+.highlight_file_form {
+    outline: 3px dashed #6d5df3 !important;
+}
+.wpf_multifile_form img {
+    max-width: 180px !important;
+    height: auto;
+}
+.wpf_multifile_form span {
+    font-size: 14px !important;
+    font-weight: 400 !important;
+}
+.wpf_file_upload_button {
+    border: 1px solid #a4abc5 !important;
+    background-color: #fff !important;
+    cursor: pointer !important;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: center !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    font-family: "Roboto", sans-serif !important;
+    height: 36px !important;
+    padding: 5px 15px !important;
+    margin-top: 8px !important;
+    border-radius: 5px !important;
+    align-items: center !important;
+    letter-spacing: 0 !important;
+    color: #272d3c !important;
+    position: relative;
+}
+.wpf_file_upload_button input.wpf_uploadfile {
+    width: 100% !important;
+    position: absolute !important;
+    opacity: 0 !important;
+    overflow: hidden;
+    left: initial;
+    top: initial;
+    height: 100% !important;
+    left: 0px;
+    z-index: 10003 !important;
+    cursor: pointer !important;
+}
+.wpf_file_upload_button img {
+    margin-right: 5px !important;
+    color: #272d3c !important;
+}
+.wpf_selectedfile_list {
+    padding-top: 0 !important;
+    overflow-y: auto !important;
+    max-height: 300px !important;
+    border: 1px solid #EFF2F6 !important;
+    border-radius: 8px !important;
+    margin-top: 18px !important;
+}
+.wpf_each_selected_file {
+    height: 45px !important;
+    display: flex !important;
+    gap: 5px !important;
+    padding: 15px 10px !important;
+    align-self: center !important;
+    max-height: 45px !important;
+    align-items: center !important;
+    border-radius: 5px !important;
+    background-color: transparent !important;
+    transition: all 0.25s ease-out !important;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+    justify-content: space-between !important;
+    position: relative !important;
+    box-sizing: border-box !important;
+}
+.wpf_each_selected_file:not(:last-child):before {
+    content: "";
+    height: 1px !important;
+    background-color: #EFF2F6 !important;
+    bottom: 0 !important;
+    position: absolute !important;
+    width: 96% !important;
+    left: 2% !important;
+}
+.wpf_selected_file_name {
+    flex-grow: 1 !important;
+    max-width: 310px !important;
+    padding-left: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-family: "Roboto", sans-serif !important;
+    font-size: 14px !important;
+    box-sizing: border-box !important;
+}
+.wpf_selected_file_meta {
+    display: flex !important;
+    gap: 10px !important;
+    align-items: center !important;
+    padding-right: 0 !important;
+    box-sizing: border-box !important;
+}
+.wpf_selected_file_size {
+    color: #A4ABC5 !important;
+    font-weight: 500 !important;
+    min-width: 65px !important;
+    text-align: right !important;
+    font-family: "Roboto", sans-serif !important;
+    font-size: 14px !important;
+    box-sizing: border-box !important;
+}
+.wpf_download_file {
+    cursor: pointer !important;
+    color: #FFFFFF !important;
+    height: 20px !important;
+    width: 20px !important;
+    max-height: 20px !important;
+    max-width: 20px !important;
+}
+.wpf_selected_file_delete {
+    border: none !important;
+    cursor: pointer !important;
+    height: 36px !important;
+    display: flex !important;
+    gap: 5px !important;
+    padding: 0 10px !important;
+    align-self: center !important;
+    max-height: 36px !important;
+    align-items: center !important;
+    border-radius: 5px !important;
+    background-color: transparent !important;
+    transition: all 0.25s ease-out !important;
+    font-weight: 500 !important;
+    box-sizing: border-box !important;
+}
+.wpf_multifile_actions {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: end !important;
+    padding: 18px 0 0 0 !important;
+}
+.wpf_multifile_submit, .wpf_multifile_cancel {
+    display: inline-flex;
+    -webkit-box-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    justify-content: center;
+    position: relative;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    background-color: transparent;
+    outline: 0px;
+    border: 0px;
+    margin: 0px;
+    cursor: pointer;
+    user-select: none;
+    vertical-align: middle;
+    appearance: none;
+    text-decoration: none;
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 500;
+    line-height: 1.75;
+    letter-spacing: 0.02857em;
+    min-width: 64px;
+    border-radius: 5px !important;
+    padding: 6px 8px;
+    transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, border-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+}
+.wpf_multifile_cancel {
+    color: #272D3C !important;
+    font-size: 14px !important;
+    max-width: 110px !important;
+    text-transform: none !important;
+}
+.wpf_multifile_cancel:hover {
+    background-color: rgba(39, 45, 60, 0.04);
+}
+.wpf_multifile_submit {
+    color: #272D3C !important;
+    height: 36px !important;
+    padding: 10px 15px !important;
+    font-size: 14px !important;
+    min-width: 100px !important;
+    max-height: 36px !important;
+    text-align: right !important;
+    font-family: Roboto, Helvetica, Arial, sans-serif !important;
+    margin-left: 10px !important;
+    background-color: #69DC9E !important;
+    text-transform: none !important;
+    line-height: 14px !important;
+}
+.wpf_multifile_submit_disabled {
+    opacity: .4 !important;
+    cursor: not-allowed !important;
+}
+
+/* img & doc perview */
+.wpf_upload_file_view_wrapper {
+    display: none;
+    padding: 10px !important;
+    max-height: 167px;
+    overflow-y: scroll;
+    box-sizing: border-box !important;
+}
+.wpf_upload_file_view_container {
+    display: grid !important;
+    gap: 8px !important;
+    box-sizing: border-box;
+}
+.wpf_upload_image_preview {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr 1fr 1fr !important;
+    gap: 8px;
+    width: 80%;
+    box-sizing: border-box;
+}
+.wpf_upload_doc_preview {
+    width: 80% !important;
+    gap: 8px !important;
+    display: grid !important;
+    box-sizing: border-box;
+}
+.wpf_each_upload_img_preview {
+    position: relative;
+}
+.wpf_upload_img_preview {
+    width: 60px !important;
+    height: 60px !important;
+    border-radius: 10px !important;
+    aspect-ratio: 1 / 1 !important;
+    box-shadow: 0px 1.54px 9.239px 0px rgba(0, 0, 0, 0.25) !important;
+}
+.wpf_upload_prev_delete {
+    font-size: 16px !important;
+    cursor: pointer !important;
+    position: absolute;
+    right: 5px !important;
+    top: 5px !important;
+    border-radius: 3px;
+}
+.wpf_upload_prev_delete svg {
+    color: #E72D67 !important;
+    background: #fff;
+    padding: 1px;
+    height: 14px !important;
+}
+
+/* image preview CSS */
+.wpf_image_preview_box {
+    max-width: 80vw;
+    background-color: rgb(255, 255, 255);
+    color: rgba(0, 0, 0, 0.87);
+    transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    border-radius: 4px;
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 11px 15px -7px, rgba(0, 0, 0, 0.14) 0px 24px 38px 3px, rgba(0, 0, 0, 0.12) 0px 9px 46px 8px;
+    margin: 32px;
+    position: relative;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100% - 64px);
+    box-sizing: border-box;
+}
+.wpf_close_image_preview {
+    font-size: 25px !important;
+    color: #E72D67 !important;
+    position: absolute !important;
+    top: 15px !important;
+    cursor: pointer !important;
+    right: 15px !important;
+    font-weight: 400 !important;
+    line-height: 1 !important;
+    text-shadow: 0 1px 0 #fff !important;
+    text-decoration: none !important;
+    background-color: #FFFFFF !important;
+    height: 36px !important;
+    width: 36px !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    border-radius: 8px !important;
+    box-sizing: border-box;
+}
+.wpf_image_preview {
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+.wpf_image_preview img {
+    width: 100% !important;
+    max-height: 90vh !important;
+    object-fit: contain !important;
+}

@@ -1,0 +1,2006 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: WP Feedback\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-07-21 14:09+0000\n"
+"PO-Revision-Date: 2023-07-13 08:35+0000\n"
+"Last-Translator: wpfeedback <account@wpfeedback.co>\n"
+"Language-Team: German (Austria)\n"
+"Language: de_AT\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.3.1; wp-5.4.4\n"
+
+#: inc/admin/page-settings.php:401
+msgid ""
+" you can allow or disallow users to use certain functions, you can even turn "
+"on guest mode to allow any visitor to the website to use the tool without "
+"needing to login."
+msgstr ""
+
+#: atarim-visual-collaboration.php:94
+msgid "* This notice is shown to you as the Webmaster."
+msgstr ""
+
+#: inc/admin/upgrade-subscription-popup.php:163
+msgid ""
+"*This is only shown to you as a webmaster, other users will not see this"
+msgstr ""
+
+#: inc/frontend/wpf_general_task_modal.php:9
+msgid ", go ahead and send your message"
+msgstr ""
+
+#: inc/frontend/wpf_frontend_initial_setup.php:19
+msgid ", Let's Collaborate"
+msgstr ""
+
+#: inc/admin/wpf_backend_initial_setup.php:164
+msgid "3. Choose notifications"
+msgstr "3. Benachrichtigungen auswählen"
+
+#: inc/admin/wpf_backend_initial_setup.php:205
+msgid "<< Back"
+msgstr "<< Zurück"
+
+#: inc/admin/wpf_backend_initial_setup.php:52
+msgid ""
+"<a href=\"https://atarim.io/help/wordpress-plugin/why-you-need-to-register\" "
+"target=\"_blank\">See Why.</a>"
+msgstr ""
+
+#: inc/admin/wpf_backend_initial_setup.php:83
+msgid ""
+"<p class=\"wpf_tcpp\">By opening an account I agree to the <a href=\"https:"
+"//atarim.io/privacy-policy/\" target=\"_blank\">privacy policy</a>.</p>"
+msgstr ""
+
+#: inc/admin/wpf_backend_initial_setup.php:120
+msgid "<u>Assign</u> a Wordpress Account"
+msgstr ""
+
+#: inc/admin/wpf_backend_initial_setup.php:118
+msgid "<u>New</u> Wordpress Account"
+msgstr ""
+
+#: inc/wpf_popup_string.php:20
+msgid "A user must be selected to post a comment"
+msgstr "Ein Benutzer muß ausgewählt sein um einen Kommentar zu posten"
+
+#: inc/frontend/wpf_general_task_modal.php:8
+msgid ""
+"about a specific part of the page. To create a specific request, close this "
+"box and click the plus icon on the right to choose any part of the page."
+msgstr ""
+
+#: graphics/wpf_graphics_all_list.php:12
+msgid "Add a New Graphic"
+msgstr ""
+
+#: inc/admin/page-settings-graphics.php:57
+msgid "Add a new Graphic Item"
+msgstr ""
+
+#: inc/wpf_function.php:2427
+msgid "Add Comment"
+msgstr ""
+
+#: inc/wpf_popup_string.php:48
+msgid "Add comment and create Internal task"
+msgstr ""
+
+#: atarim-visual-collaboration.php:2708
+msgid "Add or remove Task status"
+msgstr ""
+
+#: atarim-visual-collaboration.php:2755
+msgid "Add or remove Task urgency"
+msgstr ""
+
+#: inc/admin/page-settings-permissions.php:76
+msgid "Add this website to your Agency Dashboard account"
+msgstr ""
+
+#: inc/admin/page-settings-permissions.php:175
+msgid "Add User"
+msgstr ""
+
+#: inc/wpf_popup_string.php:40 inc/admin/page-settings.php:262
+msgid "Additional Information"
+msgstr "Zusätzliche Information"
+
+#: inc/wpf_ajax_functions.php:244 inc/wpf_function.php:627
+#: inc/admin/page-settings.php:167
+msgid "Admin"
+msgstr "Admin"
+
+#: inc/admin/wpf_admin_function.php:638
+#, php-format
+msgid "Admin <span class=\"count\">(%s)</span>"
+msgid_plural "Admin <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+msgstr[1] ""
+
+#: inc/wpf_function.php:2231 inc/wpf_function.php:2636
+msgid "Agency"
+msgstr ""
+
+#: inc/admin/page-settings.php:450
+msgid "Agency Dashboard"
+msgstr ""
+
+#: inc/admin/page-settings-permissions.php:63
+#: inc/admin/page-settings-permissions.php:73
+msgid "Agency Dashboard Integration"
+msgstr ""
+
+#: inc/admin/page-settings.php:135
+msgid "All Orphan tasks are restored"
+msgstr ""
+
+#: atarim-visual-collaboration.php:1753 atarim-visual-collaboration.php:1843
+#: inc/admin/wpf_admin_function.php:212 inc/admin/wpf_admin_function.php:285
+msgid "All Pages"
+msgstr "Alle Seiten"
+
+#: atarim-visual-collaboration.php:2699
+msgid "All Task status"
+msgstr ""
+
+#: atarim-visual-collaboration.php:2746
+msgid "All Task urgency"
+msgstr ""
+
+#: inc/admin/wpf_backend_initial_setup.php:145
+msgid ""
+"Allow guests to create tickets and leave comments, without the need to login "
+"to the site. ideal for staging sites or during the build, but not idea for "
+"live websites."
+msgstr ""
+
+#: inc/admin/page-settings.php:532 inc/admin/page-settings.php:540
+#: inc/admin/page-settings.php:548 inc/admin/page-settings.php:556
+#: inc/admin/page-settings.php:564 inc/admin/page-settings.php:572
+#: inc/admin/page-settings.php:580 inc/admin/page-settings.php:589
+msgid ""
+"Allow users to choose this setting on the front-end wizard and inside their "
+"WordPress Profile."
+msgstr ""
+
+#: inc/admin/page-settings.php:123
+msgid "and verify your license to start using the plugin"
+msgstr ""
+
+#: inc/wpf_function.php:2205 inc/wpf_function.php:2209
+#: inc/wpf_function.php:2623 inc/wpf_function.php:2626
+#: inc/frontend/wpf_approve_page_modal.php:4
+#: inc/frontend/wpf_approve_page_modal.php:9
+msgid "Approve Page"
+msgstr ""
+
+#: inc/wpf_function.php:2202 inc/wpf_function.php:2621
+msgid "Approved"
+msgstr ""
+
+#: inc/frontend/wpf_general_task_modal.php:8
+msgid "are meant for requests that are "
+msgstr ""
+
+#: inc/wpf_popup_string.php:32 inc/admin/page-settings.php:328
+msgid "Are you sure you want to delete?"
+msgstr "Sind Sie sicher diesen Task löschen zu wollen?"
+
+#: atarim-visual-collaboration.php:1667 inc/wpf_function.php:2160
+#: inc/wpf_function.php:2231 inc/wpf_function.php:2246
+#: inc/wpf_function.php:2574 inc/wpf_function.php:2636
+msgid "Atarim Dashboard"
+msgstr ""
+
+#: atarim-visual-collaboration.php:81
+msgid "Atarim Logo Inverted"
+msgstr ""
+
+#: inc/admin/wpf_admin_function.php:632
+msgctxt "atarim-visual-collaboration"
+msgid "admin"
+msgstr ""
+
+#: inc/wpf_function.php:1414
+msgid "Auto receive email notification for daily report"
+msgstr "Erhalte automatische Emailbenachrichtigung für täglichen Report"
+
+#: inc/wpf_function.php:1426
+msgid "Auto receive email notification for weekly report"
+msgstr "Erhalte automatische Emailbenachrichtigung für wöchentlichen Report"
+
+#: inc/admin/page-settings-permissions.php:229 inc/admin/page-settings.php:253
+msgid "Auto Screenshot"
+msgstr ""
+
+#: inc/admin/page-settings.php:579 inc/admin/wpf_backend_initial_setup.php:195
+msgid "Auto send email notification for daily report"
+msgstr "Sende automatische Emailbenachrichtigung für täglichen Report"
+
+#: inc/admin/page-settings.php:588 inc/admin/wpf_backend_initial_setup.php:199
+msgid "Auto send email notification for weekly report"
+msgstr "Sende automatische Emailbenachrichtigung für wöchentlichen Report"
+
+#: inc/frontend/wpf_responsive_page_modal.php:14
+msgid "Back to Standard View"
+msgstr ""
+
+#: atarim-visual-collaboration.php:1670 inc/wpf_function.php:2162
+#: inc/wpf_function.php:2576
+msgid "Backend"
+msgstr "Backend"
+
+#: inc/wpf_popup_string.php:31
+msgid "Better to change the status to complete."
+msgstr "Es ist besser den Status auf erledigt zu setzen."
+
+#: inc/wpf_email_notifications.php:117
+msgid "Browser"
+msgstr ""
+
+#: inc/wpf_popup_string.php:26
+msgid "Browser:"
+msgstr ""
+
+#: inc/admin/page-settings.php:192
+msgid "Bulk Action"
+msgstr ""
+
+#: inc/wpf_popup_string.php:44
+msgid "Bulk Editing Tasks"
+msgstr ""
+
+#: inc/wpf_ajax_functions.php:326 inc/wpf_email_notifications.php:122
+#: inc/wpf_function.php:691
+msgid "By "
+msgstr "von"
+
+#: inc/wpf_email_notifications.php:121 inc/wpf_popup_string.php:39
+msgid "by "
+msgstr "von"
+
+#: inc/admin/page-settings.php:440
+msgid ""
+"By default you can create tasks on the front end AND on the back end. By "
+"ticking this option on, users will not be able to create tasks on any of the "
+"WP admin screens."
+msgstr ""
+"Normalerweise können Sie Tasks im Frontend UND im Backend anlegen. Durch "
+"Aktivieren dieser Option werden Benutzern keine Tasks mehr auf WP-Admin "
+"Seiten anlegen können."
+
+#: inc/admin/page-settings.php:179
+msgid "By Users"
+msgstr "nach Benutzer"
+
+#: inc/admin/page-settings-permissions.php:142
+msgid ""
+"Can do everything except: Choose and change status and urgency, Access the "
+"settings, support, integration and upgrade screens. Can only delete their "
+"own tickets. "
+msgstr ""
+
+#: inc/admin/page-settings-permissions.php:132
+msgid ""
+"Can do everything except: Choose and change status, access the settings, "
+"support and upgrade screens. Can only delete their own tickets."
+msgstr ""
+
+#: inc/wpf_function.php:2429
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: inc/admin/page-settings.php:486
+msgid "Change the logo link"
+msgstr ""
+
+#: inc/admin/page-settings.php:492
+msgid "Change the main color"
+msgstr "Ändern der Hauptfarbe"
+
+#: inc/admin/page-settings.php:498
+msgid "Change the tutorial video"
+msgstr ""
+
+#: atarim-visual-collaboration.php:2709 atarim-visual-collaboration.php:2756
+msgid "Choose from the most used"
+msgstr ""
+
+#: inc/admin/page-settings.php:423
+msgid "Clear object cache while commenting and creating tasks"
+msgstr ""
+
+#: inc/wpf_email_notifications.php:110
+msgid "Click here to reply"
+msgstr ""
+
+#: inc/wpf_email_notifications.php:123
+msgid "Click here to view the task"
+msgstr ""
+
+#: inc/admin/page-settings-permissions.php:74
+msgid ""
+"Click the button to activate and add this website to your Agency Dashboard. "
+"If for some reason the connection is not established, please contact support."
+msgstr ""
+
+#: inc/admin/page-settings.php:514
+msgid ""
+"Click this button to revent the whitelabel options to their original state."
+msgstr ""
+
+#: atarim-visual-collaboration.php:1783 inc/admin/wpf_admin_function.php:206
+msgid "Click to give your feedback!"
+msgstr "Klick um Feedback abzugeben"
+
+#: inc/wpf_popup_string.php:17
+msgid "Click to leave a comment"
+msgstr ""
+
+#: inc/admin/page-settings-permissions.php:131
+#: inc/admin/page-settings-permissions.php:169
+msgid "Client (Website Owner) "
+msgstr "Kunde (Webseitenbesitzer)"
+
+#: inc/admin/wpf_backend_initial_setup.php:125
+msgid "Client Name"
+msgstr ""
+
+#: inc/admin/wpf_backend_initial_setup.php:127
+msgid "client@yourdomain.com"
+msgstr ""
+
+#: atarim-visual-collaboration.php:139 atarim-visual-collaboration.php:142
+#: inc/admin/wpf_backend_initial_setup.php:37
+#: inc/admin/wpf_backend_initial_setup.php:105
+#: inc/admin/wpf_backend_initial_setup.php:221
+msgid "Collaborate"
+msgstr ""
+
+#: inc/wpf_function.php:1168
+msgid "Collaborate Information"
+msgstr ""
+
+#: inc/admin/page-settings-permissions.php:239
+msgid "Color Coded Stickers"
+msgstr ""
+
+#: inc/wpf_popup_string.php:18 inc/wpf_popup_string.php:38
+msgid "Comment"
+msgstr ""
+
+#: inc/admin/page-settings.php:415
+msgid ""
+"Compact mode removes the bottom bar from both the front-end & back-end, and "
+"moves the widget to the right side of your screen. You can still use comment "
+"mode and view the sidebar as normal, this mode is to give you the option for "
+"a more \"compact 😉\" experience."
+msgstr ""
+
+#: graphics/wpf_graphics.php:305 inc/wpf_email_notifications.php:96
+#: inc/wpf_popup_string.php:13 inc/wpf_popup_string.php:14
+#: inc/admin/wpf_backend_initial_setup.php:41
+#: inc/admin/wpf_backend_initial_setup.php:109
+#: inc/admin/wpf_backend_initial_setup.php:225
+msgid "Complete"
+msgstr "Erledigt"
+
+#: graphics/wpf_graphics.php:309
+msgid "Completed"
+msgstr ""
+
+#: inc/frontend/wpf_approve_page_modal.php:9
+msgid "Confirm and Approve Page"
+msgstr ""
+
+#: inc/admin/wpf_backend_initial_setup.php:33
+#: inc/admin/wpf_backend_initial_setup.php:101
+#: inc/admin/wpf_backend_initial_setup.php:217
+msgid "Connect"
+msgstr ""
+
+#: inc/admin/page-settings.php:616
+msgid "Connect Atarim To Your Existing Workflow"
+msgstr ""
+
+#: inc/admin/wpf_backend_initial_setup.php:113
+msgid "Connect Your Main Collaborator (Client)"
+msgstr ""
+
+#: inc/wpf_popup_string.php:51
+msgid "Create a private message that only team members can see"
+msgstr ""
+
+#: inc/admin/page-settings-permissions.php:292
+msgid ""
+"Create a user for the client and assign it here to allow the client to "
+"comment in guest mode but still be assigned to the tickets for replies and "
+"notifications."
+msgstr ""
+"Erstelle einen Benutzer für den Kunden und ordne ihn hier zu, um dem "
+"Benutzer zu erlauben im Gastmodus zu kommentieren, während er aber immer "
+"noch den Tickets zugeordnet ist, um Antworten und Benachrichtigungen zu "
+"erhalten."
+
+#: inc/admin/wpf_backend_initial_setup.php:155
+msgid "Create an Account"
+msgstr ""
+
+#: inc/admin/wpf_backend_initial_setup.php:114
+msgid ""
+"Create OR assign an <u>admin</u> user for main collaborator (or client)."
+msgstr ""
+
+#: inc/wpf_popup_string.php:9
+msgid "Critical"
+msgstr "Kritisch"
+
+#: inc/wpf_popup_string.php:41 inc/admin/page-settings.php:271
+msgid "Custom Tags"
+msgstr ""
+
+#: inc/admin/page-settings-permissions.php:65
+msgid "Customisations"
+msgstr ""
+
+#: inc/admin/page-settings-permissions.php:128
+msgid "Customisations "
+msgstr "Anpassungen"
+
+#: inc/wpf_function.php:1065
+msgid "d"
+msgstr ""
+
+#: inc/admin/page-settings.php:141
+msgid "Daily Report"
+msgstr "Tägliche Reports"
+
+#: inc/admin/page-settings.php:351
+msgid "Dashboard"
+msgstr ""
+
+#: inc/admin/page-settings-permissions.php:89
+msgid "Deactivate License"
+msgstr ""
+
+#: inc/admin/page-settings-permissions.php:67
+#: inc/admin/page-settings-permissions.php:276
+#, fuzzy
+#| msgid "Default users"
+msgid "Default Users"
+msgstr "Standard Benutzer"
+
+#: inc/admin/page-settings-permissions.php:220
+msgid "Delete"
+msgstr ""
+
+#: inc/wpf_popup_string.php:30 inc/admin/page-settings.php:326
+msgid "Delete ticket"
+msgstr "Ticket löschen"
+
+#: inc/frontend/wpf_responsive_page_modal.php:3
+msgid "Desktop"
+msgstr ""
+
+#: inc/wpf_email_notifications.php:111
+msgid "Direct URL"
+msgstr ""
+
+#: inc/admin/page-settings-permissions.php:249
+msgid "Display Number On Completed Task"
+msgstr ""
+
+#: inc/wpf_email_notifications.php:114
+msgid "DIV Handle"
+msgstr ""
+
+#: inc/wpf_email_notifications.php:115
+msgid "DIV handle"
+msgstr ""
+
+#: inc/admin/page-settings.php:195
+msgid "Edit All"
+msgstr ""
+
+#: atarim-visual-collaboration.php:2704
+msgid "Edit Task status"
+msgstr ""
+
+#: atarim-visual-collaboration.php:2751
+msgid "Edit Task urgency"
+msgstr ""
+
+#: inc/admin/page-settings-permissions.php:159 inc/admin/page-settings.php:353
+msgid "Edit your global settings"
+msgstr ""
+
+#: inc/wpf_ajax_functions.php:224 inc/wpf_function.php:603
+#: inc/wpf_popup_string.php:35 inc/admin/page-settings.php:170
+msgid "Email"
+msgstr "Email"
+
+#: inc/admin/page-settings.php:367 inc/admin/page-settings.php:527
+msgid "Email Notifications"
+msgstr ""
+
+#: inc/wpf_function.php:1182
+msgid "Email notifications"
+msgstr "Email Benachrichtigungen"
+
+#: inc/admin/wpf_backend_initial_setup.php:144
+msgid "Enable \"Guest Mode\""
+msgstr ""
+
+#: inc/admin/page-settings.php:414
+msgid "Enable Atarim Compact Mode"
+msgstr ""
+
+#: inc/admin/page-settings.php:405
+msgid "Enable Atarim's Client Interface Plugin on this website"
+msgstr ""
+
+#: inc/admin/page-settings.php:391
+msgid "Enable Global Settings"
+msgstr ""
+
+#: inc/admin/page-settings-permissions.php:165
+msgid ""
+"Enable or disable diffent functionality based on the Atarim user types to "
+"overwirte the default settings and customise your workflow."
+msgstr ""
+
+#: inc/admin/page-settings-permissions.php:113
+#, fuzzy
+#| msgid ""
+#| "Enabling this will make WP Feedback visible to everyone who visits your "
+#| "site and will allow them to create tasks and comment on existing ones."
+msgid ""
+"Enabling this will make Atarim Client Interface visible to everyone who "
+"visits your site and will allow them to create tasks and comment on existing "
+"ones."
+msgstr ""
+"Diese Einstellung wird WP Feedback für jeden Webseitenbesucher sichtbar "
+"machen und jedem erlauben, Tasks anzulegen und bestehende zu kommentieren."
+
+#: inc/EDD_SL_Plugin_Updater.php:474
+msgid "Error"
+msgstr ""
+
+#: inc/admin/page-settings.php:392
+msgid ""
+"Everything you see on this screen can be managed globally from within your "
+"Agency Dashboard. Enable this option to pull your General Settings, Branding "
+"options and Notification options from the Global Settings panel."
+msgstr ""
+
+#: inc/admin/page-settings.php:618
+msgid "Explore Integrations"
+msgstr ""
+
+#: atarim-visual-collaboration.php:1734 atarim-visual-collaboration.php:1762
+#: atarim-visual-collaboration.php:1825 inc/admin/wpf_admin_function.php:295
+msgid "Filter By Priority"
+msgstr ""
+
+#: atarim-visual-collaboration.php:1715 inc/wpf_function.php:2603
+#: inc/admin/wpf_admin_function.php:196
+msgid "Filter by Priority:"
+msgstr ""
+
+#: atarim-visual-collaboration.php:1730 atarim-visual-collaboration.php:1758
+#: atarim-visual-collaboration.php:1821 inc/admin/wpf_admin_function.php:219
+msgid "Filter By Status"
+msgstr ""
+
+#: atarim-visual-collaboration.php:1714 inc/wpf_function.php:2602
+#: inc/admin/wpf_admin_function.php:195
+msgid "Filter by Status:"
+msgstr ""
+
+#: inc/admin/page-settings.php:161
+msgid "Filter Tasks"
+msgstr "Tasks Filtern"
+
+#: inc/frontend/wpf_general_task_modal.php:9
+msgid "For more generic requests"
+msgstr ""
+
+#: inc/admin/wpf_admin_function.php:213 inc/admin/wpf_admin_function.php:286
+msgid "Frontend"
+msgstr "Frontend"
+
+#: atarim-visual-collaboration.php:1885 inc/wpf_ajax_functions.php:218
+#: inc/wpf_function.php:600 inc/wpf_function.php:2421
+#: inc/wpf_popup_string.php:34 inc/admin/page-settings.php:166
+#: inc/admin/page-settings.php:188 inc/admin/wpf_admin_function.php:275
+msgid "General"
+msgstr "Allgemein"
+
+#: inc/admin/page-settings.php:364 inc/admin/page-settings.php:399
+msgid "General Settings"
+msgstr "Allgemeine Einstellungen"
+
+#: inc/wpf_popup_string.php:46
+msgid "General Task: Choose a page/post to comment"
+msgstr ""
+
+#: inc/frontend/wpf_general_task_modal.php:8
+#, fuzzy
+#| msgid "General Task"
+msgid "General Tasks "
+msgstr "Allgemeiner Task"
+
+#: atarim-visual-collaboration.php:1780 inc/admin/wpf_admin_function.php:203
+msgid ""
+"Give it a few seconds. <br>Then, refresh the page to see the task in the new "
+"position."
+msgstr ""
+
+#: inc/admin/page-settings-graphics.php:72
+msgid "Give your new graphic a description"
+msgstr ""
+
+#: inc/admin/page-settings-permissions.php:157 inc/admin/page-settings.php:343
+#: inc/admin/page-settings.php:363 inc/admin/page-settings.php:389
+msgid "Global Settings"
+msgstr ""
+
+#: inc/admin/wpf_backend_initial_setup.php:48
+#, php-format
+msgid "Good to have you here %s!"
+msgstr ""
+
+#: inc/admin/page-settings-graphics.php:51
+msgid "Graphic FeedBack"
+msgstr ""
+
+#: atarim-visual-collaboration.php:152 inc/wpf_ajax_functions.php:221
+#: inc/wpf_function.php:606 inc/wpf_popup_string.php:36
+#: inc/admin/page-settings-graphics.php:26
+#: inc/admin/page-settings-permissions.php:31 inc/admin/page-settings.php:81
+#: inc/admin/page-settings.php:169
+msgid "Graphics"
+msgstr ""
+
+#: inc/admin/page-settings-graphics.php:52
+msgid "Graphics Created successfully"
+msgstr ""
+
+#: inc/admin/page-settings-permissions.php:172
+msgid "Guest "
+msgstr ""
+
+#: inc/admin/page-settings-permissions.php:112
+msgid "Guest Mode"
+msgstr ""
+
+#: inc/wpf_email_notifications.php:88
+msgid "has changed"
+msgstr ""
+
+#: inc/admin/page-settings.php:449
+msgid ""
+"Here you can rebrand Atarim Client Interface by changing the main color and "
+"the logo."
+msgstr ""
+
+#: inc/frontend/wpf_frontend_initial_setup.php:19
+msgid "Hi "
+msgstr "Hallo"
+
+#: inc/wpf_popup_string.php:8
+msgid "High"
+msgstr "Hoch"
+
+#: inc/admin/page-settings-permissions.php:109
+msgid "Hold down the CTRL key to choose multiple options."
+msgstr ""
+
+#: inc/frontend/wpf_frontend_initial_setup.php:51
+msgid "How To Collaborate"
+msgstr ""
+
+#: inc/wpf_function.php:1062
+msgid "hr"
+msgstr ""
+
+#: inc/admin/wpf_backend_initial_setup.php:241
+msgid "I've Done This Before"
+msgstr ""
+
+#: inc/admin/page-settings.php:529
+msgid ""
+"If a user <b>does not</b> choose to receive any notifications and you'd like "
+"to change that, go to their user profile in the WordPress Admin and they can "
+"be ticked on there, you can view more info on notifications <a href=\""
+msgstr ""
+
+#: inc/admin/page-settings-permissions.php:107
+#, fuzzy
+#| msgid ""
+#| "If a user role is not selected, they will not be able to see WP Feedback "
+#| "on the front-end, they will still be able to access the plugin settings "
+#| "though unless you restrict this someone else."
+msgid ""
+"If a user role is not selected, they will not be able to see Atarim Client "
+"Interface on the front-end, they will still be able to access the plugin "
+"settings though unless you restrict this someone else."
+msgstr ""
+"Wenn keine Benutzerrolle ausgewählt ist, werden Benutzer WP Feedback nicht "
+"im Frontend sehen können. Zugriff auf die Plugin Einstellungen haben Sie "
+"trotzdem, falls der Zugriff nicht auf jemand anderen beschränkt wurde."
+
+#: inc/admin/page-settings.php:432
+msgid ""
+"If this is switched off, you will not see stickers unless you open the "
+"sidebar while on the front-end"
+msgstr ""
+"Wenn dies ausgeschaltet ist werden Sie keine Markierungen sehen, außer Sie "
+"öffnen die Seitenleiste auf der Webseite im Frontend"
+
+#: inc/wpf_email_notifications.php:125
+msgid ""
+"If you are not the intended recipient of this email, you must neither take "
+"any action based upon its contents nor copy or show it to anyone."
+msgstr ""
+
+#: inc/admin/page-settings.php:424
+msgid ""
+"If you have object caching enabled on this website, you can tick this on to "
+"clear the cache when a comment or task is created. This may affect the speed "
+"of the website."
+msgstr ""
+
+#: inc/admin/page-settings-permissions.php:96
+msgid ""
+"If you ran out of website slots, <a href='https://atarim.io/upgrade/' "
+"target='_blank'>Please click here to increase your resources</a>"
+msgstr ""
+
+#: inc/wpf_popup_string.php:11
+msgid "In Prog"
+msgstr ""
+
+#: inc/wpf_email_notifications.php:94
+msgid "In Progress"
+msgstr "In Bearbeitung"
+
+#: inc/wpf_email_notifications.php:93
+msgid "In progress"
+msgstr ""
+
+#: inc/wpf_function.php:1738
+msgid "Incorrect password"
+msgstr ""
+
+#: inc/admin/page-settings-permissions.php:211
+msgid "Information"
+msgstr ""
+
+#: inc/admin/wpf_backend_initial_setup.php:29
+#: inc/admin/wpf_backend_initial_setup.php:97
+#: inc/admin/wpf_backend_initial_setup.php:213
+msgid "Install"
+msgstr ""
+
+#: inc/admin/page-settings-graphics.php:38
+#: inc/admin/page-settings-permissions.php:40 inc/admin/page-settings.php:95
+msgid "Integrate"
+msgstr "Integrieren"
+
+#: inc/admin/page-settings.php:617
+msgid ""
+"Integrate Atarim into your existing workflow using native integrations, "
+"webhooks & APIs"
+msgstr ""
+
+#: atarim-visual-collaboration.php:166
+msgid "Integrations"
+msgstr "Integrationen"
+
+#: inc/wpf_ajax_functions.php:230 inc/wpf_function.php:612
+#: inc/admin/page-settings.php:171
+msgid "Internal"
+msgstr ""
+
+#: inc/wpf_function.php:1727
+msgid "Invalid username"
+msgstr ""
+
+#: inc/wpf_email_notifications.php:86
+msgid "is done"
+msgstr ""
+
+#: inc/admin/wpf_backend_initial_setup.php:229
+msgid "Is This Your First Time with Atarim?"
+msgstr ""
+
+#: inc/wpf_email_notifications.php:91
+msgid "It is now marked as"
+msgstr ""
+
+#: inc/frontend/wpf_restrictions_modal.php:18
+#: inc/frontend/wpf_restrictions_modal.php:42
+#: inc/frontend/wpf_restrictions_modal.php:66
+msgid ""
+"It means you're growing & onboarding more clients!<br>Don't let it stop you"
+msgstr ""
+
+#: inc/admin/page-settings.php:121
+msgid "It's good to have you here"
+msgstr ""
+
+#: inc/admin/wpf_backend_initial_setup.php:242
+msgid "It's My First Time"
+msgstr ""
+
+#: inc/wpf_ajax_functions.php:702 inc/wpf_popup_string.php:37
+msgid "just now"
+msgstr "gerade eben"
+
+#: inc/admin/page-settings-permissions.php:259
+msgid "Keyboard Shortcuts"
+msgstr ""
+
+#: inc/wpf_function.php:2173 inc/wpf_function.php:2587
+msgid "Last 24 Hours"
+msgstr ""
+
+#: inc/wpf_function.php:2177 inc/wpf_function.php:2591
+msgid "Last 7 Days"
+msgstr ""
+
+#: inc/wpf_popup_string.php:16
+msgid "Leave a comment..."
+msgstr "Hinterlasse einen Kommentar... "
+
+#: inc/admin/wpf_backend_initial_setup.php:45
+#, fuzzy
+#| msgid "Let's get you up and running"
+msgid "Let's Get You Up and Running"
+msgstr "Auf und los!"
+
+#: inc/frontend/wpf_frontend_initial_setup.php:101
+msgid "Let's Start"
+msgstr "Fangen wir an!"
+
+#: inc/admin/upgrade-subscription-popup.php:151
+msgid "Let's Unlock This Feature"
+msgstr ""
+
+#: inc/admin/page-settings-permissions.php:88
+msgid "License Active"
+msgstr ""
+
+#: inc/wpf_function.php:1747
+msgid "Login successful, redirecting..."
+msgstr ""
+
+#: inc/wpf_email_notifications.php:120 inc/wpf_popup_string.php:6
+msgid "Low"
+msgstr "Niedrig"
+
+#: inc/admin/wpf_backend_initial_setup.php:132
+msgid "Main Collaborator Account"
+msgstr ""
+
+#: inc/admin/wpf_backend_initial_setup.php:126
+msgid "Main Collaborator Email Address"
+msgstr ""
+
+#: inc/admin/wpf_backend_initial_setup.php:124
+msgid "Main Collaborator Full Name"
+msgstr ""
+
+#: inc/admin/page-settings.php:357
+msgid "Main Settings"
+msgstr ""
+
+#: inc/admin/page-settings.php:450
+msgid "manage Global Settings across all of your websites"
+msgstr ""
+
+#: inc/frontend/wpf_approve_page_modal.php:7
+msgid "Mark all tasks on this page as complete"
+msgstr ""
+
+#: inc/wpf_popup_string.php:19
+msgid "Mark as internal"
+msgstr ""
+
+#: inc/wpf_popup_string.php:7
+msgid "Medium"
+msgstr "Mittel"
+
+#: inc/wpf_function.php:1059
+msgid "min"
+msgstr ""
+
+#: inc/frontend/wpf_responsive_page_modal.php:5
+msgid "Mobile"
+msgstr ""
+
+#: inc/wpf_function.php:1068
+msgid "month"
+msgstr ""
+
+#: inc/admin/page-settings-graphics.php:67
+msgid "Name your new graphic item"
+msgstr ""
+
+#: atarim-visual-collaboration.php:2702 atarim-visual-collaboration.php:2703
+msgid "New Task status"
+msgstr ""
+
+#: atarim-visual-collaboration.php:2749 atarim-visual-collaboration.php:2750
+msgid "New Task urgency"
+msgstr ""
+
+#: inc/admin/wpf_backend_initial_setup.php:206
+msgid "Next >>"
+msgstr "Weiter >>"
+
+#: atarim-visual-collaboration.php:2713
+msgid "No Task status"
+msgstr ""
+
+#: atarim-visual-collaboration.php:2760
+msgid "No Task urgency"
+msgstr ""
+
+#: inc/admin/page-settings.php:224
+msgid "No Tasks found."
+msgstr "Keine Tasks gefunden."
+
+#: inc/frontend/wpf_general_task_modal.php:8
+msgid "not "
+msgstr ""
+
+#: atarim-visual-collaboration.php:2712
+msgid "Not Found Task status"
+msgstr ""
+
+#: atarim-visual-collaboration.php:2759
+msgid "Not Found Task urgency"
+msgstr ""
+
+#: inc/admin/page-settings.php:366
+msgid "Notification Settings"
+msgstr ""
+
+#: inc/admin/page-settings.php:520
+msgid "Notifications Settings"
+msgstr "Benachrichtigungseinstellungen"
+
+#: inc/admin/page-settings.php:309
+msgid "Notify Users"
+msgstr "Benutzer benachrichtigen"
+
+#: inc/admin/page-settings.php:400
+msgid ""
+"On this screen, you can manage different settings of the plugin. You can "
+"white label it to match your own branding, control which notifications are "
+"sent out to the users of this WordPress website and a few other options "
+"below this text."
+msgstr ""
+
+#: inc/wpf_email_notifications.php:109
+msgid "Open"
+msgstr ""
+
+#: inc/wpf_popup_string.php:10
+msgid "Open Task"
+msgstr "Offener Task"
+
+#: inc/wpf_email_notifications.php:92
+msgid "Open task"
+msgstr ""
+
+#: inc/admin/page-settings.php:218
+#, fuzzy
+#| msgid "Open Task's Page"
+msgid "Open Task Page"
+msgstr "Taskseite öffnen"
+
+#: inc/wpf_email_notifications.php:112
+msgid "Original Request"
+msgstr ""
+
+#: inc/admin/page-settings-permissions.php:141
+#: inc/admin/page-settings-permissions.php:171
+msgid "Others "
+msgstr "Andere"
+
+#: inc/admin/page-settings.php:168
+msgid "Page"
+msgstr "Seite"
+
+#: inc/frontend/wpf_approve_page_modal.php:15
+msgid "Page Approved"
+msgstr ""
+
+#: atarim-visual-collaboration.php:1783
+msgid "Panel"
+msgstr ""
+
+#: atarim-visual-collaboration.php:2700 atarim-visual-collaboration.php:2747
+msgid "Parent Item"
+msgstr ""
+
+#: atarim-visual-collaboration.php:2701 atarim-visual-collaboration.php:2748
+msgid "Parent Item:"
+msgstr ""
+
+#: inc/wpf_popup_string.php:12
+msgid "Pending"
+msgstr ""
+
+#: inc/wpf_email_notifications.php:95
+msgid "Pending Review"
+msgstr "Überprüfung ausstehend"
+
+#: atarim-visual-collaboration.php:161 inc/admin/page-settings-graphics.php:34
+#: inc/admin/page-settings-permissions.php:37
+#: inc/admin/page-settings-permissions.php:56 inc/admin/page-settings.php:90
+msgid "Permissions"
+msgstr "Rechte"
+
+#: inc/admin/page-settings-permissions.php:64
+#: inc/admin/page-settings-permissions.php:104
+msgid "Permissions Settings"
+msgstr ""
+
+#: inc/admin/page-settings.php:123
+msgid "Permissions tab"
+msgstr ""
+
+#: atarim-visual-collaboration.php:1781 inc/admin/wpf_admin_function.php:204
+msgid ""
+"Place the task anywhere on the page to pinpoint the location of the request."
+msgstr ""
+
+#: inc/admin/page-settings.php:123
+msgid "Please click on the"
+msgstr ""
+
+#: inc/wpf_email_notifications.php:126
+msgid ""
+"Please contact the sender if you believe you have received this email in "
+"error."
+msgstr ""
+
+#: inc/admin/upgrade-subscription-popup.php:164
+msgid "Please contact your webmaster to unlock this feature"
+msgstr ""
+
+#: inc/wpf_function.php:1732
+msgid "Please enter a password"
+msgstr ""
+
+#: inc/admin/page-settings-graphics.php:67
+msgid "Please enter graphics title"
+msgstr ""
+
+#: inc/admin/page-settings-graphics.php:73
+msgid "Please enter your graphics discription"
+msgstr ""
+
+#: inc/admin/page-settings.php:225
+msgid "Please have a look at the video to understand the process."
+msgstr "Bitte schauen Sie sich das Video an, um den Vorgang zu verstehen."
+
+#: atarim-visual-collaboration.php:93
+msgid ""
+"Please note that in the next update the ability to add new graphic items and "
+"manage your existing items is going to be removed as you will be able to add "
+"new graphic items directly inside your Atarim Dashboard - With a few cool "
+"new advances. If you already have existing designs, they will still be "
+"available through their respective direct URLs."
+msgstr ""
+
+#: inc/wpf_popup_string.php:22
+msgid "Please post your comment before performing this action"
+msgstr ""
+
+#: inc/frontend/wpf_frontend_initial_setup.php:48
+msgid "Please select anyone"
+msgstr "Bitte wählen Sie eines aus"
+
+#: inc/admin/page-settings.php:462 inc/admin/page-settings.php:479
+msgid "Please select image"
+msgstr ""
+
+#: atarim-visual-collaboration.php:2710
+msgid "Popular Task status"
+msgstr ""
+
+#: atarim-visual-collaboration.php:2757
+msgid "Popular Task urgency"
+msgstr ""
+
+#: inc/wpf_email_notifications.php:105
+msgid "Post"
+msgstr ""
+
+#: inc/wpf_email_notifications.php:103
+msgid "Post Name"
+msgstr ""
+
+#: inc/wpf_email_notifications.php:104
+msgid "Post name"
+msgstr ""
+
+#: inc/wpf_email_notifications.php:90
+msgid "Posted on"
+msgstr ""
+
+#: inc/wpf_email_notifications.php:119
+msgid "Powered by"
+msgstr "Powered by"
+
+#: inc/wpf_email_notifications.php:106
+#: inc/admin/page-settings-permissions.php:184
+msgid "Priority"
+msgstr ""
+
+#: atarim-visual-collaboration.php:1779 inc/admin/wpf_admin_function.php:201
+msgid "Pushed to Media Folder."
+msgstr ""
+
+#: inc/wpf_function.php:1390
+msgid "Receive email notification for  daily report"
+msgstr ""
+
+#: inc/wpf_function.php:1354
+msgid "Receive email notification for every new comment"
+msgstr "Erhalte Emailbenachrichtigung für jeden neuen Kommentar"
+
+#: inc/wpf_function.php:1342
+msgid "Receive email notification for every new task"
+msgstr "Erhalte Emailbenachrichtigung für jeden neuen Task"
+
+#: inc/wpf_function.php:1378
+msgid "Receive email notification for every status change"
+msgstr "Erhalte Emailbenachrichtigung für jede Statusänderung"
+
+#: inc/wpf_function.php:1402
+msgid "Receive email notification for weekly report"
+msgstr ""
+
+#: inc/wpf_function.php:1366
+msgid "Receive email notification when a task is marked as complete"
+msgstr ""
+"Erhalte Emailbenachrichtigung wenn ein Task als abgeschlossen markiert wurde"
+
+#: atarim-visual-collaboration.php:1781 inc/admin/wpf_admin_function.php:204
+msgid "Remap task"
+msgstr ""
+
+#: inc/wpf_popup_string.php:47
+msgid "Remap the task to other element"
+msgstr ""
+
+#: atarim-visual-collaboration.php:1780 inc/admin/wpf_admin_function.php:203
+msgid "Remapping task...."
+msgstr ""
+
+#: inc/admin/page-settings-permissions.php:68 inc/admin/page-settings.php:384
+msgid ""
+"Remember to Save Changes at the bottom of this screen to apply any changes."
+msgstr ""
+
+#: inc/admin/page-settings.php:439
+msgid "Remove backend commenting"
+msgstr "Backend Kommentarfunktion ausschalten"
+
+#: inc/wpf_function.php:2191 inc/wpf_function.php:2609
+#: inc/wpf_popup_string.php:43
+msgid "Remove Login Parameter"
+msgstr ""
+
+#: inc/admin/page-settings.php:505
+msgid "Remove mention of \"Atarim\" from the plugin"
+msgstr ""
+
+#: inc/admin/page-settings.php:469
+msgid "Replace the Atarim icon"
+msgstr ""
+
+#: inc/admin/page-settings.php:452
+msgid "Replace the Atarim logo"
+msgstr ""
+
+#: inc/admin/page-settings.php:499
+msgid ""
+"Replace the Default Atarim client tutorial video with your own tutorial "
+"video."
+msgstr ""
+
+#: inc/wpf_function.php:2182 inc/wpf_function.php:2596
+msgid "Reports"
+msgstr ""
+
+#: inc/wpf_function.php:1639
+msgid "Reset"
+msgstr "Zurücksetzen"
+
+#: inc/admin/page-settings.php:513 inc/admin/page-settings.php:515
+msgid "Reset White Label Settings"
+msgstr ""
+
+#: inc/wpf_popup_string.php:25
+msgid "Resolution:"
+msgstr "Auflösung"
+
+#: inc/admin/page-settings.php:154
+msgid "Restore Orphan Tasks"
+msgstr ""
+
+#: inc/admin/page-settings.php:375
+msgid "Resync the Agency Dashboard"
+msgstr ""
+
+#: inc/admin/page-settings.php:330
+msgid "Save Bulk Changes"
+msgstr ""
+
+#: inc/admin/page-settings-permissions.php:303 inc/admin/page-settings.php:604
+msgid "Save Changes"
+msgstr "Änderungen speichern"
+
+#: inc/admin/page-settings-permissions.php:202
+msgid "Screenshot"
+msgstr ""
+
+#: inc/wpf_popup_string.php:15
+msgid "Screenshot The Current View"
+msgstr "Screenshot der aktuellen Ansicht"
+
+#: inc/wpf_email_notifications.php:116
+msgid "Screensize"
+msgstr ""
+
+#: atarim-visual-collaboration.php:1736 atarim-visual-collaboration.php:1764
+#: atarim-visual-collaboration.php:1796 atarim-visual-collaboration.php:1827
+#: atarim-visual-collaboration.php:1854 atarim-visual-collaboration.php:1903
+#: inc/admin/page-settings.php:132 inc/admin/wpf_admin_function.php:224
+#: inc/admin/wpf_admin_function.php:245 inc/admin/wpf_admin_function.php:297
+#: inc/admin/wpf_admin_function.php:318
+msgid "Search by task title"
+msgstr ""
+
+#: atarim-visual-collaboration.php:2711
+msgid "Search Task status"
+msgstr ""
+
+#: atarim-visual-collaboration.php:2758
+msgid "Search Task urgency"
+msgstr ""
+
+#: inc/wpf_function.php:1057
+msgid "sec"
+msgstr ""
+
+#: inc/wpf_function.php:1174
+msgid "Select"
+msgstr ""
+
+#: inc/admin/page-settings-permissions.php:281
+#: inc/admin/page-settings-permissions.php:294
+msgid "select"
+msgstr "Wähle"
+
+#: inc/admin/wpf_backend_initial_setup.php:134
+msgid "Select a User"
+msgstr ""
+
+#: inc/wpf_function.php:1991
+msgid "Select Option"
+msgstr ""
+
+#: inc/admin/page-settings.php:539 inc/admin/wpf_backend_initial_setup.php:175
+msgid "Send email notification for every new comment"
+msgstr "Sende Emailbenachrichtigung für jeden neuen Kommentar"
+
+#: inc/admin/page-settings.php:531 inc/admin/wpf_backend_initial_setup.php:171
+msgid "Send email notification for every new task"
+msgstr "Sende Emailbenachrichtigung für jeden neuen Task"
+
+#: inc/admin/page-settings.php:555 inc/admin/wpf_backend_initial_setup.php:183
+msgid "Send email notification for every status change"
+msgstr "Sende Emailbenachrichtigung für jede Statusänderung"
+
+#: inc/admin/page-settings.php:563 inc/admin/wpf_backend_initial_setup.php:187
+msgid "Send email notification for last 24 hours report"
+msgstr "Sende Emailbenachrichtigung für Report der letzten 24 Stunden"
+
+#: inc/admin/page-settings.php:571 inc/admin/wpf_backend_initial_setup.php:191
+msgid "Send email notification for last 7 days report"
+msgstr "Sende Emailbenachrichtigung für Report der letzten 7 Tage"
+
+#: inc/admin/page-settings.php:547 inc/admin/wpf_backend_initial_setup.php:179
+msgid "Send email notification when a task is marked as complete"
+msgstr ""
+"Sende Emailbenachrichtigung wenn ein Task als abgeschossen markiert wurde"
+
+#: inc/admin/page-settings.php:522
+msgid "Send email notifications to the following address"
+msgstr "Sende Emailbenachrichtigungen an folgende Adresse"
+
+#: inc/wpf_function.php:2170 inc/wpf_function.php:2584
+msgid "Send Reports:"
+msgstr ""
+
+#: atarim-visual-collaboration.php:527
+msgid "Sending user info, please wait..."
+msgstr ""
+
+#: atarim-visual-collaboration.php:2707 atarim-visual-collaboration.php:2754
+msgid "Separate items with commas"
+msgstr ""
+
+#: atarim-visual-collaboration.php:156 atarim-visual-collaboration.php:190
+#: inc/admin/page-settings-graphics.php:30
+#: inc/admin/page-settings-permissions.php:34 inc/admin/page-settings.php:85
+msgid "Settings"
+msgstr "Einstellungen"
+
+#: inc/wpf_function.php:2424
+msgid "Share"
+msgstr ""
+
+#: inc/wpf_function.php:2188 inc/wpf_function.php:2609
+msgid "Share Page Link : "
+msgstr ""
+
+#: inc/wpf_popup_string.php:42
+msgid "Share Task Link :"
+msgstr ""
+
+#: inc/wpf_function.php:2417 inc/wpf_function.php:2607
+msgid "Show Completed"
+msgstr "Abgeschlossen anzeigen"
+
+#: inc/wpf_function.php:2418
+msgid "Show Internal"
+msgstr ""
+
+#: inc/admin/page-settings.php:431
+msgid "Show task stickers by default"
+msgstr "Taskmarkierungen standardmäßig anzeigen"
+
+#: inc/wpf_function.php:2416 inc/wpf_function.php:2606
+msgid "Show Tasks"
+msgstr "Tasks anzeigen"
+
+#: inc/frontend/wpf_login_modal.php:6
+msgid "Skip the login"
+msgstr ""
+
+#: inc/admin/wpf_backend_initial_setup.php:158
+msgid "Skip these steps"
+msgstr ""
+
+#: inc/admin/page-settings-graphics.php:94
+msgid "Start Collaborating"
+msgstr ""
+
+#: inc/wpf_email_notifications.php:107
+#: inc/admin/page-settings-permissions.php:193
+msgid "Status"
+msgstr ""
+
+#: inc/admin/page-settings-permissions.php:120
+msgid "Stop comments for admins"
+msgstr "Stoppe Kommentare für Admins"
+
+#: inc/admin/page-settings-permissions.php:121
+msgid "Stop comments for admins on front end."
+msgstr "Stoppen Sie die Kommentare für Administratoren im Frontend."
+
+#: inc/admin/page-settings-permissions.php:137
+#, fuzzy
+#| msgid ""
+#| "Super admin – he has full capabilities for all the plugin’s functions. "
+msgid "Super admin – Has full capabilities for all the plugin’s functions. "
+msgstr "Super Admin - er hat volle Berechtigungen für alle Pluginfunktionen."
+
+#: atarim-visual-collaboration.php:172 inc/admin/page-settings-graphics.php:43
+#: inc/admin/page-settings-permissions.php:44 inc/admin/page-settings.php:100
+msgid "Support"
+msgstr "Support"
+
+#: inc/wpf_popup_string.php:49
+msgid "Switch to a normal task"
+msgstr ""
+
+#: inc/wpf_popup_string.php:50
+msgid "Switch to an Internal task"
+msgstr ""
+
+#: inc/frontend/wpf_responsive_page_modal.php:4
+msgid "Tablet"
+msgstr ""
+
+#: inc/wpf_email_notifications.php:102
+msgid "Task"
+msgstr ""
+
+#: atarim-visual-collaboration.php:1778 inc/admin/wpf_admin_function.php:202
+msgid "Task already exist for this element."
+msgstr ""
+
+#: inc/admin/page-settings.php:252
+msgid "Task Attributes"
+msgstr "Task Attribute"
+
+#: inc/wpf_popup_string.php:21
+msgid "Task cannot be created with note"
+msgstr ""
+
+#: inc/wpf_email_notifications.php:101
+msgid "Task ID"
+msgstr ""
+
+#: inc/wpf_popup_string.php:29
+msgid "Task ID:"
+msgstr ""
+
+#: inc/admin/page-settings.php:174 inc/admin/page-settings.php:283
+#: inc/admin/page-settings.php:317
+msgid "Task Status"
+msgstr "Task Status"
+
+#: atarim-visual-collaboration.php:2698
+msgid "Task status"
+msgstr ""
+
+#: atarim-visual-collaboration.php:2714
+msgid "Task status list"
+msgstr ""
+
+#: atarim-visual-collaboration.php:2715
+msgid "Task status list navigation"
+msgstr ""
+
+#: inc/admin/page-settings.php:163
+msgid "Task Types"
+msgstr "Task Arten"
+
+#: inc/admin/page-settings.php:177 inc/admin/page-settings.php:291
+#: inc/admin/page-settings.php:321
+msgid "Task Urgency"
+msgstr "Dringlichkeit"
+
+#: atarim-visual-collaboration.php:2745
+msgid "Task urgency"
+msgstr ""
+
+#: atarim-visual-collaboration.php:2761
+msgid "Task urgency list"
+msgstr ""
+
+#: atarim-visual-collaboration.php:2762
+msgid "Task urgency list navigation"
+msgstr ""
+
+#: inc/admin/page-settings-graphics.php:25
+#: inc/admin/page-settings-permissions.php:30 inc/admin/page-settings.php:78
+msgid "Tasks"
+msgstr "Tasks"
+
+#: atarim-visual-collaboration.php:149 inc/admin/page-settings.php:128
+msgid "Tasks Center"
+msgstr "Tasks Center"
+
+#: inc/wpf_email_notifications.php:100
+msgid "Tasks completed this week"
+msgstr ""
+
+#: inc/wpf_email_notifications.php:98
+msgid "Tasks completed today"
+msgstr ""
+
+#: inc/wpf_popup_string.php:45 inc/admin/page-settings.php:187
+msgid "Tasks Found"
+msgstr "Tasks gefunden"
+
+#: inc/wpf_email_notifications.php:97
+msgid "Tasks summary for the day"
+msgstr ""
+
+#: inc/wpf_email_notifications.php:99
+msgid "Tasks summary for the week"
+msgstr ""
+
+#: inc/wpf_function.php:2606
+msgid "Tasks Visibility"
+msgstr ""
+
+#: atarim-visual-collaboration.php:2696
+msgctxt "Taxonomy General Name"
+msgid "Task status"
+msgstr ""
+
+#: atarim-visual-collaboration.php:2743
+msgctxt "Taxonomy General Name"
+msgid "Task urgency"
+msgstr ""
+
+#: atarim-visual-collaboration.php:2697
+msgctxt "Taxonomy Singular Name"
+msgid "Task status"
+msgstr ""
+
+#: atarim-visual-collaboration.php:2744
+msgctxt "Taxonomy Singular Name"
+msgid "Task urgency"
+msgstr ""
+
+#: inc/frontend/wpf_restrictions_modal.php:17
+#: inc/frontend/wpf_restrictions_modal.php:41
+#: inc/frontend/wpf_restrictions_modal.php:65
+msgid "That's great!"
+msgstr ""
+
+#: inc/admin/wpf_backend_initial_setup.php:128
+msgid ""
+"The auto-generated password <b><u>will not</u></b> be shared with the new "
+"user."
+msgstr ""
+
+#: inc/admin/page-settings-permissions.php:291
+msgid "The client"
+msgstr "Der Kunde"
+
+#: inc/admin/page-settings-permissions.php:77
+msgid ""
+"The Client Interface Plugin will not work unless you click the following "
+"button and activate this website."
+msgstr ""
+
+#: atarim-visual-collaboration.php:1779 inc/admin/wpf_admin_function.php:201
+msgid ""
+"The file was added to the website's media folder, you can now use it from "
+"the there."
+msgstr ""
+
+#: atarim-visual-collaboration.php:92
+msgid "The Graphic Feedback Tool is moving to the Atarim Dashboard!"
+msgstr ""
+
+#: inc/admin/page-settings.php:454
+msgid "The image should be 180x45 px. Allowed jpg, png."
+msgstr ""
+
+#: inc/admin/page-settings.php:471
+msgid "The image should be 50px X 50px. Allowed jpg, png."
+msgstr ""
+
+#: inc/admin/page-settings.php:500
+msgid ""
+"The video will be replaced on the frontend wizard as well as tasks screen on "
+"backend when empty."
+msgstr ""
+
+#: inc/admin/page-settings-permissions.php:278
+msgid "The website builder"
+msgstr "Der Webseitenersteller"
+
+#: inc/admin/page-settings-permissions.php:279
+msgid ""
+"The website builder will add this user to all tasks by default, allowing the "
+"client to skip the \"choose a user\" tab when creating a task. It will also "
+"be used for the Auto Login option when coming from the Agency Dashboard."
+msgstr ""
+
+#: inc/wpf_popup_string.php:24
+msgid "The website server didn't respond to the file upload,  please try again"
+msgstr ""
+
+#: inc/wpf_popup_string.php:23
+msgid "The website server didn't respond,  please try again"
+msgstr ""
+
+#: inc/admin/page-settings.php:136
+msgid "There are no Orphan tasks"
+msgstr ""
+
+#: inc/EDD_SL_Plugin_Updater.php:236
+#, php-format
+msgid ""
+"There is a new version of %1$s available. %2$sView version %3$s details%4$s "
+"or %5$supdate now%6$s."
+msgstr ""
+
+#: inc/EDD_SL_Plugin_Updater.php:228
+#, php-format
+msgid ""
+"There is a new version of %1$s available. %2$sView version %3$s details%4$s."
+msgstr ""
+
+#: inc/admin/page-settings.php:358 inc/admin/wpf_backend_initial_setup.php:152
+msgid ""
+"There seems to be some issue with enabling the global settings. Please "
+"contact support for help."
+msgstr ""
+
+#: inc/frontend/wpf_restrictions_modal.php:21
+#: inc/frontend/wpf_restrictions_modal.php:45
+#: inc/frontend/wpf_restrictions_modal.php:69
+msgid "There was some error. Please try again."
+msgstr ""
+
+#: inc/frontend/wpf_approve_page_modal.php:10
+msgid "there was some error. Please try again."
+msgstr ""
+
+#: inc/admin/wpf_backend_initial_setup.php:167
+msgid ""
+"These are global settings. Each user can then choose their own notifications "
+"out of the options selected here."
+msgstr ""
+"Dies sind globale Einstellungen. Jeder Benutzer kann dann seine eigenen "
+"Benachrichtigungen aus den hier ausgewählten Optionen wählen."
+
+#: inc/admin/page-settings-permissions.php:129
+msgid ""
+"These names are for the setup wizard when you first installed the plugin. "
+"Every user who comes to the website after installation will have to go "
+"through it and you can name the 3 options here."
+msgstr ""
+"Diese Namen sind für die Einrichtungsroutine, nachdem Sie das Plugin zum "
+"ersten Mal installiert haben. Jeder Benutzer der nach der Installation auf "
+"die Webseite kommt, hat diese zu befolgen und Sie können die drei Optionen "
+"hier benennen."
+
+#: inc/wpf_email_notifications.php:124
+msgid ""
+"This email and any attachments to it may be confidential and are intended "
+"solely for the use of the individual to whom it is addressed."
+msgstr ""
+
+#: inc/admin/page-settings.php:488
+msgid ""
+"This is great for upselling your clients or making them aware of additional "
+"services that you can provide."
+msgstr ""
+
+#: inc/admin/page-settings.php:406
+#, fuzzy
+#| msgid ""
+#| "This is used to disable the plugin on this website, to save you the "
+#| "trouble of having to deactivate it in your plugin settings."
+msgid ""
+"This is used to enable and disable the collaboration functions on this "
+"website, to save you the trouble of having to deactivate it in your plugin "
+"settings."
+msgstr ""
+"Dies wird verwendet um das Plugin auf dieser Webseite zu deaktiveren, damit "
+"Sie es nicht in den Plugineinstellungen deaktivieren müssen."
+
+#: inc/admin/page-settings.php:523
+msgid ""
+"This option is in addition to the user emails. Seperate with comma for "
+"multiple addresses."
+msgstr ""
+
+#: atarim-visual-collaboration.php:1725 atarim-visual-collaboration.php:1752
+#: atarim-visual-collaboration.php:1816 atarim-visual-collaboration.php:1842
+#: inc/admin/wpf_admin_function.php:211 inc/admin/wpf_admin_function.php:284
+msgid "This Page"
+msgstr ""
+
+#: inc/admin/wpf_backend_initial_setup.php:115
+msgid ""
+"This will allow them to recieve notifications & comment with their name."
+msgstr ""
+
+#: inc/admin/page-settings-permissions.php:301
+msgid ""
+"This will be the user you created for your main contact for this website."
+msgstr ""
+
+#: inc/admin/page-settings-permissions.php:288
+msgid ""
+"This will probably be your own user, as the person or agency that is "
+"building the website."
+msgstr ""
+
+#: inc/admin/page-settings.php:487
+msgid "This will replace the &quot;Powered by Atarim&quot; link to your own."
+msgstr ""
+
+#: inc/admin/page-settings.php:470
+msgid "This will replace the Atarim icon in the admin side menu."
+msgstr ""
+
+#: inc/admin/page-settings.php:453
+msgid ""
+"This will replace the logo in the top right of this page and the logo on the "
+"notification emails that are sent out."
+msgstr ""
+"Dies ersetzt das Logo oben rechts auf dieser Seite, sowie auf "
+"Benachrichtigungsemails."
+
+#: inc/admin/page-settings.php:506
+msgid ""
+"Tick this setting to remove the name Atarim. Add your own logo and change "
+"the logo link above to ensure that the Client Interface Plugin is white "
+"labelled entirely."
+msgstr ""
+
+#: inc/admin/page-settings.php:528
+msgid ""
+"Ticking these on will display <b>them as an option on the front-end wizard "
+"for users to choose</b>. For example, if you don't want users to choose the "
+"option to send 24 hour reports, tick that off and it will not display on the "
+"front-end wizard."
+msgstr ""
+
+#: inc/admin/page-settings.php:402
+msgid "To find these settings, go here."
+msgstr ""
+
+#: inc/frontend/wpf_frontend_initial_setup.php:20
+msgid "To optimize your experience, which one describes you best?"
+msgstr "Um Ihre Erfahrungen zu optimieren: was beschreibt Sie am besten?"
+
+#: inc/admin/upgrade-subscription-popup.php:152
+msgid ""
+"Unlock this feature and improve your workflow even further by upgrading your "
+"plan."
+msgstr ""
+
+#: inc/frontend/wpf_restrictions_modal.php:19
+#: inc/frontend/wpf_restrictions_modal.php:43
+#: inc/frontend/wpf_restrictions_modal.php:67
+msgid "Unlock This Website"
+msgstr ""
+
+#: inc/frontend/wpf_restrictions_modal.php:19
+#: inc/frontend/wpf_restrictions_modal.php:43
+#: inc/frontend/wpf_restrictions_modal.php:67
+msgid "Unlock Website"
+msgstr ""
+
+#: atarim-visual-collaboration.php:2705
+msgid "Update Task status"
+msgstr ""
+
+#: atarim-visual-collaboration.php:2752
+msgid "Update Task urgency"
+msgstr ""
+
+#: inc/admin/page-settings.php:344
+msgid ""
+"Update your settings from the Global Settings area within your Agency "
+"dashboard."
+msgstr ""
+
+#: atarim-visual-collaboration.php:175 inc/admin/page-settings-graphics.php:46
+#: inc/admin/page-settings-permissions.php:47 inc/admin/page-settings.php:103
+msgid "Upgrade"
+msgstr "Upgrade"
+
+#: inc/admin/upgrade-subscription-popup.php:160
+msgid "Upgrade To Unlock"
+msgstr ""
+
+#: graphics/wpf_graphics_all_list.php:12
+msgid ""
+"Upload an image to collaborate visually using Atarim, perfect for screen "
+"mockups, logos, flyers or any other type of graphic you are designing."
+msgstr ""
+
+#: inc/admin/page-settings.php:457 inc/admin/page-settings.php:474
+msgid "Upload Image"
+msgstr ""
+
+#: graphics/wpf_graphics.php:273
+msgid "Upload New Version"
+msgstr ""
+
+#: inc/wpf_email_notifications.php:118
+msgid "User IP"
+msgstr ""
+
+#: inc/wpf_popup_string.php:28
+msgid "User IP:"
+msgstr ""
+
+#: inc/wpf_popup_string.php:27
+msgid "User Name:"
+msgstr "Benutzer Name:"
+
+#: inc/admin/page-settings-permissions.php:66
+#: inc/admin/page-settings-permissions.php:146
+msgid "User Permissions"
+msgstr ""
+
+#: inc/admin/page-settings-permissions.php:158
+msgid "User Permissions are pulled from your Agency dashboard"
+msgstr ""
+
+#: inc/admin/page-settings-permissions.php:106
+msgid "User roles allowed to create tasks"
+msgstr "Erlaubte Benutzerrollen, um Tasks anzulegen"
+
+#: inc/wpf_function.php:1171
+msgid "User Type"
+msgstr "Benutzertyp"
+
+#: inc/wpf_email_notifications.php:113
+msgid "Users"
+msgstr ""
+
+#: inc/wpf_function.php:1791
+msgid "Version"
+msgstr ""
+
+#: inc/wpf_email_notifications.php:108
+msgid "View"
+msgstr ""
+
+#: atarim-visual-collaboration.php:2706
+msgid "View Task status"
+msgstr ""
+
+#: atarim-visual-collaboration.php:2753
+msgid "View Task urgency"
+msgstr ""
+
+#: inc/admin/wpf_backend_initial_setup.php:230
+msgid ""
+"Watch the short video so that we can get your solid results. Choose whether "
+"it's your first time or you've used Atarim before."
+msgstr ""
+
+#: inc/frontend/wpf_frontend_initial_setup.php:52
+msgid "Watch this short tutorial to get started"
+msgstr "Sehen Sie sich die kurze Einleitung an um loszulegen"
+
+#: inc/admin/wpf_backend_initial_setup.php:50
+msgid "We need to connect you to your Atarim account"
+msgstr ""
+
+#: inc/admin/page-settings-permissions.php:136
+#: inc/admin/page-settings-permissions.php:170
+msgid "Webmaster"
+msgstr ""
+
+#: inc/admin/page-settings.php:379
+msgid ""
+"Websites should now be resync / added now to the dashboard. Please contact "
+"support in case if does not."
+msgstr ""
+
+#: inc/admin/page-settings.php:148
+msgid "Weekly Report"
+msgstr "Wöchentliche Reports"
+
+#: inc/admin/page-settings.php:120
+msgid "Welcome to Atarim"
+msgstr ""
+
+#: inc/frontend/wpf_approve_page_modal.php:5
+msgid ""
+"When the page is ready, click the green button to signal to the webmaster "
+"that <b>this page is approved."
+msgstr ""
+
+#: inc/admin/page-settings.php:493
+#, fuzzy
+#| msgid ""
+#| "Where ever you see the blue, this option will change it to whatever "
+#| "colour you want!"
+msgid ""
+"Where ever you see the blue, this option will change it to whatever color "
+"you want!"
+msgstr "Diese Option ersetzt die blaue Akzentfarbe mit der Farbe Ihrer Wahl!"
+
+#: inc/admin/page-settings.php:450
+msgid ""
+"where your license is activated by visiting the general settings screen on "
+"your"
+msgstr ""
+
+#: inc/admin/wpf_backend_initial_setup.php:166
+msgid "Which notifications would you like the plugin to send out?"
+msgstr "Welche Benachrichtigungen möchten Sie daß das Plugin versendet?"
+
+#: inc/admin/page-settings.php:365 inc/admin/page-settings.php:448
+msgid "White Label"
+msgstr "White Label"
+
+#: atarim-visual-collaboration.php:1778 inc/admin/wpf_admin_function.php:202
+msgid ""
+"Write your message in the existing thread. <br>Here, we opened it for you."
+msgstr ""
+
+#: inc/wpf_function.php:1743
+msgid "Wrong username or password."
+msgstr ""
+
+#: inc/wpf_function.php:1071
+msgid "year"
+msgstr ""
+
+#: inc/wpf_popup_string.php:33
+msgid "Yes"
+msgstr "Ja"
+
+#: inc/admin/page-settings.php:450
+msgid "You can "
+msgstr ""
+
+#: inc/admin/page-settings.php:401
+msgid "You can also control the permissions of Atarim Client Interface:"
+msgstr ""
+
+#: inc/EDD_SL_Plugin_Updater.php:474
+msgid "You do not have permission to install plugin updates"
+msgstr ""
+
+#: inc/wpf_email_notifications.php:84
+msgid "You have a new reply on"
+msgstr ""
+
+#: inc/wpf_email_notifications.php:83
+msgid "You have a new task on"
+msgstr ""
+
+#: inc/frontend/wpf_restrictions_modal.php:63
+msgid "You Ran Out of Internal Task Slots"
+msgstr ""
+
+#: inc/frontend/wpf_restrictions_modal.php:39
+msgid "You Ran Out of Task Slots"
+msgstr ""
+
+#: inc/frontend/wpf_restrictions_modal.php:15
+msgid "You Ran Out of Website Slots"
+msgstr ""
+
+#: inc/admin/page-settings.php:402
+msgid "You will also see your license settings on this page."
+msgstr ""
+
+#: inc/wpf_email_notifications.php:89
+msgid "Your daily report for"
+msgstr ""
+
+#: inc/admin/page-settings-permissions.php:101
+msgid ""
+"Your license has been manually revoked from Atarim account. If you feel that "
+"this is a mistake, please contact the license owner to manually add the "
+"license to the site."
+msgstr ""
+
+#: inc/wpf_function.php:2179 inc/wpf_function.php:2593
+#: inc/admin/page-settings.php:134
+msgid "Your report was sent"
+msgstr "Ihr Report wurde gesendet"
+
+#: inc/wpf_function.php:923
+msgid "Your settings have been saved!"
+msgstr "Deine Einstellungen wurden gespeichert!"
+
+#: inc/wpf_function.php:930
+msgid "Your Settings not saved. "
+msgstr "Ihre Einstellungen werden nicht gespeichert."
+
+#: inc/wpf_email_notifications.php:85
+msgid "Your task on"
+msgstr ""
+
+#: inc/wpf_email_notifications.php:87
+msgid "Your task status on"
+msgstr ""

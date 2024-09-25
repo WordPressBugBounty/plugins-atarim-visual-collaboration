@@ -1,0 +1,120 @@
+@charset "UTF-8";
+/*========wpf login form=========*/
+.wpf_hide{
+    display: none; 
+}
+#wpf_login_container {
+    position: fixed;
+    z-index: 1999999999;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(255, 255, 255, 0.85);
+}
+#wpf_login_container .wpf_wizard_modal {
+    width: 350px;
+    max-width: 88%;
+    margin: auto;
+    margin-top: 5%;
+    box-shadow: 0em 0em 3em 0em rgba(0,0,0,0.13);
+    padding: 15px;
+    border-radius: 5px;
+    border: 1px solid #efefef;
+    background-color: #fff !important;
+    text-align: center;
+    font-family: arial, sans-serif;
+    font-size: 14px;
+}
+
+img#wpf_image-preview {
+    max-width: 180px;
+    max-height: 45px;
+    margin: auto;
+	margin-bottom: 8px;
+}
+#wpf_login_container #login_form_content .wpf_submit_button {
+    background-color: #69DC9E !important;
+    color: rgba(54,61,77,0.9) !important;
+    margin: 5px 0 0 0;
+    border-radius: 5px;
+    width: 100%;
+    padding: 10px !important;
+    font-size: 14px;
+    border: none !important;
+    box-shadow: none !important;
+    font-weight: 700 !important;
+    height: 39px !important;
+    text-transform: initial !important;
+    line-height: 1.4;
+    font-family: arial, sans-serif;
+    cursor: pointer;
+}
+#wpf_login_container a.wpf_login_close {
+    font-size: 30px;
+    margin-top: -5px;
+    color: var(--main-wpf-color);
+    float: right;
+    font-weight: 700;
+    line-height: 1;
+    text-shadow: 0 1px 0 #fff;
+    opacity: .5;
+    text-decoration: none;
+}
+#wpf_login_container a.wpf_skip.wpf_login_close {
+    float: initial;
+    font-size: 14px;
+}
+form#wpf_login input#username, form#wpf_login input#password {
+    border-radius: 5px;
+    margin-bottom: 10px;
+    width: 100% !important;
+    height: 45px !important;
+}
+form#wpf_login p.wpf_status {
+    color: red;
+    margin-top: 10px;
+}
+div#wpf_tasks_overlay {
+    position: absolute;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.95);
+    height: 100%;
+    left: 0;
+    padding-top: 5%;
+    font-size: 30px;
+    color: var(--main-wpf-color);
+    font-weight: 700;
+    text-decoration: none;
+    font-family: 'Exo', sans-serif;
+    z-index: 10;
+}
+.wpf_welcome_wrap {
+    box-shadow: 0em 0em 3em 0em rgba(0,0,0,0.13);
+    padding: 45px;
+    border-radius: 5px;
+    border: 1px solid #efefef;
+    background-color: #fff !important;
+    width: 100%;
+    max-width: 400px;
+    margin: auto;
+    text-align: center;
+}
+.wpf_welcome_title {
+    margin-bottom: 10px;
+}
+.wpf_welcome_note {
+    font-size: 60%;
+    line-height: 1.1;
+}
+.wpf_welcome_note u {
+    cursor: pointer;
+}
+.wpf_welcome_image img {
+    display: block;
+    width: 100%;
+}
+.wpf_welcome_image img {
+    width: 100%;
+}

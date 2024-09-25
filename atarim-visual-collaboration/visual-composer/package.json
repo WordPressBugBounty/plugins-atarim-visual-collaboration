@@ -1,0 +1,46 @@
+{
+  "name": "visual-composer-atarim",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:VisualComposer/vcwb-api-example-plugin.git"
+  },
+  "author": "Janis K <janis.k@visualcomposer.com>",
+  "license": "MIT",
+  "proxy": "https://apiv1.wpfeedback.co",
+  "devDependencies": {
+    "@fortawesome/fontawesome-free": "^6.2.1",
+    "@fortawesome/fontawesome-svg-core": "^6.2.1",
+    "@fortawesome/free-regular-svg-icons": "^6.2.1",
+    "@fortawesome/free-solid-svg-icons": "^6.2.1",
+    "@fortawesome/react-fontawesome": "^0.2.0",
+    "@mui/material": "^5.11.0",
+    "@mui/styled-engine-sc": "^5.11.0",
+    "@mui/styles": "^5.11.0",
+    "@webpack-cli/generators": "^2.5.0",
+    "autoprefixer": "^10.4.12",
+    "babel-loader": "^8.2.5",
+    "clsx": "^1.2.1",
+    "css-loader": "^6.7.1",
+    "postcss": "^8.4.18",
+    "postcss-loader": "^7.0.1",
+    "react-icons": "^4.7.1",
+    "style-loader": "^3.3.1",
+    "styled-components": "^5.3.6"
+  },
+  "description": "Visual Composer Website Builder API example plugin",
+  "scripts": {
+    "build": "webpack --config=node_modules/vc-webpack-vendors/webpack.config.js",
+    "build-production": "webpack --config=node_modules/vc-webpack-vendors/webpack.config.production.js",
+    "watch": "webpack --config=node_modules/vc-webpack-vendors/webpack.config.js --watch"
+  },
+  "peerDependencies": {
+    "styled-components": "^5.3.6"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
+    "vc-webpack-vendors": "3.3.5"
+  }
+}
