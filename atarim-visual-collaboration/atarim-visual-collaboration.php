@@ -2,7 +2,7 @@
 /*
  * Plugin Name: Atarim: Visual Website Collaboration, Feedback & Workflow Management
  * Description: Atarim Visual Collaboration makes it easy and efficient to collaborate on websites with your clients, internal team, contractors…anyone! It’s used by nearly 10,000 agencies and freelancers worldwide on over 120,000 websites.
- * Version: 4.0.5
+ * Version: 4.0.6
  * Requires at least: 5.0
  * Require PHP: 7.4
  * Author: Atarim
@@ -29,7 +29,7 @@ if ( ! defined( 'WPF_PLUGIN_URL' ) ) {
     define( 'WPF_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 }
 if ( ! defined( 'WPF_VERSION' ) ) {
-    define( 'WPF_VERSION', '4.0.5' );
+    define( 'WPF_VERSION', '4.0.6' );
 }
 
 define( 'SCOPER_ALL_UPLOADS_EDITABLE ', true );
@@ -617,7 +617,8 @@ function wpf_backed_scripts() {
     $current_role             = $currnet_user_information['role'];
     $current_user_name        = $currnet_user_information['display_name'];
     $current_user_id          = $currnet_user_information['user_id'];
-    $wpf_website_builder      = get_site_data_by_key( 'wpf_website_developer' );
+    $wpf_website_builder      = maybe_unserialize( get_site_data_by_key( 'wpf_website_developer' ) );
+    $wpf_website_builder      = ! empty( $wpf_website_builder ) ? (array) $wpf_website_builder : array();
     if ( $current_user_name == 'Guest' ) {
         $wpf_website_client = get_site_data_by_key( 'wpf_website_client' );
         $wpf_current_role   = 'guest';
@@ -651,7 +652,7 @@ function wpf_backed_scripts() {
     $sound_file         = esc_url( plugins_url( 'images/wpf-screenshot-sound.mp3', __FILE__ ) );
     $comment_count      = get_last_task_id();
 
-    echo "<script>var wpf_nonce = '$wpf_nonce', wpf_comment_time = '$wpf_comment_time', wpf_all_pages = '$wpf_all_pages', current_role = '$current_role', wpf_current_role = '$wpf_user_type', current_user_name = '$current_user_name', current_user_id = '$current_user_id', wpf_website_builder = '$wpf_website_builder', wpfb_users = '$wpfb_users', ajaxurl = '$ajax_url', wpf_screenshot_sound = '$sound_file', plugin_url = '$plugin_url', comment_count = '$comment_count', wpf_show_front_stikers = '$wpf_show_front_stikers', atarim_server_down = '$atarim_server_down';</script>";
+    echo "<script>var wpf_nonce = '$wpf_nonce', wpf_comment_time = '$wpf_comment_time', wpf_all_pages = '$wpf_all_pages', current_role = '$current_role', wpf_current_role = '$wpf_user_type', current_user_name = '$current_user_name', current_user_id = '$current_user_id', wpf_website_builder = " . json_encode( $wpf_website_builder ) . ", wpfb_users = '$wpfb_users', ajaxurl = '$ajax_url', wpf_screenshot_sound = '$sound_file', plugin_url = '$plugin_url', comment_count = '$comment_count', wpf_show_front_stikers = '$wpf_show_front_stikers', atarim_server_down = '$atarim_server_down';</script>";
 
     if ( isset( $_REQUEST['page'] ) ) {
         if ( $_REQUEST['page'] == 'collaboration_task_center' ) {
@@ -1343,7 +1344,8 @@ function show_wpf_comment_button() {
         $current_role             = $currnet_user_information['role'];
         $current_user_name        = $currnet_user_information['display_name'];
         $current_user_id          = $currnet_user_information['user_id'];
-        $wpf_website_builder      = get_site_data_by_key( 'wpf_website_developer' );
+        $wpf_website_builder      = maybe_unserialize( get_site_data_by_key( 'wpf_website_developer' ) );
+        $wpf_website_builder      = ! empty( $wpf_website_builder ) ? (array) $wpf_website_builder : array();
         if ( $current_user_name == 'Guest' ) {
             $wpf_website_client = get_site_data_by_key( 'wpf_website_client' );
             $wpf_current_role   = 'guest';
@@ -1451,12 +1453,20 @@ function show_wpf_comment_button() {
                 $current_page_url = get_permalink( $current_page_id );
             }
         } else {
-            if ( is_category() || is_post_type_archive() ) {
-                $page_type          = "archive";
-                $category           = get_queried_object();
-                $current_page_id    = $category->term_id;
-                $current_page_url   = get_category_link( $current_page_id );
+            if ( is_category() ) {
+                $page_type = "archive";
+                $category = get_queried_object();
+                $current_page_id = $category->term_id;
+                $current_page_url = get_category_link( $current_page_id );
                 $current_page_title = addslashes( get_cat_name( $current_page_id ) );
+            } elseif ( is_post_type_archive() ) {
+                $page_type = "archive";
+                $category = get_queried_object();
+                // Handle custom post type archive, no term_id available
+                $post_type = get_post_type();
+                $current_page_id = 9999999999; // No term_id for post type archive
+                $current_page_url = get_post_type_archive_link( $post_type );
+                $current_page_title = post_type_archive_title( '', false );
             } else if ( is_tag() ) { // tag archieve page
                 $page_type          = "archive";
                 $category           = get_queried_object();
@@ -1527,9 +1537,9 @@ function show_wpf_comment_button() {
             require_once( WPF_PLUGIN_DIR . 'inc/wpf_popup_string.php' );
             echo "<style>li#wp-admin-bar-wpfeedback_admin_bar {display: none !important;}</style>";
             if ( $current_page_id == 0 ) {
-                echo "<script>var fallback_link_check = '$fallback_link', page_type = '$page_type', wpf_tag_enter_img = '$wpf_tag_enter_img', disable_for_admin = '$disable_for_admin', wpf_nonce = '$wpf_nonce', current_role = '$current_role', wpf_current_role = '$wpf_current_role', current_user_name = '$current_user_name', current_user_id = '$current_user_id', wpf_website_builder = '$wpf_website_builder', wpfb_users = '$wpfb_users', ajaxurl = '$ajax_url', current_page_url = window.location.href.split('?')[0], current_page_title = '$current_page_title', current_page_id = '$current_page_id', wpf_screenshot_sound = '$sound_file', plugin_url = '$plugin_url', comment_count = '$comment_count', bubble_comment_count = '$bubble_comment_count', wpf_show_front_stikers = '$wpf_show_front_stikers', wpf_tab_permission_user = '$wpf_tab_permission_user', wpf_tab_permission_priority = '$wpf_tab_permission_priority', wpf_tab_permission_status = '$wpf_tab_permission_status', wpf_tab_permission_screenshot = '$wpf_tab_permission_screenshot', wpf_tab_permission_information = '$wpf_tab_permission_information', wpf_tab_permission_delete_task = '$wpf_tab_permission_delete_task', wpf_tab_permission_auto_screenshot = '$wpf_tab_permission_auto_screenshot', wpf_admin_bar = '$wpf_admin_bar', wpf_tab_permission_display_stickers = '$wpf_tab_permission_display_stickers', wpf_tab_permission_display_task_id = '$wpf_tab_permission_display_task_id', wpf_tab_permission_keyboard_shortcut = '$wpf_tab_permission_keyboard_shortcut', restrict_plugin = '$restrict_plugin', atarim_server_down = '$atarim_server_down';</script>";
+                echo "<script>var fallback_link_check = '$fallback_link', page_type = '$page_type', wpf_tag_enter_img = '$wpf_tag_enter_img', disable_for_admin = '$disable_for_admin', wpf_nonce = '$wpf_nonce', current_role = '$current_role', wpf_current_role = '$wpf_current_role', current_user_name = '$current_user_name', current_user_id = '$current_user_id', wpf_website_builder = " . json_encode( $wpf_website_builder ) . ", wpfb_users = '$wpfb_users', ajaxurl = '$ajax_url', current_page_url = window.location.href.split('?')[0], current_page_title = '$current_page_title', current_page_id = '$current_page_id', wpf_screenshot_sound = '$sound_file', plugin_url = '$plugin_url', comment_count = '$comment_count', bubble_comment_count = '$bubble_comment_count', wpf_show_front_stikers = '$wpf_show_front_stikers', wpf_tab_permission_user = '$wpf_tab_permission_user', wpf_tab_permission_priority = '$wpf_tab_permission_priority', wpf_tab_permission_status = '$wpf_tab_permission_status', wpf_tab_permission_screenshot = '$wpf_tab_permission_screenshot', wpf_tab_permission_information = '$wpf_tab_permission_information', wpf_tab_permission_delete_task = '$wpf_tab_permission_delete_task', wpf_tab_permission_auto_screenshot = '$wpf_tab_permission_auto_screenshot', wpf_admin_bar = '$wpf_admin_bar', wpf_tab_permission_display_stickers = '$wpf_tab_permission_display_stickers', wpf_tab_permission_display_task_id = '$wpf_tab_permission_display_task_id', wpf_tab_permission_keyboard_shortcut = '$wpf_tab_permission_keyboard_shortcut', restrict_plugin = '$restrict_plugin', atarim_server_down = '$atarim_server_down';</script>";
             } else {
-                echo "<script>var fallback_link_check = '$fallback_link', page_type = '$page_type', wpf_tag_enter_img = '$wpf_tag_enter_img', disable_for_admin = '$disable_for_admin', wpf_nonce = '$wpf_nonce', current_role = '$current_role', wpf_current_role = '$wpf_current_role', current_user_name = '$current_user_name', current_user_id = '$current_user_id', wpf_website_builder = '$wpf_website_builder', wpfb_users = '$wpfb_users',  ajaxurl = '$ajax_url', current_page_url = '$current_page_url', current_page_title = '$current_page_title', wpf_current_screen = '', current_page_id = '$current_page_id', wpf_screenshot_sound = '$sound_file', plugin_url = '$plugin_url', comment_count = '$comment_count', bubble_comment_count = '$bubble_comment_count', wpf_show_front_stikers = '$wpf_show_front_stikers', wpf_tab_permission_user = '$wpf_tab_permission_user', wpf_tab_permission_priority = '$wpf_tab_permission_priority', wpf_tab_permission_status = '$wpf_tab_permission_status', wpf_tab_permission_screenshot = '$wpf_tab_permission_screenshot', wpf_tab_permission_information = '$wpf_tab_permission_information', wpf_tab_permission_delete_task = '$wpf_tab_permission_delete_task', wpf_tab_permission_auto_screenshot = '$wpf_tab_permission_auto_screenshot', wpf_admin_bar = $wpf_admin_bar, wpf_tab_permission_display_stickers = '$wpf_tab_permission_display_stickers', wpf_tab_permission_display_task_id = '$wpf_tab_permission_display_task_id', wpf_tab_permission_keyboard_shortcut = '$wpf_tab_permission_keyboard_shortcut', restrict_plugin = '$restrict_plugin', atarim_server_down = '$atarim_server_down';</script>";
+                echo "<script>var fallback_link_check = '$fallback_link', page_type = '$page_type', wpf_tag_enter_img = '$wpf_tag_enter_img', disable_for_admin = '$disable_for_admin', wpf_nonce = '$wpf_nonce', current_role = '$current_role', wpf_current_role = '$wpf_current_role', current_user_name = '$current_user_name', current_user_id = '$current_user_id', wpf_website_builder = " . json_encode( $wpf_website_builder ) . ", wpfb_users = '$wpfb_users',  ajaxurl = '$ajax_url', current_page_url = '$current_page_url', current_page_title = '$current_page_title', wpf_current_screen = '', current_page_id = '$current_page_id', wpf_screenshot_sound = '$sound_file', plugin_url = '$plugin_url', comment_count = '$comment_count', bubble_comment_count = '$bubble_comment_count', wpf_show_front_stikers = '$wpf_show_front_stikers', wpf_tab_permission_user = '$wpf_tab_permission_user', wpf_tab_permission_priority = '$wpf_tab_permission_priority', wpf_tab_permission_status = '$wpf_tab_permission_status', wpf_tab_permission_screenshot = '$wpf_tab_permission_screenshot', wpf_tab_permission_information = '$wpf_tab_permission_information', wpf_tab_permission_delete_task = '$wpf_tab_permission_delete_task', wpf_tab_permission_auto_screenshot = '$wpf_tab_permission_auto_screenshot', wpf_admin_bar = $wpf_admin_bar, wpf_tab_permission_display_stickers = '$wpf_tab_permission_display_stickers', wpf_tab_permission_display_task_id = '$wpf_tab_permission_display_task_id', wpf_tab_permission_keyboard_shortcut = '$wpf_tab_permission_keyboard_shortcut', restrict_plugin = '$restrict_plugin', atarim_server_down = '$atarim_server_down';</script>";
             }
             $wpf_sidebar_closeicon = '<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 357 357" enable-background="new 0 0 357 357" xml:space="preserve"><g><g id="close"><polygon fill="#F5325C" points="357,35.7 321.3,0 178.5,142.8 35.7,0 0,35.7 142.8,178.5 0,321.3 35.7,357 178.5,214.2 321.3,357 357,321.3 214.2,178.5 "/></g></g></svg>';
             if ( $disable_for_admin == 0 ) {
@@ -1600,7 +1610,6 @@ function wpf_check_permission() {
     $current_role             = $currnet_user_information['role'];
     $current_user_name        = $currnet_user_information['display_name'];
     $current_user_id          = $currnet_user_information['user_id'];
-    $wpf_website_builder      = get_site_data_by_key( 'wpf_website_developer' );
     if ( $current_user_name == 'Guest' ) {
         $wpf_website_client = get_site_data_by_key( 'wpf_website_client' );
         $wpf_current_role   = 'guest';
@@ -1639,7 +1648,6 @@ function add_sticker_permission_to_head() {
     $current_role             = $currnet_user_information['role'];
     $current_user_name        = $currnet_user_information['display_name'];
     $current_user_id          = $currnet_user_information['user_id'];
-    $wpf_website_builder      = get_site_data_by_key( 'wpf_website_developer' );
     if ( $current_user_name == 'Guest' ) {
         $wpf_website_client = get_site_data_by_key( 'wpf_website_client' );
         $wpf_current_role   = 'guest';

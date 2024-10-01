@@ -32,7 +32,6 @@ if ( ! function_exists( 'wpfeedback_get_post_list_ajax' ) ) {
             $current_role             = $currnet_user_information['role'];
             $current_user_name        = $currnet_user_information['display_name'];
             $current_user_id          = $currnet_user_information['user_id'];
-            $wpf_website_builder      = get_site_data_by_key( 'wpf_website_developer' );
             if ( $current_user_name == 'Guest' ) {
                 $wpf_website_client = get_site_data_by_key( 'wpf_website_client' );
                 $wpf_current_role   = 'guest';
@@ -681,6 +680,7 @@ if ( ! function_exists( 'wpf_add_new_task' ) ) {
         $url                               = WPF_CRM_API . 'wp-api/task/create';
         $sendtocloud                       = wp_json_encode( $task_data );
         $res                               = wpf_send_remote_post( $url, $sendtocloud );
+        $res                               = array( 'id' => encrypt_id( $res ), 'ID' => $res );
         echo wp_json_encode( $res );
         exit();
     }
@@ -950,7 +950,7 @@ if ( ! function_exists( 'wpfb_edit_comment' ) ) {
         );
         $url           = WPF_CRM_API . 'wp-api/comment/updateContent';
         $sendtocloud   = wp_json_encode( $args );
-        $comments_info = wpf_send_remote_post( $url, $sendtocloud );      
+        $comments_info = wpf_send_remote_post( $url, $sendtocloud );   
         if ( $comments_info['status'] == 200 ) {
             echo "1";
         }

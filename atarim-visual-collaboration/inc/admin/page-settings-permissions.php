@@ -149,7 +149,9 @@
                             <!--edited by Pratap-->
                             <div class="wpf_user_permissions <?php if ( ! is_feature_enabled( 'user_permissions' ) ) { ?> blocked <?php } ?>">
                             <?php
+                            $isglobal = 'islocal';
                             if ( get_option( "wpf_global_settings" ) == 'yes' ) {
+                                $isglobal = 'isglobal';
                                 ?>
                                 <div class="at_feature_lock_wrap wpf_global_lock">
                                     <div class="at_feat_global">
@@ -162,129 +164,132 @@
                                     </div>
                                 </div>
                                 <?php
-                            } else {
+                            }
                                 ?>
-                                <p><?php esc_attr_e( 'Enable or disable diffent functionality based on the Atarim user types to overwirte the default settings and customise your workflow.', 'atarim-visual-collaboration' ); ?></p>
-                                <table class="wpf_perm_table">
-                                    <tr>
-                                        <td class="wpf_perm_top"></td>
-                                        <td class="wpf_perm_top"><?php echo get_site_data_by_key( 'wpf_customisations_client' ) ? esc_html( get_site_data_by_key( 'wpf_customisations_client' ) ) : esc_attr_e( 'Client (Website Owner) ', 'atarim-visual-collaboration' ); ?></td>
-                                        <td class="wpf_perm_top"><?php echo get_site_data_by_key( 'wpf_customisations_webmaster' ) ? esc_html( get_site_data_by_key( 'wpf_customisations_webmaster' ) ) : esc_attr_e( 'Webmaster', 'atarim-visual-collaboration' ); ?></td>
-                                        <td class="wpf_perm_top"><?php echo get_site_data_by_key( 'wpf_customisations_others' ) ? esc_html( get_site_data_by_key( 'wpf_customisations_others' ) ) : esc_attr_e( 'Others ', 'atarim-visual-collaboration' ); ?></td>
-                                        <td class="wpf_perm_top"><?php esc_attr_e( 'Guest ', 'atarim-visual-collaboration' ); ?></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="wpf_left_cell"><?php esc_attr_e( 'Add User', 'atarim-visual-collaboration' ); ?>
-                                            <span class="dashicons dashicons-info" data-toggle="tooltip" data-placement="top" data-html="true" title="<div class='wpf-tooltip'>Show/Hide the Users tab inside tasks to give you more control over who can assign users to tasks, so you can ensure tasks are assigned correctly.</div>"></span>
-                                        </td>
-                                        <td><input type="checkbox" name="wpf_tab_permission_user_client" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_user_client' ) == 'yes' ) { echo 'checked'; } ?> ></td>
-                                        <td><input type="checkbox" name="wpf_tab_permission_user_webmaster" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_user_webmaster' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                        <td><input type="checkbox" name="wpf_tab_permission_user_others" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_user_others' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                        <td><input type="checkbox" name="wpf_tab_permission_user_guest" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_user_guest' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="wpf_left_cell"><?php esc_attr_e( 'Priority', 'atarim-visual-collaboration' ); ?>
-                                            <span class="dashicons dashicons-info" data-toggle="tooltip" data-placement="top" data-html="true" title="<div class='wpf-tooltip'>Show/Hide the Priority tab inside tasks, we recommend keeping this on for all so you are always aware of how urgent a task is (and the emotional state of your client).</div>"></span>
-                                        </td>
-                                        <td><input type="checkbox" name="wpf_tab_permission_priority_client" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_priority_client' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                        <td><input type="checkbox" name="wpf_tab_permission_priority_webmaster" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_priority_webmaster' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                        <td><input type="checkbox" name="wpf_tab_permission_priority_others" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_priority_others' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                        <td><input type="checkbox" name="wpf_tab_permission_priority_guest" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_priority_guest' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="wpf_left_cell"><?php esc_attr_e( 'Status', 'atarim-visual-collaboration' ); ?>
-                                            <span class="dashicons dashicons-info" data-toggle="tooltip" data-placement="top" data-html="true" title="<div class='wpf-tooltip'>Show/Hide the Status tab inside tasks, so you can control which users dictate where a task currently stands.</div>"></span>
-                                        </td>
-                                        <td><input type="checkbox" name="wpf_tab_permission_status_client" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_status_client' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                        <td><input type="checkbox" name="wpf_tab_permission_status_webmaster" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_status_webmaster' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                        <td><input type="checkbox" name="wpf_tab_permission_status_others" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_status_others' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                        <td><input type="checkbox" name="wpf_tab_permission_status_guest" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_status_guest' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="wpf_left_cell"><?php esc_attr_e( 'Screenshot', 'atarim-visual-collaboration' ); ?>
-                                            <span class="dashicons dashicons-info" data-toggle="tooltip" data-placement="top" data-html="true" title="<div class='wpf-tooltip'>Show/Hide the Screenshot tab inside tasks, which allows users to take a screenshot of their current view so you can see exactly what’s happening for that user.</div>"></span>
-                                        </td>
-                                        <td><input type="checkbox" name="wpf_tab_permission_screenshot_client" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_screenshot_client' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                        <td><input type="checkbox" name="wpf_tab_permission_screenshot_webmaster" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_screenshot_webmaster' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                        <td><input type="checkbox" name="wpf_tab_permission_screenshot_others" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_screenshot_others' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                        <td><input type="checkbox" name="wpf_tab_permission_screenshot_guest" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_screenshot_guest' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="wpf_left_cell"><?php esc_attr_e( 'Information', 'atarim-visual-collaboration' ); ?>
-                                            <span class="dashicons dashicons-info" data-toggle="tooltip" data-placement="top" data-html="true" title="<div class='wpf-tooltip'>Show/Hide the Information tab inside tasks, giving you the resolution, browser and username of the user that created the task. All the info you need to get the task done.</div>"></span>
-                                        </td>
-                                        <td><input type="checkbox" name="wpf_tab_permission_information_client" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_information_client' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                        <td><input type="checkbox" name="wpf_tab_permission_information_webmaster" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_information_webmaster' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                        <td><input type="checkbox" name="wpf_tab_permission_information_others" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_information_others' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                        <td><input type="checkbox" name="wpf_tab_permission_information_guest" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_information_guest' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="wpf_left_cell"><?php esc_attr_e( 'Delete', 'atarim-visual-collaboration' ); ?>
-                                            <span class="dashicons dashicons-info" data-toggle="tooltip" data-placement="top" data-html="true" title="<div class='wpf-tooltip'>Show/Hide the Delete button inside the Information tab on tasks. Allowing you full control over who is accountable for which tasks have been created, to stop confusion occurring.</div>"></span>
-                                        </td>
-                                        <td><input type="checkbox" name="wpf_tab_permission_delete_task_client" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_delete_task_client' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                        <td><input type="checkbox" name="wpf_tab_permission_delete_task_webmaster" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_delete_task_webmaster' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                        <td><input type="checkbox" name="wpf_tab_permission_delete_task_others" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_delete_task_others' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                        <td><input type="checkbox" name="wpf_tab_permission_delete_task_guest" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_delete_task_guest' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="wpf_left_cell"><?php esc_attr_e( 'Auto Screenshot', 'atarim-visual-collaboration' ); ?>
-                                            <span class="dashicons dashicons-info" data-toggle="tooltip" data-placement="top" data-html="true" title="<div class='wpf-tooltip'>Enable automatic screenshots of the user’s current view when they create a task. Providing you the clarity you need to tackle the task.</div>"></span>
-                                        </td>
-                                        <td><input type="checkbox" name="wpf_tab_auto_screenshot_task_client" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_auto_screenshot_task_client' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                        <td><input type="checkbox" name="wpf_tab_auto_screenshot_task_webmaster" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_auto_screenshot_task_webmaster' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                        <td><input type="checkbox" name="wpf_tab_auto_screenshot_task_others" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_auto_screenshot_task_others' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                        <td><input type="checkbox" name="wpf_tab_auto_screenshot_task_guest" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_auto_screenshot_task_guest' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                    </tr>
-                                    <!-- display stickers settings   -->
-                                    <tr>
-                                        <td class="wpf_left_cell"><?php esc_attr_e( 'Color Coded Stickers', 'atarim-visual-collaboration' ); ?>
-                                            <span class="dashicons dashicons-info" data-toggle="tooltip" data-placement="top" data-html="true" title="<div class='wpf-tooltip'>Show/Hide color-coded stickers on the task stickers. The color is determined by the status and urgency of a task, showing you the state of the task at a glance without needing to open it.</div>"></span>
-                                        </td>
-                                        <td><input type="checkbox" name="wpf_tab_permission_display_stickers_client" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_display_stickers_client' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                        <td><input type="checkbox" name="wpf_tab_permission_display_stickers_webmaster" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_display_stickers_webmaster' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                        <td><input type="checkbox" name="wpf_tab_permission_display_stickers_others" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_display_stickers_others' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                        <td><input type="checkbox" name="wpf_tab_permission_display_stickers_guest" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_display_stickers_guest' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                    </tr>
-                                    <!-- display task id on sticker    -->
-                                    <tr>
-                                        <td class="wpf_left_cell"><?php esc_attr_e( 'Display Number On Completed Task', 'atarim-visual-collaboration' ); ?>
-                                            <span class="dashicons dashicons-info" data-toggle="tooltip" data-placement="top" data-html="true" title="<div class='wpf-tooltip'>Replace the tick on completed tasks on the front-end with the task number to make it easier to see the ID of the completed task.</div>"></span>
-                                        </td>
-                                        <td><input type="checkbox" name="wpf_tab_permission_display_task_id_client" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_display_task_id_client' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                        <td><input type="checkbox" name="wpf_tab_permission_display_task_id_webmaster" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_display_task_id_webmaster' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                        <td><input type="checkbox" name="wpf_tab_permission_display_task_id_others" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_display_task_id_others' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                        <td><input type="checkbox" name="wpf_tab_permission_display_task_id_guest" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_display_task_id_guest' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                    </tr>
-                                    <!-- enable keyboard shortcut => v2.1.0  -->
-                                    <tr>
-                                        <td class="wpf_left_cell"><?php esc_attr_e( 'Keyboard Shortcuts', 'atarim-visual-collaboration' ); ?>
-                                            <span class="dashicons dashicons-info" data-toggle="tooltip" data-placement="top" data-html="true" title="<div class='wpf-tooltip'>Enable the use of keyboard shortcuts to make it quicker to collaborate on the front and back-end:<ul><li><b>Shift+F</b> - Go into Comment Mode</li><li><b>Shift+G</b> - Create a new General Task</li><li><b>Shift+S</b> - Open the sidebar</li><li><b>Shift+B</b> - Collapse bottom bar</li></ul></div>"></span>
-                                        </td>
-                                        <td><input type="checkbox" name="wpf_tab_permission_keyboard_shortcut_client" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_keyboard_shortcut_client' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                        <td><input type="checkbox" name="wpf_tab_permission_keyboard_shortcut_webmaster" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_keyboard_shortcut_webmaster' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                        <td><input type="checkbox" name="wpf_tab_permission_keyboard_shortcut_others" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_keyboard_shortcut_others' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                        <td><input type="checkbox" name="wpf_tab_permission_keyboard_shortcut_guest" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_keyboard_shortcut_guest' ) == 'yes' ) { echo 'checked'; } ?>></td>
-                                    </tr>
-                                </table>
-                            <?php } ?>
+                                <div class="<?php echo $isglobal; ?>" >
+                                    <p><?php esc_attr_e( 'Enable or disable diffent functionality based on the Atarim user types to overwirte the default settings and customise your workflow.', 'atarim-visual-collaboration' ); ?></p>
+                                    <table class="wpf_perm_table">
+                                        <tr>
+                                            <td class="wpf_perm_top"></td>
+                                            <td class="wpf_perm_top"><?php echo get_site_data_by_key( 'wpf_customisations_client' ) ? esc_html( get_site_data_by_key( 'wpf_customisations_client' ) ) : esc_attr_e( 'Client (Website Owner) ', 'atarim-visual-collaboration' ); ?></td>
+                                            <td class="wpf_perm_top"><?php echo get_site_data_by_key( 'wpf_customisations_webmaster' ) ? esc_html( get_site_data_by_key( 'wpf_customisations_webmaster' ) ) : esc_attr_e( 'Webmaster', 'atarim-visual-collaboration' ); ?></td>
+                                            <td class="wpf_perm_top"><?php echo get_site_data_by_key( 'wpf_customisations_others' ) ? esc_html( get_site_data_by_key( 'wpf_customisations_others' ) ) : esc_attr_e( 'Others ', 'atarim-visual-collaboration' ); ?></td>
+                                            <td class="wpf_perm_top"><?php esc_attr_e( 'Guest ', 'atarim-visual-collaboration' ); ?></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="wpf_left_cell"><?php esc_attr_e( 'Add User', 'atarim-visual-collaboration' ); ?>
+                                                <span class="dashicons dashicons-info" data-toggle="tooltip" data-placement="top" data-html="true" title="<div class='wpf-tooltip'>Show/Hide the Users tab inside tasks to give you more control over who can assign users to tasks, so you can ensure tasks are assigned correctly.</div>"></span>
+                                            </td>
+                                            <td><input type="checkbox" name="wpf_tab_permission_user_client" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_user_client' ) == 'yes' ) { echo 'checked'; } ?> ></td>
+                                            <td><input type="checkbox" name="wpf_tab_permission_user_webmaster" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_user_webmaster' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                            <td><input type="checkbox" name="wpf_tab_permission_user_others" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_user_others' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                            <td><input type="checkbox" name="wpf_tab_permission_user_guest" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_user_guest' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="wpf_left_cell"><?php esc_attr_e( 'Priority', 'atarim-visual-collaboration' ); ?>
+                                                <span class="dashicons dashicons-info" data-toggle="tooltip" data-placement="top" data-html="true" title="<div class='wpf-tooltip'>Show/Hide the Priority tab inside tasks, we recommend keeping this on for all so you are always aware of how urgent a task is (and the emotional state of your client).</div>"></span>
+                                            </td>
+                                            <td><input type="checkbox" name="wpf_tab_permission_priority_client" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_priority_client' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                            <td><input type="checkbox" name="wpf_tab_permission_priority_webmaster" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_priority_webmaster' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                            <td><input type="checkbox" name="wpf_tab_permission_priority_others" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_priority_others' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                            <td><input type="checkbox" name="wpf_tab_permission_priority_guest" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_priority_guest' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="wpf_left_cell"><?php esc_attr_e( 'Status', 'atarim-visual-collaboration' ); ?>
+                                                <span class="dashicons dashicons-info" data-toggle="tooltip" data-placement="top" data-html="true" title="<div class='wpf-tooltip'>Show/Hide the Status tab inside tasks, so you can control which users dictate where a task currently stands.</div>"></span>
+                                            </td>
+                                            <td><input type="checkbox" name="wpf_tab_permission_status_client" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_status_client' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                            <td><input type="checkbox" name="wpf_tab_permission_status_webmaster" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_status_webmaster' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                            <td><input type="checkbox" name="wpf_tab_permission_status_others" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_status_others' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                            <td><input type="checkbox" name="wpf_tab_permission_status_guest" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_status_guest' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="wpf_left_cell"><?php esc_attr_e( 'Screenshot', 'atarim-visual-collaboration' ); ?>
+                                                <span class="dashicons dashicons-info" data-toggle="tooltip" data-placement="top" data-html="true" title="<div class='wpf-tooltip'>Show/Hide the Screenshot tab inside tasks, which allows users to take a screenshot of their current view so you can see exactly what’s happening for that user.</div>"></span>
+                                            </td>
+                                            <td><input type="checkbox" name="wpf_tab_permission_screenshot_client" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_screenshot_client' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                            <td><input type="checkbox" name="wpf_tab_permission_screenshot_webmaster" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_screenshot_webmaster' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                            <td><input type="checkbox" name="wpf_tab_permission_screenshot_others" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_screenshot_others' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                            <td><input type="checkbox" name="wpf_tab_permission_screenshot_guest" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_screenshot_guest' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="wpf_left_cell"><?php esc_attr_e( 'Information', 'atarim-visual-collaboration' ); ?>
+                                                <span class="dashicons dashicons-info" data-toggle="tooltip" data-placement="top" data-html="true" title="<div class='wpf-tooltip'>Show/Hide the Information tab inside tasks, giving you the resolution, browser and username of the user that created the task. All the info you need to get the task done.</div>"></span>
+                                            </td>
+                                            <td><input type="checkbox" name="wpf_tab_permission_information_client" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_information_client' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                            <td><input type="checkbox" name="wpf_tab_permission_information_webmaster" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_information_webmaster' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                            <td><input type="checkbox" name="wpf_tab_permission_information_others" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_information_others' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                            <td><input type="checkbox" name="wpf_tab_permission_information_guest" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_information_guest' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="wpf_left_cell"><?php esc_attr_e( 'Delete', 'atarim-visual-collaboration' ); ?>
+                                                <span class="dashicons dashicons-info" data-toggle="tooltip" data-placement="top" data-html="true" title="<div class='wpf-tooltip'>Show/Hide the Delete button inside the Information tab on tasks. Allowing you full control over who is accountable for which tasks have been created, to stop confusion occurring.</div>"></span>
+                                            </td>
+                                            <td><input type="checkbox" name="wpf_tab_permission_delete_task_client" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_delete_task_client' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                            <td><input type="checkbox" name="wpf_tab_permission_delete_task_webmaster" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_delete_task_webmaster' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                            <td><input type="checkbox" name="wpf_tab_permission_delete_task_others" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_delete_task_others' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                            <td><input type="checkbox" name="wpf_tab_permission_delete_task_guest" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_delete_task_guest' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="wpf_left_cell"><?php esc_attr_e( 'Auto Screenshot', 'atarim-visual-collaboration' ); ?>
+                                                <span class="dashicons dashicons-info" data-toggle="tooltip" data-placement="top" data-html="true" title="<div class='wpf-tooltip'>Enable automatic screenshots of the user’s current view when they create a task. Providing you the clarity you need to tackle the task.</div>"></span>
+                                            </td>
+                                            <td><input type="checkbox" name="wpf_tab_auto_screenshot_task_client" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_auto_screenshot_task_client' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                            <td><input type="checkbox" name="wpf_tab_auto_screenshot_task_webmaster" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_auto_screenshot_task_webmaster' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                            <td><input type="checkbox" name="wpf_tab_auto_screenshot_task_others" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_auto_screenshot_task_others' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                            <td><input type="checkbox" name="wpf_tab_auto_screenshot_task_guest" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_auto_screenshot_task_guest' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                        </tr>
+                                        <!-- display stickers settings   -->
+                                        <tr>
+                                            <td class="wpf_left_cell"><?php esc_attr_e( 'Color Coded Stickers', 'atarim-visual-collaboration' ); ?>
+                                                <span class="dashicons dashicons-info" data-toggle="tooltip" data-placement="top" data-html="true" title="<div class='wpf-tooltip'>Show/Hide color-coded stickers on the task stickers. The color is determined by the status and urgency of a task, showing you the state of the task at a glance without needing to open it.</div>"></span>
+                                            </td>
+                                            <td><input type="checkbox" name="wpf_tab_permission_display_stickers_client" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_display_stickers_client' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                            <td><input type="checkbox" name="wpf_tab_permission_display_stickers_webmaster" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_display_stickers_webmaster' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                            <td><input type="checkbox" name="wpf_tab_permission_display_stickers_others" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_display_stickers_others' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                            <td><input type="checkbox" name="wpf_tab_permission_display_stickers_guest" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_display_stickers_guest' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                        </tr>
+                                        <!-- display task id on sticker    -->
+                                        <tr>
+                                            <td class="wpf_left_cell"><?php esc_attr_e( 'Display Number On Completed Task', 'atarim-visual-collaboration' ); ?>
+                                                <span class="dashicons dashicons-info" data-toggle="tooltip" data-placement="top" data-html="true" title="<div class='wpf-tooltip'>Replace the tick on completed tasks on the front-end with the task number to make it easier to see the ID of the completed task.</div>"></span>
+                                            </td>
+                                            <td><input type="checkbox" name="wpf_tab_permission_display_task_id_client" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_display_task_id_client' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                            <td><input type="checkbox" name="wpf_tab_permission_display_task_id_webmaster" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_display_task_id_webmaster' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                            <td><input type="checkbox" name="wpf_tab_permission_display_task_id_others" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_display_task_id_others' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                            <td><input type="checkbox" name="wpf_tab_permission_display_task_id_guest" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_display_task_id_guest' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                        </tr>
+                                        <!-- enable keyboard shortcut => v2.1.0  -->
+                                        <tr>
+                                            <td class="wpf_left_cell"><?php esc_attr_e( 'Keyboard Shortcuts', 'atarim-visual-collaboration' ); ?>
+                                                <span class="dashicons dashicons-info" data-toggle="tooltip" data-placement="top" data-html="true" title="<div class='wpf-tooltip'>Enable the use of keyboard shortcuts to make it quicker to collaborate on the front and back-end:<ul><li><b>Shift+F</b> - Go into Comment Mode</li><li><b>Shift+G</b> - Create a new General Task</li><li><b>Shift+S</b> - Open the sidebar</li><li><b>Shift+B</b> - Collapse bottom bar</li></ul></div>"></span>
+                                            </td>
+                                            <td><input type="checkbox" name="wpf_tab_permission_keyboard_shortcut_client" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_keyboard_shortcut_client' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                            <td><input type="checkbox" name="wpf_tab_permission_keyboard_shortcut_webmaster" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_keyboard_shortcut_webmaster' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                            <td><input type="checkbox" name="wpf_tab_permission_keyboard_shortcut_others" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_keyboard_shortcut_others' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                            <td><input type="checkbox" name="wpf_tab_permission_keyboard_shortcut_guest" value="yes" <?php if ( get_site_data_by_key( 'wpf_tab_permission_keyboard_shortcut_guest' ) == 'yes' ) { echo 'checked'; } ?>></td>
+                                        </tr>
+                                    </table>
+                                </div>
                             </div>
                             <?php
                             $wpfb_users_json       = do_shortcode( '[wpf_user_list_front]' );
                             $wpfb_users            = json_decode( $wpfb_users_json );
-                            $wpf_website_developer = ! empty( get_site_data_by_key( 'wpf_website_developer' ) ) ? get_site_data_by_key( 'wpf_website_developer' ) : 0;
-                            $wpf_website_client    = ! empty( get_site_data_by_key( 'wpf_website_client' ) ) ? get_site_data_by_key( 'wpf_website_client' ) : 0;
+                            $wpf_website_developer = maybe_unserialize( get_site_data_by_key( 'wpf_website_developer' ) );
+                            $wpf_website_developer = ! empty( $wpf_website_developer ) ? (array) $wpf_website_developer : array();
+                            $wpf_website_client    = get_site_data_by_key( 'wpf_website_client' );
+                            $wpf_website_client    = ! empty( $wpf_website_client ) ? $wpf_website_client : 0;
                             ?>
                             <div class="wpf_title_section" id="wpf_default_users"><?php esc_attr_e( 'Default Users', 'atarim-visual-collaboration' ); ?></div>
                             <div class="wpf_settings_option wpf_website_developer">
                                 <div class="wpf_title"><?php esc_attr_e( 'The website builder', 'atarim-visual-collaboration' ); ?></div>
                                 <div class="wpf_description"><?php esc_attr_e( 'The website builder will add this user to all tasks by default, allowing the client to skip the "choose a user" tab when creating a task. It will also be used for the Auto Login option when coming from the Atarim Dashboard.', 'atarim-visual-collaboration' ); ?></div>
-                                <select name="wpf_website_developer">
-                                    <option value="0"><?php esc_attr_e( 'select', 'atarim-visual-collaboration' ); ?></option>
+                                <select name="wpf_website_developer[]" multiple>
                                     <?php
                                     foreach ( $wpfb_users as $key => $val ) {
+                                        $displayname = ucfirst( strtolower( $val->displayname ) );
                                         ?>
-                                        <option value="<?php echo $key; ?>" id="<?php echo $val->username; ?>" <?php if ( $wpf_website_developer == $key ) { echo "selected"; } ?> ><?php echo $val->displayname; ?></option>
+                                        <option value="<?php echo $key; ?>" id="<?php echo $val->username; ?>" <?php if ( in_array( $key, $wpf_website_developer ) ) { echo "selected"; } ?> ><?php echo $displayname; ?></option>
                                     <?php } ?>
                                 </select>
                                 <div class="wpf_description"><?php esc_attr_e( "This will probably be your own user, as the person or agency that is building the website.", 'atarim-visual-collaboration' ); ?></div>

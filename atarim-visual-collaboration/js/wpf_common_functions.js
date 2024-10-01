@@ -147,116 +147,134 @@ function new_comment(id, internal=0, note=false){
 var old_rendered_box_el = null;
 // Code to generate new task.
 function generate_task(id, internal, note) {
+    // Initialize base64 URL variable
     var base64URL = '';
-    html2canvas(document.body,{
+
+    // Capture screenshot of the document body
+    html2canvas(document.body, {
         x: window.scrollX,
         y: window.scrollY,
         width: window.innerWidth,
         height: window.innerHeight,
         useCORS: true,
-        proxy: plugin_url+'imagehelper.php',
-        logging: true,}).then(function(canvas) {
-            base64URL = canvas.toDataURL('image/jpeg',1);
+        proxy: plugin_url + 'imagehelper.php',
+        logging: true
+    }).then(function(canvas) {
+        base64URL = canvas.toDataURL('image/jpeg', 1);
     });
-    var wpside = logged_user.wpside;
+
+    // Generate unique ID and class for the task
     var temp_id = Math.floor(100000 + Math.random() * 900000);
     var temp_class = 'temp_class_' + temp_id;
-    if(typeof temp_tasks[id]!='undefined'){
-        var task_element_path = temp_tasks[id]['rightArrowParents'].join(" > ");
-    }
+
+    // Initialize variables
+    var wpside = logged_user.wpside;
     var curr_browser = get_browser();
-    var new_task = {};
-    var task_priority = jQuery_WPF('input[name=wpfbpriority'+id+']:checked').val();
-    var task_status = jQuery_WPF('input[name=wpfbtaskstatus'+id+']:checked').val();
+    var task_priority = jQuery_WPF('input[name=wpfbpriority' + id + ']:checked').val();
+    var task_status = jQuery_WPF('input[name=wpfbtaskstatus' + id + ']:checked').val();
+    var raw_comment = jQuery_WPF('textarea#comment-' + id).val();
+    var task_comment = raw_comment.replace(/(<p><br><\/p>)+$/, '');
     var task_notify_users = [];
     var task_notify_usernames = [];
-    var raw_comment = jQuery_WPF('textarea#comment-'+id).val();
-    var task_comment = raw_comment.replace(/(<p><br><\/p>)+$/, '');
-    jQuery_WPF.each(jQuery_WPF('input[name=author_list_'+id+']:checked'), function(){
+
+    // Collect notified users and usernames
+    jQuery_WPF.each(jQuery_WPF('input[name=author_list_' + id + ']:checked'), function() {
         task_notify_users.push(jQuery_WPF(this).val());
         task_notify_usernames.push(jQuery_WPF(this).data('wp-usrn'));
     });
-    task_notify_users = task_notify_users.join(",");
-    new_task['task_number'] = id;
-    new_task['task_priority'] = task_priority;
-    new_task['task_status'] = task_status;
-    new_task['task_config_author_browser'] = curr_browser['name'];
-    new_task['task_config_author_browserVersion'] = curr_browser['version'];
-    new_task['task_config_author_browserOS'] = curr_browser['OS'];
-    new_task['task_config_author_name'] = current_user_name;
-    new_task['task_config_author_id'] = current_user_id;
-    new_task['task_config_author_resX'] = window.screen.width;
-    new_task['task_config_author_resY'] = window.screen.height;
-    new_task['task_title'] = task_comment;
-    new_task['task_page_url'] = current_page_url;
-    new_task['task_page_title'] = current_page_title;
-    new_task['current_page_id'] = current_page_id;
-    new_task['task_comment_message'] = task_comment;
-    new_task['task_notify_users'] = task_notify_users;
-    if ( wpside == 'frontend' ) {
-        new_task['page_type'] = page_type;
-    }
-    new_task['is_note'] = note;
-    if ( wpside == 'backend' ) {
-        if ( wpf_current_screen != '' ) {
-            new_task['wpf_current_screen'] = wpf_current_screen;      
-        }else{      
-            new_task['wpf_current_screen'] = '';    
-        } 
-        new_task['task_page_title'] = '';
-        new_task['is_admin_task'] = 1;
-    }
-    if ( internal == 1 ) {
-        new_task['internal'] = '1';
-    }
-    if ( typeof temp_tasks[id] != 'undefined' ) {
-        new_task['task_element_path'] = task_element_path;
-        new_task['task_clean_dom_elem_path'] = temp_tasks[id]['wpf_clean_dom_elem_path'];
-        new_task['task_element_html'] = temp_tasks[id]['current_html_element'];
-        new_task['task_X'] = temp_tasks[id]['relative_location'].x;
-        new_task['task_Y'] = temp_tasks[id]['relative_location'].y;
-        new_task['task_elementX'] = temp_tasks[id]['html_element_location'].x;
-        new_task['task_elementY'] = temp_tasks[id]['html_element_location'].y;
-        new_task['task_relativeX'] = '';
-        new_task['task_relativeY'] = '';
-        new_task['task_element_height'] = temp_tasks[id]['html_element_height'];
-        new_task['task_element_width'] = temp_tasks[id]['html_element_width'];
-        if ( wpside == 'backend' ) {
-            new_task['task_type'] = 'element';
+
+    var task_notify_users = task_notify_users.join(",");
+
+    // Create new task object
+    var new_task = {
+        task_number: id,
+        task_priority: task_priority,
+        task_status: task_status,
+        task_config_author_browser: curr_browser.name,
+        task_config_author_browserVersion: curr_browser.version,
+        task_config_author_browserOS: curr_browser.OS,
+        task_config_author_name: current_user_name,
+        task_config_author_id: current_user_id,
+        task_config_author_resX: window.screen.width,
+        task_config_author_resY: window.screen.height,
+        task_title: task_comment,
+        task_page_url: current_page_url,
+        task_page_title: current_page_title,
+        current_page_id: current_page_id,
+        task_comment_message: task_comment,
+        task_notify_users: task_notify_users,
+        is_note: note,
+    };
+
+    // Set additional properties based on conditions
+    if (wpside === 'frontend') {
+        new_task.page_type = page_type;
+        if ( fallback_link_check == 1 ) {
+            new_task.task_type = 'element';
         } else {
-            if ( fallback_link_check == 1 ) {
-                new_task['task_type'] = 'element';
+            if ( current_page_id == '' || current_page_id == 0 ) {
+                new_task.task_type = 'general';
             } else {
-                if ( current_page_id == '' || current_page_id == 0 ) {
-                    new_task['task_type'] = 'general';
-                } else {
-                    new_task['task_type'] = 'element';
-                }
+                new_task.task_type = 'element';
             }
         }
-    } else {
-        new_task['task_type'] = 'general';
     }
+
+    if (wpside === 'backend') {
+        new_task.wpf_current_screen = wpf_current_screen || '';
+        new_task.task_page_title = '';
+        new_task.is_admin_task = 1;
+        new_task.task_type = 'element';
+    }
+
+    if (internal === 1) {
+        new_task.internal = '1';
+    }
+
+    if (typeof temp_tasks[id] !== 'undefined') {
+        var task_element_path = temp_tasks[id]['rightArrowParents'].join(" > ");
+        Object.assign(new_task, {
+            task_element_path: task_element_path,
+            task_clean_dom_elem_path: temp_tasks[id]['wpf_clean_dom_elem_path'],
+            task_element_html: temp_tasks[id]['current_html_element'],
+            task_X: temp_tasks[id]['relative_location'].x,
+            task_Y: temp_tasks[id]['relative_location'].y,
+            task_elementX: temp_tasks[id]['html_element_location'].x,
+            task_elementY: temp_tasks[id]['html_element_location'].y,
+            task_relativeX: '',
+            task_relativeY: '',
+            task_element_height: temp_tasks[id]['html_element_height'],
+            task_element_width: temp_tasks[id]['html_element_width']
+        });
+    } else {
+        new_task.task_type = 'general';
+    }
+
+    // Process comment for URL or video
     var temp_task_text = task_comment;
-    const strippedString = task_comment.replace(/(<([^>]+)>)/gi, "");
-    if(wpf_is_valid_url(strippedString) == true){
-        if ( is_video_Url( strippedString ) ) {
+    var strippedString = task_comment.replace(/(<([^>]+)>)/gi, "");
+    if (wpf_is_valid_url(strippedString)) {
+        if (is_video_Url(strippedString)) {
             temp_task_text = wpf_is_valid_video_url(strippedString);
         } else {
             temp_task_text = URLify(strippedString);
         }
     }
+
+    // Create FormData object for upload
     var wpf_upload_form = new FormData();
     wpf_upload_form.append('action', 'wpf_add_new_task');
-    wpf_upload_form.append('wpf_nonce',wpf_nonce);
+    wpf_upload_form.append('wpf_nonce', wpf_nonce);
     wpf_upload_form.append('new_task', JSON.stringify(new_task));
-    if(allFiles.length > 0) {
+
+    if (allFiles.length > 0) {
         allFiles.forEach(function(file) {
             wpf_upload_form.append('wpf_upload_file[]', file);
         });
     } else {
-        wpf_upload_form.append("wpf_upload_file[]", '');
+        wpf_upload_form.append('wpf_upload_file[]', '');
     }
+
     jQuery_WPF.ajax({
         method : "POST",
         url : ajaxurl,
@@ -267,115 +285,184 @@ function generate_task(id, internal, note) {
             if ( jQuery_WPF('ul#wpf_thispage_container_today li').length == 0 ) {
                 jQuery_WPF('.wpf_no_task').hide();
             }
-            if(wpf_tab_permission.display_stickers == 'yes') {
-                var wpf_task_status_label= '<div class="wpf_task_label"><span class="task_status wpf_'+new_task['task_status']+' wpf_'+new_task['task_status']+'_custom">'+status_icon+'</span>';
-                var wpf_task_priority_label= '<span class="priority wpf_'+new_task['task_priority']+' wpf_'+new_task['task_priority']+'_custom">'+priority_icon+'</span></div>';
+
+            var wpf_task_status_label;
+            var wpf_task_priority_label;
+            if (wpf_tab_permission.display_stickers === 'yes') {
+                wpf_task_status_label = `
+                    <div class="wpf_task_label">
+                        <span class="task_status wpf_${new_task['task_status']} wpf_${new_task['task_status']}_custom">${status_icon}</span>
+                    </div>`;
+                wpf_task_priority_label = `
+                    <span class="priority wpf_${new_task['task_priority']} wpf_${new_task['task_priority']}_custom">${priority_icon}</span>`;
             } else {
-                var wpf_task_status_label= '<div class="wpf_task_label"><span class="task_status wpf_'+new_task['task_status']+'">'+status_icon+'</span>';
-                var wpf_task_priority_label= '<span class="priority wpf_'+new_task['task_priority']+'">'+priority_icon+'</span></div>';
+                wpf_task_status_label = `
+                    <div class="wpf_task_label">
+                        <span class="task_status wpf_${new_task['task_status']}">${status_icon}</span>
+                    </div>`;
+                wpf_task_priority_label = `
+                    <span class="priority wpf_${new_task['task_priority']}">${priority_icon}</span>`;
             }
+
             var wpfb_tags_html ='';
             var user_html = '';
-            if( Object.keys(task_notify_usernames).length > 0 ) {
-                jQuery_WPF.each( task_notify_usernames, function (index, value) {
-                    user_html += '<span class="wpf_user_avat">' + value.slice(0, 2) + '</span>';
+            if (Object.keys(task_notify_usernames).length > 0) {
+                jQuery_WPF.each(task_notify_usernames, function(index, value) {
+                    user_html += `<span class="wpf_user_avat">${value.slice(0, 2)}</span>`;
                 });
             }
-            if(new_task['task_type']=='general') {
-                var view_id = bubble_comment_count;
+
+            var view_id;
+            if (new_task['task_type'] === 'general') {
+                view_id = bubble_comment_count;
                 bubble_comment_count++;
             } else {
-                var view_id = bubble_comment_count;
+                view_id = bubble_comment_count;
             }
+
             var display_check_mark = '';
-            if(wpf_tab_permission.display_task_id != 'yes') {
+            if(wpf_tab_permission.display_task_id !== 'yes') {
                 display_check_mark = '<i class="gg-check"></i>';
             } else {
                 display_check_mark = view_id;
             }
-            if(internal==1) {
+
+            if (internal === 1) {
                 var internal_icon = internal_icon_html;
-                jQuery_WPF('#bubble-'+id).append(internal_icon);
-                jQuery_WPF('#wpf_mark_internal_'+id).addClass('wpf_is_internal').removeClass('new_internal_tooltip').addClass('unmark_internal_tooltip');
-                jQuery_WPF('#bubble-'+id).addClass('wpfb-internal');
+                jQuery_WPF('#bubble-' + id).append(internal_icon);
+                jQuery_WPF('#wpf_mark_internal_' + id)
+                    .addClass('wpf_is_internal')
+                    .removeClass('new_internal_tooltip')
+                    .addClass('unmark_internal_tooltip');
+                jQuery_WPF('#bubble-' + id).addClass('wpfb-internal');
             } else {
                 internal_icon = '';
             }
+
             var sticker_span = '';
-            if(wpf_tab_permission.display_stickers == 'yes'){
-                sticker_span = '<span class="sticker ' + task_priority + '_custom"></span> ';
+            if (wpf_tab_permission.display_stickers === 'yes') {
+                sticker_span = `<span class="sticker ${task_priority}_custom"></span> `;
             }
+
             let bubble_label = '';
-            if(new_task['task_status'] == 'complete') {
+            if (new_task['task_status'] === 'complete') {
                 bubble_label = sticker_span + display_check_mark;
             } else {
-                bubble_label = sticker_span + '<span class="wpf_bubble_num_wrapper">'+view_id+'</span>';
+                bubble_label = sticker_span + `<span class="wpf_bubble_num_wrapper">${view_id}</span>`;
             }
+
             var wpf_dal_taskmeta = jQuery_WPF('#wpf_display_all_taskmeta').is(":checked");
-            if(wpf_dal_taskmeta == true) {
+            if(wpf_dal_taskmeta) {
                 var wpfactv = 'wpf_active';
             }
+
             let internall = '';
-            if ( internal ) {
+            if (internal) {
                 internall = '<span class="wpf_task_type" title="Task type">Internal</span>';
             }
             
-            if(new_task['task_type'] == 'general') {
-                const tag = (new_task['task_type'] == 'general') ? wpf_general_tag : wpf_email_tag;
-                if(wpf_tab_permission.display_stickers == 'yes') {
-                    jQuery_WPF('#wpf_thispage_container_today').prepend('<li class="current_page_general_task ' + temp_class + ' ' + task_status+' '+task_status+'_custom '+task_priority+'" data-taskid="'+id+'" data-postid=""><div class="wpf_task_info"><div class="wpf_task_number '+task_status+'_custom" title="' + wpf_remap_text + '" data-disp-id="'+view_id+'">'+bubble_label+internal_icon+'</div><div class="wpf_task_sum"><level class="task-author">'+current_user_name+'<span>'+wpf_just_now+'</span></level><div class="current_page_task_list">'+task_comment+'</div></div></div><div class="wpf_task_meta"><div class="wpf_task_tagg">'+internall+'<span class="wpf_task_type" title="Task type">'+tag+'</span>' + wpfb_tags_html + '</div><div class="wpf_user_avatar">' + user_html + '</div></div></li>');
-                } else {
-                    jQuery_WPF('#wpf_thispage_container_today').prepend('<li class="current_page_general_task ' + temp_class + ' ' +task_status+' '+task_status+'_custom '+task_priority+'" data-taskid="'+id+'" data-postid=""><div class="wpf_task_info"><div class="wpf_task_number" title="' + wpf_remap_text + '" data-disp-id="'+view_id+'">'+bubble_label+internal_icon+'</div><div class="wpf_task_sum"><level class="task-author">'+current_user_name+'<span>'+wpf_just_now+'</span></level><div class="current_page_task_list">'+task_comment+'</div></div></div><div class="wpf_task_meta"><div class="wpf_task_tagg">'+internall+'<span class="wpf_task_type" title="Task type">'+tag+'</span>' + wpfb_tags_html + '</div><div class="wpf_user_avatar">' + user_html + '</div></div></li>');
-                }
-            } else {
-                if(wpf_tab_permission.display_stickers == 'yes') {
-                    jQuery_WPF('#wpf_thispage_container_today').prepend('<li class="current_page_task ' + temp_class + ' ' +task_status+' '+task_status+'_custom '+task_priority+'" data-taskid="'+id+'" data-postid=""><div class="wpf_task_info"><div class="wpf_task_number" title="' + wpf_remap_text + '" data-disp-id="'+view_id+'">'+bubble_label + internal_icon + '</div><div class="wpf_task_sum"><level class="task-author">'+current_user_name+'<span>'+wpf_just_now+'</span></level><div class="current_page_task_list">'+task_comment+'</div></div></div><div class="wpf_task_meta"><div class="wpf_task_tagg">' + internall + wpfb_tags_html + '</div><div class="wpf_user_avatar">' + user_html + '</div></div></li>');
-                } else {
-                    jQuery_WPF('#wpf_thispage_container_today').prepend('<li class="current_page_task ' + temp_class + ' ' +task_status+' '+task_priority+'" data-taskid="'+id+'" data-postid=""><div class="wpf_task_info"><div class="wpf_task_number" title="' + wpf_remap_text + '" data-disp-id="'+view_id+'">'+bubble_label + internal_icon + '</div><div class="wpf_task_sum"><level class="task-author">'+current_user_name+'<span>'+wpf_just_now+'</span></level><div class="current_page_task_list">'+task_comment+'</div></div></div><div class="wpf_task_meta"><div class="wpf_task_tagg">' + internall + wpfb_tags_html + '</div><div class="wpf_user_avatar">' + user_html + '</div></div></li>');
-                }
-            }
-            img_dwn_icon = "";
-            $class = "wpf_author";
-            var note_html = '';
-            if ( note == true ) {
+            const tag = new_task['task_type'] === 'general' ? wpf_general_tag : wpf_email_tag;
+            const taskTypeClass = new_task['task_type'] === 'general' ? 'current_page_general_task' : 'current_page_task';
+            const taskStatussticker = wpf_tab_permission.display_stickers === 'yes' ? `${task_status}_custom` : '';
+            const generalTag = new_task['task_type'] === 'general' ? `<span class="wpf_task_type" title="Task type">${tag}</span>` : '';
+
+            let taskHtml = `
+                <li class="${temp_class} ${task_status} ${taskStatussticker} ${task_priority} ${taskTypeClass}" data-taskid="${id}" data-postid="">
+                    <div class="wpf_task_info">
+                        <div class="wpf_task_number" title="${wpf_remap_text}" data-disp-id="${view_id}">
+                            ${bubble_label}${internal_icon}
+                        </div>
+                        <div class="wpf_task_sum">
+                            <level class="task-author">${current_user_name}<span>${wpf_just_now}</span></level>
+                            <div class="current_page_task_list">${task_comment}</div>
+                        </div>
+                    </div>
+                    <div class="wpf_task_meta">
+                        <div class="wpf_task_tagg">
+                            ${internall}${generalTag}${wpfb_tags_html}
+                        </div>
+                        <div class="wpf_user_avatar">${user_html}</div>
+                    </div>
+                </li>`;
+
+            jQuery_WPF('#wpf_thispage_container_today').prepend(taskHtml);
+
+            let $class = "wpf_author";
+            let note_html = '';
+            if (note === true) {
                 $class = "wpf_author is_note";
                 note_html = '<small class="wpf_note_html">Note</small>';
             }
-            author_html = '';
-            if ( logged_user.author_img == '' || logged_user.author_img == 'undefined') {
-                if ( logged_user.author != '' ) {
-                    author_html = logged_user.author.slice(0, 2);
-                } else {
-                    author_html = current_user_name.slice(0, 2);
-                }
+
+            let author_html = '';
+            if (logged_user.author_img === '' || logged_user.author_img === 'undefined') {
+                author_html = logged_user.author !== '' ? logged_user.author.slice(0, 2) : current_user_name.slice(0, 2);
             } else {
-                author_html = '<img src="' + logged_user.author_img + '" alt="author" ></img>';
+                author_html = `<img src="${logged_user.author_img}" alt="author">`;
             }
 
-            //const comment_data = responseData['data'];
+            // comment_data = responseData['data'];
             var comment_data = [{'id': 0}];
 
-            // edit / delete button
-            var edit_delete_button_html = '';
-            if (jQuery_WPF.inArray('edit', blocked) >= 0) {
-                edit_delete_button_html = `<div class="wpf-edit-delete-wrapper"><a href="javascript:void(0)" onclick="edit_delete_plan()" class="wpf_edit_box_active" id="wpf_edit_box_active">${edit_comment_icon}</a><a href="javascript:void(0)" class="wpf_comment_delete_btn"  onclick="edit_delete_plan()" >${delete_comment_icon}</a></div>`;
-            } else {
-                edit_delete_button_html = `<div class="wpf-edit-delete-wrapper"><a href="javascript:void(0)" onclick="wpf_edit_box_active('${comment_data['id']}')" class="wpf_edit_box_active is_active" id="wpf_edit_box_active">${edit_comment_icon}</a><a href="javascript:void(0)" class="wpf_comment_delete_btn is_active"  onclick="wpf_delete_comment('${comment_data['id']}')" >${delete_comment_icon}</a></div>`;
-            }
-            
+           // Determine HTML for edit/delete buttons based on permissions
+           let edit_delete_button_html = getEditDeleteButtonHTML(comment_data['id']);
+
             var files_html = get_files_html(temp_files);
-            var comment_html = '<li class="' + $class + ' ' + temp_class + ' ' + 'temp_comment_class"><div class="wpf-comment-container"><div class="wpf-author-img">' + author_html + '</div><div class="wpf-comment-wrapper"><level class="task-author"><div class="author-name">' + current_user_name + note_html + '</div><span>' + wpf_just_now + '</span></level><div class="meassage_area_main"><div class="chat_text" id="wpf-chat-text-'+comment_data['id']+'">'+temp_task_text+'</div>'+edit_delete_button_html+'</div>' + files_html + '<div id="wpfb-edit-comment-wrapper-'+comment_data['id']+'" class="wpfb-edit-comment-wrapper"><div class="wpf-editor"></div><textarea class="form-control wpfb-edit-comment" data-comment_id="'+comment_data['id']+'" placeholder="Edit the comment..." spellcheck="false">'+temp_task_text+'</textarea><button class="wpf_edit_comment_btn" onclick="wpfb_edit_comment('+comment_data['id']+')">'+edit_comment_text+'</button><a class="wpf-cancel-edit-comment" onclick="wpfb_cancel_edit_comment('+comment_data['id']+')" href="javascript:void(0)">'+cancel_edit_comment_text+'</a><div class="wpf_update_error wpf_hide">Please post your comment before performing this action</div></div></div></div></li>';
-            jQuery_WPF('#task_comments_'+id).append(comment_html);
-            if(id == 1 && wpf_current_role == 'advisor'){
-                var masic_comment_html = "";
-                var masic_msg = "Awesome! you have just added your first task on the website. Let's start managing it from the dashboard. <a class='wpf_demo_cta' href='https://app.atarim.io/login' target='_blank'>Explore more in the Atarim Dashboard</a>";
-                var masic_current_user_name = "Atarim";
-                var masic_comment_html= '<li class="wpf_other magic_msg_replied"><level class="task-author">' + masic_current_user_name + '</level><div class="meassage_area_main">'+img_dwn_icon+'<div class="chat_text">'+masic_msg+'</div></div></li>';
-                setTimeout(function(){
-                    jQuery_WPF('#task_comments_'+id).append(masic_comment_html);
-                    }, 2000);
+
+            // getcomment HTML
+            var comment_html = createCommentHtml({
+                className: $class,
+                tempClass: temp_class,
+                authorHtml: author_html,
+                currentUserName: current_user_name,
+                noteHtml: note_html,
+                wpfJustNow: wpf_just_now,
+                tempTaskText: temp_task_text,
+                editDeleteButtonHtml: edit_delete_button_html,
+                filesHtml: files_html,
+                commentDataId: comment_data['id'],
+                editCommentText: edit_comment_text,
+                cancelEditCommentText: cancel_edit_comment_text
+            });
+
+            // Append the new comment HTML to the comments list
+            var $commentElement = jQuery_WPF(comment_html);
+            jQuery_WPF('#task_comments_' + id).append($commentElement);
+
+            const img_dwn_icon = '';
+            if (id === 1 && wpf_current_role === 'advisor') {
+                const masic_msg = "Awesome! You have just added your first task on the website. Let's start managing it from the dashboard. <a class='wpf_demo_cta' href='https://app.atarim.io/login' target='_blank'>Explore more in the Atarim Dashboard</a>";
+                const masic_current_user_name = "Atarim";
+
+                const masic_comment_html = `
+                    <li class="wpf_other magic_msg_replied">
+                        <level class="task-author">${masic_current_user_name}</level>
+                        <div class="meassage_area_main">
+                            ${img_dwn_icon}
+                            <div class="chat_text">${masic_msg}</div>
+                        </div>
+                    </li>`;
+
+                setTimeout(() => {
+                    jQuery_WPF('#task_comments_' + id).append(masic_comment_html);
+                }, 2000);
             }
-            jQuery_WPF('#wpf_delete_container_'+id).html('<span class="wpfbsysinfo_delete_btn_task_id_'+id+'"><a href="javascript:void(0)" class="wpf_task_delete_btn" data-btn_taskid="' + id + '" style="color:red;"><i class="gg-trash"></i>'+wpf_delete_ticket+'</a></span><p class="wpfbsysinfo_delete_task_id_' + id + ' wpf_hide" ><b>'+wpf_delete_conform_text1+'</b><br>'+wpf_delete_conform_text2+' <a href="javascript:void(0)" class="wpf_task_delete" data-taskid="" data-elemid="'+id+'" style="color:red;">'+wpf_yes+'</a></p>');
+
+            const deleteButtonHtml = `
+                <span class="wpfbsysinfo_delete_btn_task_id_${id}">
+                    <a href="javascript:void(0)" class="wpf_task_delete_btn" data-btn_taskid="${id}" style="color:red;">
+                        <i class="gg-trash"></i>${wpf_delete_ticket}
+                    </a>
+                </span>
+                <p class="wpfbsysinfo_delete_task_id_${id} wpf_hide">
+                    <b>${wpf_delete_conform_text1}</b><br>
+                    ${wpf_delete_conform_text2} 
+                    <a href="javascript:void(0)" class="wpf_task_delete" data-taskid="" data-elemid="${id}" style="color:red;">
+                        ${wpf_yes}
+                    </a>
+                </p>`;
+            jQuery_WPF(`#wpf_delete_container_${id}`).html(deleteButtonHtml);
+
             jQuery_WPF('#comment-'+id).val('');
             // empty Task center rich text editor by Pratap
             jQuery_WPF('textarea#comment-'+id).closest('.form-group').find('.ql-editor').html('');
@@ -388,14 +475,12 @@ function generate_task(id, internal, note) {
             reset_file_upload_field();
         },
         success : function(data){
+            let responseData = null;
             try {
-                const jsonData = JSON.parse(data);
-            } catch (excep) {}
-                jQuery_WPF('#wpf_total_task_number').text( function(i, oldval) {
-                return ++oldval;
-            });
-            if ( data != 0 ) {
-                tasks_on_page[id]=data;
+                responseData = JSON.parse(data);
+            } catch (ex) {}
+            if ( responseData['ID'] != 0 ) {
+                tasks_on_page[id] = responseData['ID'];
                 jQuery_WPF('#wpfbsysinfo_task_id-' + id).html(tasks_on_page[id]);
                 jQuery_WPF('#wpf_delete_container_' + id + ' .wpf_task_delete').attr('data-taskid', tasks_on_page[id]);
                 if(wpf_tab_permission.auto_screenshot == 'yes'){
@@ -409,139 +494,265 @@ function generate_task(id, internal, note) {
                     task_on_page = true;
                     jQuery_WPF('.wpf_add_page').trigger('click');
                 }
-                jQuery_WPF('.' + temp_class).find('.wpf_edit_box_active.is_active').attr('onclick', 'wpf_edit_box_active(' + data + ')');
-                jQuery_WPF('.' + temp_class).find('.wpf_comment_delete_btn.is_active').attr('onclick', 'wpf_delete_comment(' + data  + ')');
-                jQuery_WPF('.' + temp_class).find('.chat_text').attr('id', 'wpf-chat-text-' + data );
-                jQuery_WPF('.' + temp_class).find('.wpfb-edit-comment-wrapper').attr('id', 'wpf-wpfb-edit-comment-wrapper-' + data );
-                jQuery_WPF('.' + temp_class).find('.wpfb-edit-comment').attr('data-comment_id', data );
-                jQuery_WPF('.' + temp_class).find('.wpf_edit_comment_btn').attr('onclick', 'wpfb_edit_comment(' + data  + ')');
-                jQuery_WPF('.' + temp_class).find('.wpf-cancel-edit-comment').attr('onclick', 'wpfb_cancel_edit_comment(' + data  + ')');
-                jQuery_WPF('.' + temp_class).removeClass('temp_comment_class');
-                jQuery_WPF('.' + temp_class).attr('data-comment_id', data );
+                const commentId = responseData['id'];
+                update_comment_attributes(temp_class, commentId);
             }
         }
     });
 }
 // Code to generate new comment.
-function generate_comment(id, note){
-    var new_task = Array();
-    var task_priority = jQuery_WPF('input[name=wpfbpriority'+id+']:checked').val();
-    var task_status = jQuery_WPF('input[name=wpfbtaskstatus'+id+']:checked').val();
-    var raw_comment = jQuery_WPF('textarea#comment-'+id).val();
+function generate_comment(id, note) {
+    // Create an empty object for the new task
+    var new_task = {};
+
+    // Get task priority and status from the form
+    var task_priority = jQuery_WPF('input[name=wpfbpriority' + id + ']:checked').val();
+    var task_status = jQuery_WPF('input[name=wpfbtaskstatus' + id + ']:checked').val();
+
+    // Get the raw comment text and clean it
+    var raw_comment = jQuery_WPF('textarea#comment-' + id).val();
     var task_comment = raw_comment.replace(/(<p><br><\/p>)+$/, '');
     var temp_task_text = task_comment;
+
+    // Collect the list of users to notify
     var task_notify_users = [];
-    jQuery_WPF.each(jQuery_WPF('input[name=author_list_'+id+']:checked'), function(){
+    jQuery_WPF.each(jQuery_WPF('input[name=author_list_' + id + ']:checked'), function() {
         task_notify_users.push(jQuery_WPF(this).val());
     });
-    task_notify_users =task_notify_users.join(",");
-    new_task['task_id']=tasks_on_page[id];
-    new_task['task_comment_message']=task_comment;
-    new_task['comment_content']=task_comment;
-    new_task['is_note']=note;
+    task_notify_users = task_notify_users.join(",");
+
+    // Set up new task data
+    new_task['task_id'] = tasks_on_page[id];
+    new_task['task_comment_message'] = task_comment;
+    new_task['comment_content'] = task_comment;
+    new_task['is_note'] = note;
+
+    // Process comment content to detect and handle URLs
     const strippedString = task_comment.replace(/(<([^>]+)>)/gi, "");
-    if(wpf_is_valid_url(strippedString) == true){
-        if ( is_video_Url( strippedString ) ) {
+    if (wpf_is_valid_url(strippedString) === true) {
+        if (is_video_Url(strippedString)) {
             temp_task_text = wpf_is_valid_video_url(strippedString);
         } else {
             temp_task_text = URLify(strippedString);
         }
     }
 
+    // Prepare form data for AJAX request
     var wpf_upload_form = new FormData();
     wpf_upload_form.append('action', 'wpfb_add_comment');
-    wpf_upload_form.append('wpf_nonce',wpf_nonce);
+    wpf_upload_form.append('wpf_nonce', wpf_nonce);
     wpf_upload_form.append('task_id', tasks_on_page[id]);
     wpf_upload_form.append('comment_content', task_comment);
     wpf_upload_form.append('is_note', note);
-    if(allFiles.length > 0) {
+    if (allFiles.length > 0) {
         allFiles.forEach(function(file) {
             wpf_upload_form.append('wpf_upload_file[]', file);
         });
     } else {
         wpf_upload_form.append("wpf_upload_file[]", '');
     }
+
+    // Generate a temporary class name
     var temp_id = Math.floor(100000 + Math.random() * 900000);
     var temp_class = 'temp_class_' + temp_id;
+
+    // Send the AJAX request to add the comment
     jQuery_WPF.ajax({
-        method:"POST",
+        method: "POST",
         url: ajaxurl,
         data: wpf_upload_form,
         contentType: false,
         processData: false,
-        beforeSend: function(){
-            //jQuery_WPF('.wpf_loader_'+id).show();
-            jQuery_WPF('#wpf_error_'+id).hide();
+        beforeSend: function() {
+            // Hide any previous error messages
+            jQuery_WPF('#wpf_error_' + id).hide();
 
-            //const comment_data = responseData['data'];
+            // Placeholder comment data until server response
             var comment_data = [{'id': 0}];
 
-            // edit / delete button
-            var edit_delete_button_html = '';
-            if (jQuery_WPF.inArray('edit', blocked) >= 0) {
-                edit_delete_button_html = `<div class="wpf-edit-delete-wrapper"><a href="javascript:void(0)" onclick="edit_delete_plan()" class="wpf_edit_box_active" id="wpf_edit_box_active">${edit_comment_icon}</a><a href="javascript:void(0)" class="wpf_comment_delete_btn"  onclick="edit_delete_plan()" >${delete_comment_icon}</a></div>`;
-            } else {
-                edit_delete_button_html = `<div class="wpf-edit-delete-wrapper"><a href="javascript:void(0)" onclick="wpf_edit_box_active('${comment_data['id']}')" class="wpf_edit_box_active is_active" id="wpf_edit_box_active">${edit_comment_icon}</a><a href="javascript:void(0)" class="wpf_comment_delete_btn is_active"  onclick="wpf_delete_comment('${comment_data['id']}')" >${delete_comment_icon}</a></div>`;
-            }
+            // Determine HTML for edit/delete buttons based on permissions
+            let edit_delete_button_html = getEditDeleteButtonHTML(comment_data['id']);
 
-            $class = "wpf_author";
+            // Set class based on whether the comment is a note
+            var $class = "wpf_author";
             var note_html = '';
-            if ( note == true ) {
+            if (note === true) {
                 $class = "wpf_author is_note";
                 note_html = '<small class="wpf_note_html">Note</small>';
             }
 
-            author_html = '';
-            if ( logged_user.author_img == '' || logged_user.author_img == 'undefined') {
-                if ( logged_user.author != '' ) {
+            // Create author HTML based on user's image or initials
+            var author_html = '';
+            if (logged_user.author_img === '' || logged_user.author_img === 'undefined') {
+                if (logged_user.author !== '') {
                     author_html = logged_user.author.slice(0, 2);
                 } else {
                     author_html = current_user_name.slice(0, 2);
                 }
             } else {
-                author_html = '<img src="' + logged_user.author_img + '" alt="author" ></img>';
+                author_html = '<img src="' + logged_user.author_img + '" alt="author"></img>';
             }
 
-            ///var files = wpf_file.files;
+            // Get HTML for any attached files
             var files_html = get_files_html(temp_files);
 
-            var comment_html = '<li class="' + $class + ' ' + temp_class + ' ' + 'temp_comment_class"><div class="wpf-comment-container"><div class="wpf-author-img">' + author_html + '</div><div class="wpf-comment-wrapper"><level class="task-author"><div class="author-name">' + current_user_name + note_html + '</div><span>' + wpf_just_now + '</span></level><div class="meassage_area_main"><div class="chat_text" id="wpf-chat-text-'+comment_data['id']+'">'+temp_task_text+'</div>'+edit_delete_button_html+'</div>' + files_html + '<div id="wpfb-edit-comment-wrapper-'+comment_data['id']+'" class="wpfb-edit-comment-wrapper"><div class="wpf-editor"></div><textarea class="form-control wpfb-edit-comment" data-comment_id="'+comment_data['id']+'" placeholder="Edit the comment..." spellcheck="false">'+temp_task_text+'</textarea><button class="wpf_edit_comment_btn" onclick="wpfb_edit_comment('+comment_data['id']+')">'+edit_comment_text+'</button><a class="wpf-cancel-edit-comment" onclick="wpfb_cancel_edit_comment('+comment_data['id']+')" href="javascript:void(0)">'+cancel_edit_comment_text+'</a><div class="wpf_update_error wpf_hide">Please post your comment before performing this action</div></div></div></div></li>';
+            // getcomment HTML
+            var comment_html = createCommentHtml({
+                className: $class,
+                tempClass: temp_class,
+                authorHtml: author_html,
+                currentUserName: current_user_name,
+                noteHtml: note_html,
+                wpfJustNow: wpf_just_now,
+                tempTaskText: temp_task_text,
+                editDeleteButtonHtml: edit_delete_button_html,
+                filesHtml: files_html,
+                commentDataId: comment_data['id'],
+                editCommentText: edit_comment_text,
+                cancelEditCommentText: cancel_edit_comment_text
+            });
 
-            jQuery_WPF('#task_comments_'+id).append(comment_html);
-            jQuery_WPF('textarea#comment-'+id).val('');
-            // empty Task center rich text editor by Pratap
-            jQuery_WPF('textarea#comment-'+id).closest('.form-group').find('.ql-editor').html('');
-            jQuery_WPF('#task_comments_'+id).animate({scrollTop: jQuery_WPF('#task_comments_'+id).prop("scrollHeight")}, 2000);
-            if(task_status=='complete'){
+            // Append the new comment HTML to the comments list
+            var $commentElement = jQuery_WPF(comment_html);
+            jQuery_WPF('#task_comments_' + id).append($commentElement);
+
+            // Clear the original textarea and reset file uploads
+            jQuery_WPF('textarea#comment-' + id).val('');
+            jQuery_WPF('textarea#comment-' + id).closest('.form-group').find('.ql-editor').html('');
+            jQuery_WPF('#task_comments_' + id).animate({ scrollTop: jQuery_WPF('#task_comments_' + id).prop("scrollHeight") }, 2000);
+
+            // Update task status if marked complete
+            if (task_status === 'complete') {
                 let bubble_label = '';
 
-                if(wpf_tab_permission.display_stickers == 'yes'){
-                    bubble_label = ' <span class="'+task_priority+'_custom"></span>';
+                if (wpf_tab_permission.display_stickers === 'yes') {
+                    bubble_label = ' <span class="' + task_priority + '_custom"></span>';
                 }
-                jQuery_WPF('#bubble-'+id).html(id+bubble_label);
-                jQuery_WPF(document).find("#wpf_thispage [data-taskid='" + id + "'] .wpf_task_number").html(id+bubble_label);
+                jQuery_WPF('#bubble-' + id).html(id + bubble_label);
+                jQuery_WPF(document).find("#wpf_thispage [data-taskid='" + id + "'] .wpf_task_number").html(id + bubble_label);
                 jQuery_WPF(document).find("#wpf_thispage [data-taskid='" + id + "']").removeClass('complete').removeClass('open').removeClass('pending-review').removeClass('in-progress');
                 jQuery_WPF(document).find("#wpf_thispage [data-taskid='" + id + "']").addClass(task_status);
             }
+
+            // Reset file upload field
             reset_file_upload_field();
         },
-        success: function(data){
+        success: function(data) {
             let responseData = null;
             try {
                 responseData = JSON.parse(data);
-            } catch(ex){}
+            } catch (ex) {}
+
             const comment_data = responseData['data'];
-            jQuery_WPF('.' + temp_class).find('.wpf_edit_box_active.is_active').attr('onclick', 'wpf_edit_box_active(\'' + comment_data['id'] + '\')');
-            jQuery_WPF('.' + temp_class).find('.wpf_comment_delete_btn.is_active').attr('onclick', 'wpf_delete_comment(\'' + comment_data['id'] + '\')');
-            jQuery_WPF('.' + temp_class).find('.chat_text').attr('id', 'wpf-chat-text-' + comment_data['id']);
-            jQuery_WPF('.' + temp_class).find('.wpfb-edit-comment-wrapper').attr('id', 'wpf-wpfb-edit-comment-wrapper-' + comment_data['id']);
-            jQuery_WPF('.' + temp_class).find('.wpfb-edit-comment').attr('data-comment_id', comment_data['id']);
-            jQuery_WPF('.' + temp_class).find('.wpf_edit_comment_btn').attr('onclick', 'wpfb_edit_comment(\'' + comment_data['id'] + '\')');
-            jQuery_WPF('.' + temp_class).find('.wpf-cancel-edit-comment').attr('onclick', 'wpfb_cancel_edit_comment(\'' + comment_data['id'] + '\')');
-            jQuery_WPF('.' + temp_class).removeClass('temp_comment_class');
-            jQuery_WPF('.' + temp_class).attr('data-comment_id', comment_data['id']);
+            const commentId = comment_data['id'];
+            update_comment_attributes(temp_class, commentId)
         }
     });
+}
+// create edit_delete_button_html
+function getEditDeleteButtonHTML(commentId) {
+
+    if(logged_user.author === '' || logged_user.author === 'undefined') {
+        return '';
+    }
+    // Determine HTML for edit/delete buttons based on permissions
+    const isEditBlocked = jQuery_WPF.inArray('edit', blocked) >= 0;
+    const editAction = isEditBlocked ? 'edit_delete_plan()' : `wpf_edit_box_active('${commentId}')`;
+    const deleteAction = isEditBlocked ? 'edit_delete_plan()' : `wpf_delete_comment('${commentId}')`;
+    const isActiveClass = isEditBlocked ? '' : 'is_active';
+
+    return `
+        <div class="wpf-edit-delete-wrapper">
+            <a href="javascript:void(0)" onclick="${editAction}" class="wpf_edit_box_active ${isActiveClass}" id="wpf_edit_box_active">${edit_comment_icon}</a>
+            <a href="javascript:void(0)" onclick="${deleteAction}" class="wpf_comment_delete_btn ${isActiveClass}">${delete_comment_icon}</a>
+        </div>`;
+}
+
+// Construct the comment HTML
+function createCommentHtml({className, tempClass, authorHtml, currentUserName, noteHtml, wpfJustNow, tempTaskText, editDeleteButtonHtml, filesHtml, commentDataId, editCommentText, cancelEditCommentText}) {
+    return `
+        <li class="${className} ${tempClass} temp_comment_class">
+            <div class="wpf-comment-container">
+                <div class="wpf-author-img">${authorHtml}</div>
+                <div class="wpf-comment-wrapper">
+                    <level class="task-author">
+                        <div class="author-name">${currentUserName} ${noteHtml}</div>
+                        <span>${wpfJustNow}</span>
+                    </level>
+                    <div class="meassage_area_main">
+                        <div class="chat_text" id="wpf-chat-text-${commentDataId}">${tempTaskText}</div>
+                        ${editDeleteButtonHtml}
+                    </div>
+                    ${filesHtml}
+                    <div id="wpfb-edit-comment-wrapper-${commentDataId}" class="wpfb-edit-comment-wrapper">
+                        <div class="wpf-editor"></div>
+                        <textarea class="form-control wpfb-edit-comment" data-comment_id="${commentDataId}" placeholder="Edit the comment..." spellcheck="false">${tempTaskText}</textarea>
+                        <button class="wpf_edit_comment_btn" onclick="wpfb_edit_comment(${commentDataId})">${editCommentText}</button>
+                        <a class="wpf-cancel-edit-comment" onclick="wpfb_cancel_edit_comment(${commentDataId})" href="javascript:void(0)">${cancelEditCommentText}</a>
+                        <div class="wpf_update_error wpf_hide">Please post your comment before performing this action</div>
+                    </div>
+                </div>
+            </div>
+        </li>`;
+}
+// Update attributes and IDs for the newly added comment
+function update_comment_attributes(temp_class, commentId) {
+    jQuery_WPF('.' + temp_class).find('.wpf_edit_box_active.is_active').attr('onclick', 'wpf_edit_box_active(\'' + commentId + '\')');
+    jQuery_WPF('.' + temp_class).find('.wpf_comment_delete_btn.is_active').attr('onclick', 'wpf_delete_comment(\'' + commentId + '\')');
+    jQuery_WPF('.' + temp_class).find('.chat_text').attr('id', 'wpf-chat-text-' + commentId);
+    jQuery_WPF('.' + temp_class).find('.wpfb-edit-comment-wrapper').attr('id', 'wpfb-edit-comment-wrapper-' + commentId);
+    jQuery_WPF('.' + temp_class).find('.wpfb-edit-comment').attr('data-comment_id', commentId);
+    jQuery_WPF('.' + temp_class).find('.wpf_edit_comment_btn').attr('onclick', 'wpfb_edit_comment(\'' + commentId + '\')');
+    jQuery_WPF('.' + temp_class).find('.wpf-cancel-edit-comment').attr('onclick', 'wpfb_cancel_edit_comment(\'' + commentId + '\')');
+    jQuery_WPF('.' + temp_class).removeClass('temp_comment_class');
+    jQuery_WPF('.' + temp_class).attr('data-comment_id', commentId);
+
+    // Initialize the Quill editor for the newly added comment
+    initializeQuillForComment(commentId);
+}
+// Function to initialize Quill editor for a specific comment
+function initializeQuillForComment(comment_id) {
+    var editor = jQuery_WPF('#wpfb-edit-comment-wrapper-' + comment_id).find('.wpf-editor');
+
+    if (!jQuery_WPF(editor).hasClass('activee')) {
+        jQuery_WPF(editor).addClass('activee');
+
+        try {
+            var quill = new Quill(editor[0], {
+                modules: {
+                    toolbar: [
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ list: 'ordered' }, { list: 'bullet' }],
+                        ['link', 'code-block'],
+                    ]
+                },
+                placeholder: '',
+                theme: 'bubble'
+            });
+            editor.data('quill', quill);
+
+            // Update the textarea with Quill editor content on change
+            quill.on('text-change', function(delta, oldDelta, source) {
+                var isempty = isQuillEmpty(quill);
+                var textarea = jQuery_WPF('#wpfb-edit-comment-wrapper-' + comment_id).find('textarea');
+                textarea.val(isempty ? '' : quill.root.innerHTML);
+            });
+
+            // Handle Enter key press in the editor
+            editor.on('keydown', function(event) {
+                if ((event.keyCode === 13 || event.key === "Enter") && !event.shiftKey) {
+                    // Add logic to handle Enter key if needed
+                }
+            });
+
+            // Focus on the editor after initialization
+            setTimeout(() => {
+                quill.focus();
+            }, 100);
+        } catch (error) {
+            console.error('Error initializing Quill editor for comment ID:', comment_id, error);
+        }
+    }
 }
 // Mark task as internal;
 function mark_internal(id,internal){
@@ -745,19 +956,15 @@ function generate_wpfb_task_html(wpfb_task_id,wpfb_metas){
                 }
             }
             var edited_html='';
-            var edit_delete_button_html = '';        
             if(wpfb_metas.comments[key].is_edited && !wpfb_metas.comments[key].is_deleted){
                 edited_html='<span class="wpf-is-edited">(edited)<span class="wpf_tooltiptext edit_tooltip_text">'+wpfb_metas.comments[key].updated_at+'</span></span>';
             }else{
                 edited_html='';
             }
+            let edit_delete_button_html = '';
             if ( ( eval(current_user_id) === eval(wpfb_metas.comments[key]['wpf_user_id']) ) && (!wpfb_metas.comments[key]['is_log']) && (!wpfb_metas.comments[key].is_deleted) ) {
-                if (jQuery_WPF.inArray('edit', blocked) >= 0) {
-                    edit_delete_button_html = `<div class="wpf-edit-delete-wrapper"><a href="javascript:void(0)" onclick="edit_delete_plan()" class="wpf_edit_box_active" id="wpf_edit_box_active">${edit_comment_icon}</a><a href="javascript:void(0)" class="wpf_comment_delete_btn"  onclick="edit_delete_plan()" >${delete_comment_icon}</a></div>`;
-                } else {
-                    edit_delete_button_html = `<div class="wpf-edit-delete-wrapper"><a href="javascript:void(0)" onclick="wpf_edit_box_active('${key}')" class="wpf_edit_box_active" id="wpf_edit_box_active">${edit_comment_icon}</a><a href="javascript:void(0)" class="wpf_comment_delete_btn"  onclick="wpf_delete_comment('${key}')" >${delete_comment_icon}</a></div>`;
-                }
-                //wpf_display_tasks();
+                // Determine HTML for edit/delete buttons based on permissions
+                edit_delete_button_html = getEditDeleteButtonHTML(key);
             }
             
             if( wpfb_metas.comments[key].comment_type == 0 ) {
@@ -1197,22 +1404,17 @@ function wpf_generate_general_task_html(wpfb_task_id,wpfb_metas,load_general=0){
         }
 
         var edited_html='';
-        var edit_delete_button_html = '';            
+        let edit_delete_button_html = '';
         var show_comment_id = '';
         if(wpfb_metas.comments[key].is_edited && !wpfb_metas.comments[key].is_deleted){
-            //edited_html='<span class="wpf-is-edited">(edited)<span class="wpf_tooltiptext edit_tooltip_text">'+wpfb_metas.comments[key].updated_at+'</span></span>';
             edited_html='<span class="wpf-is-edited">(Edited)</span>';            
         }else{
             edited_html='';
         }
 
         if ( ( eval(current_user_id) === eval(wpfb_metas.comments[key]['wpf_user_id']) ) && (!wpfb_metas.comments[key]['is_log']) && (!wpfb_metas.comments[key].is_deleted) ) {
-            if (jQuery_WPF.inArray('edit', blocked) >= 0) {
-                edit_delete_button_html = `<div class="wpf-edit-delete-wrapper"><a href="javascript:void(0)" onclick="edit_delete_plan()" class="wpf_edit_box_active" id="wpf_edit_box_active">${edit_comment_icon}</a><a href="javascript:void(0)" class="wpf_comment_delete_btn"  onclick="edit_delete_plan()" >${delete_comment_icon}</a></div>`;
-            } else {
-                edit_delete_button_html = `<div class="wpf-edit-delete-wrapper"><a href="javascript:void(0)" onclick="wpf_edit_box_active(${key})" class="wpf_edit_box_active" id="wpf_edit_box_active">${edit_comment_icon}</a><a href="javascript:void(0)" class="wpf_comment_delete_btn"  onclick="wpf_delete_comment('${key}')" >${delete_comment_icon}</a></div>`;
-                show_comment_id = key;
-            }
+            // Determine HTML for edit/delete buttons based on permissions
+            edit_delete_button_html = getEditDeleteButtonHTML(key);
         }
 
 
@@ -1609,16 +1811,16 @@ function wpf_task_popover_html(wpf_task_type, comment_count, wpfb_task_id, wpfb_
         tab_nav_html += '<li class="nav-item" title="' + wpf_share_task_link + '"><a class="nav-link wpf_deta_tab" id="sharetasklink-tab-' + comment_count + '" data-toggle="tab" href="#sharetasklink-' + comment_count + '" role="tab" aria-controls="sharetasklink" aria-selected="false">' + share_icon + '</a></li>';
         tab_nav_html += '</ul>';
 
-            if(wpfb_metas.task_config_author_name != "undefined"){
-                for (var usr in wpfb_users_arr) {
-                    if (wpfb_users_arr.hasOwnProperty(usr)) {
-                        if(wpfb_users_arr[usr]['username']==wpfb_metas.task_config_author_name){
-                            wpf_config_author_name = wpfb_users_arr[usr]['displayname']; // wpfb_users_arr[usr]['first_name'] + ' ' + wpfb_users_arr[usr]['last_name'];
-                            break;
-                        }
+        if(wpfb_metas.task_config_author_name != "undefined"){
+            for (var usr in wpfb_users_arr) {
+                if (wpfb_users_arr.hasOwnProperty(usr)) {
+                    if(wpfb_users_arr[usr]['username']==wpfb_metas.task_config_author_name){
+                        wpf_config_author_name = wpfb_users_arr[usr]['displayname'];
+                        break;
                     }
                 }
             }
+        }
         //new task popover
         var tabs_html='';
         if(new_task_popover==1 || wpf_task_type!=''){
@@ -1978,22 +2180,17 @@ function generate_popover_html(wpfb_task_id,wpfb_metas) {
             var files_html = get_files_html(files);
 
             var edited_html='';
-            var edit_delete_button_html = '';            
+            let edit_delete_button_html = '';
             var show_comment_id = '';
             if(wpfb_metas.comments[key].is_edited && !wpfb_metas.comments[key].is_deleted){
-                //edited_html='<span class="wpf-is-edited">(edited)<span class="wpf_tooltiptext edit_tooltip_text">'+wpfb_metas.comments[key].updated_at+'</span></span>';
                 edited_html='<span class="wpf-is-edited">(Edited)</span>';
             }else{
                 edited_html='';
             }
 
             if ( ( eval(current_user_id) === eval(wpfb_metas.comments[key]['wpf_user_id']) ) && ( (!wpfb_metas.comments[key]['is_log']) && (!wpfb_metas.comments[key].is_deleted) ) ) {
-                if (jQuery_WPF.inArray('edit', blocked) >= 0) {
-                    edit_delete_button_html = `<div class="wpf-edit-delete-wrapper"><a href="javascript:void(0)" onclick="edit_delete_plan()" class="wpf_edit_box_active" id="wpf_edit_box_active">${edit_comment_icon}</a><a href="javascript:void(0)" class="wpf_comment_delete_btn"  onclick="edit_delete_plan()" >${delete_comment_icon}</a></div>`;
-                } else {
-                    edit_delete_button_html = `<div class="wpf-edit-delete-wrapper"><a href="javascript:void(0)" onclick="wpf_edit_box_active('${key}')" class="wpf_edit_box_active" id="wpf_edit_box_active">${edit_comment_icon}</a><a href="javascript:void(0)" class="wpf_comment_delete_btn"  onclick="wpf_delete_comment('${key}')" >${delete_comment_icon}</a></div>`;
-                    show_comment_id = key;
-                }
+                // Determine HTML for edit/delete buttons based on permissions
+                edit_delete_button_html = getEditDeleteButtonHTML(key);
             }
 
             if( wpfb_metas.comments[key].comment_type == 0 ) {
@@ -3365,7 +3562,7 @@ function get_user_list(wpfb_users_arr, comment_count, notify_users) {
         var checked = '';
         if (wpfb_users_arr.hasOwnProperty(key)) {
             var user_name = (wpfb_users_arr[key]['first_name']) ? wpfb_users_arr[key]['first_name'] + ' ' + wpfb_users_arr[key]['last_name'] : wpfb_users_arr[key]['displayname'];
-            if( current_user_id == key || wpf_website_builder == key ) {
+            if( notify_users == '' && ( current_user_id === key || wpf_website_builder.includes(key) ) ) {
                 checked = 'checked';
             }
             if(notify_users.includes(key)){

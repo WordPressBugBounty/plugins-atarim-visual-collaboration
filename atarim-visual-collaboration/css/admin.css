@@ -203,7 +203,7 @@ ul.wp_feedback_filter_checkbox {
     max-height: 600px !important;
     font-size: 12px !important;
 }
-ul.wp_feedback_filter_checkbox.user input[type="checkbox"]:checked + label:after {
+ul.wp_feedback_filter.user input[type="checkbox"]:checked + label:after {
     content: '';
     display: block;
     position: absolute;
@@ -1391,6 +1391,9 @@ div#wpf_global_settings_overlay p {
 
 .wpf_user_permissions {
     margin-bottom: 25px;
+}
+.wpf_user_permissions .isglobal {
+    display: none;
 }
 table.wpf_perm_table {
     width: 100%;

@@ -3,7 +3,7 @@ Contributors: wpfeedback, pratapdungrani
 Tags: collaboration, feedback, bug tracking, project management, website feedback
 Requires at least: 5.0
 Tested up to: 6.6
-Stable tag: 4.0.5
+Stable tag: 4.0.6
 Requires PHP: 7.4
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -374,6 +374,12 @@ You can report any security bugs found in the source code of this plugin through
 
 
 == Changelog ==
+
+= 4.0.6 =
+* **Multiple Default Users** - Integrated the option to set multiple default users for task assignments, instead of just one.
+* **Guest User Restrictions** - Disabled the edit and delete options for guest users, preventing them from modifying or deleting comments.
+* **Custom Post Type Archive Support** - Added support for custom post type archive pages, ensuring the collaboration interface loads properly on these pages.
+
 
 = 4.0.5 =
 * **Task Assignment Issue** - Fixed issue where assigning/unassigning users to tasks was not reflecting live in the sidebar.

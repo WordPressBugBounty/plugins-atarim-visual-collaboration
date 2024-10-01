@@ -1602,6 +1602,9 @@ li.current_page_task, li.current_page_general_task {
 	height: 70px !important;
     box-sizing: content-box;
 }
+#wpf_allpages li.current_page_task, #wpf_allpages li.current_page_general_task {
+    height: 85px !important;
+}
 li.current_page_task:hover, li.current_page_general_task:hover {
     outline: 2px solid #A4ABC5 !important;
 }

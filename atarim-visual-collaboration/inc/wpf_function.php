@@ -85,7 +85,7 @@ if ( ! function_exists( 'wp_feedback_get_user_list_task' ) ) {
         $notify_users      = isset( $get_notif_user_db ) ? $get_notif_user_db : [];
         if ( is_array( $notify_users ) ) {
             if ( count( $notify_users ) > 0 ) {
-                echo '<ul class="wp_feedback_filter_checkbox user">';
+                echo '<ul class="wp_feedback_filter user">';
                 if ( ! empty( $notify_users ) ) {
                     foreach ( $notify_users as $user ) {
                         $wpfusr      = get_user_by( 'id', htmlspecialchars( $user['wpf_id'], ENT_QUOTES, 'UTF-8' ) );
@@ -248,7 +248,7 @@ if ( ! function_exists( 'process_wpfeedback_misc_options' ) ) {
             $options['wpf_customisations_webmaster']             = sanitize_text_field(  $_POST['wpf_customisations_webmaster'] );
             $options['wpf_customisations_others']                = sanitize_text_field(  $_POST['wpf_customisations_others'] );
             $options['wpf_website_client']                       = sanitize_text_field(  $_POST['wpf_website_client'] );
-            $options['wpf_website_developer']                    = sanitize_text_field(  $_POST['wpf_website_developer'] );
+            $options['wpf_website_developer']                    = maybe_serialize( array_map( 'sanitize_text_field', $_POST['wpf_website_developer'] ) );
             $options['wpf_tab_permission_user_client']           = isset( $_POST['wpf_tab_permission_user_client'] ) ? sanitize_text_field(  $_POST['wpf_tab_permission_user_client'] ) : 'no';
             $options['wpf_tab_permission_user_webmaster']        = isset( $_POST['wpf_tab_permission_user_webmaster'] ) ? sanitize_text_field(  $_POST['wpf_tab_permission_user_webmaster'] ) : 'no';
             $options['wpf_tab_permission_user_others']           = isset( $_POST['wpf_tab_permission_user_others'] ) ? sanitize_text_field(  $_POST['wpf_tab_permission_user_others'] ) : 'no';
@@ -2373,7 +2373,7 @@ function is_non_collab_screen() {
     return false;
 }
 
-// funciton to return uploaded file html for task center by Pratap.
+// function to return uploaded file html for task center by Pratap.
 function get_files_html($files) {
     $files_html = '';
     if( count($files) > 0 ) {
@@ -2381,6 +2381,8 @@ function get_files_html($files) {
         $docu_html = '';
         $each_img_html = '';
         $each_docu_html = '';
+        $preview_image_icon = '';
+        $delete_icon = '';
         $has_img = false;
         $has_docu = false;
         foreach( $files as $file ) {

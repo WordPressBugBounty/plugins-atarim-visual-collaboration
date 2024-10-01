@@ -334,12 +334,6 @@
                                 </div>
                                 <br>
                             </div>
-                            <?php
-                            $wpfb_users_json       = do_shortcode( '[wpf_user_list_front]' );
-                            $wpfb_users            = json_decode( $wpfb_users_json );
-                            $wpf_website_client    = get_site_data_by_key( 'wpf_website_client' );
-                            $wpf_website_developer = get_site_data_by_key( 'wpf_website_developer' );
-                            ?>
                             <input type="submit" value="<?php esc_attr_e('Save Changes', 'atarim-visual-collaboration'); ?>" class="wpf_button" id="wpf_save_setting" />
                         </div>
                     </div>
