@@ -3,7 +3,7 @@ Contributors: wpfeedback, pratapdungrani
 Tags: collaboration, feedback, bug tracking, project management, website feedback
 Requires at least: 5.0
 Tested up to: 6.6
-Stable tag: 4.0.6
+Stable tag: 4.0.7
 Requires PHP: 7.4
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -374,6 +374,12 @@ You can report any security bugs found in the source code of this plugin through
 
 
 == Changelog ==
+
+= 4.0.7 =
+* **Guest User Auto Screenshot Fix** - Resolved an issue where the auto screenshot feature was not capturing when a guest user created a task.
+* **Avada Theme Conflict** - Fixed a conflict with the Avada theme structure that prevented proper click actions in collaboration mode.
+* **Conflict with Mobile Menu Plugin** - Addressed a conflict with a third-party mobile menu plugin, which updated the DOM and caused element location issues, preventing click actions from working in collaboration mode.
+
 
 = 4.0.6 =
 * **Multiple Default Users** - Integrated the option to set multiple default users for task assignments, instead of just one.

@@ -483,12 +483,10 @@ function generate_task(id, internal, note) {
                 tasks_on_page[id] = responseData['ID'];
                 jQuery_WPF('#wpfbsysinfo_task_id-' + id).html(tasks_on_page[id]);
                 jQuery_WPF('#wpf_delete_container_' + id + ' .wpf_task_delete').attr('data-taskid', tasks_on_page[id]);
-                if(wpf_tab_permission.auto_screenshot == 'yes'){
-                    new_task_screenshot(id, base64URL);
-                    // hide the red overlay border when task is created
-                    if ( old_rendered_box_el !== null ) {
-                        old_rendered_box_el.hide();
-                    }
+                new_task_screenshot(id, base64URL);
+                // hide the red overlay border when task is created
+                if ( old_rendered_box_el !== null ) {
+                    old_rendered_box_el.hide();
                 }
                 if( task_on_page == false ) {
                     task_on_page = true;
@@ -3178,33 +3176,36 @@ function comment_mode() {
 var not_comment_cursor = '.wpf-uf-pop-wrapper, .wpf-le-pop-wrapper, .wpf_comment_container, .popover, .popover a, #wpf_launcher, .wpf_multifile_wrapper, .wpf_image_preview_wrappper, .wpf_responsive_modal_wrap, .wpfb-point';
 var not_red_box = '.wpf-uf-pop-wrapper, .wpf-le-pop-wrapper, #wpf_launcher, .wpf_multifile_wrapper, .wpf_image_preview_wrappper, .wpf_responsive_modal_wrap, .wpfb-point';
 var area = '';
-var isDirectChild = jQuery_WPF('body > #wpf_launcher').length > 0;
-if (isDirectChild) {
-    area = 'body > :not(' + not_comment_cursor + ')';
-} else {
-    var wpf_launcher_parent = jQuery_WPF('#wpf_launcher').parent();
-	if (wpf_launcher_parent.length > 0) {
-		var tagName = wpf_launcher_parent.prop("tagName").toLowerCase();
-		var classes = wpf_launcher_parent.attr("class");
-		var id = wpf_launcher_parent.attr("id");
-		var parentSelector = tagName;
-		if (classes) {
-			parentSelector += '.' + classes.replace(/\s+/g, '.');
-		}
-		if (id) {
-			parentSelector += '#' + id;
-		}
-		// If class or id is not available, get the position of the parent element relative to its siblings with the same tag
-		if (!classes && !id) {
-			var position = jQuery_WPF('body > ' + tagName).index(wpf_launcher_parent) + 1;
-			parentSelector += ":eq(" + position + ")";
-		}
-		area = 'body > ' + parentSelector + ' > :not(' + not_comment_cursor + ')';
-	}
-}
-if( jQuery_WPF('body > #wpwrap').length ) {
-    area = 'body #wpwrap > :not(' + not_comment_cursor + ')';
-}
+jQuery_WPF(document).ready(function() {
+    var isDirectChild = jQuery_WPF('body > #wpf_launcher').length > 0;
+    if (isDirectChild) {
+        area = 'body > :not(' + not_comment_cursor + ')';
+    } else {
+        var wpf_launcher_parent = jQuery_WPF('#wpf_launcher').parent();
+        if (wpf_launcher_parent.length > 0) {
+            var tagName = wpf_launcher_parent.prop("tagName").toLowerCase();
+            var classes = wpf_launcher_parent.attr("class");
+            var id = wpf_launcher_parent.attr("id");
+            var parentSelector = tagName;
+            if (classes) {
+                parentSelector += '.' + classes.replace(/\s+/g, '.');
+            }
+            if (id) {
+                parentSelector += '#' + id;
+            }
+            // If class or id is not available, get the position of the parent element relative to its siblings with the same tag
+            if (!classes && !id) {
+                var position = jQuery_WPF('body > ' + tagName).index(wpf_launcher_parent) + 1;
+                parentSelector += ":eq(" + position + ")";
+            }
+            //area = 'body > ' + parentSelector + ' > :not(' + not_comment_cursor + ')';
+            area = 'body > :not(' + parentSelector + ')';
+        }
+    }
+    if( jQuery_WPF('body > #wpwrap').length ) {
+        area = 'body #wpwrap > :not(' + not_comment_cursor + ')';
+    }
+});
 function enable_comment(){
     /*if( restrict_plugin == 1 && comment_mode() ) {
         jQuery(".wpf_locked_modal_container").removeClass('wpf_hide');
