@@ -2,7 +2,7 @@
 /*
  * Plugin Name: Atarim: Visual Website Collaboration, Feedback & Workflow Management
  * Description: Atarim Visual Collaboration makes it easy and efficient to collaborate on websites with your clients, internal team, contractors…anyone! It’s used by nearly 10,000 agencies and freelancers worldwide on over 120,000 websites.
- * Version: 4.0.7
+ * Version: 4.0.8
  * Requires at least: 5.0
  * Require PHP: 7.4
  * Author: Atarim
@@ -29,7 +29,7 @@ if ( ! defined( 'WPF_PLUGIN_URL' ) ) {
     define( 'WPF_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 }
 if ( ! defined( 'WPF_VERSION' ) ) {
-    define( 'WPF_VERSION', '4.0.7' );
+    define( 'WPF_VERSION', '4.0.8' );
 }
 
 define( 'SCOPER_ALL_UPLOADS_EDITABLE ', true );
@@ -465,7 +465,7 @@ function wpfeedback_add_stylesheet_frontend() {
                 wp_register_script( 'wpf_browser_info_script', WPF_PLUGIN_URL . 'js/wpf_browser_info.js', array(), WPF_VERSION, true );
                 wp_enqueue_script( 'wpf_browser_info_script' );
 
-                wp_enqueue_script( 'wpf_lottie_script', 'https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js', array(), strtotime( "now" ), true );
+                wp_enqueue_script( 'wpf_lottie_script', 'https://unpkg.com/@lottiefiles/lottie-player@2.0.8/dist/lottie-player.js', array(), strtotime( "now" ), true );
 
                 wp_register_script( 'wpf_common_functions', WPF_PLUGIN_URL . 'js/wpf_common_functions.js', array(), strtotime( "now" ), true );
                 wp_enqueue_script( 'wpf_common_functions' );

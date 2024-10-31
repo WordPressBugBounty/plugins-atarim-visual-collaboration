@@ -326,7 +326,7 @@ if ( ! function_exists( 'wpfeedback_add_stylesheet_to_admin' ) ) {
             wp_register_script( 'wpf_browser_info_script', WPF_PLUGIN_URL . 'js/wpf_browser_info.js', array(), WPF_VERSION, true );
             wp_enqueue_script( 'wpf_browser_info_script' );
 
-            wp_enqueue_script( 'wpf_lottie_script', 'https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js', array(), strtotime( "now" ), true );
+            wp_enqueue_script( 'wpf_lottie_script', 'https://unpkg.com/@lottiefiles/lottie-player@2.0.8/dist/lottie-player.js', array(), strtotime( "now" ), true );
 
             wp_register_script( 'wpf_popper_script', WPF_PLUGIN_URL . 'js/popper.min.js', array(), WPF_VERSION, true );
             wp_enqueue_script( 'wpf_popper_script' );
