@@ -2461,9 +2461,21 @@ add_action( 'wp_ajax_load_wpfb_pages', 'load_wpfb_pages' );
 add_action( 'wp_ajax_nopriv_load_wpfb_pages', 'load_wpfb_pages' );
 
 function wpf_add_page() {
-    $page_id = $_POST['current_page_id'];
-    $page_url = $_POST['current_page_url'];
-    $page_title = $_POST['current_page_title'];
+    global $current_user;
+    $selected_roles = get_site_data_by_key( 'wpf_selcted_role' );
+    $selected_roles = explode( ',', $selected_roles );
+    $is_guest       = get_site_data_by_key( 'wpf_allow_guest' );
+    if ( ! wpf_validate_nonce() || ( ! is_user_logged_in() && $is_guest != 'yes' ) ) {
+        echo '403';
+        exit;
+    }
+    if( is_user_logged_in() && ! array_intersect( $current_user->roles, $selected_roles ) ) {
+        echo '403';
+        exit;
+    }
+    $page_id = absint( $_POST['current_page_id'] );
+    $page_url = esc_url_raw( $_POST['current_page_url'] );
+    $page_title = sanitize_text_field( $_POST['current_page_title'] );
     $post_data = array(
         'wpf_site_id'  => get_option( 'wpf_site_id' ),            
         'wpf_page_id' => $page_id,
@@ -2490,7 +2502,8 @@ function wpf_add_page() {
             $is_approved = $page->is_approved;
             $alterimg = WPF_PLUGIN_URL . 'images/placeholder-image.png';
             $page_screenshot = image_exists_checker( $page->screenshot, $alterimg );
-            echo $page_html = page_html( $page_id, $page_url, $page_title, $total_tasks, $is_approved, $page_screenshot );
+            // Properly escape all outputs
+            echo page_html( esc_attr( $page_id ), esc_url( $page_url ), $page_title, esc_attr( $total_tasks ), esc_attr( $is_approved ), esc_url( $page_screenshot ) );
         }
     } else {
         echo '403';
@@ -2501,6 +2514,13 @@ add_action( 'wp_ajax_wpf_add_page', 'wpf_add_page' );
 add_action( 'wp_ajax_nopriv_wpf_add_page', 'wpf_add_page' );
 
 function wpf_delete_page() {
+    global $current_user;
+    $selected_roles = get_site_data_by_key( 'wpf_selcted_role' );
+    $selected_roles = explode( ',', $selected_roles );
+    if ( ! is_user_logged_in() || ( is_user_logged_in() && ! array_intersect( $current_user->roles, $selected_roles ) ) ) {
+        echo '403';
+        exit;
+    }
     $page_id = $_POST['page_id'];
     $post_data = array(
         'wpf_site_id' => get_option( 'wpf_site_id' ),            
@@ -2520,6 +2540,13 @@ add_action( 'wp_ajax_wpf_delete_page', 'wpf_delete_page' );
 add_action( 'wp_ajax_nopriv_wpf_delete_page', 'wpf_delete_page' );
 
 function wpf_delete_file() {
+    global $current_user;
+    $selected_roles = get_site_data_by_key( 'wpf_selcted_role' );
+    $selected_roles = explode( ',', $selected_roles );
+    if ( ! is_user_logged_in() || ( is_user_logged_in() && ! array_intersect( $current_user->roles, $selected_roles ) ) ) {
+        echo '403';
+        exit;
+    }
     $file_id = $_POST['file_id'];
     $post_data = array(
         'wpf_site_id'  => get_option( 'wpf_site_id' ),            

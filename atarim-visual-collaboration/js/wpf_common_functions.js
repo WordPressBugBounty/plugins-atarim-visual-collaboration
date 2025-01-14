@@ -161,6 +161,7 @@ function generate_task(id, internal, note) {
         logging: true
     }).then(function(canvas) {
         base64URL = canvas.toDataURL('image/jpeg', 1);
+        new_task_screenshot(id, base64URL);
     });
 
     // Generate unique ID and class for the task
@@ -483,7 +484,6 @@ function generate_task(id, internal, note) {
                 tasks_on_page[id] = responseData['ID'];
                 jQuery_WPF('#wpfbsysinfo_task_id-' + id).html(tasks_on_page[id]);
                 jQuery_WPF('#wpf_delete_container_' + id + ' .wpf_task_delete').attr('data-taskid', tasks_on_page[id]);
-                new_task_screenshot(id, base64URL);
                 // hide the red overlay border when task is created
                 if ( old_rendered_box_el !== null ) {
                     old_rendered_box_el.hide();

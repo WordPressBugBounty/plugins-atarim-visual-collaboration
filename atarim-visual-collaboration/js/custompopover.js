@@ -2,7 +2,7 @@ var clone,wpf_bootstrap_version,wpf_popover_template, old_selected_tab;
 jQuery_WPF(document).ready(function(){
     wpf_popover_template = '<div class="popover wpf_comment_container" role="tooltip"><div class="arrow wpf_arrow"></div><h3 class="popover-header"></h3><div class="popover-body"></div></div>';
     if ( typeof istheme !== 'undefined' ) {
-        if (  istheme.active_theme == 'ePress' || istheme.active_theme == 'ePress Child' || istheme.active_theme == 'Woodmart Child' || istheme.active_theme == 'Woodmart' ) {
+        if (  istheme.active_theme == 'ePress' || istheme.active_theme == 'ePress Child' ) {
             wpf_popover_template = '<div class="popover wpf_comment_container" role="tooltip"><div class="arrow wpf_arrow"></div><h3 class="popover-header"></h3><div class="popover-content"></div></div>';
         }
     }

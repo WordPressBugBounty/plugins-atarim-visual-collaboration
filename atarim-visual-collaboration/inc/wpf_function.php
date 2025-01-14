@@ -366,6 +366,14 @@ function check_if_allowed_to_save_settings() {
     }
 }
 
+// Verify nonce for ajax call
+function wpf_validate_nonce() {
+    if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( $_POST['_wpnonce'], 'wpfeedback' ) ) {
+        return false;
+    }
+    return true;
+}
+
 /*
  * This function is used to create a dropdown of the roles available in website on the "Permissions" tab for the selection.
  *
