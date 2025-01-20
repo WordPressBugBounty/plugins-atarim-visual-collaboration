@@ -3,7 +3,7 @@ Contributors: wpfeedback, pratapdungrani
 Tags: collaboration, feedback, bug tracking, project management, website feedback
 Requires at least: 5.0
 Tested up to: 6.6
-Stable tag: 4.0.9
+Stable tag: 4.1.0
 Requires PHP: 7.4
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -374,6 +374,10 @@ You can report any security bugs found in the source code of this plugin through
 
 
 == Changelog ==
+
+= 4.1.0 =
+* **Guest mode** - Disabled guest mode by default when plugin is installed.
+* **Added security** - Secured ajax call by adding nonce to secure them from CSRF.
 
 = 4.0.9 =
 * **Arbitrary Content Deletion Vulnerability** - Fixed a critical issue that allowed unauthenticated users to delete files or pages via arbitrary requests when Guest mode was activated by default.

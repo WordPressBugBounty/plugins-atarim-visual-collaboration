@@ -2517,7 +2517,7 @@ function wpf_delete_page() {
     global $current_user;
     $selected_roles = get_site_data_by_key( 'wpf_selcted_role' );
     $selected_roles = explode( ',', $selected_roles );
-    if ( ! is_user_logged_in() || ( is_user_logged_in() && ! array_intersect( $current_user->roles, $selected_roles ) ) ) {
+    if ( ! wpf_validate_nonce() || ! is_user_logged_in() || ( is_user_logged_in() && ! array_intersect( $current_user->roles, $selected_roles ) ) ) {
         echo '403';
         exit;
     }
@@ -2543,7 +2543,7 @@ function wpf_delete_file() {
     global $current_user;
     $selected_roles = get_site_data_by_key( 'wpf_selcted_role' );
     $selected_roles = explode( ',', $selected_roles );
-    if ( ! is_user_logged_in() || ( is_user_logged_in() && ! array_intersect( $current_user->roles, $selected_roles ) ) ) {
+    if ( ! wpf_validate_nonce() || ! is_user_logged_in() || ( is_user_logged_in() && ! array_intersect( $current_user->roles, $selected_roles ) ) ) {
         echo '403';
         exit;
     }

@@ -2,7 +2,7 @@
 /*
  * Plugin Name: Atarim: Visual Website Collaboration, Feedback & Workflow Management
  * Description: Atarim Visual Collaboration makes it easy and efficient to collaborate on websites with your clients, internal team, contractors…anyone! It’s used by nearly 10,000 agencies and freelancers worldwide on over 120,000 websites.
- * Version: 4.0.9
+ * Version: 4.1.0
  * Requires at least: 5.0
  * Require PHP: 7.4
  * Author: Atarim
@@ -29,7 +29,7 @@ if ( ! defined( 'WPF_PLUGIN_URL' ) ) {
     define( 'WPF_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 }
 if ( ! defined( 'WPF_VERSION' ) ) {
-    define( 'WPF_VERSION', '4.0.9' );
+    define( 'WPF_VERSION', '4.1.0' );
 }
 
 define( 'SCOPER_ALL_UPLOADS_EDITABLE ', true );
@@ -358,7 +358,8 @@ function update_default_site_data() {
     array_push( $options, ['name' => 'wpfeedback_color', 'value' => '002157'] );
     array_push( $options, ['name' => 'wpf_selcted_role', 'value' => 'administrator'] );
     array_push( $options, ['name' => 'wpf_website_developer', 'value' => get_current_user_id()] );
-    array_push( $options, ['name' => 'wpf_allow_guest', 'value' => 'yes'] );
+    array_push( $options, ['name' => 'wpf_allow_guest', 'value' => 'no'] );
+    array_push( $options, ['name' => 'wpf_allow_backend_commenting', 'value' => 'no'] );
     array_push( $options, ['name' => 'wpf_every_new_task', 'value' => 'yes'] );
     array_push( $options, ['name' => 'wpf_every_new_comment', 'value' => 'yes'] );
     array_push( $options, ['name' => 'wpf_every_new_complete', 'value' => 'yes'] );
