@@ -2,8 +2,8 @@
 Contributors: wpfeedback, pratapdungrani
 Tags: collaboration, feedback, bug tracking, project management, website feedback
 Requires at least: 5.0
-Tested up to: 6.6
-Stable tag: 4.1.0
+Tested up to: 6.7
+Stable tag: 4.1.1
 Requires PHP: 7.4
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -374,6 +374,9 @@ You can report any security bugs found in the source code of this plugin through
 
 
 == Changelog ==
+
+= 4.1.1 =
+* **Auto Screenshot** - On some sites, the auto screenshot were not getting captured due to delay in the process. This is fixed.
 
 = 4.1.0 =
 * **Guest mode** - Disabled guest mode by default when plugin is installed.

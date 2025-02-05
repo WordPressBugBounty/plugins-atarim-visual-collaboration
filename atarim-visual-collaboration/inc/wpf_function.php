@@ -1040,15 +1040,15 @@ add_action( 'profile_update', 'wpf_sync_users', 10 );
 /* update WP users into API */
 function syncUsers() {
     $users                = wpf_api_func_get_users();
+    $users                = json_decode( $users, true );
     $args                 = [];
     $args['wpf_site_id']  = get_option( 'wpf_site_id' );
-    $args['responseBody'] = json_decode( $users );  
-    // get all the user ID
-    $wp_users = get_users( array( 'fields' => array( 'ID' ) ) );
+    $args['responseBody'] = $users;
+    
     // flaten the data to a single array and added to the request
     $args['wpf_wp_user_ids'] = array_map( function( $user ) {
-        return $user->ID;
-    }, $wp_users );
+        return $user['wpf_id'];
+    }, $users ?? [] );
 
     $url         = WPF_CRM_API . "wp-api/sync/users";
     $sendtocloud = wp_json_encode( $args );

@@ -148,7 +148,8 @@ var old_rendered_box_el = null;
 // Code to generate new task.
 function generate_task(id, internal, note) {
     // Initialize base64 URL variable
-    var base64URL = '';
+    let base64URL = '';
+    let screenshotReady = false;
 
     // Capture screenshot of the document body
     html2canvas(document.body, {
@@ -161,7 +162,11 @@ function generate_task(id, internal, note) {
         logging: true
     }).then(function(canvas) {
         base64URL = canvas.toDataURL('image/jpeg', 1);
-        new_task_screenshot(id, base64URL);
+        screenshotReady = true;
+
+        if (tasks_on_page[id] > 0) {
+            new_task_screenshot(id, base64URL);
+        }
     });
 
     // Generate unique ID and class for the task
@@ -494,6 +499,10 @@ function generate_task(id, internal, note) {
                 }
                 const commentId = responseData['id'];
                 update_comment_attributes(temp_class, commentId);
+
+                if (screenshotReady && base64URL) {
+                    new_task_screenshot(id, base64URL);
+                }
             }
         }
     });
