@@ -3,7 +3,7 @@ Contributors: wpfeedback, pratapdungrani
 Tags: collaboration, feedback, bug tracking, project management, website feedback
 Requires at least: 5.0
 Tested up to: 6.7
-Stable tag: 4.1.1
+Stable tag: 4.1.2
 Requires PHP: 7.4
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -375,6 +375,9 @@ You can report any security bugs found in the source code of this plugin through
 
 == Changelog ==
 
+= 4.1.2 =
+* **XSS vulnerability** - A Cross-Site Scripting (XSS) vulnerability was identified in our plugin, this is now fixed.
+
 = 4.1.1 =
 * **Auto Screenshot** - On some sites, the auto screenshot were not getting captured due to delay in the process. This is fixed.
 
@@ -437,7 +440,7 @@ You can report any security bugs found in the source code of this plugin through
 * **Sidebar Pagination** - Fixed pagination not working for 'All page' filter in the sidebar.
 
 
-= v4.0 =
+= 4.0 =
 * **Optimization** - Modified page tab integration to optimize the page loading speed.
 * **Compatibility** - Added support to resolve Bootstrap conflict with Woodmart themes.
 * **Code Cleanup** - Removed code that was not needed after UX changes.
@@ -450,26 +453,26 @@ You can report any security bugs found in the source code of this plugin through
 * **Security** - Improved overall security of the plugin.
 * **Other Changes** - Removed EDD license key dependency from the code.
 
-= v3.32 =
+= 3.32 =
 * **XSS vulnerability** - A Cross-Site Scripting (XSS) vulnerability was identified for tag integration in our plugin, this is now fixed.
 
-= v3.31 =
+= 3.31 =
 * **XSS vulnerability** - A Cross-Site Scripting (XSS) vulnerability was identified in a previous version of our plugin, this is now fixed.
 
-= v3.30 =
+= 3.30 =
 * **License key** - We have removed license key dependency for better security and compatibility with our platform.
 * **Plugin check** - Implemented recommended changes suggested by the plugin check plugin.
 
-= v3.22.6 =
+= 3.22.6 =
 * **Subfolder Support** - Our plugin now supports subfolder structures, enabling you to activate our plugin and collaborate on site with the subfolder structure.
 
-= v3.22.4 =
+= 3.22.4 =
 * **Removed models** - We have removed a few restriction models that were not relevant to the current integration.
 
-= v3.22.3 =
+= 3.22.3 =
 * **Activation error** - Upon plugin activation on plugin-install.php page, it was throwing an error due to the inability to redirect after activation. This is fixed.
 
-= v3.22.2 =
+= 3.22.2 =
 * **Animation** - Added animation for task completion action.
 * **Priority reflection** - Fixed issue where changing priority on a new task did not reflect in the sidebar.
 * **Image preview** - Resolved issue where deleting a previewed image inside popover did not remove the last one.
@@ -478,7 +481,7 @@ You can report any security bugs found in the source code of this plugin through
 * **Sidebar view** - Sidebar task text now clips to a single line for better display.
 
 
-= v3.22 =
+= 3.22 =
 * **New sidebar** - Redesigned the sidebar with a modern layout and improved functionality, enhancing user navigation and accessibility to tasks and pages in the collaboration interface.
 * **New bottombar** - Revamped the bottom bar design to provide a sleek and intuitive user experience, offering quick access to essential functions and options while minimizing screen clutter and maximizing workspace efficiency.
 * **Collaboration mode** - Introduced a collaboration mode feature, enabling users to collaborate more effectively by toggling between different modes:
@@ -496,49 +499,49 @@ You can report any security bugs found in the source code of this plugin through
 * **Default user** - Fixed issue with setting default user for new task upon plugin activation.
 
 
-= v3.19 =
+= 3.19 =
 * **Theme conflict** - Beaver Builder Bootstrap had a conflict with our plugin.
 * **Code optimization** - We have optimized some APIs to improve response time.
 
-= v3.18 =
+= 3.18 =
 * **Auto login** - We have integrated option to enable/disable auto login to site from app.
 * **Image optimization** - To reduce the plugin size, many images have been optimized.
 
-= v3.17 =
+= 3.17 =
 * **GeneratePress theme JS/CSS** - The theme had JS and CSS conflict with our plugin which is now fixed.
 * **Beaver Child theme JS** - The theme had JS and CSS conflict with our plugin which is now fixed.
 * **Guest URL token** - For the old plugin versions, we have added support for guest URL with token.
 
-= v3.16 =
+= 3.16 =
 * **ePress theme JS/CSS** - The ePress theme had JS and CSS conflict with our plugin which is now fixed.
 * **CSS changes** - We have made some small CSS changes to improve some element alignments.
 
-= v3.15 =
+= 3.15 =
 * **JS/CSS exclusion** - We have integrated a way to auto-exclude our JS and CSS from blocking inside the WP Rocket plugin.
 * **Guest mode** - Allowing collaboration on-site via sharing URL with token has been integrated to provide quick and easy guest invitations.
 
-= v3.14 =
+= 3.14 =
 * **Conflict with Block editor** - Js conflict with Block editor was detected, this is now fixed.
 * **CSS override** - CSS of certain themes was overriding a few elements, this is now fixed.
 * **Password strength** - Password validation during user registration has been upgraded to allow the user to set a strong password.
 * **License activation** - There was an issue updating database value during license reactivation on some sites, this is now fixed.
 
-= v3.13 =
+= 3.13 =
 * **XSS vulnerability** - A Cross-Site Scripting (XSS) vulnerability was identified in a previous version of our plugin, this is now fixed.
 * **Js conflict with ACF** - Date selection on the date field was not working due to js conflict, this is now fixed.
 * **User Avatar** - Due to the changes on the Gravatar API data response, comment author images were not loading, this is now fixed.
 
-= v3.12 =
+= 3.12 =
 * **Comment overflow** - On certain themes, there was a problem with comment box overflow which cut off the comment, this is now fixed.
 * **CSS conflict with Springfield theme** - Springfield theme CSS was overriding Comment box CSS, this is now fixed.
 * **Default permission for users** - We have modified the default permission for users when the user type is not selected.
 
-= v3.11 =
+= 3.11 =
 * **Screenshot issue with Bricks Theme** - There was a problem with automatic screenshots with Bricks Theme, this is now fixed.
 * **Push To Media** -  There was an issue with pushing media from the Atarim Dashboard to WordPress websites, this is now fixed.
 * **CSS Fixes** - There were a few CSS fixes required inside the Atarim interface, these have been fixed.
 
-= v3.10 =
+= 3.10 =
 * **Activation Flow** - We have stripped loads from the activation flow to make it super fast to get started, no more wizard and no more role selection on the front-end.
 * **Automatically assigning roles** - When you invite users via the front-end share, they will be automatically assigned as a client inside the plugin.
 * **Removal of graphics** - Graphic feedback has now been completely removed from the plugin, you can collaborate visually on designs inside the Atarim Dashboard. <a href="https://atarim.io/help/dashboard/image-based-collaboration/" target=_ > More info on that here. </a> 
@@ -546,7 +549,7 @@ You can report any security bugs found in the source code of this plugin through
 * **CSS fixes** - Some minor CSS fixes across the board.
 
 
-= v3.9.6 =
+= 3.9.6 =
 * **Task pop-up design update** - We've improved the design of the task pop-over, making it nicer to use.
 * **Date and time** - The plugin now uses the time inside your browser, to ensure you see the correct timings on tasks.
 * **Tag CSS** - The alignment of tags were not pretty, we've fixed the CSS.
@@ -559,25 +562,25 @@ You can report any security bugs found in the source code of this plugin through
 * **Inviting from the back-end** - When inviting from the back-end of the website, the invite link has been changed to the homepage of the website.
 * **Uploaded files** - Sometimes the uploaded files were not rendering properly inside the task popup, this is now fixed.
 
-= v3.9.3 =
+= 3.9.3 =
 * **Task center author** - Sometimes the author name of comments inside the task center was incorrect, this is now fixed.
 * **Theme css conflict** - There was an issue where theme CSS was overriding the comment box CSS, this is now fixed.
 * **Text domain support** - We've added text domain support for many strings that were missing for translation.
 * **French translation** - The plugin is now fully translated into French.
 * **Reorder post conflict** - There was a conflict with the reorder post plugin, this is now fixed.
 
-= v3.9.2 =
+= 3.9.2 =
 * **CSS Fix** - Some theme styles were conflicting with the new "Invite to Collaborate" feature. This is now fixed.
 * **Security** - There was a security risk (not abused) that needed to be fixed which was spotted by one of our users. Was fixed with priority.
 * **Language support** - Added plugin translation for French(France), Spanish(Spain), and Portuguese(Brazil) languages.
 
-= v3.9.1 =
+= 3.9.1 =
 * **Menu Bar** - We have now added the option to open the Atarim Dashboard menu bar, to give Admins quick access.
 * **White Label Invite** - Previously if you had the white label on, the invitation email was not displaying it, this is now fixed.
 * **PHP Notices** - A warning was showing because of PHP, this is now fixed.
 * **Post-Type Taxonomy** - Tasks were not loading correctly on custom taxonomy pages, this is now fixed.
 
-= v3.9 =
+= 3.9 =
 * **Bottom bar conflict** - There was a JS conflict happening with our new bottom bar, this has been fixed.
 * **Red overlay** -  When a task was being created, sometimes a red overlay would show, this has been fixed.
 * **Task complete validation** - You could mark a task as complete before creation, this has been fixed. 
@@ -587,7 +590,7 @@ You can report any security bugs found in the source code of this plugin through
 * **JS validation with username** - We've added validation to fix tasks not listing when a username was not present.
 * **Formidable forms** - We fixed a conflict that was occurring when Formidable Forms was installed along with Atarim.
 
-= v3.8 =
+= 3.8 =
 * **Bottom bar** - We've redesigned the bottom bar of the Atarim plugin to make it more in line with the Atarim Dashboard.
 * **Skip wizard** - You now have the option to skip the initial wizard, making installation even faster.
 * **Sharing version 2** - The share function inside your websites has been updated in a variety of ways to increase the speed of collaboration with your clients. By inviting them, you generate and send a unique link to their email, enabling them to see the Atarim plugin on their website without being logged in.
@@ -595,7 +598,7 @@ You can report any security bugs found in the source code of this plugin through
 * **CSS fix** - There were some font css conflicts causing text not to show correctly, this has now been fixed.
 * **Autologin error** - Auto logging was not working with all websites, this has now been fixed.
 
-= v3.7 =
+= 3.7 =
 * **Links in comments** - There was an issue with links not working in comments when some tasks load, this is now fixed
 * **CSS in Task Center** - When the author of a comment's name was too long, it broke the design, this is now fixed.
 * **Comments container** - When a link was too long it would break the design, this is now fixed.
@@ -603,21 +606,21 @@ You can report any security bugs found in the source code of this plugin through
 * **Sites disconnecting** - Sometimes sites would become disconnected and you'd have to re-activate, this is now fixed.
 * **Woocommerce function** - A function inside Woocommerce became deprecated, this is now replaced. 
 
-= v3.6.1 =
+= 3.6.1 =
 * **White label** - Fixed white label integration not working sometimes.
 
-= v3.6 = 
+= 3.6 = 
 * **Main file name** - We have changed the main file name as per the WordPress standard.
 * **Updraft conflict** - Fixed a JS conflict with the Updraft plugin.
 * **Loading Icon** - Moved the loading icon to local storage to prevent a CORS error.
 
-= v3.5.1 = 
+= 3.5.1 = 
 * **Non-English Characters** - Non English characters were causing some comments to load incorrectly, this is now fixed.
 * **Auto-login from the dashboard** - Auto-logging in from the dashboard was not working in some cases, this is now fixed.
 * **Alt-text on images** - Added alt text to all image tags to make them SEO friendly.
 * **Support for The Theme** - Added support for the theme to adjust the dashed box on the front side.
 
-= v3.5 = 
+= 3.5 = 
 * **One click activation** - You can now activate with one click, speeding up with the setup process for the Atarim plugin.
 * **Added a password field when creating an account** - You can now create your password for brand new accounts inside the plugin, making it faster!
 * **Bottom bar during installation** - The bottom bar was showing during the wizard, this has now been removed.
@@ -627,7 +630,7 @@ You can report any security bugs found in the source code of this plugin through
 * **Edit comments** - Editing a comment was not showing the comment inside the box, this is now fixed.
 * **Added support for the Black Bros theme** - The selection box had an alignment issue on the front end when the Black Bros theme was installed.
 
-= v3.4.3 = 
+= 3.4.3 = 
 * **Blocked interface on Bricks theme editor mode** - The plugin was showing when using the Bricks theme editor mode, this has now been fixed.
 * **Conflict with Bricks quill classes** - There was a class conflict with Bricks quill classes, this has now been fixed.
 * **Mark as complete** - We changed "Mark as complete" on the task pop-over to "Complete", to clear up some space.
@@ -636,10 +639,10 @@ You can report any security bugs found in the source code of this plugin through
 * **FluentCRM issue** - There was an issue where the plugin was not loading inside FluentCRM, this is now fixed.
 * **General CSS fixes** - We fixed a few CSS issues and made some small changes to improve design
 
-= v3.4.2 = 
+= 3.4.2 = 
 * **Skipped a version** - The plugin was one version behind the dashboard, so we have gone straight to 3.4.3
 
-= v3.4.1 = 
+= 3.4.1 = 
 * **General task icon** - We have changed the icon on the general task icon to make it more pleasing to the eye!
 * **Comment text font size** - We have updated the font size on comments to make it more readable.
 * **CSS changes** - Multiple small CSS updates and changes to make the design of the plugin more consistent.
@@ -647,14 +650,14 @@ You can report any security bugs found in the source code of this plugin through
 * **Internal task icon toggle** - There was an issue with the internal task icon on the pop-over, this has been fixed.
 * **Author name alignment** - Fixed an issue where the length of the author name could break the design if too long.
 
-= v3.4 =
+= 3.4 =
 * **Pop-over design update** - We've slightly updated the pop-over design for tasks, including the order of icons and color of the comment button.
 * **Comments feed design update** - We've changed the layout of the comments feed to make it more of a chat, by adding author images and aligning everything to the left.
 * **Notes issue:** Previously you could create a task with the first comment being a note, this has now been fixed.
 * **Divi add-on conflict:** There was a conflict with a Divi add-on that made page ID's incorrect, this is now fixed.
 * **Warnings generated by plugin code:** A warning was showing in the WP admin due to some code inconsistencies, this has now been fixed.
 
-= v3.3.3 =
+= 3.3.3 =
 * **Secured SQL Query:** Fixed an edgecase security vulnerability inside the plugin.
 * **General Tasks:** In some cases, you could not add text to a general task, this is now fixed.
 * **Formidable Forms Plugin Conflict:** When this plugin was installed alongside Atarim, it was causing issues, this has now been fixed.
@@ -662,15 +665,15 @@ You can report any security bugs found in the source code of this plugin through
 * **Bootstrap JS conflict:** There were a few conflicts that have now been fixed with the JS.
 * **Bootstrap CSS conflict:** There were a few conflicts that have now been fixed with the CSS.
 
-= v3.3.2 =
+= 3.3.2 =
 * **Tablet View:** Tablet view was not showing correctly due to the width being too small, this has now been fixed.
 
-= v3.3.1 =
+= 3.3.1 =
 * **Filter issue:** There was previously an issue with the sticker color of task status in the task center, this is now fixed. 
 * **Empty comments:** It was possible to add empty comments due to rich text, we have added more validation to stop this from happening.
 * **Graphic Feedback Notice:** The notice we added in our last update kept showing, now when you close it you'll never see it again.
 
-= v3.3 = 
+= 3.3 = 
 * For the full list of what was included in this update, [check out our changelog here!](https://headwayapp.co/atarim-changelog/atarim-3-3-merge-sites-integrations-permissions-more-245450)
 * **Google signup:** When you install the plugin on a WordPress website, you now have the option to sign up for a new free account with Google, making the signup process even shorter!
 * **Graphic FeedBack Notice:** We are planning to move the graphic feedback tool from the plugin to the dashboard, with this update you’ll see a notice to let you know about this.Plugin
@@ -679,7 +682,7 @@ You can report any security bugs found in the source code of this plugin through
 * **Bottom bar:** On some websites, the bottom bar had a problem with its width, this is now fixed.
 * **CSS Conflict:** There were some CSS conflicts on specific websites, this has been fixed.
 
-= V3.2 =
+= 3.2 =
 * **Rich Text:** You can now highlight your comments while adding to add rich text. You can also edit previous comments and add it too!
 * **Tag Creation:** Previously, you could not add tags to a task after creating it, you needed to refresh, this has been fixed.
 * **Tasks At The Bottom Of A Page:** Sometimes tasks at the bottom of the page caused the comment button to be hidden, this has been fixed.

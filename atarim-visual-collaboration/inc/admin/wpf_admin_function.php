@@ -97,7 +97,7 @@ if ( ! function_exists( 'wpf_comment_button_admin' ) ) {
 
         $current_page_id = '';
         if ( isset( $_GET['action'] ) && $_GET['action'] == 'edit' && isset( $_GET['vcv-action'] ) && $_GET['vcv-action'] == 'frontend' && isset( $_GET['vcv-source-id'] ) ) {
-            $current_page_id = $_GET['vcv-source-id'];
+            $current_page_id = isset( $_GET['vcv-source-id'] ) ? json_encode( $_GET['vcv-source-id'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ) : '""';
         }
         $current_page_url   = $protocol . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         $current_page_title = '';
