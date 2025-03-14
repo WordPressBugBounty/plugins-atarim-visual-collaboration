@@ -1,60 +1,64 @@
-(function( factory ) {
+/*! jQuery UI - v1.14.1 - 2024-10-30
+* https://jqueryui.com
+* Includes: widget.js, position.js, data.js, disable-selection.js, effect.js, effects/effect-blind.js, effects/effect-bounce.js, effects/effect-clip.js, effects/effect-drop.js, effects/effect-explode.js, effects/effect-fade.js, effects/effect-fold.js, effects/effect-highlight.js, effects/effect-puff.js, effects/effect-pulsate.js, effects/effect-scale.js, effects/effect-shake.js, effects/effect-size.js, effects/effect-slide.js, effects/effect-transfer.js, focusable.js, form-reset-mixin.js, jquery-patch.js, keycode.js, labels.js, scroll-parent.js, tabbable.js, unique-id.js, widgets/accordion.js, widgets/autocomplete.js, widgets/button.js, widgets/checkboxradio.js, widgets/controlgroup.js, widgets/datepicker.js, widgets/dialog.js, widgets/draggable.js, widgets/droppable.js, widgets/menu.js, widgets/mouse.js, widgets/progressbar.js, widgets/resizable.js, widgets/selectable.js, widgets/selectmenu.js, widgets/slider.js, widgets/sortable.js, widgets/spinner.js, widgets/tabs.js, widgets/tooltip.js
+* Copyright OpenJS Foundation and other contributors; Licensed MIT */
+
+( function( factory ) {
+	"use strict";
+
 	if ( typeof define === "function" && define.amd ) {
 
 		// AMD. Register as an anonymous module.
-		define([ "jquery" ], factory );
+		define( [ "jquery" ], factory );
 	} else {
 
 		// Browser globals
-		factory( jQuery_WPF );
+		factory( jQuery );
 	}
-}(function( $ ) {
+} )( function( $ ) {
+"use strict";
 
-jQuery_WPF.ui = jQuery_WPF.ui || {};
+$.ui = $.ui || {};
 
-var version = jQuery_WPF.ui.version = "1.12.1";
+var version = $.ui.version = "1.14.1";
 
 
 /*!
- * jQuery UI Widget 1.12.1
- * http://jqueryui.com
+ * jQuery UI Widget 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Widget
 //>>group: Core
 //>>description: Provides a factory for creating stateful widgets with a common API.
-//>>docs: http://api.jqueryui.com/jQuery_WPF.widget/
-//>>demos: http://jqueryui.com/widget/
-
+//>>docs: https://api.jqueryui.com/jQuery.widget/
+//>>demos: https://jqueryui.com/widget/
 
 
 var widgetUuid = 0;
+var widgetHasOwnProperty = Array.prototype.hasOwnProperty;
 var widgetSlice = Array.prototype.slice;
 
-jQuery_WPF.cleanData = ( function( orig ) {
+$.cleanData = ( function( orig ) {
 	return function( elems ) {
 		var events, elem, i;
 		for ( i = 0; ( elem = elems[ i ] ) != null; i++ ) {
-			try {
 
-				// Only trigger remove when necessary to save time
-				events = jQuery_WPF._data( elem, "events" );
-				if ( events && events.remove ) {
-					jQuery_WPF( elem ).triggerHandler( "remove" );
-				}
-
-			// Http://bugs.jQuery_WPF.com/ticket/8235
-			} catch ( e ) {}
+			// Only trigger remove when necessary to save time
+			events = $._data( elem, "events" );
+			if ( events && events.remove ) {
+				$( elem ).triggerHandler( "remove" );
+			}
 		}
 		orig( elems );
 	};
-} )( jQuery_WPF.cleanData );
+} )( $.cleanData );
 
-jQuery_WPF.widget = function( name, base, prototype ) {
+$.widget = function( name, base, prototype ) {
 	var existingConstructor, constructor, basePrototype;
 
 	// ProxiedPrototype allows the provided prototype to remain unmodified
@@ -63,20 +67,23 @@ jQuery_WPF.widget = function( name, base, prototype ) {
 
 	var namespace = name.split( "." )[ 0 ];
 	name = name.split( "." )[ 1 ];
+	if ( name === "__proto__" || name === "constructor" ) {
+		return $.error( "Invalid widget name: " + name );
+	}
 	var fullName = namespace + "-" + name;
 
 	if ( !prototype ) {
 		prototype = base;
-		base = jQuery_WPF.Widget;
+		base = $.Widget;
 	}
 
-	if ( jQuery_WPF.isArray( prototype ) ) {
-		prototype = jQuery_WPF.extend.apply( null, [ {} ].concat( prototype ) );
+	if ( Array.isArray( prototype ) ) {
+		prototype = $.extend.apply( null, [ {} ].concat( prototype ) );
 	}
 
 	// Create selector for plugin
-	jQuery_WPF.expr[ ":" ][ fullName.toLowerCase() ] = function( elem ) {
-		return !!jQuery_WPF.data( elem, fullName );
+	$.expr.pseudos[ fullName.toLowerCase() ] = function( elem ) {
+		return !!$.data( elem, fullName );
 	};
 
 	$[ namespace ] = $[ namespace ] || {};
@@ -84,7 +91,7 @@ jQuery_WPF.widget = function( name, base, prototype ) {
 	constructor = $[ namespace ][ name ] = function( options, element ) {
 
 		// Allow instantiation without "new" keyword
-		if ( !this._createWidget ) {
+		if ( !this || !this._createWidget ) {
 			return new constructor( options, element );
 		}
 
@@ -96,12 +103,12 @@ jQuery_WPF.widget = function( name, base, prototype ) {
 	};
 
 	// Extend with the existing constructor to carry over any static properties
-	jQuery_WPF.extend( constructor, existingConstructor, {
+	$.extend( constructor, existingConstructor, {
 		version: prototype.version,
 
 		// Copy the object used to create the prototype in case we need to
 		// redefine the widget later
-		_proto: jQuery_WPF.extend( {}, prototype ),
+		_proto: $.extend( {}, prototype ),
 
 		// Track widgets that inherit from this widget in case this widget is
 		// redefined after a widget inherits from it
@@ -113,9 +120,9 @@ jQuery_WPF.widget = function( name, base, prototype ) {
 	// We need to make the options hash a property directly on the new instance
 	// otherwise we'll modify the options hash on the prototype that we're
 	// inheriting from
-	basePrototype.options = jQuery_WPF.widget.extend( {}, basePrototype.options );
-	jQuery_WPF.each( prototype, function( prop, value ) {
-		if ( !jQuery_WPF.isFunction( value ) ) {
+	basePrototype.options = $.widget.extend( {}, basePrototype.options );
+	$.each( prototype, function( prop, value ) {
+		if ( typeof value !== "function" ) {
 			proxiedPrototype[ prop ] = value;
 			return;
 		}
@@ -145,7 +152,7 @@ jQuery_WPF.widget = function( name, base, prototype ) {
 			};
 		} )();
 	} );
-	constructor.prototype = jQuery_WPF.widget.extend( basePrototype, {
+	constructor.prototype = $.widget.extend( basePrototype, {
 
 		// TODO: remove support for widgetEventPrefix
 		// always use the name + a colon as the prefix, e.g., draggable:start
@@ -163,12 +170,12 @@ jQuery_WPF.widget = function( name, base, prototype ) {
 	// the new version of this widget. We're essentially trying to replace one
 	// level in the prototype chain.
 	if ( existingConstructor ) {
-		jQuery_WPF.each( existingConstructor._childConstructors, function( i, child ) {
+		$.each( existingConstructor._childConstructors, function( i, child ) {
 			var childPrototype = child.prototype;
 
 			// Redefine the child widget using the same prototype that was
 			// originally used, but inherit from the new version of the base
-			jQuery_WPF.widget( childPrototype.namespace + "." + childPrototype.widgetName, constructor,
+			$.widget( childPrototype.namespace + "." + childPrototype.widgetName, constructor,
 				child._proto );
 		} );
 
@@ -179,12 +186,12 @@ jQuery_WPF.widget = function( name, base, prototype ) {
 		base._childConstructors.push( constructor );
 	}
 
-	jQuery_WPF.widget.bridge( name, constructor );
+	$.widget.bridge( name, constructor );
 
 	return constructor;
 };
 
-jQuery_WPF.widget.extend = function( target ) {
+$.widget.extend = function( target ) {
 	var input = widgetSlice.call( arguments, 1 );
 	var inputIndex = 0;
 	var inputLength = input.length;
@@ -194,15 +201,15 @@ jQuery_WPF.widget.extend = function( target ) {
 	for ( ; inputIndex < inputLength; inputIndex++ ) {
 		for ( key in input[ inputIndex ] ) {
 			value = input[ inputIndex ][ key ];
-			if ( input[ inputIndex ].hasOwnProperty( key ) && value !== undefined ) {
+			if ( widgetHasOwnProperty.call( input[ inputIndex ], key ) && value !== undefined ) {
 
 				// Clone objects
-				if ( jQuery_WPF.isPlainObject( value ) ) {
-					target[ key ] = jQuery_WPF.isPlainObject( target[ key ] ) ?
-						jQuery_WPF.widget.extend( {}, target[ key ], value ) :
+				if ( $.isPlainObject( value ) ) {
+					target[ key ] = $.isPlainObject( target[ key ] ) ?
+						$.widget.extend( {}, target[ key ], value ) :
 
 						// Don't extend strings, arrays, etc. with objects
-						jQuery_WPF.widget.extend( {}, value );
+						$.widget.extend( {}, value );
 
 				// Copy everything else by reference
 				} else {
@@ -214,9 +221,9 @@ jQuery_WPF.widget.extend = function( target ) {
 	return target;
 };
 
-jQuery_WPF.widget.bridge = function( name, object ) {
+$.widget.bridge = function( name, object ) {
 	var fullName = object.prototype.widgetFullName || name;
-	jQuery_WPF.fn[ name ] = function( options ) {
+	$.fn[ name ] = function( options ) {
 		var isMethodCall = typeof options === "string";
 		var args = widgetSlice.call( arguments, 1 );
 		var returnValue = this;
@@ -230,7 +237,7 @@ jQuery_WPF.widget.bridge = function( name, object ) {
 			} else {
 				this.each( function() {
 					var methodValue;
-					var instance = jQuery_WPF.data( this, fullName );
+					var instance = $.data( this, fullName );
 
 					if ( options === "instance" ) {
 						returnValue = instance;
@@ -238,13 +245,14 @@ jQuery_WPF.widget.bridge = function( name, object ) {
 					}
 
 					if ( !instance ) {
-						return jQuery_WPF.error( "cannot call methods on " + name +
+						return $.error( "cannot call methods on " + name +
 							" prior to initialization; " +
 							"attempted to call method '" + options + "'" );
 					}
 
-					if ( !jQuery_WPF.isFunction( instance[ options ] ) || options.charAt( 0 ) === "_" ) {
-						return jQuery_WPF.error( "no such method '" + options + "' for " + name +
+					if ( typeof instance[ options ] !== "function" ||
+						options.charAt( 0 ) === "_" ) {
+						return $.error( "no such method '" + options + "' for " + name +
 							" widget instance" );
 					}
 
@@ -262,18 +270,18 @@ jQuery_WPF.widget.bridge = function( name, object ) {
 
 			// Allow multiple hashes to be passed on init
 			if ( args.length ) {
-				options = jQuery_WPF.widget.extend.apply( null, [ options ].concat( args ) );
+				options = $.widget.extend.apply( null, [ options ].concat( args ) );
 			}
 
 			this.each( function() {
-				var instance = jQuery_WPF.data( this, fullName );
+				var instance = $.data( this, fullName );
 				if ( instance ) {
 					instance.option( options || {} );
 					if ( instance._init ) {
 						instance._init();
 					}
 				} else {
-					jQuery_WPF.data( this, fullName, new object( options, this ) );
+					$.data( this, fullName, new object( options, this ) );
 				}
 			} );
 		}
@@ -282,10 +290,10 @@ jQuery_WPF.widget.bridge = function( name, object ) {
 	};
 };
 
-jQuery_WPF.Widget = function( /* options, element */ ) {};
-jQuery_WPF.Widget._childConstructors = [];
+$.Widget = function( /* options, element */ ) {};
+$.Widget._childConstructors = [];
 
-jQuery_WPF.Widget.prototype = {
+$.Widget.prototype = {
 	widgetName: "widget",
 	widgetEventPrefix: "",
 	defaultElement: "<div>",
@@ -299,18 +307,18 @@ jQuery_WPF.Widget.prototype = {
 	},
 
 	_createWidget: function( options, element ) {
-		element = jQuery_WPF( element || this.defaultElement || this )[ 0 ];
-		this.element = jQuery_WPF( element );
+		element = $( element || this.defaultElement || this )[ 0 ];
+		this.element = $( element );
 		this.uuid = widgetUuid++;
 		this.eventNamespace = "." + this.widgetName + this.uuid;
 
-		this.bindings = jQuery_WPF();
-		this.hoverable = jQuery_WPF();
-		this.focusable = jQuery_WPF();
+		this.bindings = $();
+		this.hoverable = $();
+		this.focusable = $();
 		this.classesElementLookup = {};
 
 		if ( element !== this ) {
-			jQuery_WPF.data( element, this.widgetFullName, this );
+			$.data( element, this.widgetFullName, this );
 			this._on( true, this.element, {
 				remove: function( event ) {
 					if ( event.target === element ) {
@@ -318,17 +326,17 @@ jQuery_WPF.Widget.prototype = {
 					}
 				}
 			} );
-			this.document = jQuery_WPF( element.style ?
+			this.document = $( element.style ?
 
 				// Element within the document
 				element.ownerDocument :
 
 				// Element is window or document
 				element.document || element );
-			this.window = jQuery_WPF( this.document[ 0 ].defaultView || this.document[ 0 ].parentWindow );
+			this.window = $( this.document[ 0 ].defaultView || this.document[ 0 ].parentWindow );
 		}
 
-		this.options = jQuery_WPF.widget.extend( {},
+		this.options = $.widget.extend( {},
 			this.options,
 			this._getCreateOptions(),
 			options );
@@ -347,17 +355,17 @@ jQuery_WPF.Widget.prototype = {
 		return {};
 	},
 
-	_getCreateEventData: jQuery_WPF.noop,
+	_getCreateEventData: $.noop,
 
-	_create: jQuery_WPF.noop,
+	_create: $.noop,
 
-	_init: jQuery_WPF.noop,
+	_init: $.noop,
 
 	destroy: function() {
 		var that = this;
 
 		this._destroy();
-		jQuery_WPF.each( this.classesElementLookup, function( key, value ) {
+		$.each( this.classesElementLookup, function( key, value ) {
 			that._removeClass( value, key );
 		} );
 
@@ -374,7 +382,7 @@ jQuery_WPF.Widget.prototype = {
 		this.bindings.off( this.eventNamespace );
 	},
 
-	_destroy: jQuery_WPF.noop,
+	_destroy: $.noop,
 
 	widget: function() {
 		return this.element;
@@ -389,7 +397,7 @@ jQuery_WPF.Widget.prototype = {
 		if ( arguments.length === 0 ) {
 
 			// Don't return a reference to the internal hash
-			return jQuery_WPF.widget.extend( {}, this.options );
+			return $.widget.extend( {}, this.options );
 		}
 
 		if ( typeof key === "string" ) {
@@ -399,7 +407,7 @@ jQuery_WPF.Widget.prototype = {
 			parts = key.split( "." );
 			key = parts.shift();
 			if ( parts.length ) {
-				curOption = options[ key ] = jQuery_WPF.widget.extend( {}, this.options[ key ] );
+				curOption = options[ key ] = $.widget.extend( {}, this.options[ key ] );
 				for ( i = 0; i < parts.length - 1; i++ ) {
 					curOption[ parts[ i ] ] = curOption[ parts[ i ] ] || {};
 					curOption = curOption[ parts[ i ] ];
@@ -461,7 +469,7 @@ jQuery_WPF.Widget.prototype = {
 			// on the next line is going to destroy the reference to the current elements being
 			// tracked. We need to save a copy of this collection so that we can add the new classes
 			// below.
-			elements = jQuery_WPF( currentElements.get() );
+			elements = $( currentElements.get() );
 			this._removeClass( currentElements, classKey );
 
 			// We don't use _addClass() here, because that uses this.options.classes
@@ -499,19 +507,41 @@ jQuery_WPF.Widget.prototype = {
 		var full = [];
 		var that = this;
 
-		options = jQuery_WPF.extend( {
+		options = $.extend( {
 			element: this.element,
 			classes: this.options.classes || {}
 		}, options );
 
+		function bindRemoveEvent() {
+			var nodesToBind = [];
+
+			options.element.each( function( _, element ) {
+				var isTracked = $.map( that.classesElementLookup, function( elements ) {
+					return elements;
+				} )
+					.some( function( elements ) {
+						return elements.is( element );
+					} );
+
+				if ( !isTracked ) {
+					nodesToBind.push( element );
+				}
+			} );
+
+			that._on( $( nodesToBind ), {
+				remove: "_untrackClassesElement"
+			} );
+		}
+
 		function processClassString( classes, checkOption ) {
 			var current, i;
 			for ( i = 0; i < classes.length; i++ ) {
-				current = that.classesElementLookup[ classes[ i ] ] || jQuery_WPF();
+				current = that.classesElementLookup[ classes[ i ] ] || $();
 				if ( options.add ) {
-					current = jQuery_WPF( jQuery_WPF.unique( current.get().concat( options.element.get() ) ) );
+					bindRemoveEvent();
+					current = $( $.uniqueSort( current.get().concat( options.element.get() ) ) );
 				} else {
-					current = jQuery_WPF( current.not( options.element ).get() );
+					current = $( current.not( options.element ).get() );
 				}
 				that.classesElementLookup[ classes[ i ] ] = current;
 				full.push( classes[ i ] );
@@ -520,10 +550,6 @@ jQuery_WPF.Widget.prototype = {
 				}
 			}
 		}
-
-		this._on( options.element, {
-			"remove": "_untrackClassesElement"
-		} );
 
 		if ( options.keys ) {
 			processClassString( options.keys.match( /\S+/g ) || [], true );
@@ -537,11 +563,13 @@ jQuery_WPF.Widget.prototype = {
 
 	_untrackClassesElement: function( event ) {
 		var that = this;
-		jQuery_WPF.each( that.classesElementLookup, function( key, value ) {
-			if ( jQuery_WPF.inArray( event.target, value ) !== -1 ) {
-				that.classesElementLookup[ key ] = jQuery_WPF( value.not( event.target ).get() );
+		$.each( that.classesElementLookup, function( key, value ) {
+			if ( $.inArray( event.target, value ) !== -1 ) {
+				that.classesElementLookup[ key ] = $( value.not( event.target ).get() );
 			}
 		} );
+
+		this._off( $( event.target ) );
 	},
 
 	_removeClass: function( element, keys, extra ) {
@@ -582,11 +610,11 @@ jQuery_WPF.Widget.prototype = {
 			element = this.element;
 			delegateElement = this.widget();
 		} else {
-			element = delegateElement = jQuery_WPF( element );
+			element = delegateElement = $( element );
 			this.bindings = this.bindings.add( element );
 		}
 
-		jQuery_WPF.each( handlers, function( event, handler ) {
+		$.each( handlers, function( event, handler ) {
 			function handlerProxy() {
 
 				// Allow widgets to customize the disabled handling
@@ -594,7 +622,7 @@ jQuery_WPF.Widget.prototype = {
 				// - disabled class as method for disabling individual parts
 				if ( !suppressDisabledCheck &&
 						( instance.options.disabled === true ||
-						jQuery_WPF( this ).hasClass( "ui-state-disabled" ) ) ) {
+						$( this ).hasClass( "ui-state-disabled" ) ) ) {
 					return;
 				}
 				return ( typeof handler === "string" ? instance[ handler ] : handler )
@@ -604,7 +632,7 @@ jQuery_WPF.Widget.prototype = {
 			// Copy the guid so direct unbinding works
 			if ( typeof handler !== "string" ) {
 				handlerProxy.guid = handler.guid =
-					handler.guid || handlerProxy.guid || jQuery_WPF.guid++;
+					handler.guid || handlerProxy.guid || $.guid++;
 			}
 
 			var match = event.match( /^([\w:-]*)\s*(.*)$/ );
@@ -622,12 +650,12 @@ jQuery_WPF.Widget.prototype = {
 	_off: function( element, eventName ) {
 		eventName = ( eventName || "" ).split( " " ).join( this.eventNamespace + " " ) +
 			this.eventNamespace;
-		element.off( eventName ).off( eventName );
+		element.off( eventName );
 
 		// Clear the stack to avoid memory leaks (#10056)
-		this.bindings = jQuery_WPF( this.bindings.not( element ).get() );
-		this.focusable = jQuery_WPF( this.focusable.not( element ).get() );
-		this.hoverable = jQuery_WPF( this.hoverable.not( element ).get() );
+		this.bindings = $( this.bindings.not( element ).get() );
+		this.focusable = $( this.focusable.not( element ).get() );
+		this.hoverable = $( this.hoverable.not( element ).get() );
 	},
 
 	_delay: function( handler, delay ) {
@@ -643,10 +671,10 @@ jQuery_WPF.Widget.prototype = {
 		this.hoverable = this.hoverable.add( element );
 		this._on( element, {
 			mouseenter: function( event ) {
-				this._addClass( jQuery_WPF( event.currentTarget ), null, "ui-state-hover" );
+				this._addClass( $( event.currentTarget ), null, "ui-state-hover" );
 			},
 			mouseleave: function( event ) {
-				this._removeClass( jQuery_WPF( event.currentTarget ), null, "ui-state-hover" );
+				this._removeClass( $( event.currentTarget ), null, "ui-state-hover" );
 			}
 		} );
 	},
@@ -655,10 +683,10 @@ jQuery_WPF.Widget.prototype = {
 		this.focusable = this.focusable.add( element );
 		this._on( element, {
 			focusin: function( event ) {
-				this._addClass( jQuery_WPF( event.currentTarget ), null, "ui-state-focus" );
+				this._addClass( $( event.currentTarget ), null, "ui-state-focus" );
 			},
 			focusout: function( event ) {
-				this._removeClass( jQuery_WPF( event.currentTarget ), null, "ui-state-focus" );
+				this._removeClass( $( event.currentTarget ), null, "ui-state-focus" );
 			}
 		} );
 	},
@@ -668,7 +696,7 @@ jQuery_WPF.Widget.prototype = {
 		var callback = this.options[ type ];
 
 		data = data || {};
-		event = jQuery_WPF.Event( event );
+		event = $.Event( event );
 		event.type = ( type === this.widgetEventPrefix ?
 			type :
 			this.widgetEventPrefix + type ).toLowerCase();
@@ -688,14 +716,14 @@ jQuery_WPF.Widget.prototype = {
 		}
 
 		this.element.trigger( event, data );
-		return !( jQuery_WPF.isFunction( callback ) &&
+		return !( typeof callback === "function" &&
 			callback.apply( this.element[ 0 ], [ event ].concat( data ) ) === false ||
 			event.isDefaultPrevented() );
 	}
 };
 
-jQuery_WPF.each( { show: "fadeIn", hide: "fadeOut" }, function( method, defaultEffect ) {
-	jQuery_WPF.Widget.prototype[ "_" + method ] = function( element, options, callback ) {
+$.each( { show: "fadeIn", hide: "fadeOut" }, function( method, defaultEffect ) {
+	$.Widget.prototype[ "_" + method ] = function( element, options, callback ) {
 		if ( typeof options === "string" ) {
 			options = { effect: options };
 		}
@@ -710,22 +738,24 @@ jQuery_WPF.each( { show: "fadeIn", hide: "fadeOut" }, function( method, defaultE
 		options = options || {};
 		if ( typeof options === "number" ) {
 			options = { duration: options };
+		} else if ( options === true ) {
+			options = {};
 		}
 
-		hasOptions = !jQuery_WPF.isEmptyObject( options );
+		hasOptions = !$.isEmptyObject( options );
 		options.complete = callback;
 
 		if ( options.delay ) {
 			element.delay( options.delay );
 		}
 
-		if ( hasOptions && jQuery_WPF.effects && jQuery_WPF.effects.effect[ effectName ] ) {
+		if ( hasOptions && $.effects && $.effects.effect[ effectName ] ) {
 			element[ method ]( options );
 		} else if ( effectName !== method && element[ effectName ] ) {
 			element[ effectName ]( options.duration, options.easing, callback );
 		} else {
 			element.queue( function( next ) {
-				jQuery_WPF( this )[ method ]();
+				$( this )[ method ]();
 				if ( callback ) {
 					callback.call( element[ 0 ] );
 				}
@@ -735,25 +765,25 @@ jQuery_WPF.each( { show: "fadeIn", hide: "fadeOut" }, function( method, defaultE
 	};
 } );
 
-var widget = jQuery_WPF.widget;
+var widget = $.widget;
 
 
 /*!
- * jQuery UI Position 1.12.1
- * http://jqueryui.com
+ * jQuery UI Position 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  *
- * http://api.jqueryui.com/position/
+ * https://api.jqueryui.com/position/
  */
 
 //>>label: Position
 //>>group: Core
 //>>description: Positions elements relative to other elements.
-//>>docs: http://api.jqueryui.com/position/
-//>>demos: http://jqueryui.com/position/
+//>>docs: https://api.jqueryui.com/position/
+//>>demos: https://jqueryui.com/position/
 
 
 ( function() {
@@ -765,7 +795,7 @@ var cachedScrollbarWidth,
 	roffset = /[\+\-]\d+(\.[\d]+)?%?/,
 	rposition = /^\w+/,
 	rpercent = /%$/,
-	_position = jQuery_WPF.fn.position;
+	_position = $.fn.position;
 
 function getOffsets( offsets, width, height ) {
 	return [
@@ -775,7 +805,11 @@ function getOffsets( offsets, width, height ) {
 }
 
 function parseCss( element, property ) {
-	return parseInt( jQuery_WPF.css( element, property ), 10 ) || 0;
+	return parseInt( $.css( element, property ), 10 ) || 0;
+}
+
+function isWindow( obj ) {
+	return obj != null && obj === obj.window;
 }
 
 function getDimensions( elem ) {
@@ -787,7 +821,7 @@ function getDimensions( elem ) {
 			offset: { top: 0, left: 0 }
 		};
 	}
-	if ( jQuery_WPF.isWindow( raw ) ) {
+	if ( isWindow( raw ) ) {
 		return {
 			width: elem.width(),
 			height: elem.height(),
@@ -808,18 +842,18 @@ function getDimensions( elem ) {
 	};
 }
 
-jQuery_WPF.position = {
+$.position = {
 	scrollbarWidth: function() {
 		if ( cachedScrollbarWidth !== undefined ) {
 			return cachedScrollbarWidth;
 		}
 		var w1, w2,
-			div = jQuery_WPF( "<div " +
-				"style='display:block;position:absolute;width:50px;height:50px;overflow:hidden;'>" +
-				"<div style='height:100px;width:auto;'></div></div>" ),
+			div = $( "<div style=" +
+				"'display:block;position:absolute;width:200px;height:200px;overflow:hidden;'>" +
+				"<div style='height:300px;width:auto;'></div></div>" ),
 			innerDiv = div.children()[ 0 ];
 
-		jQuery_WPF( "body" ).append( div );
+		$( "body" ).append( div );
 		w1 = innerDiv.offsetWidth;
 		div.css( "overflow", "scroll" );
 
@@ -843,20 +877,20 @@ jQuery_WPF.position = {
 			hasOverflowY = overflowY === "scroll" ||
 				( overflowY === "auto" && within.height < within.element[ 0 ].scrollHeight );
 		return {
-			width: hasOverflowY ? jQuery_WPF.position.scrollbarWidth() : 0,
-			height: hasOverflowX ? jQuery_WPF.position.scrollbarWidth() : 0
+			width: hasOverflowY ? $.position.scrollbarWidth() : 0,
+			height: hasOverflowX ? $.position.scrollbarWidth() : 0
 		};
 	},
 	getWithinInfo: function( element ) {
-		var withinElement = jQuery_WPF( element || window ),
-			isWindow = jQuery_WPF.isWindow( withinElement[ 0 ] ),
+		var withinElement = $( element || window ),
+			isElemWindow = isWindow( withinElement[ 0 ] ),
 			isDocument = !!withinElement[ 0 ] && withinElement[ 0 ].nodeType === 9,
-			hasOffset = !isWindow && !isDocument;
+			hasOffset = !isElemWindow && !isDocument;
 		return {
 			element: withinElement,
-			isWindow: isWindow,
+			isWindow: isElemWindow,
 			isDocument: isDocument,
-			offset: hasOffset ? jQuery_WPF( element ).offset() : { left: 0, top: 0 },
+			offset: hasOffset ? $( element ).offset() : { left: 0, top: 0 },
 			scrollLeft: withinElement.scrollLeft(),
 			scrollTop: withinElement.scrollTop(),
 			width: withinElement.outerWidth(),
@@ -865,18 +899,23 @@ jQuery_WPF.position = {
 	}
 };
 
-jQuery_WPF.fn.position = function( options ) {
+$.fn.position = function( options ) {
 	if ( !options || !options.of ) {
 		return _position.apply( this, arguments );
 	}
 
 	// Make a copy, we don't want to modify arguments
-	options = jQuery_WPF.extend( {}, options );
+	options = $.extend( {}, options );
 
 	var atOffset, targetWidth, targetHeight, targetOffset, basePosition, dimensions,
-		target = jQuery_WPF( options.of ),
-		within = jQuery_WPF.position.getWithinInfo( options.within ),
-		scrollInfo = jQuery_WPF.position.getScrollInfo( within ),
+
+		// Make sure string options are treated as CSS selectors
+		target = typeof options.of === "string" ?
+			$( document ).find( options.of ) :
+			$( options.of ),
+
+		within = $.position.getWithinInfo( options.within ),
+		scrollInfo = $.position.getScrollInfo( within ),
 		collision = ( options.collision || "flip" ).split( " " ),
 		offsets = {};
 
@@ -891,11 +930,11 @@ jQuery_WPF.fn.position = function( options ) {
 	targetOffset = dimensions.offset;
 
 	// Clone to reuse original targetOffset later
-	basePosition = jQuery_WPF.extend( {}, targetOffset );
+	basePosition = $.extend( {}, targetOffset );
 
 	// Force my and at to have valid horizontal and vertical positions
 	// if a value is missing or invalid, it will be converted to center
-	jQuery_WPF.each( [ "my", "at" ], function() {
+	$.each( [ "my", "at" ], function() {
 		var pos = ( options[ this ] || "" ).split( " " ),
 			horizontalOffset,
 			verticalOffset;
@@ -948,7 +987,7 @@ jQuery_WPF.fn.position = function( options ) {
 
 	return this.each( function() {
 		var collisionPosition, using,
-			elem = jQuery_WPF( this ),
+			elem = $( this ),
 			elemWidth = elem.outerWidth(),
 			elemHeight = elem.outerHeight(),
 			marginLeft = parseCss( this, "marginLeft" ),
@@ -957,7 +996,7 @@ jQuery_WPF.fn.position = function( options ) {
 				scrollInfo.width,
 			collisionHeight = elemHeight + marginTop + parseCss( this, "marginBottom" ) +
 				scrollInfo.height,
-			position = jQuery_WPF.extend( {}, basePosition ),
+			position = $.extend( {}, basePosition ),
 			myOffset = getOffsets( offsets.my, elem.outerWidth(), elem.outerHeight() );
 
 		if ( options.my[ 0 ] === "right" ) {
@@ -980,9 +1019,9 @@ jQuery_WPF.fn.position = function( options ) {
 			marginTop: marginTop
 		};
 
-		jQuery_WPF.each( [ "left", "top" ], function( i, dir ) {
-			if ( jQuery_WPF.ui.position[ collision[ i ] ] ) {
-				jQuery_WPF.ui.position[ collision[ i ] ][ dir ]( position, {
+		$.each( [ "left", "top" ], function( i, dir ) {
+			if ( $.ui.position[ collision[ i ] ] ) {
+				$.ui.position[ collision[ i ] ][ dir ]( position, {
 					targetWidth: targetWidth,
 					targetHeight: targetHeight,
 					elemWidth: elemWidth,
@@ -1040,11 +1079,11 @@ jQuery_WPF.fn.position = function( options ) {
 			};
 		}
 
-		elem.offset( jQuery_WPF.extend( position, { using: using } ) );
+		elem.offset( $.extend( position, { using: using } ) );
 	} );
 };
 
-jQuery_WPF.ui.position = {
+$.ui.position = {
 	fit: {
 		left: function( position, data ) {
 			var within = data.within,
@@ -1211,68 +1250,61 @@ jQuery_WPF.ui.position = {
 	},
 	flipfit: {
 		left: function() {
-			jQuery_WPF.ui.position.flip.left.apply( this, arguments );
-			jQuery_WPF.ui.position.fit.left.apply( this, arguments );
+			$.ui.position.flip.left.apply( this, arguments );
+			$.ui.position.fit.left.apply( this, arguments );
 		},
 		top: function() {
-			jQuery_WPF.ui.position.flip.top.apply( this, arguments );
-			jQuery_WPF.ui.position.fit.top.apply( this, arguments );
+			$.ui.position.flip.top.apply( this, arguments );
+			$.ui.position.fit.top.apply( this, arguments );
 		}
 	}
 };
 
 } )();
 
-var position = jQuery_WPF.ui.position;
+var position = $.ui.position;
 
 
 /*!
- * jQuery UI :data 1.12.1
- * http://jqueryui.com
+ * jQuery UI :data 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: :data Selector
 //>>group: Core
 //>>description: Selects elements which have data stored under the specified key.
-//>>docs: http://api.jqueryui.com/data-selector/
+//>>docs: https://api.jqueryui.com/data-selector/
 
 
-var data = jQuery_WPF.extend( jQuery_WPF.expr[ ":" ], {
-	data: jQuery_WPF.expr.createPseudo ?
-		jQuery_WPF.expr.createPseudo( function( dataName ) {
-			return function( elem ) {
-				return !!jQuery_WPF.data( elem, dataName );
-			};
-		} ) :
-
-		// Support: jQuery <1.8
-		function( elem, i, match ) {
-			return !!jQuery_WPF.data( elem, match[ 3 ] );
-		}
+var data = $.extend( $.expr.pseudos, {
+	data: $.expr.createPseudo( function( dataName ) {
+		return function( elem ) {
+			return !!$.data( elem, dataName );
+		};
+	} )
 } );
 
 /*!
- * jQuery UI Disable Selection 1.12.1
- * http://jqueryui.com
+ * jQuery UI Disable Selection 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: disableSelection
 //>>group: Core
 //>>description: Disable selection of text content within the set of matched elements.
-//>>docs: http://api.jqueryui.com/disableSelection/
+//>>docs: https://api.jqueryui.com/disableSelection/
 
 // This file is deprecated
 
-
-var disableSelection = jQuery_WPF.fn.extend( {
+var disableSelection = $.fn.extend( {
 	disableSelection: ( function() {
 		var eventType = "onselectstart" in document.createElement( "div" ) ?
 			"selectstart" :
@@ -1291,56 +1323,36 @@ var disableSelection = jQuery_WPF.fn.extend( {
 } );
 
 
-/*!
- * jQuery UI Effects 1.12.1
- * http://jqueryui.com
- *
- * Copyright jQuery Foundation and other contributors
- * Released under the MIT license.
- * http://jQuery_WPF.org/license
- */
 
-//>>label: Effects Core
-//>>group: Effects
-// jscs:disable maximumLineLength
-//>>description: Extends the internal jQuery effects. Includes morphing and easing. Required by all other effects.
-// jscs:enable maximumLineLength
-//>>docs: http://api.jqueryui.com/category/effects-core/
-//>>demos: http://jqueryui.com/effect/
+// Create a local jQuery because jQuery Color relies on it and the
+// global may not exist with AMD and a custom build (#10199).
+// This module is a noop if used as a regular AMD module.
+// eslint-disable-next-line no-unused-vars
+var jQuery = $;
 
-
-
-var dataSpace = "ui-effects-",
-	dataSpaceStyle = "ui-effects-style",
-	dataSpaceAnimated = "ui-effects-animated",
-
-	// Create a local jQuery because jQuery Color relies on it and the
-	// global may not exist with AMD and a custom build (#10199)
-	jQuery = $;
-
-jQuery_WPF.effects = {
-	effect: {}
-};
 
 /*!
- * jQuery Color Animations v2.1.2
+ * jQuery Color Animations v3.0.0
  * https://github.com/jquery/jquery-color
  *
- * Copyright 2014 jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  *
- * Date: Wed Jan 16 08:47:09 2013 -0600
+ * Date: Wed May 15 16:49:44 2024 +0200
  */
-( function( jQuery, undefined ) {
+
 
 	var stepHooks = "backgroundColor borderBottomColor borderLeftColor borderRightColor " +
 		"borderTopColor color columnRuleColor outlineColor textDecorationColor textEmphasisColor",
 
-	// Plusequals test for += 100 -= 100
+	class2type = {},
+	toString = class2type.toString,
+
+	// plusequals test for += 100 -= 100
 	rplusequals = /^([\-+])=\s*(\d+\.?\d*)/,
 
-	// A set of RE's that can match strings and generate color tuples.
+	// a set of RE's that can match strings and generate color tuples.
 	stringParsers = [ {
 			re: /rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*(?:,\s*(\d?(?:\.\d+)?)\s*)?\)/,
 			parse: function( execResult ) {
@@ -1363,24 +1375,31 @@ jQuery_WPF.effects = {
 			}
 		}, {
 
-			// This regex ignores A-F because it's compared against an already lowercased string
-			re: /#([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})/,
+			// this regex ignores A-F because it's compared against an already lowercased string
+			re: /#([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})?/,
 			parse: function( execResult ) {
 				return [
 					parseInt( execResult[ 1 ], 16 ),
 					parseInt( execResult[ 2 ], 16 ),
-					parseInt( execResult[ 3 ], 16 )
+					parseInt( execResult[ 3 ], 16 ),
+					execResult[ 4 ] ?
+						( parseInt( execResult[ 4 ], 16 ) / 255 ).toFixed( 2 ) :
+						1
 				];
 			}
 		}, {
 
-			// This regex ignores A-F because it's compared against an already lowercased string
-			re: /#([a-f0-9])([a-f0-9])([a-f0-9])/,
+			// this regex ignores A-F because it's compared against an already lowercased string
+			re: /#([a-f0-9])([a-f0-9])([a-f0-9])([a-f0-9])?/,
 			parse: function( execResult ) {
 				return [
 					parseInt( execResult[ 1 ] + execResult[ 1 ], 16 ),
 					parseInt( execResult[ 2 ] + execResult[ 2 ], 16 ),
-					parseInt( execResult[ 3 ] + execResult[ 3 ], 16 )
+					parseInt( execResult[ 3 ] + execResult[ 3 ], 16 ),
+					execResult[ 4 ] ?
+						( parseInt( execResult[ 4 ] + execResult[ 4 ], 16 ) / 255 )
+							.toFixed( 2 ) :
+						1
 				];
 			}
 		}, {
@@ -1396,9 +1415,9 @@ jQuery_WPF.effects = {
 			}
 		} ],
 
-	// jQuery_WPF.Color( )
-	color = jQuery_WPF.Color = function( color, green, blue, alpha ) {
-		return new jQuery_WPF.Color.fn.parse( color, green, blue, alpha );
+	// jQuery.Color( )
+	color = jQuery.Color = function( color, green, blue, alpha ) {
+		return new jQuery.Color.fn.parse( color, green, blue, alpha );
 	},
 	spaces = {
 		rgba: {
@@ -1448,22 +1467,14 @@ jQuery_WPF.effects = {
 			floor: true
 		}
 	},
-	support = color.support = {},
 
-	// Element for support tests
-	supportElem = jQuery_WPF( "<p>" )[ 0 ],
-
-	// Colors = jQuery_WPF.Color.names
+	// colors = jQuery.Color.names
 	colors,
 
-	// Local aliases of functions called often
-	each = jQuery_WPF.each;
+	// local aliases of functions called often
+	each = jQuery.each;
 
-// Determine rgba support immediately
-supportElem.style.cssText = "background-color:rgba(1,1,1,.5)";
-support.rgba = supportElem.style.backgroundColor.indexOf( "rgba" ) > -1;
-
-// Define cache name and alpha properties
+// define cache name and alpha properties
 // for rgba and hsla spaces
 each( spaces, function( spaceName, space ) {
 	space.cache = "_" + spaceName;
@@ -1473,6 +1484,22 @@ each( spaces, function( spaceName, space ) {
 		def: 1
 	};
 } );
+
+// Populate the class2type map
+jQuery.each( "Boolean Number String Function Array Date RegExp Object Error Symbol".split( " " ),
+	function( _i, name ) {
+		class2type[ "[object " + name + "]" ] = name.toLowerCase();
+	} );
+
+function getType( obj ) {
+	if ( obj == null ) {
+		return obj + "";
+	}
+
+	return typeof obj === "object" ?
+		class2type[ toString.call( obj ) ] || "object" :
+		typeof obj;
+}
 
 function clamp( value, prop, allowEmpty ) {
 	var type = propTypes[ prop.type ] || {};
@@ -1484,21 +1511,15 @@ function clamp( value, prop, allowEmpty ) {
 	// ~~ is an short way of doing floor for positive numbers
 	value = type.floor ? ~~value : parseFloat( value );
 
-	// IE will pass in empty strings as value for alpha,
-	// which will hit this case
-	if ( isNaN( value ) ) {
-		return prop.def;
-	}
-
 	if ( type.mod ) {
 
-		// We add mod before modding to make sure that negatives values
+		// we add mod before modding to make sure that negatives values
 		// get converted properly: -10 -> 350
 		return ( value + type.mod ) % type.mod;
 	}
 
-	// For now all property types without mod have min and max
-	return 0 > value ? 0 : type.max < value ? type.max : value;
+	// for now all property types without mod have min and max
+	return Math.min( type.max, Math.max( 0, value ) );
 }
 
 function stringParse( string ) {
@@ -1507,7 +1528,7 @@ function stringParse( string ) {
 
 	string = string.toLowerCase();
 
-	each( stringParsers, function( i, parser ) {
+	each( stringParsers, function( _i, parser ) {
 		var parsed,
 			match = parser.re.exec( string ),
 			values = match && parser.parse( match ),
@@ -1516,12 +1537,12 @@ function stringParse( string ) {
 		if ( values ) {
 			parsed = inst[ spaceName ]( values );
 
-			// If this was an rgba parse the assignment might happen twice
+			// if this was an rgba parse the assignment might happen twice
 			// oh well....
 			inst[ spaces[ spaceName ].cache ] = parsed[ spaces[ spaceName ].cache ];
 			rgba = inst._rgba = parsed._rgba;
 
-			// Exit each( stringParsers ) here because we matched
+			// exit each( stringParsers ) here because we matched
 			return false;
 		}
 	} );
@@ -1529,34 +1550,34 @@ function stringParse( string ) {
 	// Found a stringParser that handled it
 	if ( rgba.length ) {
 
-		// If this came from a parsed string, force "transparent" when alpha is 0
+		// if this came from a parsed string, force "transparent" when alpha is 0
 		// chrome, (and maybe others) return "transparent" as rgba(0,0,0,0)
 		if ( rgba.join() === "0,0,0,0" ) {
-			jQuery_WPF.extend( rgba, colors.transparent );
+			jQuery.extend( rgba, colors.transparent );
 		}
 		return inst;
 	}
 
-	// Named colors
+	// named colors
 	return colors[ string ];
 }
 
-color.fn = jQuery_WPF.extend( color.prototype, {
+color.fn = jQuery.extend( color.prototype, {
 	parse: function( red, green, blue, alpha ) {
 		if ( red === undefined ) {
 			this._rgba = [ null, null, null, null ];
 			return this;
 		}
 		if ( red.jquery || red.nodeType ) {
-			red = jQuery_WPF( red ).css( green );
+			red = jQuery( red ).css( green );
 			green = undefined;
 		}
 
 		var inst = this,
-			type = jQuery_WPF.type( red ),
+			type = getType( red ),
 			rgba = this._rgba = [];
 
-		// More than 1 argument specified - assume ( red, green, blue, alpha )
+		// more than 1 argument specified - assume ( red, green, blue, alpha )
 		if ( green !== undefined ) {
 			red = [ red, green, blue, alpha ];
 			type = "array";
@@ -1567,7 +1588,7 @@ color.fn = jQuery_WPF.extend( color.prototype, {
 		}
 
 		if ( type === "array" ) {
-			each( spaces.rgba.props, function( key, prop ) {
+			each( spaces.rgba.props, function( _key, prop ) {
 				rgba[ prop.idx ] = clamp( red[ prop.idx ], prop );
 			} );
 			return this;
@@ -1575,20 +1596,20 @@ color.fn = jQuery_WPF.extend( color.prototype, {
 
 		if ( type === "object" ) {
 			if ( red instanceof color ) {
-				each( spaces, function( spaceName, space ) {
+				each( spaces, function( _spaceName, space ) {
 					if ( red[ space.cache ] ) {
 						inst[ space.cache ] = red[ space.cache ].slice();
 					}
 				} );
 			} else {
-				each( spaces, function( spaceName, space ) {
+				each( spaces, function( _spaceName, space ) {
 					var cache = space.cache;
 					each( space.props, function( key, prop ) {
 
-						// If the cache doesn't exist, and we know how to convert
+						// if the cache doesn't exist, and we know how to convert
 						if ( !inst[ cache ] && space.to ) {
 
-							// If the value was null, we don't need to copy it
+							// if the value was null, we don't need to copy it
 							// if the key was alpha, we don't need to copy it either
 							if ( key === "alpha" || red[ key ] == null ) {
 								return;
@@ -1596,17 +1617,22 @@ color.fn = jQuery_WPF.extend( color.prototype, {
 							inst[ cache ] = space.to( inst._rgba );
 						}
 
-						// This is the only case where we allow nulls for ALL properties.
+						// this is the only case where we allow nulls for ALL properties.
 						// call clamp with alwaysAllowEmpty
 						inst[ cache ][ prop.idx ] = clamp( red[ key ], prop, true );
 					} );
 
-					// Everything defined but alpha?
-					if ( inst[ cache ] &&
-							jQuery_WPF.inArray( null, inst[ cache ].slice( 0, 3 ) ) < 0 ) {
+					// everything defined but alpha?
+					if ( inst[ cache ] && jQuery.inArray(
+						null,
+						inst[ cache ].slice( 0, 3 )
+					) < 0 ) {
 
-						// Use the default of 1
-						inst[ cache ][ 3 ] = 1;
+						// use the default of 1
+						if ( inst[ cache ][ 3 ] == null ) {
+							inst[ cache ][ 3 ] = 1;
+						}
+
 						if ( space.from ) {
 							inst._rgba = space.from( inst[ cache ] );
 						}
@@ -1656,18 +1682,18 @@ color.fn = jQuery_WPF.extend( color.prototype, {
 			result = start.slice();
 
 		end = end[ space.cache ];
-		each( space.props, function( key, prop ) {
+		each( space.props, function( _key, prop ) {
 			var index = prop.idx,
 				startValue = start[ index ],
 				endValue = end[ index ],
 				type = propTypes[ prop.type ] || {};
 
-			// If null, don't override start value
+			// if null, don't override start value
 			if ( endValue === null ) {
 				return;
 			}
 
-			// If null - use end
+			// if null - use end
 			if ( startValue === null ) {
 				result[ index ] = endValue;
 			} else {
@@ -1685,7 +1711,7 @@ color.fn = jQuery_WPF.extend( color.prototype, {
 	},
 	blend: function( opaque ) {
 
-		// If we are already opaque - return ourself
+		// if we are already opaque - return ourself
 		if ( this._rgba[ 3 ] === 1 ) {
 			return this;
 		}
@@ -1694,14 +1720,17 @@ color.fn = jQuery_WPF.extend( color.prototype, {
 			a = rgb.pop(),
 			blend = color( opaque )._rgba;
 
-		return color( jQuery_WPF.map( rgb, function( v, i ) {
+		return color( jQuery.map( rgb, function( v, i ) {
 			return ( 1 - a ) * blend[ i ] + a * v;
 		} ) );
 	},
 	toRgbaString: function() {
 		var prefix = "rgba(",
-			rgba = jQuery_WPF.map( this._rgba, function( v, i ) {
-				return v == null ? ( i > 2 ? 1 : 0 ) : v;
+			rgba = jQuery.map( this._rgba, function( v, i ) {
+				if ( v != null ) {
+					return v;
+				}
+				return i > 2 ? 1 : 0;
 			} );
 
 		if ( rgba[ 3 ] === 1 ) {
@@ -1709,16 +1738,16 @@ color.fn = jQuery_WPF.extend( color.prototype, {
 			prefix = "rgb(";
 		}
 
-		return prefix + rgba.join() + ")";
+		return prefix + rgba.join( ", " ) + ")";
 	},
 	toHslaString: function() {
 		var prefix = "hsla(",
-			hsla = jQuery_WPF.map( this.hsla(), function( v, i ) {
+			hsla = jQuery.map( this.hsla(), function( v, i ) {
 				if ( v == null ) {
 					v = i > 2 ? 1 : 0;
 				}
 
-				// Catch 1 and 2
+				// catch 1 and 2
 				if ( i && i < 3 ) {
 					v = Math.round( v * 100 ) + "%";
 				}
@@ -1729,7 +1758,7 @@ color.fn = jQuery_WPF.extend( color.prototype, {
 			hsla.pop();
 			prefix = "hsl(";
 		}
-		return prefix + hsla.join() + ")";
+		return prefix + hsla.join( ", " ) + ")";
 	},
 	toHexString: function( includeAlpha ) {
 		var rgba = this._rgba.slice(),
@@ -1739,20 +1768,19 @@ color.fn = jQuery_WPF.extend( color.prototype, {
 			rgba.push( ~~( alpha * 255 ) );
 		}
 
-		return "#" + jQuery_WPF.map( rgba, function( v ) {
+		return "#" + jQuery.map( rgba, function( v ) {
 
-			// Default to 0 when nulls exist
-			v = ( v || 0 ).toString( 16 );
-			return v.length === 1 ? "0" + v : v;
+			// default to 0 when nulls exist
+			return ( "0" + ( v || 0 ).toString( 16 ) ).substr( -2 );
 		} ).join( "" );
 	},
 	toString: function() {
-		return this._rgba[ 3 ] === 0 ? "transparent" : this.toRgbaString();
+		return this.toRgbaString();
 	}
 } );
 color.fn.parse.prototype = color.fn;
 
-// Hsla conversions adapted from:
+// hsla conversions adapted from:
 // https://code.google.com/p/maashaack/source/browse/packages/graphics/trunk/src/graphics/colors/HUE2RGB.as?r=5021
 
 function hue2rgb( p, q, h ) {
@@ -1794,7 +1822,7 @@ spaces.hsla.to = function( rgba ) {
 		h = ( 60 * ( r - g ) / diff ) + 240;
 	}
 
-	// Chroma (diff) == 0 means greyscale which, by definition, saturation = 0%
+	// chroma (diff) == 0 means greyscale which, by definition, saturation = 0%
 	// otherwise, saturation is based on the ratio of chroma (diff) to lightness (add)
 	if ( diff === 0 ) {
 		s = 0;
@@ -1825,16 +1853,17 @@ spaces.hsla.from = function( hsla ) {
 	];
 };
 
+
 each( spaces, function( spaceName, space ) {
 	var props = space.props,
 		cache = space.cache,
 		to = space.to,
 		from = space.from;
 
-	// Makes rgba() and hsla()
+	// makes rgba() and hsla()
 	color.fn[ spaceName ] = function( value ) {
 
-		// Generate a cache for this space if it doesn't exist
+		// generate a cache for this space if it doesn't exist
 		if ( to && !this[ cache ] ) {
 			this[ cache ] = to( this._rgba );
 		}
@@ -1843,7 +1872,7 @@ each( spaces, function( spaceName, space ) {
 		}
 
 		var ret,
-			type = jQuery_WPF.type( value ),
+			type = getType( value ),
 			arr = ( type === "array" || type === "object" ) ? value : arguments,
 			local = this[ cache ].slice();
 
@@ -1864,19 +1893,24 @@ each( spaces, function( spaceName, space ) {
 		}
 	};
 
-	// Makes red() green() blue() alpha() hue() saturation() lightness()
+	// makes red() green() blue() alpha() hue() saturation() lightness()
 	each( props, function( key, prop ) {
 
-		// Alpha is included in more than one space
+		// alpha is included in more than one space
 		if ( color.fn[ key ] ) {
 			return;
 		}
 		color.fn[ key ] = function( value ) {
-			var vtype = jQuery_WPF.type( value ),
-				fn = ( key === "alpha" ? ( this._hsla ? "hsla" : "rgba" ) : spaceName ),
-				local = this[ fn ](),
-				cur = local[ prop.idx ],
-				match;
+			var local, cur, match, fn,
+				vtype = getType( value );
+
+			if ( key === "alpha" ) {
+				fn = this._hsla ? "hsla" : "rgba";
+			} else {
+				fn = spaceName;
+			}
+			local = this[ fn ]();
+			cur = local[ prop.idx ];
 
 			if ( vtype === "undefined" ) {
 				return cur;
@@ -1884,7 +1918,7 @@ each( spaces, function( spaceName, space ) {
 
 			if ( vtype === "function" ) {
 				value = value.call( this, cur );
-				vtype = jQuery_WPF.type( value );
+				vtype = getType( value );
 			}
 			if ( value == null && prop.empty ) {
 				return this;
@@ -1901,55 +1935,31 @@ each( spaces, function( spaceName, space ) {
 	} );
 } );
 
-// Add cssHook and .fx.step function for each named hook.
+// add cssHook and .fx.step function for each named hook.
 // accept a space separated string of properties
 color.hook = function( hook ) {
 	var hooks = hook.split( " " );
-	each( hooks, function( i, hook ) {
-		jQuery_WPF.cssHooks[ hook ] = {
+	each( hooks, function( _i, hook ) {
+		jQuery.cssHooks[ hook ] = {
 			set: function( elem, value ) {
-				var parsed, curElem,
-					backgroundColor = "";
+				var parsed;
 
-				if ( value !== "transparent" && ( jQuery_WPF.type( value ) !== "string" ||
+				if ( value !== "transparent" &&
+					( getType( value ) !== "string" ||
 						( parsed = stringParse( value ) ) ) ) {
 					value = color( parsed || value );
-					if ( !support.rgba && value._rgba[ 3 ] !== 1 ) {
-						curElem = hook === "backgroundColor" ? elem.parentNode : elem;
-						while (
-							( backgroundColor === "" || backgroundColor === "transparent" ) &&
-							curElem && curElem.style
-						) {
-							try {
-								backgroundColor = jQuery_WPF.css( curElem, "backgroundColor" );
-								curElem = curElem.parentNode;
-							} catch ( e ) {
-							}
-						}
-
-						value = value.blend( backgroundColor && backgroundColor !== "transparent" ?
-							backgroundColor :
-							"_default" );
-					}
-
 					value = value.toRgbaString();
 				}
-				try {
-					elem.style[ hook ] = value;
-				} catch ( e ) {
-
-					// Wrapped to prevent IE from throwing errors on "invalid" values like
-					// 'auto' or 'inherit'
-				}
+				elem.style[ hook ] = value;
 			}
 		};
-		jQuery_WPF.fx.step[ hook ] = function( fx ) {
+		jQuery.fx.step[ hook ] = function( fx ) {
 			if ( !fx.colorInit ) {
 				fx.start = color( fx.elem, hook );
 				fx.end = color( fx.end );
 				fx.colorInit = true;
 			}
-			jQuery_WPF.cssHooks[ hook ].set( fx.elem, fx.start.transition( fx.end, fx.pos ) );
+			jQuery.cssHooks[ hook ].set( fx.elem, fx.start.transition( fx.end, fx.pos ) );
 		};
 	} );
 
@@ -1957,11 +1967,11 @@ color.hook = function( hook ) {
 
 color.hook( stepHooks );
 
-jQuery_WPF.cssHooks.borderColor = {
+jQuery.cssHooks.borderColor = {
 	expand: function( value ) {
 		var expanded = {};
 
-		each( [ "Top", "Right", "Bottom", "Left" ], function( i, part ) {
+		each( [ "Top", "Right", "Bottom", "Left" ], function( _i, part ) {
 			expanded[ "border" + part + "Color" ] = value;
 		} );
 		return expanded;
@@ -1970,8 +1980,8 @@ jQuery_WPF.cssHooks.borderColor = {
 
 // Basic color names only.
 // Usage of any of the other color names requires adding yourself or including
-// jQuery_WPF.color.svg-names.js.
-colors = jQuery_WPF.Color.names = {
+// jquery.color.svg-names.js.
+colors = jQuery.Color.names = {
 
 	// 4.1. Basic color keywords
 	aqua: "#00ffff",
@@ -1997,7 +2007,32 @@ colors = jQuery_WPF.Color.names = {
 	_default: "#ffffff"
 };
 
-} )( jQuery );
+
+/*!
+ * jQuery UI Effects 1.14.1
+ * https://jqueryui.com
+ *
+ * Copyright OpenJS Foundation and other contributors
+ * Released under the MIT license.
+ * https://jquery.org/license
+ */
+
+//>>label: Effects Core
+//>>group: Effects
+/* eslint-disable max-len */
+//>>description: Extends the internal jQuery effects. Includes morphing and easing. Required by all other effects.
+/* eslint-enable max-len */
+//>>docs: https://api.jqueryui.com/category/effects-core/
+//>>demos: https://jqueryui.com/effect/
+
+
+var dataSpace = "ui-effects-",
+	dataSpaceStyle = "ui-effects-style",
+	dataSpaceAnimated = "ui-effects-animated";
+
+$.effects = {
+	effect: {}
+};
 
 /******************************************************************************/
 /****************************** CLASS ANIMATIONS ******************************/
@@ -2017,40 +2052,34 @@ var classAnimationActions = [ "add", "remove", "toggle" ],
 		padding: 1
 	};
 
-jQuery_WPF.each(
+$.each(
 	[ "borderLeftStyle", "borderRightStyle", "borderBottomStyle", "borderTopStyle" ],
 	function( _, prop ) {
-		jQuery_WPF.fx.step[ prop ] = function( fx ) {
+		$.fx.step[ prop ] = function( fx ) {
 			if ( fx.end !== "none" && !fx.setAttr || fx.pos === 1 && !fx.setAttr ) {
-				jQuery_WPF.style( fx.elem, prop, fx.end );
+				jQuery.style( fx.elem, prop, fx.end );
 				fx.setAttr = true;
 			}
 		};
 	}
 );
 
+function camelCase( string ) {
+	return string.replace( /-([\da-z])/gi, function( all, letter ) {
+		return letter.toUpperCase();
+	} );
+}
+
 function getElementStyles( elem ) {
 	var key, len,
-		style = elem.ownerDocument.defaultView ?
-			elem.ownerDocument.defaultView.getComputedStyle( elem, null ) :
-			elem.currentStyle,
+		style = elem.ownerDocument.defaultView.getComputedStyle( elem ),
 		styles = {};
 
-	if ( style && style.length && style[ 0 ] && style[ style[ 0 ] ] ) {
-		len = style.length;
-		while ( len-- ) {
-			key = style[ len ];
-			if ( typeof style[ key ] === "string" ) {
-				styles[ jQuery_WPF.camelCase( key ) ] = style[ key ];
-			}
-		}
-
-	// Support: Opera, IE <9
-	} else {
-		for ( key in style ) {
-			if ( typeof style[ key ] === "string" ) {
-				styles[ key ] = style[ key ];
-			}
+	len = style.length;
+	while ( len-- ) {
+		key = style[ len ];
+		if ( typeof style[ key ] === "string" ) {
+			styles[ camelCase( key ) ] = style[ key ];
 		}
 	}
 
@@ -2065,7 +2094,7 @@ function styleDifference( oldStyle, newStyle ) {
 		value = newStyle[ name ];
 		if ( oldStyle[ name ] !== value ) {
 			if ( !shorthandStyles[ name ] ) {
-				if ( jQuery_WPF.fx.step[ name ] || !isNaN( parseFloat( value ) ) ) {
+				if ( $.fx.step[ name ] || !isNaN( parseFloat( value ) ) ) {
 					diff[ name ] = value;
 				}
 			}
@@ -2075,27 +2104,18 @@ function styleDifference( oldStyle, newStyle ) {
 	return diff;
 }
 
-// Support: jQuery <1.8
-if ( !jQuery_WPF.fn.addBack ) {
-	jQuery_WPF.fn.addBack = function( selector ) {
-		return this.add( selector == null ?
-			this.prevObject : this.prevObject.filter( selector )
-		);
-	};
-}
-
-jQuery_WPF.effects.animateClass = function( value, duration, easing, callback ) {
-	var o = jQuery_WPF.speed( duration, easing, callback );
+$.effects.animateClass = function( value, duration, easing, callback ) {
+	var o = $.speed( duration, easing, callback );
 
 	return this.queue( function() {
-		var animated = jQuery_WPF( this ),
+		var animated = $( this ),
 			baseClass = animated.attr( "class" ) || "",
 			applyClassChange,
 			allAnimations = o.children ? animated.find( "*" ).addBack() : animated;
 
 		// Map the animated objects to store the original styles.
 		allAnimations = allAnimations.map( function() {
-			var el = jQuery_WPF( this );
+			var el = $( this );
 			return {
 				el: el,
 				start: getElementStyles( this )
@@ -2104,7 +2124,7 @@ jQuery_WPF.effects.animateClass = function( value, duration, easing, callback ) 
 
 		// Apply class change
 		applyClassChange = function() {
-			jQuery_WPF.each( classAnimationActions, function( i, action ) {
+			$.each( classAnimationActions, function( i, action ) {
 				if ( value[ action ] ) {
 					animated[ action + "Class" ]( value[ action ] );
 				}
@@ -2125,8 +2145,8 @@ jQuery_WPF.effects.animateClass = function( value, duration, easing, callback ) 
 		// Map all animated objects again - this time collecting a promise
 		allAnimations = allAnimations.map( function() {
 			var styleInfo = this,
-				dfd = jQuery_WPF.Deferred(),
-				opts = jQuery_WPF.extend( {}, o, {
+				dfd = $.Deferred(),
+				opts = $.extend( {}, o, {
 					queue: false,
 					complete: function() {
 						dfd.resolve( styleInfo );
@@ -2138,45 +2158,45 @@ jQuery_WPF.effects.animateClass = function( value, duration, easing, callback ) 
 		} );
 
 		// Once all animations have completed:
-		jQuery_WPF.when.apply( $, allAnimations.get() ).done( function() {
+		$.when.apply( $, allAnimations.get() ).done( function() {
 
 			// Set the final class
 			applyClassChange();
 
 			// For each animated element,
 			// clear all css properties that were animated
-			jQuery_WPF.each( arguments, function() {
+			$.each( arguments, function() {
 				var el = this.el;
-				jQuery_WPF.each( this.diff, function( key ) {
+				$.each( this.diff, function( key ) {
 					el.css( key, "" );
 				} );
 			} );
 
-			// This is guarnteed to be there if you use jQuery_WPF.speed()
+			// This is guarnteed to be there if you use jQuery.speed()
 			// it also handles dequeuing the next anim...
 			o.complete.call( animated[ 0 ] );
 		} );
 	} );
 };
 
-jQuery_WPF.fn.extend( {
+$.fn.extend( {
 	addClass: ( function( orig ) {
 		return function( classNames, speed, easing, callback ) {
 			return speed ?
-				jQuery_WPF.effects.animateClass.call( this,
+				$.effects.animateClass.call( this,
 					{ add: classNames }, speed, easing, callback ) :
 				orig.apply( this, arguments );
 		};
-	} )( jQuery_WPF.fn.addClass ),
+	} )( $.fn.addClass ),
 
 	removeClass: ( function( orig ) {
 		return function( classNames, speed, easing, callback ) {
 			return arguments.length > 1 ?
-				jQuery_WPF.effects.animateClass.call( this,
+				$.effects.animateClass.call( this,
 					{ remove: classNames }, speed, easing, callback ) :
 				orig.apply( this, arguments );
 		};
-	} )( jQuery_WPF.fn.removeClass ),
+	} )( $.fn.removeClass ),
 
 	toggleClass: ( function( orig ) {
 		return function( classNames, force, speed, easing, callback ) {
@@ -2186,21 +2206,21 @@ jQuery_WPF.fn.extend( {
 					// Without speed parameter
 					return orig.apply( this, arguments );
 				} else {
-					return jQuery_WPF.effects.animateClass.call( this,
+					return $.effects.animateClass.call( this,
 						( force ? { add: classNames } : { remove: classNames } ),
 						speed, easing, callback );
 				}
 			} else {
 
 				// Without force parameter
-				return jQuery_WPF.effects.animateClass.call( this,
+				return $.effects.animateClass.call( this,
 					{ toggle: classNames }, force, speed, easing );
 			}
 		};
-	} )( jQuery_WPF.fn.toggleClass ),
+	} )( $.fn.toggleClass ),
 
 	switchClass: function( remove, add, speed, easing, callback ) {
-		return jQuery_WPF.effects.animateClass.call( this, {
+		return $.effects.animateClass.call( this, {
 			add: add,
 			remove: remove
 		}, speed, easing, callback );
@@ -2215,16 +2235,16 @@ jQuery_WPF.fn.extend( {
 
 ( function() {
 
-if ( jQuery_WPF.expr && jQuery_WPF.expr.filters && jQuery_WPF.expr.filters.animated ) {
-	jQuery_WPF.expr.filters.animated = ( function( orig ) {
+if ( $.expr && $.expr.pseudos && $.expr.pseudos.animated ) {
+	$.expr.pseudos.animated = ( function( orig ) {
 		return function( elem ) {
-			return !!jQuery_WPF( elem ).data( dataSpaceAnimated ) || orig( elem );
+			return !!$( elem ).data( dataSpaceAnimated ) || orig( elem );
 		};
-	} )( jQuery_WPF.expr.filters.animated );
+	} )( $.expr.pseudos.animated );
 }
 
-if ( jQuery_WPF.uiBackCompat !== false ) {
-	jQuery_WPF.extend( jQuery_WPF.effects, {
+if ( $.uiBackCompat === true ) {
+	$.extend( $.effects, {
 
 		// Saves a set of properties in a data storage
 		save: function( element, set ) {
@@ -2268,7 +2288,7 @@ if ( jQuery_WPF.uiBackCompat !== false ) {
 					height: element.outerHeight( true ),
 					"float": element.css( "float" )
 				},
-				wrapper = jQuery_WPF( "<div></div>" )
+				wrapper = $( "<div></div>" )
 					.addClass( "ui-effects-wrapper" )
 					.css( {
 						fontSize: "100%",
@@ -2289,6 +2309,7 @@ if ( jQuery_WPF.uiBackCompat !== false ) {
 			// Firefox incorrectly exposes anonymous content
 			// https://bugzilla.mozilla.org/show_bug.cgi?id=561664
 			try {
+				// eslint-disable-next-line no-unused-expressions
 				active.id;
 			} catch ( e ) {
 				active = document.body;
@@ -2297,8 +2318,8 @@ if ( jQuery_WPF.uiBackCompat !== false ) {
 			element.wrap( wrapper );
 
 			// Fixes #7595 - Elements lose focus when wrapped.
-			if ( element[ 0 ] === active || jQuery_WPF.contains( element[ 0 ], active ) ) {
-				jQuery_WPF( active ).trigger( "focus" );
+			if ( element[ 0 ] === active || $.contains( element[ 0 ], active ) ) {
+				$( active ).trigger( "focus" );
 			}
 
 			// Hotfix for jQuery 1.4 since some change in wrap() seems to actually
@@ -2310,11 +2331,11 @@ if ( jQuery_WPF.uiBackCompat !== false ) {
 				wrapper.css( { position: "relative" } );
 				element.css( { position: "relative" } );
 			} else {
-				jQuery_WPF.extend( props, {
+				$.extend( props, {
 					position: element.css( "position" ),
 					zIndex: element.css( "z-index" )
 				} );
-				jQuery_WPF.each( [ "top", "left", "bottom", "right" ], function( i, pos ) {
+				$.each( [ "top", "left", "bottom", "right" ], function( i, pos ) {
 					props[ pos ] = element.css( pos );
 					if ( isNaN( parseInt( props[ pos ], 10 ) ) ) {
 						props[ pos ] = "auto";
@@ -2340,8 +2361,8 @@ if ( jQuery_WPF.uiBackCompat !== false ) {
 				element.parent().replaceWith( element );
 
 				// Fixes #7595 - Elements lose focus when wrapped.
-				if ( element[ 0 ] === active || jQuery_WPF.contains( element[ 0 ], active ) ) {
-					jQuery_WPF( active ).trigger( "focus" );
+				if ( element[ 0 ] === active || $.contains( element[ 0 ], active ) ) {
+					$( active ).trigger( "focus" );
 				}
 			}
 
@@ -2350,8 +2371,8 @@ if ( jQuery_WPF.uiBackCompat !== false ) {
 	} );
 }
 
-jQuery_WPF.extend( jQuery_WPF.effects, {
-	version: "1.12.1",
+$.extend( $.effects, {
+	version: "1.14.1",
 
 	define: function( name, mode, effect ) {
 		if ( !effect ) {
@@ -2359,8 +2380,8 @@ jQuery_WPF.extend( jQuery_WPF.effects, {
 			mode = "effect";
 		}
 
-		jQuery_WPF.effects.effect[ name ] = effect;
-		jQuery_WPF.effects.effect[ name ].mode = mode;
+		$.effects.effect[ name ] = effect;
+		$.effects.effect[ name ].mode = mode;
 
 		return effect;
 	},
@@ -2474,7 +2495,7 @@ jQuery_WPF.extend( jQuery_WPF.effects, {
 
 		// Lock in margins first to account for form elements, which
 		// will change margin if you explicitly set height
-		// see: http://jsfiddle.net/JZSMt/3/ https://bugs.webkit.org/show_bug.cgi?id=107380
+		// see: https://jsfiddle.net/JZSMt/3/ https://bugs.webkit.org/show_bug.cgi?id=107380
 		// Support: Safari
 		element.css( {
 			marginTop: element.css( "marginTop" ),
@@ -2488,7 +2509,7 @@ jQuery_WPF.extend( jQuery_WPF.effects, {
 		if ( /^(static|relative)/.test( cssPosition ) ) {
 			cssPosition = "absolute";
 
-			placeholder = jQuery_WPF( "<" + element[ 0 ].nodeName + ">" ).insertAfter( element ).css( {
+			placeholder = $( "<" + element[ 0 ].nodeName + ">" ).insertAfter( element ).css( {
 
 				// Convert inline to inline block to account for inline elements
 				// that turn to inline block based on content (like img)
@@ -2533,13 +2554,13 @@ jQuery_WPF.extend( jQuery_WPF.effects, {
 	// Removes a placeholder if it exists and restores
 	// properties that were modified during placeholder creation
 	cleanUp: function( element ) {
-		jQuery_WPF.effects.restoreStyle( element );
-		jQuery_WPF.effects.removePlaceholder( element );
+		$.effects.restoreStyle( element );
+		$.effects.removePlaceholder( element );
 	},
 
 	setTransition: function( element, list, factor, value ) {
 		value = value || {};
-		jQuery_WPF.each( list, function( i, x ) {
+		$.each( list, function( i, x ) {
 			var unit = element.cssUnit( x );
 			if ( unit[ 0 ] > 0 ) {
 				value[ x ] = unit[ 0 ] * factor + unit[ 1 ];
@@ -2553,7 +2574,7 @@ jQuery_WPF.extend( jQuery_WPF.effects, {
 function _normalizeArguments( effect, options, speed, callback ) {
 
 	// Allow passing all options as the first parameter
-	if ( jQuery_WPF.isPlainObject( effect ) ) {
+	if ( $.isPlainObject( effect ) ) {
 		options = effect;
 		effect = effect.effect;
 	}
@@ -2567,35 +2588,35 @@ function _normalizeArguments( effect, options, speed, callback ) {
 	}
 
 	// Catch (effect, callback)
-	if ( jQuery_WPF.isFunction( options ) ) {
+	if ( typeof options === "function" ) {
 		callback = options;
 		speed = null;
 		options = {};
 	}
 
 	// Catch (effect, speed, ?)
-	if ( typeof options === "number" || jQuery_WPF.fx.speeds[ options ] ) {
+	if ( typeof options === "number" || $.fx.speeds[ options ] ) {
 		callback = speed;
 		speed = options;
 		options = {};
 	}
 
 	// Catch (effect, options, callback)
-	if ( jQuery_WPF.isFunction( speed ) ) {
+	if ( typeof speed === "function" ) {
 		callback = speed;
 		speed = null;
 	}
 
 	// Add options to effect
 	if ( options ) {
-		jQuery_WPF.extend( effect, options );
+		$.extend( effect, options );
 	}
 
 	speed = speed || options.duration;
-	effect.duration = jQuery_WPF.fx.off ? 0 :
+	effect.duration = $.fx.off ? 0 :
 		typeof speed === "number" ? speed :
-		speed in jQuery_WPF.fx.speeds ? jQuery_WPF.fx.speeds[ speed ] :
-		jQuery_WPF.fx.speeds._default;
+		speed in $.fx.speeds ? $.fx.speeds[ speed ] :
+		$.fx.speeds._default;
 
 	effect.complete = callback || options.complete;
 
@@ -2605,17 +2626,17 @@ function _normalizeArguments( effect, options, speed, callback ) {
 function standardAnimationOption( option ) {
 
 	// Valid standard speeds (nothing, number, named speed)
-	if ( !option || typeof option === "number" || jQuery_WPF.fx.speeds[ option ] ) {
+	if ( !option || typeof option === "number" || $.fx.speeds[ option ] ) {
 		return true;
 	}
 
 	// Invalid strings - treat as "normal" speed
-	if ( typeof option === "string" && !jQuery_WPF.effects.effect[ option ] ) {
+	if ( typeof option === "string" && !$.effects.effect[ option ] ) {
 		return true;
 	}
 
 	// Complete callback
-	if ( jQuery_WPF.isFunction( option ) ) {
+	if ( typeof option === "function" ) {
 		return true;
 	}
 
@@ -2628,10 +2649,10 @@ function standardAnimationOption( option ) {
 	return false;
 }
 
-jQuery_WPF.fn.extend( {
+$.fn.extend( {
 	effect: function( /* effect, options, speed, callback */ ) {
 		var args = _normalizeArguments.apply( this, arguments ),
-			effectMethod = jQuery_WPF.effects.effect[ args.effect ],
+			effectMethod = $.effects.effect[ args.effect ],
 			defaultMode = effectMethod.mode,
 			queue = args.queue,
 			queueName = queue || "fx",
@@ -2639,33 +2660,33 @@ jQuery_WPF.fn.extend( {
 			mode = args.mode,
 			modes = [],
 			prefilter = function( next ) {
-				var el = jQuery_WPF( this ),
-					normalizedMode = jQuery_WPF.effects.mode( el, mode ) || defaultMode;
+				var el = $( this ),
+					normalizedMode = $.effects.mode( el, mode ) || defaultMode;
 
-				// Sentinel for duck-punching the :animated psuedo-selector
+				// Sentinel for duck-punching the :animated pseudo-selector
 				el.data( dataSpaceAnimated, true );
 
 				// Save effect mode for later use,
-				// we can't just call jQuery_WPF.effects.mode again later,
+				// we can't just call $.effects.mode again later,
 				// as the .show() below destroys the initial state
 				modes.push( normalizedMode );
 
-				// See jQuery_WPF.uiBackCompat inside of run() for removal of defaultMode in 1.13
+				// See $.uiBackCompat inside of run() for removal of defaultMode in 1.14
 				if ( defaultMode && ( normalizedMode === "show" ||
 						( normalizedMode === defaultMode && normalizedMode === "hide" ) ) ) {
 					el.show();
 				}
 
 				if ( !defaultMode || normalizedMode !== "none" ) {
-					jQuery_WPF.effects.saveStyle( el );
+					$.effects.saveStyle( el );
 				}
 
-				if ( jQuery_WPF.isFunction( next ) ) {
+				if ( typeof next === "function" ) {
 					next();
 				}
 			};
 
-		if ( jQuery_WPF.fx.off || !effectMethod ) {
+		if ( $.fx.off || !effectMethod ) {
 
 			// Delegate to the original method (e.g., .show()) if possible
 			if ( mode ) {
@@ -2680,12 +2701,12 @@ jQuery_WPF.fn.extend( {
 		}
 
 		function run( next ) {
-			var elem = jQuery_WPF( this );
+			var elem = $( this );
 
 			function cleanup() {
 				elem.removeData( dataSpaceAnimated );
 
-				jQuery_WPF.effects.cleanUp( elem );
+				$.effects.cleanUp( elem );
 
 				if ( args.mode === "hide" ) {
 					elem.hide();
@@ -2695,11 +2716,11 @@ jQuery_WPF.fn.extend( {
 			}
 
 			function done() {
-				if ( jQuery_WPF.isFunction( complete ) ) {
+				if ( typeof complete === "function" ) {
 					complete.call( elem[ 0 ] );
 				}
 
-				if ( jQuery_WPF.isFunction( next ) ) {
+				if ( typeof next === "function" ) {
 					next();
 				}
 			}
@@ -2708,7 +2729,7 @@ jQuery_WPF.fn.extend( {
 			// as toggle can be either show or hide depending on element state
 			args.mode = modes.shift();
 
-			if ( jQuery_WPF.uiBackCompat !== false && !defaultMode ) {
+			if ( $.uiBackCompat === true && !defaultMode ) {
 				if ( elem.is( ":hidden" ) ? mode === "hide" : mode === "show" ) {
 
 					// Call the core method to track "olddisplay" properly
@@ -2747,7 +2768,7 @@ jQuery_WPF.fn.extend( {
 				return this.effect.call( this, args );
 			}
 		};
-	} )( jQuery_WPF.fn.show ),
+	} )( $.fn.show ),
 
 	hide: ( function( orig ) {
 		return function( option ) {
@@ -2759,7 +2780,7 @@ jQuery_WPF.fn.extend( {
 				return this.effect.call( this, args );
 			}
 		};
-	} )( jQuery_WPF.fn.hide ),
+	} )( $.fn.hide ),
 
 	toggle: ( function( orig ) {
 		return function( option ) {
@@ -2771,13 +2792,13 @@ jQuery_WPF.fn.extend( {
 				return this.effect.call( this, args );
 			}
 		};
-	} )( jQuery_WPF.fn.toggle ),
+	} )( $.fn.toggle ),
 
 	cssUnit: function( key ) {
 		var style = this.css( key ),
 			val = [];
 
-		jQuery_WPF.each( [ "em", "px", "%", "pt" ], function( i, unit ) {
+		$.each( [ "em", "px", "%", "pt" ], function( i, unit ) {
 			if ( style.indexOf( unit ) > 0 ) {
 				val = [ parseFloat( style ), unit ];
 			}
@@ -2794,10 +2815,10 @@ jQuery_WPF.fn.extend( {
 	},
 
 	transfer: function( options, done ) {
-		var element = jQuery_WPF( this ),
-			target = jQuery_WPF( options.to ),
+		var element = $( this ),
+			target = $( options.to ),
 			targetFixed = target.css( "position" ) === "fixed",
-			body = jQuery_WPF( "body" ),
+			body = $( "body" ),
 			fixTop = targetFixed ? body.scrollTop() : 0,
 			fixLeft = targetFixed ? body.scrollLeft() : 0,
 			endPosition = target.offset(),
@@ -2808,22 +2829,24 @@ jQuery_WPF.fn.extend( {
 				width: target.innerWidth()
 			},
 			startPosition = element.offset(),
-			transfer = jQuery_WPF( "<div class='ui-effects-transfer'></div>" )
-				.appendTo( "body" )
-				.addClass( options.className )
-				.css( {
-					top: startPosition.top - fixTop,
-					left: startPosition.left - fixLeft,
-					height: element.innerHeight(),
-					width: element.innerWidth(),
-					position: targetFixed ? "fixed" : "absolute"
-				} )
-				.animate( animation, options.duration, options.easing, function() {
-					transfer.remove();
-					if ( jQuery_WPF.isFunction( done ) ) {
-						done();
-					}
-				} );
+			transfer = $( "<div class='ui-effects-transfer'></div>" );
+
+		transfer
+			.appendTo( "body" )
+			.addClass( options.className )
+			.css( {
+				top: startPosition.top - fixTop,
+				left: startPosition.left - fixLeft,
+				height: element.innerHeight(),
+				width: element.innerWidth(),
+				position: targetFixed ? "fixed" : "absolute"
+			} )
+			.animate( animation, options.duration, options.easing, function() {
+				transfer.remove();
+				if ( typeof done === "function" ) {
+					done();
+				}
+			} );
 	}
 } );
 
@@ -2841,16 +2864,16 @@ function parseClip( str, element ) {
 		};
 }
 
-jQuery_WPF.fx.step.clip = function( fx ) {
+$.fx.step.clip = function( fx ) {
 	if ( !fx.clipInit ) {
-		fx.start = jQuery_WPF( fx.elem ).cssClip();
+		fx.start = $( fx.elem ).cssClip();
 		if ( typeof fx.end === "string" ) {
 			fx.end = parseClip( fx.end, fx.elem );
 		}
 		fx.clipInit = true;
 	}
 
-	jQuery_WPF( fx.elem ).cssClip( {
+	$( fx.elem ).cssClip( {
 		top: fx.pos * ( fx.end.top - fx.start.top ) + fx.start.top,
 		right: fx.pos * ( fx.end.right - fx.start.right ) + fx.start.right,
 		bottom: fx.pos * ( fx.end.bottom - fx.start.bottom ) + fx.start.bottom,
@@ -2866,17 +2889,17 @@ jQuery_WPF.fx.step.clip = function( fx ) {
 
 ( function() {
 
-// Based on easing equations from Robert Penner (http://www.robertpenner.com/easing)
+// Based on easing equations from Robert Penner (http://robertpenner.com/easing)
 
 var baseEasings = {};
 
-jQuery_WPF.each( [ "Quad", "Cubic", "Quart", "Quint", "Expo" ], function( i, name ) {
+$.each( [ "Quad", "Cubic", "Quart", "Quint", "Expo" ], function( i, name ) {
 	baseEasings[ name ] = function( p ) {
 		return Math.pow( p, i + 2 );
 	};
 } );
 
-jQuery_WPF.extend( baseEasings, {
+$.extend( baseEasings, {
 	Sine: function( p ) {
 		return 1 - Math.cos( p * Math.PI / 2 );
 	},
@@ -2899,12 +2922,12 @@ jQuery_WPF.extend( baseEasings, {
 	}
 } );
 
-jQuery_WPF.each( baseEasings, function( name, easeIn ) {
-	jQuery_WPF.easing[ "easeIn" + name ] = easeIn;
-	jQuery_WPF.easing[ "easeOut" + name ] = function( p ) {
+$.each( baseEasings, function( name, easeIn ) {
+	$.easing[ "easeIn" + name ] = easeIn;
+	$.easing[ "easeOut" + name ] = function( p ) {
 		return 1 - easeIn( 1 - p );
 	};
-	jQuery_WPF.easing[ "easeInOut" + name ] = function( p ) {
+	$.easing[ "easeInOut" + name ] = function( p ) {
 		return p < 0.5 ?
 			easeIn( p * 2 ) / 2 :
 			1 - easeIn( p * -2 + 2 ) / 2;
@@ -2913,27 +2936,26 @@ jQuery_WPF.each( baseEasings, function( name, easeIn ) {
 
 } )();
 
-var effect = jQuery_WPF.effects;
+var effect = $.effects;
 
 
 /*!
- * jQuery UI Effects Blind 1.12.1
- * http://jqueryui.com
+ * jQuery UI Effects Blind 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Blind Effect
 //>>group: Effects
 //>>description: Blinds the element.
-//>>docs: http://api.jqueryui.com/blind-effect/
-//>>demos: http://jqueryui.com/effect/
+//>>docs: https://api.jqueryui.com/blind-effect/
+//>>demos: https://jqueryui.com/effect/
 
 
-
-var effectsEffectBlind = jQuery_WPF.effects.define( "blind", "hide", function( options, done ) {
+var effectsEffectBlind = $.effects.define( "blind", "hide", function( options, done ) {
 	var map = {
 			up: [ "bottom", "top" ],
 			vertical: [ "bottom", "top" ],
@@ -2942,25 +2964,25 @@ var effectsEffectBlind = jQuery_WPF.effects.define( "blind", "hide", function( o
 			horizontal: [ "right", "left" ],
 			right: [ "left", "right" ]
 		},
-		element = jQuery_WPF( this ),
+		element = $( this ),
 		direction = options.direction || "up",
 		start = element.cssClip(),
-		animate = { clip: jQuery_WPF.extend( {}, start ) },
-		placeholder = jQuery_WPF.effects.createPlaceholder( element );
+		animate = { clip: $.extend( {}, start ) },
+		placeholder = $.effects.createPlaceholder( element );
 
 	animate.clip[ map[ direction ][ 0 ] ] = animate.clip[ map[ direction ][ 1 ] ];
 
 	if ( options.mode === "show" ) {
 		element.cssClip( animate.clip );
 		if ( placeholder ) {
-			placeholder.css( jQuery_WPF.effects.clipToBox( animate ) );
+			placeholder.css( $.effects.clipToBox( animate ) );
 		}
 
 		animate.clip = start;
 	}
 
 	if ( placeholder ) {
-		placeholder.animate( jQuery_WPF.effects.clipToBox( animate ), options.duration, options.easing );
+		placeholder.animate( $.effects.clipToBox( animate ), options.duration, options.easing );
 	}
 
 	element.animate( animate, {
@@ -2973,25 +2995,24 @@ var effectsEffectBlind = jQuery_WPF.effects.define( "blind", "hide", function( o
 
 
 /*!
- * jQuery UI Effects Bounce 1.12.1
- * http://jqueryui.com
+ * jQuery UI Effects Bounce 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Bounce Effect
 //>>group: Effects
 //>>description: Bounces an element horizontally or vertically n times.
-//>>docs: http://api.jqueryui.com/bounce-effect/
-//>>demos: http://jqueryui.com/effect/
+//>>docs: https://api.jqueryui.com/bounce-effect/
+//>>demos: https://jqueryui.com/effect/
 
 
-
-var effectsEffectBounce = jQuery_WPF.effects.define( "bounce", function( options, done ) {
+var effectsEffectBounce = $.effects.define( "bounce", function( options, done ) {
 	var upAnim, downAnim, refValue,
-		element = jQuery_WPF( this ),
+		element = $( this ),
 
 		// Defaults:
 		mode = options.mode,
@@ -3013,7 +3034,7 @@ var effectsEffectBounce = jQuery_WPF.effects.define( "bounce", function( options
 
 		queuelen = element.queue().length;
 
-	jQuery_WPF.effects.createPlaceholder( element );
+	$.effects.createPlaceholder( element );
 
 	refValue = element.css( ref );
 
@@ -3064,31 +3085,30 @@ var effectsEffectBounce = jQuery_WPF.effects.define( "bounce", function( options
 
 	element.queue( done );
 
-	jQuery_WPF.effects.unshift( element, queuelen, anims + 1 );
+	$.effects.unshift( element, queuelen, anims + 1 );
 } );
 
 
 /*!
- * jQuery UI Effects Clip 1.12.1
- * http://jqueryui.com
+ * jQuery UI Effects Clip 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Clip Effect
 //>>group: Effects
 //>>description: Clips the element on and off like an old TV.
-//>>docs: http://api.jqueryui.com/clip-effect/
-//>>demos: http://jqueryui.com/effect/
+//>>docs: https://api.jqueryui.com/clip-effect/
+//>>demos: https://jqueryui.com/effect/
 
 
-
-var effectsEffectClip = jQuery_WPF.effects.define( "clip", "hide", function( options, done ) {
+var effectsEffectClip = $.effects.define( "clip", "hide", function( options, done ) {
 	var start,
 		animate = {},
-		element = jQuery_WPF( this ),
+		element = $( this ),
 		direction = options.direction || "vertical",
 		both = direction === "both",
 		horizontal = both || direction === "horizontal",
@@ -3102,7 +3122,7 @@ var effectsEffectClip = jQuery_WPF.effects.define( "clip", "hide", function( opt
 		left: horizontal ? ( start.right - start.left ) / 2 : start.left
 	};
 
-	jQuery_WPF.effects.createPlaceholder( element );
+	$.effects.createPlaceholder( element );
 
 	if ( options.mode === "show" ) {
 		element.cssClip( animate.clip );
@@ -3120,26 +3140,25 @@ var effectsEffectClip = jQuery_WPF.effects.define( "clip", "hide", function( opt
 
 
 /*!
- * jQuery UI Effects Drop 1.12.1
- * http://jqueryui.com
+ * jQuery UI Effects Drop 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Drop Effect
 //>>group: Effects
 //>>description: Moves an element in one direction and hides it at the same time.
-//>>docs: http://api.jqueryui.com/drop-effect/
-//>>demos: http://jqueryui.com/effect/
+//>>docs: https://api.jqueryui.com/drop-effect/
+//>>demos: https://jqueryui.com/effect/
 
 
-
-var effectsEffectDrop = jQuery_WPF.effects.define( "drop", "hide", function( options, done ) {
+var effectsEffectDrop = $.effects.define( "drop", "hide", function( options, done ) {
 
 	var distance,
-		element = jQuery_WPF( this ),
+		element = $( this ),
 		mode = options.mode,
 		show = mode === "show",
 		direction = options.direction || "left",
@@ -3150,7 +3169,7 @@ var effectsEffectDrop = jQuery_WPF.effects.define( "drop", "hide", function( opt
 			opacity: 0
 		};
 
-	jQuery_WPF.effects.createPlaceholder( element );
+	$.effects.createPlaceholder( element );
 
 	distance = options.distance ||
 		element[ ref === "top" ? "outerHeight" : "outerWidth" ]( true ) / 2;
@@ -3175,30 +3194,29 @@ var effectsEffectDrop = jQuery_WPF.effects.define( "drop", "hide", function( opt
 
 
 /*!
- * jQuery UI Effects Explode 1.12.1
- * http://jqueryui.com
+ * jQuery UI Effects Explode 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Explode Effect
 //>>group: Effects
-// jscs:disable maximumLineLength
+/* eslint-disable max-len */
 //>>description: Explodes an element in all directions into n pieces. Implodes an element to its original wholeness.
-// jscs:enable maximumLineLength
-//>>docs: http://api.jqueryui.com/explode-effect/
-//>>demos: http://jqueryui.com/effect/
+/* eslint-enable max-len */
+//>>docs: https://api.jqueryui.com/explode-effect/
+//>>demos: https://jqueryui.com/effect/
 
 
-
-var effectsEffectExplode = jQuery_WPF.effects.define( "explode", "hide", function( options, done ) {
+var effectsEffectExplode = $.effects.define( "explode", "hide", function( options, done ) {
 
 	var i, j, left, top, mx, my,
 		rows = options.pieces ? Math.round( Math.sqrt( options.pieces ) ) : 3,
 		cells = rows,
-		element = jQuery_WPF( this ),
+		element = $( this ),
 		mode = options.mode,
 		show = mode === "show",
 
@@ -3265,33 +3283,32 @@ var effectsEffectExplode = jQuery_WPF.effects.define( "explode", "hide", functio
 		element.css( {
 			visibility: "visible"
 		} );
-		jQuery_WPF( pieces ).remove();
+		$( pieces ).remove();
 		done();
 	}
 } );
 
 
 /*!
- * jQuery UI Effects Fade 1.12.1
- * http://jqueryui.com
+ * jQuery UI Effects Fade 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Fade Effect
 //>>group: Effects
 //>>description: Fades the element.
-//>>docs: http://api.jqueryui.com/fade-effect/
-//>>demos: http://jqueryui.com/effect/
+//>>docs: https://api.jqueryui.com/fade-effect/
+//>>demos: https://jqueryui.com/effect/
 
 
-
-var effectsEffectFade = jQuery_WPF.effects.define( "fade", "toggle", function( options, done ) {
+var effectsEffectFade = $.effects.define( "fade", "toggle", function( options, done ) {
 	var show = options.mode === "show";
 
-	jQuery_WPF( this )
+	$( this )
 		.css( "opacity", show ? 0 : 1 )
 		.animate( {
 			opacity: show ? 1 : 0
@@ -3305,26 +3322,25 @@ var effectsEffectFade = jQuery_WPF.effects.define( "fade", "toggle", function( o
 
 
 /*!
- * jQuery UI Effects Fold 1.12.1
- * http://jqueryui.com
+ * jQuery UI Effects Fold 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Fold Effect
 //>>group: Effects
 //>>description: Folds an element first horizontally and then vertically.
-//>>docs: http://api.jqueryui.com/fold-effect/
-//>>demos: http://jqueryui.com/effect/
+//>>docs: https://api.jqueryui.com/fold-effect/
+//>>demos: https://jqueryui.com/effect/
 
 
-
-var effectsEffectFold = jQuery_WPF.effects.define( "fold", "hide", function( options, done ) {
+var effectsEffectFold = $.effects.define( "fold", "hide", function( options, done ) {
 
 	// Create element
-	var element = jQuery_WPF( this ),
+	var element = $( this ),
 		mode = options.mode,
 		show = mode === "show",
 		hide = mode === "hide",
@@ -3334,11 +3350,11 @@ var effectsEffectFold = jQuery_WPF.effects.define( "fold", "hide", function( opt
 		ref = horizFirst ? [ "right", "bottom" ] : [ "bottom", "right" ],
 		duration = options.duration / 2,
 
-		placeholder = jQuery_WPF.effects.createPlaceholder( element ),
+		placeholder = $.effects.createPlaceholder( element ),
 
 		start = element.cssClip(),
-		animation1 = { clip: jQuery_WPF.extend( {}, start ) },
-		animation2 = { clip: jQuery_WPF.extend( {}, start ) },
+		animation1 = { clip: $.extend( {}, start ) },
+		animation2 = { clip: $.extend( {}, start ) },
 
 		distance = [ start[ ref[ 0 ] ], start[ ref[ 1 ] ] ],
 
@@ -3354,7 +3370,7 @@ var effectsEffectFold = jQuery_WPF.effects.define( "fold", "hide", function( opt
 	if ( show ) {
 		element.cssClip( animation2.clip );
 		if ( placeholder ) {
-			placeholder.css( jQuery_WPF.effects.clipToBox( animation2 ) );
+			placeholder.css( $.effects.clipToBox( animation2 ) );
 		}
 
 		animation2.clip = start;
@@ -3365,8 +3381,8 @@ var effectsEffectFold = jQuery_WPF.effects.define( "fold", "hide", function( opt
 		.queue( function( next ) {
 			if ( placeholder ) {
 				placeholder
-					.animate( jQuery_WPF.effects.clipToBox( animation1 ), duration, options.easing )
-					.animate( jQuery_WPF.effects.clipToBox( animation2 ), duration, options.easing );
+					.animate( $.effects.clipToBox( animation1 ), duration, options.easing )
+					.animate( $.effects.clipToBox( animation2 ), duration, options.easing );
 			}
 
 			next();
@@ -3375,29 +3391,28 @@ var effectsEffectFold = jQuery_WPF.effects.define( "fold", "hide", function( opt
 		.animate( animation2, duration, options.easing )
 		.queue( done );
 
-	jQuery_WPF.effects.unshift( element, queuelen, 4 );
+	$.effects.unshift( element, queuelen, 4 );
 } );
 
 
 /*!
- * jQuery UI Effects Highlight 1.12.1
- * http://jqueryui.com
+ * jQuery UI Effects Highlight 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Highlight Effect
 //>>group: Effects
 //>>description: Highlights the background of an element in a defined color for a custom duration.
-//>>docs: http://api.jqueryui.com/highlight-effect/
-//>>demos: http://jqueryui.com/effect/
+//>>docs: https://api.jqueryui.com/highlight-effect/
+//>>demos: https://jqueryui.com/effect/
 
 
-
-var effectsEffectHighlight = jQuery_WPF.effects.define( "highlight", "show", function( options, done ) {
-	var element = jQuery_WPF( this ),
+var effectsEffectHighlight = $.effects.define( "highlight", "show", function( options, done ) {
+	var element = $( this ),
 		animation = {
 			backgroundColor: element.css( "backgroundColor" )
 		};
@@ -3406,7 +3421,7 @@ var effectsEffectHighlight = jQuery_WPF.effects.define( "highlight", "show", fun
 		animation.opacity = 0;
 	}
 
-	jQuery_WPF.effects.saveStyle( element );
+	$.effects.saveStyle( element );
 
 	element
 		.css( {
@@ -3423,27 +3438,26 @@ var effectsEffectHighlight = jQuery_WPF.effects.define( "highlight", "show", fun
 
 
 /*!
- * jQuery UI Effects Size 1.12.1
- * http://jqueryui.com
+ * jQuery UI Effects Size 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Size Effect
 //>>group: Effects
 //>>description: Resize an element to a specified width and height.
-//>>docs: http://api.jqueryui.com/size-effect/
-//>>demos: http://jqueryui.com/effect/
+//>>docs: https://api.jqueryui.com/size-effect/
+//>>demos: https://jqueryui.com/effect/
 
 
-
-var effectsEffectSize = jQuery_WPF.effects.define( "size", function( options, done ) {
+var effectsEffectSize = $.effects.define( "size", function( options, done ) {
 
 	// Create element
 	var baseline, factor, temp,
-		element = jQuery_WPF( this ),
+		element = $( this ),
 
 		// Copy for children
 		cProps = [ "fontSize" ],
@@ -3457,11 +3471,11 @@ var effectsEffectSize = jQuery_WPF.effects.define( "size", function( options, do
 		origin = options.origin || [ "middle", "center" ],
 		position = element.css( "position" ),
 		pos = element.position(),
-		original = jQuery_WPF.effects.scaledDimensions( element ),
+		original = $.effects.scaledDimensions( element ),
 		from = options.from || original,
-		to = options.to || jQuery_WPF.effects.scaledDimensions( element, 0 );
+		to = options.to || $.effects.scaledDimensions( element, 0 );
 
-	jQuery_WPF.effects.createPlaceholder( element );
+	$.effects.createPlaceholder( element );
 
 	if ( mode === "show" ) {
 		temp = from;
@@ -3486,14 +3500,14 @@ var effectsEffectSize = jQuery_WPF.effects.define( "size", function( options, do
 
 		// Vertical props scaling
 		if ( factor.from.y !== factor.to.y ) {
-			from = jQuery_WPF.effects.setTransition( element, vProps, factor.from.y, from );
-			to = jQuery_WPF.effects.setTransition( element, vProps, factor.to.y, to );
+			from = $.effects.setTransition( element, vProps, factor.from.y, from );
+			to = $.effects.setTransition( element, vProps, factor.to.y, to );
 		}
 
 		// Horizontal props scaling
 		if ( factor.from.x !== factor.to.x ) {
-			from = jQuery_WPF.effects.setTransition( element, hProps, factor.from.x, from );
-			to = jQuery_WPF.effects.setTransition( element, hProps, factor.to.x, to );
+			from = $.effects.setTransition( element, hProps, factor.from.x, from );
+			to = $.effects.setTransition( element, hProps, factor.to.x, to );
 		}
 	}
 
@@ -3502,19 +3516,21 @@ var effectsEffectSize = jQuery_WPF.effects.define( "size", function( options, do
 
 		// Vertical props scaling
 		if ( factor.from.y !== factor.to.y ) {
-			from = jQuery_WPF.effects.setTransition( element, cProps, factor.from.y, from );
-			to = jQuery_WPF.effects.setTransition( element, cProps, factor.to.y, to );
+			from = $.effects.setTransition( element, cProps, factor.from.y, from );
+			to = $.effects.setTransition( element, cProps, factor.to.y, to );
 		}
 	}
 
 	// Adjust the position properties based on the provided origin points
 	if ( origin ) {
-		baseline = jQuery_WPF.effects.getBaseline( origin, original );
+		baseline = $.effects.getBaseline( origin, original );
 		from.top = ( original.outerHeight - from.outerHeight ) * baseline.y + pos.top;
 		from.left = ( original.outerWidth - from.outerWidth ) * baseline.x + pos.left;
 		to.top = ( original.outerHeight - to.outerHeight ) * baseline.y + pos.top;
 		to.left = ( original.outerWidth - to.outerWidth ) * baseline.x + pos.left;
 	}
+	delete from.outerHeight;
+	delete from.outerWidth;
 	element.css( from );
 
 	// Animate the children if desired
@@ -3526,8 +3542,8 @@ var effectsEffectSize = jQuery_WPF.effects.define( "size", function( options, do
 		// Only animate children with width attributes specified
 		// TODO: is this right? should we include anything with css width specified as well
 		element.find( "*[width]" ).each( function() {
-			var child = jQuery_WPF( this ),
-				childOriginal = jQuery_WPF.effects.scaledDimensions( child ),
+			var child = $( this ),
+				childOriginal = $.effects.scaledDimensions( child ),
 				childFrom = {
 					height: childOriginal.height * factor.from.y,
 					width: childOriginal.width * factor.from.x,
@@ -3543,18 +3559,18 @@ var effectsEffectSize = jQuery_WPF.effects.define( "size", function( options, do
 
 			// Vertical props scaling
 			if ( factor.from.y !== factor.to.y ) {
-				childFrom = jQuery_WPF.effects.setTransition( child, vProps, factor.from.y, childFrom );
-				childTo = jQuery_WPF.effects.setTransition( child, vProps, factor.to.y, childTo );
+				childFrom = $.effects.setTransition( child, vProps, factor.from.y, childFrom );
+				childTo = $.effects.setTransition( child, vProps, factor.to.y, childTo );
 			}
 
 			// Horizontal props scaling
 			if ( factor.from.x !== factor.to.x ) {
-				childFrom = jQuery_WPF.effects.setTransition( child, hProps, factor.from.x, childFrom );
-				childTo = jQuery_WPF.effects.setTransition( child, hProps, factor.to.x, childTo );
+				childFrom = $.effects.setTransition( child, hProps, factor.from.x, childFrom );
+				childTo = $.effects.setTransition( child, hProps, factor.to.x, childTo );
 			}
 
 			if ( restore ) {
-				jQuery_WPF.effects.saveStyle( child );
+				$.effects.saveStyle( child );
 			}
 
 			// Animate children
@@ -3563,7 +3579,7 @@ var effectsEffectSize = jQuery_WPF.effects.define( "size", function( options, do
 
 				// Restore children
 				if ( restore ) {
-					jQuery_WPF.effects.restoreStyle( child );
+					$.effects.restoreStyle( child );
 				}
 			} );
 		} );
@@ -3589,7 +3605,7 @@ var effectsEffectSize = jQuery_WPF.effects.define( "size", function( options, do
 
 				// Need to save style here so that automatic style restoration
 				// doesn't restore to the original styles from before the animation.
-				jQuery_WPF.effects.saveStyle( element );
+				$.effects.saveStyle( element );
 			}
 
 			done();
@@ -3600,33 +3616,32 @@ var effectsEffectSize = jQuery_WPF.effects.define( "size", function( options, do
 
 
 /*!
- * jQuery UI Effects Scale 1.12.1
- * http://jqueryui.com
+ * jQuery UI Effects Scale 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Scale Effect
 //>>group: Effects
 //>>description: Grows or shrinks an element and its content.
-//>>docs: http://api.jqueryui.com/scale-effect/
-//>>demos: http://jqueryui.com/effect/
+//>>docs: https://api.jqueryui.com/scale-effect/
+//>>demos: https://jqueryui.com/effect/
 
 
-
-var effectsEffectScale = jQuery_WPF.effects.define( "scale", function( options, done ) {
+var effectsEffectScale = $.effects.define( "scale", function( options, done ) {
 
 	// Create element
-	var el = jQuery_WPF( this ),
+	var el = $( this ),
 		mode = options.mode,
 		percent = parseInt( options.percent, 10 ) ||
 			( parseInt( options.percent, 10 ) === 0 ? 0 : ( mode !== "effect" ? 0 : 100 ) ),
 
-		newOptions = jQuery_WPF.extend( true, {
-			from: jQuery_WPF.effects.scaledDimensions( el ),
-			to: jQuery_WPF.effects.scaledDimensions( el, percent, options.direction || "both" ),
+		newOptions = $.extend( true, {
+			from: $.effects.scaledDimensions( el ),
+			to: $.effects.scaledDimensions( el, percent, options.direction || "both" ),
 			origin: options.origin || [ "middle", "center" ]
 		}, options );
 
@@ -3636,56 +3651,54 @@ var effectsEffectScale = jQuery_WPF.effects.define( "scale", function( options, 
 		newOptions.to.opacity = 0;
 	}
 
-	jQuery_WPF.effects.effect.size.call( this, newOptions, done );
+	$.effects.effect.size.call( this, newOptions, done );
 } );
 
 
 /*!
- * jQuery UI Effects Puff 1.12.1
- * http://jqueryui.com
+ * jQuery UI Effects Puff 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Puff Effect
 //>>group: Effects
 //>>description: Creates a puff effect by scaling the element up and hiding it at the same time.
-//>>docs: http://api.jqueryui.com/puff-effect/
-//>>demos: http://jqueryui.com/effect/
+//>>docs: https://api.jqueryui.com/puff-effect/
+//>>demos: https://jqueryui.com/effect/
 
 
-
-var effectsEffectPuff = jQuery_WPF.effects.define( "puff", "hide", function( options, done ) {
-	var newOptions = jQuery_WPF.extend( true, {}, options, {
+var effectsEffectPuff = $.effects.define( "puff", "hide", function( options, done ) {
+	var newOptions = $.extend( true, {}, options, {
 		fade: true,
 		percent: parseInt( options.percent, 10 ) || 150
 	} );
 
-	jQuery_WPF.effects.effect.scale.call( this, newOptions, done );
+	$.effects.effect.scale.call( this, newOptions, done );
 } );
 
 
 /*!
- * jQuery UI Effects Pulsate 1.12.1
- * http://jqueryui.com
+ * jQuery UI Effects Pulsate 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Pulsate Effect
 //>>group: Effects
 //>>description: Pulsates an element n times by changing the opacity to zero and back.
-//>>docs: http://api.jqueryui.com/pulsate-effect/
-//>>demos: http://jqueryui.com/effect/
+//>>docs: https://api.jqueryui.com/pulsate-effect/
+//>>demos: https://jqueryui.com/effect/
 
 
-
-var effectsEffectPulsate = jQuery_WPF.effects.define( "pulsate", "show", function( options, done ) {
-	var element = jQuery_WPF( this ),
+var effectsEffectPulsate = $.effects.define( "pulsate", "show", function( options, done ) {
+	var element = $( this ),
 		mode = options.mode,
 		show = mode === "show",
 		hide = mode === "hide",
@@ -3713,31 +3726,30 @@ var effectsEffectPulsate = jQuery_WPF.effects.define( "pulsate", "show", functio
 
 	element.queue( done );
 
-	jQuery_WPF.effects.unshift( element, queuelen, anims + 1 );
+	$.effects.unshift( element, queuelen, anims + 1 );
 } );
 
 
 /*!
- * jQuery UI Effects Shake 1.12.1
- * http://jqueryui.com
+ * jQuery UI Effects Shake 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Shake Effect
 //>>group: Effects
 //>>description: Shakes an element horizontally or vertically n times.
-//>>docs: http://api.jqueryui.com/shake-effect/
-//>>demos: http://jqueryui.com/effect/
+//>>docs: https://api.jqueryui.com/shake-effect/
+//>>demos: https://jqueryui.com/effect/
 
 
-
-var effectsEffectShake = jQuery_WPF.effects.define( "shake", function( options, done ) {
+var effectsEffectShake = $.effects.define( "shake", function( options, done ) {
 
 	var i = 1,
-		element = jQuery_WPF( this ),
+		element = $( this ),
 		direction = options.direction || "left",
 		distance = options.distance || 20,
 		times = options.times || 3,
@@ -3751,7 +3763,7 @@ var effectsEffectShake = jQuery_WPF.effects.define( "shake", function( options, 
 
 		queuelen = element.queue().length;
 
-	jQuery_WPF.effects.createPlaceholder( element );
+	$.effects.createPlaceholder( element );
 
 	// Animation
 	animation[ ref ] = ( positiveMotion ? "-=" : "+=" ) + distance;
@@ -3773,30 +3785,29 @@ var effectsEffectShake = jQuery_WPF.effects.define( "shake", function( options, 
 		.animate( animation, speed / 2, options.easing )
 		.queue( done );
 
-	jQuery_WPF.effects.unshift( element, queuelen, anims + 1 );
+	$.effects.unshift( element, queuelen, anims + 1 );
 } );
 
 
 /*!
- * jQuery UI Effects Slide 1.12.1
- * http://jqueryui.com
+ * jQuery UI Effects Slide 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Slide Effect
 //>>group: Effects
 //>>description: Slides an element in and out of the viewport.
-//>>docs: http://api.jqueryui.com/slide-effect/
-//>>demos: http://jqueryui.com/effect/
+//>>docs: https://api.jqueryui.com/slide-effect/
+//>>demos: https://jqueryui.com/effect/
 
 
-
-var effectsEffectSlide = jQuery_WPF.effects.define( "slide", "show", function( options, done ) {
+var effectsEffectSlide = $.effects.define( "slide", "show", function( options, done ) {
 	var startClip, startRef,
-		element = jQuery_WPF( this ),
+		element = $( this ),
 		map = {
 			up: [ "bottom", "top" ],
 			down: [ "top", "bottom" ],
@@ -3811,7 +3822,7 @@ var effectsEffectSlide = jQuery_WPF.effects.define( "slide", "show", function( o
 			element[ ref === "top" ? "outerHeight" : "outerWidth" ]( true ),
 		animation = {};
 
-	jQuery_WPF.effects.createPlaceholder( element );
+	$.effects.createPlaceholder( element );
 
 	startClip = element.cssClip();
 	startRef = element.position()[ ref ];
@@ -3840,49 +3851,47 @@ var effectsEffectSlide = jQuery_WPF.effects.define( "slide", "show", function( o
 
 
 /*!
- * jQuery UI Effects Transfer 1.12.1
- * http://jqueryui.com
+ * jQuery UI Effects Transfer 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Transfer Effect
 //>>group: Effects
 //>>description: Displays a transfer effect from one element to another.
-//>>docs: http://api.jqueryui.com/transfer-effect/
-//>>demos: http://jqueryui.com/effect/
-
+//>>docs: https://api.jqueryui.com/transfer-effect/
+//>>demos: https://jqueryui.com/effect/
 
 
 var effect;
-if ( jQuery_WPF.uiBackCompat !== false ) {
-	effect = jQuery_WPF.effects.define( "transfer", function( options, done ) {
-		jQuery_WPF( this ).transfer( options, done );
+if ( $.uiBackCompat === true ) {
+	effect = $.effects.define( "transfer", function( options, done ) {
+		$( this ).transfer( options, done );
 	} );
 }
 var effectsEffectTransfer = effect;
 
 
 /*!
- * jQuery UI Focusable 1.12.1
- * http://jqueryui.com
+ * jQuery UI Focusable 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: :focusable Selector
 //>>group: Core
 //>>description: Selects elements which can be focused.
-//>>docs: http://api.jqueryui.com/focusable-selector/
-
+//>>docs: https://api.jqueryui.com/focusable-selector/
 
 
 // Selectors
-jQuery_WPF.ui.focusable = function( element, hasTabindex ) {
+$.ui.focusable = function( element, hasTabindex ) {
 	var map, mapName, img, focusableIfVisible, fieldset,
 		nodeName = element.nodeName.toLowerCase();
 
@@ -3892,7 +3901,7 @@ jQuery_WPF.ui.focusable = function( element, hasTabindex ) {
 		if ( !element.href || !mapName || map.nodeName.toLowerCase() !== "map" ) {
 			return false;
 		}
-		img = jQuery_WPF( "img[usemap='#" + mapName + "']" );
+		img = $( "img[usemap='#" + mapName + "']" );
 		return img.length > 0 && img.is( ":visible" );
 	}
 
@@ -3905,7 +3914,7 @@ jQuery_WPF.ui.focusable = function( element, hasTabindex ) {
 			// However, controls within the fieldset's legend do not get disabled.
 			// Since controls generally aren't placed inside legends, we skip
 			// this portion of the check.
-			fieldset = jQuery_WPF( element ).closest( "fieldset" )[ 0 ];
+			fieldset = $( element ).closest( "fieldset" )[ 0 ];
 			if ( fieldset ) {
 				focusableIfVisible = !fieldset.disabled;
 			}
@@ -3916,70 +3925,49 @@ jQuery_WPF.ui.focusable = function( element, hasTabindex ) {
 		focusableIfVisible = hasTabindex;
 	}
 
-	return focusableIfVisible && jQuery_WPF( element ).is( ":visible" ) && visible( jQuery_WPF( element ) );
+	return focusableIfVisible && $( element ).is( ":visible" ) &&
+		$( element ).css( "visibility" ) === "visible";
 };
 
-// Support: IE 8 only
-// IE 8 doesn't resolve inherit to visible/hidden for computed values
-function visible( element ) {
-	var visibility = element.css( "visibility" );
-	while ( visibility === "inherit" ) {
-		element = element.parent();
-		visibility = element.css( "visibility" );
-	}
-	return visibility !== "hidden";
-}
-
-jQuery_WPF.extend( jQuery_WPF.expr[ ":" ], {
+$.extend( $.expr.pseudos, {
 	focusable: function( element ) {
-		return jQuery_WPF.ui.focusable( element, jQuery_WPF.attr( element, "tabindex" ) != null );
+		return $.ui.focusable( element, $.attr( element, "tabindex" ) != null );
 	}
 } );
 
-var focusable = jQuery_WPF.ui.focusable;
-
-
-
-
-// Support: IE8 Only
-// IE8 does not support the form attribute and when it is supplied. It overwrites the form prop
-// with a string, so we need to find the proper form.
-var form = jQuery_WPF.fn.form = function() {
-	return typeof this[ 0 ].form === "string" ? this.closest( "form" ) : jQuery_WPF( this[ 0 ].form );
-};
+var focusable = $.ui.focusable;
 
 
 /*!
- * jQuery UI Form Reset Mixin 1.12.1
- * http://jqueryui.com
+ * jQuery UI Form Reset Mixin 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Form Reset Mixin
 //>>group: Core
 //>>description: Refresh input widgets when their form is reset
-//>>docs: http://api.jqueryui.com/form-reset-mixin/
+//>>docs: https://api.jqueryui.com/form-reset-mixin/
 
 
-
-var formResetMixin = jQuery_WPF.ui.formResetMixin = {
+var formResetMixin = $.ui.formResetMixin = {
 	_formResetHandler: function() {
-		var form = jQuery_WPF( this );
+		var form = $( this );
 
 		// Wait for the form reset to actually happen before refreshing
 		setTimeout( function() {
 			var instances = form.data( "ui-form-reset-instances" );
-			jQuery_WPF.each( instances, function() {
+			$.each( instances, function() {
 				this.refresh();
 			} );
 		} );
 	},
 
 	_bindFormResetHandler: function() {
-		this.form = this.element.form();
+		this.form = $( this.element.prop( "form" ) );
 		if ( !this.form.length ) {
 			return;
 		}
@@ -4000,7 +3988,7 @@ var formResetMixin = jQuery_WPF.ui.formResetMixin = {
 		}
 
 		var instances = this.form.data( "ui-form-reset-instances" );
-		instances.splice( jQuery_WPF.inArray( this, instances ), 1 );
+		instances.splice( $.inArray( this, instances ), 1 );
 		if ( instances.length ) {
 			this.form.data( "ui-form-reset-instances", instances );
 		} else {
@@ -4013,100 +4001,63 @@ var formResetMixin = jQuery_WPF.ui.formResetMixin = {
 
 
 /*!
- * jQuery UI Support for jQuery core 1.7.x 1.12.1
- * http://jqueryui.com
+ * jQuery UI Legacy jQuery Core patches 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  *
  */
 
-//>>label: jQuery 1.7 Support
+//>>label: Legacy jQuery Core patches
 //>>group: Core
-//>>description: Support version 1.7.x of jQuery core
+//>>description: Backport `.even()`, `.odd()` and `$.escapeSelector` to older jQuery Core versions (deprecated)
 
 
-
-// Support: jQuery 1.7 only
-// Not a great way to check versions, but since we only support 1.7+ and only
-// need to detect <1.8, this is a simple check that should suffice. Checking
-// for "1.7." would be a bit safer, but the version string is 1.7, not 1.7.0
-// and we'll never reach 1.70.0 (if we do, we certainly won't be supporting
-// 1.7 anymore). See #11197 for why we're not using feature detection.
-if ( jQuery_WPF.fn.jquery.substring( 0, 3 ) === "1.7" ) {
-
-	// Setters for .innerWidth(), .innerHeight(), .outerWidth(), .outerHeight()
-	// Unlike jQuery Core 1.8+, these only support numeric values to set the
-	// dimensions in pixels
-	jQuery_WPF.each( [ "Width", "Height" ], function( i, name ) {
-		var side = name === "Width" ? [ "Left", "Right" ] : [ "Top", "Bottom" ],
-			type = name.toLowerCase(),
-			orig = {
-				innerWidth: jQuery_WPF.fn.innerWidth,
-				innerHeight: jQuery_WPF.fn.innerHeight,
-				outerWidth: jQuery_WPF.fn.outerWidth,
-				outerHeight: jQuery_WPF.fn.outerHeight
-			};
-
-		function reduce( elem, size, border, margin ) {
-			jQuery_WPF.each( side, function() {
-				size -= parseFloat( jQuery_WPF.css( elem, "padding" + this ) ) || 0;
-				if ( border ) {
-					size -= parseFloat( jQuery_WPF.css( elem, "border" + this + "Width" ) ) || 0;
-				}
-				if ( margin ) {
-					size -= parseFloat( jQuery_WPF.css( elem, "margin" + this ) ) || 0;
-				}
-			} );
-			return size;
-		}
-
-		jQuery_WPF.fn[ "inner" + name ] = function( size ) {
-			if ( size === undefined ) {
-				return orig[ "inner" + name ].call( this );
-			}
-
-			return this.each( function() {
-				jQuery_WPF( this ).css( type, reduce( this, size ) + "px" );
-			} );
-		};
-
-		jQuery_WPF.fn[ "outer" + name ] = function( size, margin ) {
-			if ( typeof size !== "number" ) {
-				return orig[ "outer" + name ].call( this, size );
-			}
-
-			return this.each( function() {
-				jQuery_WPF( this ).css( type, reduce( this, size, true, margin ) + "px" );
-			} );
-		};
-	} );
-
-	jQuery_WPF.fn.addBack = function( selector ) {
-		return this.add( selector == null ?
-			this.prevObject : this.prevObject.filter( selector )
-		);
+// Support: jQuery 2.2.x or older.
+// This method has been defined in jQuery 3.0.0.
+// Code from https://github.com/jquery/jquery/blob/e539bac79e666bba95bba86d690b4e609dca2286/src/selector/escapeSelector.js
+if ( !$.escapeSelector ) {
+	$.escapeSelector = function( id ) {
+		return CSS.escape( id + "" );
 	};
+}
+
+// Support: jQuery 3.4.x or older
+// These methods have been defined in jQuery 3.5.0.
+if ( !$.fn.even || !$.fn.odd ) {
+	$.fn.extend( {
+		even: function() {
+			return this.filter( function( i ) {
+				return i % 2 === 0;
+			} );
+		},
+		odd: function() {
+			return this.filter( function( i ) {
+				return i % 2 === 1;
+			} );
+		}
+	} );
 }
 
 ;
 /*!
- * jQuery UI Keycode 1.12.1
- * http://jqueryui.com
+ * jQuery UI Keycode 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Keycode
 //>>group: Core
 //>>description: Provide keycodes as keynames
-//>>docs: http://api.jqueryui.com/jQuery_WPF.ui.keyCode/
+//>>docs: https://api.jqueryui.com/jQuery.ui.keyCode/
 
 
-var keycode = jQuery_WPF.ui.keyCode = {
+var keycode = $.ui.keyCode = {
 	BACKSPACE: 8,
 	COMMA: 188,
 	DELETE: 46,
@@ -4126,44 +4077,35 @@ var keycode = jQuery_WPF.ui.keyCode = {
 };
 
 
-
-
-// Internal use only
-var escapeSelector = jQuery_WPF.ui.escapeSelector = ( function() {
-	var selectorEscape = /([!"#$%&'()*+,./:;<=>?@[\]^`{|}~])/g;
-	return function( selector ) {
-		return selector.replace( selectorEscape, "\\$1" );
-	};
-} )();
-
-
 /*!
- * jQuery UI Labels 1.12.1
- * http://jqueryui.com
+ * jQuery UI Labels 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: labels
 //>>group: Core
 //>>description: Find all the labels associated with a given input
-//>>docs: http://api.jqueryui.com/labels/
+//>>docs: https://api.jqueryui.com/labels/
 
 
-
-var labels = jQuery_WPF.fn.labels = function() {
+var labels = $.fn.labels = function() {
 	var ancestor, selector, id, labels, ancestors;
+
+	if ( !this.length ) {
+		return this.pushStack( [] );
+	}
 
 	// Check control.labels first
 	if ( this[ 0 ].labels && this[ 0 ].labels.length ) {
 		return this.pushStack( this[ 0 ].labels );
 	}
 
-	// Support: IE <= 11, FF <= 37, Android <= 2.3 only
-	// Above browsers do not support control.labels. Everything below is to support them
-	// as well as document fragments. control.labels does not work on document fragments
+	// If `control.labels` is empty - e.g. inside of document fragments - find
+	// the labels manually
 	labels = this.eq( 0 ).parents( "label" );
 
 	// Look for the label based on the id
@@ -4178,7 +4120,7 @@ var labels = jQuery_WPF.fn.labels = function() {
 		ancestors = ancestor.add( ancestor.length ? ancestor.siblings() : this.siblings() );
 
 		// Create a selector for the label based on the id
-		selector = "label[for='" + jQuery_WPF.ui.escapeSelector( id ) + "']";
+		selector = "label[for='" + CSS.escape( id ) + "']";
 
 		labels = labels.add( ancestors.find( selector ).addBack( selector ) );
 
@@ -4190,27 +4132,26 @@ var labels = jQuery_WPF.fn.labels = function() {
 
 
 /*!
- * jQuery UI Scroll Parent 1.12.1
- * http://jqueryui.com
+ * jQuery UI Scroll Parent 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: scrollParent
 //>>group: Core
 //>>description: Get the closest ancestor element that is scrollable.
-//>>docs: http://api.jqueryui.com/scrollParent/
+//>>docs: https://api.jqueryui.com/scrollParent/
 
 
-
-var scrollParent = jQuery_WPF.fn.scrollParent = function( includeHidden ) {
+var scrollParent = $.fn.scrollParent = function( includeHidden ) {
 	var position = this.css( "position" ),
 		excludeStaticParent = position === "absolute",
 		overflowRegex = includeHidden ? /(auto|scroll|hidden)/ : /(auto|scroll)/,
 		scrollParent = this.parents().filter( function() {
-			var parent = jQuery_WPF( this );
+			var parent = $( this );
 			if ( excludeStaticParent && parent.css( "position" ) === "static" ) {
 				return false;
 			}
@@ -4219,53 +4160,51 @@ var scrollParent = jQuery_WPF.fn.scrollParent = function( includeHidden ) {
 		} ).eq( 0 );
 
 	return position === "fixed" || !scrollParent.length ?
-		jQuery_WPF( this[ 0 ].ownerDocument || document ) :
+		$( this[ 0 ].ownerDocument || document ) :
 		scrollParent;
 };
 
 
 /*!
- * jQuery UI Tabbable 1.12.1
- * http://jqueryui.com
+ * jQuery UI Tabbable 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: :tabbable Selector
 //>>group: Core
 //>>description: Selects elements which can be tabbed to.
-//>>docs: http://api.jqueryui.com/tabbable-selector/
+//>>docs: https://api.jqueryui.com/tabbable-selector/
 
 
-
-var tabbable = jQuery_WPF.extend( jQuery_WPF.expr[ ":" ], {
+var tabbable = $.extend( $.expr.pseudos, {
 	tabbable: function( element ) {
-		var tabIndex = jQuery_WPF.attr( element, "tabindex" ),
+		var tabIndex = $.attr( element, "tabindex" ),
 			hasTabindex = tabIndex != null;
-		return ( !hasTabindex || tabIndex >= 0 ) && jQuery_WPF.ui.focusable( element, hasTabindex );
+		return ( !hasTabindex || tabIndex >= 0 ) && $.ui.focusable( element, hasTabindex );
 	}
 } );
 
 
 /*!
- * jQuery UI Unique ID 1.12.1
- * http://jqueryui.com
+ * jQuery UI Unique ID 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: uniqueId
 //>>group: Core
 //>>description: Functions to generate and remove uniqueId's
-//>>docs: http://api.jqueryui.com/uniqueId/
+//>>docs: https://api.jqueryui.com/uniqueId/
 
 
-
-var uniqueId = jQuery_WPF.fn.extend( {
+var uniqueId = $.fn.extend( {
 	uniqueId: ( function() {
 		var uuid = 0;
 
@@ -4281,7 +4220,7 @@ var uniqueId = jQuery_WPF.fn.extend( {
 	removeUniqueId: function() {
 		return this.each( function() {
 			if ( /^ui-id-\d+$/.test( this.id ) ) {
-				jQuery_WPF( this ).removeAttr( "id" );
+				$( this ).removeAttr( "id" );
 			}
 		} );
 	}
@@ -4289,29 +4228,28 @@ var uniqueId = jQuery_WPF.fn.extend( {
 
 
 /*!
- * jQuery UI Accordion 1.12.1
- * http://jqueryui.com
+ * jQuery UI Accordion 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Accordion
 //>>group: Widgets
-// jscs:disable maximumLineLength
+/* eslint-disable max-len */
 //>>description: Displays collapsible content panels for presenting information in a limited amount of space.
-// jscs:enable maximumLineLength
-//>>docs: http://api.jqueryui.com/accordion/
-//>>demos: http://jqueryui.com/accordion/
+/* eslint-enable max-len */
+//>>docs: https://api.jqueryui.com/accordion/
+//>>demos: https://jqueryui.com/accordion/
 //>>css.structure: ../../themes/base/core.css
 //>>css.structure: ../../themes/base/accordion.css
 //>>css.theme: ../../themes/base/theme.css
 
 
-
-var widgetsAccordion = jQuery_WPF.widget( "ui.accordion", {
-	version: "1.12.1",
+var widgetsAccordion = $.widget( "ui.accordion", {
+	version: "1.14.1",
 	options: {
 		active: 0,
 		animate: {},
@@ -4322,7 +4260,19 @@ var widgetsAccordion = jQuery_WPF.widget( "ui.accordion", {
 		},
 		collapsible: false,
 		event: "click",
-		header: "> li > :first-child, > :not(li):even",
+		header: function( elem ) {
+			return elem
+				.find( "> li > :first-child" )
+				.add(
+					elem.find( "> :not(li)" )
+
+						// Support: jQuery <3.5 only
+						// We could use `.even()` but that's unavailable in older jQuery.
+						.filter( function( i ) {
+							return i % 2 === 0;
+						} )
+				);
+		},
 		heightStyle: "auto",
 		icons: {
 			activeHeader: "ui-icon-triangle-1-s",
@@ -4353,7 +4303,7 @@ var widgetsAccordion = jQuery_WPF.widget( "ui.accordion", {
 	_create: function() {
 		var options = this.options;
 
-		this.prevShow = this.prevHide = jQuery_WPF();
+		this.prevShow = this.prevHide = $();
 		this._addClass( "ui-accordion", "ui-widget ui-helper-reset" );
 		this.element.attr( "role", "tablist" );
 
@@ -4374,7 +4324,7 @@ var widgetsAccordion = jQuery_WPF.widget( "ui.accordion", {
 	_getCreateEventData: function() {
 		return {
 			header: this.active,
-			panel: !this.active.length ? jQuery_WPF() : this.active.next()
+			panel: !this.active.length ? $() : this.active.next()
 		};
 	},
 
@@ -4383,7 +4333,7 @@ var widgetsAccordion = jQuery_WPF.widget( "ui.accordion", {
 			icons = this.options.icons;
 
 		if ( icons ) {
-			icon = jQuery_WPF( "<span>" );
+			icon = $( "<span>" );
 			this._addClass( icon, "ui-accordion-header-icon", "ui-icon " + icons.header );
 			icon.prependTo( this.headers );
 			children = this.active.children( ".ui-accordion-header-icon" );
@@ -4456,13 +4406,7 @@ var widgetsAccordion = jQuery_WPF.widget( "ui.accordion", {
 		this._super( value );
 
 		this.element.attr( "aria-disabled", value );
-
-		// Support: IE8 Only
-		// #5332 / #6059 - opacity doesn't cascade to positioned elements in IE
-		// so we need to add the disabled class to the headers and panels
 		this._toggleClass( null, "ui-state-disabled", !!value );
-		this._toggleClass( this.headers.add( this.headers.next() ), null, "ui-state-disabled",
-			!!value );
 	},
 
 	_keydown: function( event ) {
@@ -4470,7 +4414,7 @@ var widgetsAccordion = jQuery_WPF.widget( "ui.accordion", {
 			return;
 		}
 
-		var keyCode = jQuery_WPF.ui.keyCode,
+		var keyCode = $.ui.keyCode,
 			length = this.headers.length,
 			currentIndex = this.headers.index( event.target ),
 			toFocus = false;
@@ -4497,16 +4441,16 @@ var widgetsAccordion = jQuery_WPF.widget( "ui.accordion", {
 		}
 
 		if ( toFocus ) {
-			jQuery_WPF( event.target ).attr( "tabIndex", -1 );
-			jQuery_WPF( toFocus ).attr( "tabIndex", 0 );
-			jQuery_WPF( toFocus ).trigger( "focus" );
+			$( event.target ).attr( "tabIndex", -1 );
+			$( toFocus ).attr( "tabIndex", 0 );
+			$( toFocus ).trigger( "focus" );
 			event.preventDefault();
 		}
 	},
 
 	_panelKeyDown: function( event ) {
-		if ( event.keyCode === jQuery_WPF.ui.keyCode.UP && event.ctrlKey ) {
-			jQuery_WPF( event.currentTarget ).prev().trigger( "focus" );
+		if ( event.keyCode === $.ui.keyCode.UP && event.ctrlKey ) {
+			$( event.currentTarget ).prev().trigger( "focus" );
 		}
 	},
 
@@ -4518,19 +4462,19 @@ var widgetsAccordion = jQuery_WPF.widget( "ui.accordion", {
 		if ( ( options.active === false && options.collapsible === true ) ||
 				!this.headers.length ) {
 			options.active = false;
-			this.active = jQuery_WPF();
+			this.active = $();
 
 		// active false only when collapsible is true
 		} else if ( options.active === false ) {
 			this._activate( 0 );
 
 		// was active, but active panel is gone
-		} else if ( this.active.length && !jQuery_WPF.contains( this.element[ 0 ], this.active[ 0 ] ) ) {
+		} else if ( this.active.length && !$.contains( this.element[ 0 ], this.active[ 0 ] ) ) {
 
 			// all remaining panel are disabled
 			if ( this.headers.length === this.headers.find( ".ui-state-disabled" ).length ) {
 				options.active = false;
-				this.active = jQuery_WPF();
+				this.active = $();
 
 			// activate previous panel
 			} else {
@@ -4553,7 +4497,11 @@ var widgetsAccordion = jQuery_WPF.widget( "ui.accordion", {
 		var prevHeaders = this.headers,
 			prevPanels = this.panels;
 
-		this.headers = this.element.find( this.options.header );
+		if ( typeof this.options.header === "function" ) {
+			this.headers = this.options.header( this.element );
+		} else {
+			this.headers = this.element.find( this.options.header );
+		}
 		this._addClass( this.headers, "ui-accordion-header ui-accordion-header-collapsed",
 			"ui-state-default" );
 
@@ -4582,7 +4530,7 @@ var widgetsAccordion = jQuery_WPF.widget( "ui.accordion", {
 		this.headers
 			.attr( "role", "tab" )
 			.each( function() {
-				var header = jQuery_WPF( this ),
+				var header = $( this ),
 					headerId = header.uniqueId().attr( "id" ),
 					panel = header.next(),
 					panelId = panel.uniqueId().attr( "id" );
@@ -4627,7 +4575,7 @@ var widgetsAccordion = jQuery_WPF.widget( "ui.accordion", {
 		if ( heightStyle === "fill" ) {
 			maxHeight = parent.height();
 			this.element.siblings( ":visible" ).each( function() {
-				var elem = jQuery_WPF( this ),
+				var elem = $( this ),
 					position = elem.css( "position" );
 
 				if ( position === "absolute" || position === "fixed" ) {
@@ -4637,26 +4585,26 @@ var widgetsAccordion = jQuery_WPF.widget( "ui.accordion", {
 			} );
 
 			this.headers.each( function() {
-				maxHeight -= jQuery_WPF( this ).outerHeight( true );
+				maxHeight -= $( this ).outerHeight( true );
 			} );
 
 			this.headers.next()
 				.each( function() {
-					jQuery_WPF( this ).height( Math.max( 0, maxHeight -
-						jQuery_WPF( this ).innerHeight() + jQuery_WPF( this ).height() ) );
+					$( this ).height( Math.max( 0, maxHeight -
+						$( this ).innerHeight() + $( this ).height() ) );
 				} )
 				.css( "overflow", "auto" );
 		} else if ( heightStyle === "auto" ) {
 			maxHeight = 0;
 			this.headers.next()
 				.each( function() {
-					var isVisible = jQuery_WPF( this ).is( ":visible" );
+					var isVisible = $( this ).is( ":visible" );
 					if ( !isVisible ) {
-						jQuery_WPF( this ).show();
+						$( this ).show();
 					}
-					maxHeight = Math.max( maxHeight, jQuery_WPF( this ).css( "height", "" ).height() );
+					maxHeight = Math.max( maxHeight, $( this ).css( "height", "" ).height() );
 					if ( !isVisible ) {
-						jQuery_WPF( this ).hide();
+						$( this ).hide();
 					}
 				} )
 				.height( maxHeight );
@@ -4677,12 +4625,12 @@ var widgetsAccordion = jQuery_WPF.widget( "ui.accordion", {
 		this._eventHandler( {
 			target: active,
 			currentTarget: active,
-			preventDefault: jQuery_WPF.noop
+			preventDefault: $.noop
 		} );
 	},
 
 	_findActive: function( selector ) {
-		return typeof selector === "number" ? this.headers.eq( selector ) : jQuery_WPF();
+		return typeof selector === "number" ? this.headers.eq( selector ) : $();
 	},
 
 	_setupEvents: function( event ) {
@@ -4690,7 +4638,7 @@ var widgetsAccordion = jQuery_WPF.widget( "ui.accordion", {
 			keydown: "_keydown"
 		};
 		if ( event ) {
-			jQuery_WPF.each( event.split( " " ), function( index, eventName ) {
+			$.each( event.split( " " ), function( index, eventName ) {
 				events[ eventName ] = "_eventHandler";
 			} );
 		}
@@ -4706,15 +4654,15 @@ var widgetsAccordion = jQuery_WPF.widget( "ui.accordion", {
 		var activeChildren, clickedChildren,
 			options = this.options,
 			active = this.active,
-			clicked = jQuery_WPF( event.currentTarget ),
+			clicked = $( event.currentTarget ),
 			clickedIsActive = clicked[ 0 ] === active[ 0 ],
 			collapsing = clickedIsActive && options.collapsible,
-			toShow = collapsing ? jQuery_WPF() : clicked.next(),
+			toShow = collapsing ? $() : clicked.next(),
 			toHide = active.next(),
 			eventData = {
 				oldHeader: active,
 				oldPanel: toHide,
-				newHeader: collapsing ? jQuery_WPF() : clicked,
+				newHeader: collapsing ? $() : clicked,
 				newPanel: toShow
 			};
 
@@ -4734,7 +4682,7 @@ var widgetsAccordion = jQuery_WPF.widget( "ui.accordion", {
 
 		// When the call to ._toggle() comes after the class changes
 		// it causes a very odd bug in IE 8 (see #6720)
-		this.active = clickedIsActive ? jQuery_WPF() : clicked;
+		this.active = clickedIsActive ? $() : clicked;
 		this._toggle( eventData );
 
 		// Switch classes
@@ -4794,7 +4742,7 @@ var widgetsAccordion = jQuery_WPF.widget( "ui.accordion", {
 			} );
 		} else if ( toShow.length ) {
 			this.headers.filter( function() {
-				return parseInt( jQuery_WPF( this ).attr( "tabIndex" ), 10 ) === 0;
+				return parseInt( $( this ).attr( "tabIndex" ), 10 ) === 0;
 			} )
 				.attr( "tabIndex", -1 );
 		}
@@ -4876,67 +4824,32 @@ var widgetsAccordion = jQuery_WPF.widget( "ui.accordion", {
 		this._removeClass( prev, "ui-accordion-header-active" )
 			._addClass( prev, "ui-accordion-header-collapsed" );
 
-		// Work around for rendering bug in IE (#5421)
-		if ( toHide.length ) {
-			toHide.parent()[ 0 ].className = toHide.parent()[ 0 ].className;
-		}
 		this._trigger( "activate", null, data );
 	}
 } );
 
 
-
-var safeActiveElement = jQuery_WPF.ui.safeActiveElement = function( document ) {
-	var activeElement;
-
-	// Support: IE 9 only
-	// IE9 throws an "Unspecified error" accessing document.activeElement from an <iframe>
-	try {
-		activeElement = document.activeElement;
-	} catch ( error ) {
-		activeElement = document.body;
-	}
-
-	// Support: IE 9 - 11 only
-	// IE may return null instead of an element
-	// Interestingly, this only seems to occur when NOT in an iframe
-	if ( !activeElement ) {
-		activeElement = document.body;
-	}
-
-	// Support: IE 11 only
-	// IE11 returns a seemingly empty object in some cases when accessing
-	// document.activeElement from an <iframe>
-	if ( !activeElement.nodeName ) {
-		activeElement = document.body;
-	}
-
-	return activeElement;
-};
-
-
 /*!
- * jQuery UI Menu 1.12.1
- * http://jqueryui.com
+ * jQuery UI Menu 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Menu
 //>>group: Widgets
 //>>description: Creates nestable menus.
-//>>docs: http://api.jqueryui.com/menu/
-//>>demos: http://jqueryui.com/menu/
+//>>docs: https://api.jqueryui.com/menu/
+//>>demos: https://jqueryui.com/menu/
 //>>css.structure: ../../themes/base/core.css
 //>>css.structure: ../../themes/base/menu.css
 //>>css.theme: ../../themes/base/theme.css
 
 
-
-var widgetsMenu = jQuery_WPF.widget( "ui.menu", {
-	version: "1.12.1",
+var widgetsMenu = $.widget( "ui.menu", {
+	version: "1.14.1",
 	defaultElement: "<ul>",
 	delay: 300,
 	options: {
@@ -4963,6 +4876,7 @@ var widgetsMenu = jQuery_WPF.widget( "ui.menu", {
 		// Flag used to prevent firing of the click handler
 		// as the event bubbles up through nested menus
 		this.mouseHandled = false;
+		this.lastMousePosition = { x: null, y: null };
 		this.element
 			.uniqueId()
 			.attr( {
@@ -4977,10 +4891,12 @@ var widgetsMenu = jQuery_WPF.widget( "ui.menu", {
 			// them (focus should always stay on UL during navigation).
 			"mousedown .ui-menu-item": function( event ) {
 				event.preventDefault();
+
+				this._activateItem( event );
 			},
 			"click .ui-menu-item": function( event ) {
-				var target = jQuery_WPF( event.target );
-				var active = jQuery_WPF( jQuery_WPF.ui.safeActiveElement( this.document[ 0 ] ) );
+				var target = $( event.target );
+				var active = $( this.document[ 0 ].activeElement );
 				if ( !this.mouseHandled && target.not( ".ui-state-disabled" ).length ) {
 					this.select( event );
 
@@ -5006,36 +4922,15 @@ var widgetsMenu = jQuery_WPF.widget( "ui.menu", {
 					}
 				}
 			},
-			"mouseenter .ui-menu-item": function( event ) {
-
-				// Ignore mouse events while typeahead is active, see #10458.
-				// Prevents focusing the wrong item when typeahead causes a scroll while the mouse
-				// is over an item in the menu
-				if ( this.previousFilter ) {
-					return;
-				}
-
-				var actualTarget = jQuery_WPF( event.target ).closest( ".ui-menu-item" ),
-					target = jQuery_WPF( event.currentTarget );
-
-				// Ignore bubbled events on parent items, see #11641
-				if ( actualTarget[ 0 ] !== target[ 0 ] ) {
-					return;
-				}
-
-				// Remove ui-state-active class from siblings of the newly focused menu item
-				// to avoid a jump caused by adjacent elements both having a class with a border
-				this._removeClass( target.siblings().children( ".ui-state-active" ),
-					null, "ui-state-active" );
-				this.focus( event, target );
-			},
+			"mouseenter .ui-menu-item": "_activateItem",
+			"mousemove .ui-menu-item": "_activateItem",
 			mouseleave: "collapseAll",
 			"mouseleave .ui-menu": "collapseAll",
 			focus: function( event, keepActiveItem ) {
 
 				// If there's already an active item, keep it active
 				// If not, activate the first item
-				var item = this.active || this.element.find( this.options.items ).eq( 0 );
+				var item = this.active || this._menuItems().first();
 
 				if ( !keepActiveItem ) {
 					this.focus( event, item );
@@ -5043,9 +4938,9 @@ var widgetsMenu = jQuery_WPF.widget( "ui.menu", {
 			},
 			blur: function( event ) {
 				this._delay( function() {
-					var notContained = !jQuery_WPF.contains(
+					var notContained = !$.contains(
 						this.element[ 0 ],
-						jQuery_WPF.ui.safeActiveElement( this.document[ 0 ] )
+						this.document[ 0 ].activeElement
 					);
 					if ( notContained ) {
 						this.collapseAll( event );
@@ -5061,13 +4956,53 @@ var widgetsMenu = jQuery_WPF.widget( "ui.menu", {
 		this._on( this.document, {
 			click: function( event ) {
 				if ( this._closeOnDocumentClick( event ) ) {
-					this.collapseAll( event );
+					this.collapseAll( event, true );
 				}
 
 				// Reset the mouseHandled flag
 				this.mouseHandled = false;
 			}
 		} );
+	},
+
+	_activateItem: function( event ) {
+
+		// Ignore mouse events while typeahead is active, see #10458.
+		// Prevents focusing the wrong item when typeahead causes a scroll while the mouse
+		// is over an item in the menu
+		if ( this.previousFilter ) {
+			return;
+		}
+
+		// If the mouse didn't actually move, but the page was scrolled, ignore the event (#9356)
+		if ( event.clientX === this.lastMousePosition.x &&
+				event.clientY === this.lastMousePosition.y ) {
+			return;
+		}
+
+		this.lastMousePosition = {
+			x: event.clientX,
+			y: event.clientY
+		};
+
+		var actualTarget = $( event.target ).closest( ".ui-menu-item" ),
+			target = $( event.currentTarget );
+
+		// Ignore bubbled events on parent items, see #11641
+		if ( actualTarget[ 0 ] !== target[ 0 ] ) {
+			return;
+		}
+
+		// If the item is already active, there's nothing to do
+		if ( target.is( ".ui-state-active" ) ) {
+			return;
+		}
+
+		// Remove ui-state-active class from siblings of the newly focused menu item
+		// to avoid a jump caused by adjacent elements both having a class with a border
+		this._removeClass( target.siblings().children( ".ui-state-active" ),
+			null, "ui-state-active" );
+		this.focus( event, target );
 	},
 
 	_destroy: function() {
@@ -5087,7 +5022,7 @@ var widgetsMenu = jQuery_WPF.widget( "ui.menu", {
 				.show();
 
 		submenus.children().each( function() {
-			var elem = jQuery_WPF( this );
+			var elem = $( this );
 			if ( elem.data( "ui-menu-submenu-caret" ) ) {
 				elem.remove();
 			}
@@ -5099,37 +5034,37 @@ var widgetsMenu = jQuery_WPF.widget( "ui.menu", {
 			preventDefault = true;
 
 		switch ( event.keyCode ) {
-		case jQuery_WPF.ui.keyCode.PAGE_UP:
+		case $.ui.keyCode.PAGE_UP:
 			this.previousPage( event );
 			break;
-		case jQuery_WPF.ui.keyCode.PAGE_DOWN:
+		case $.ui.keyCode.PAGE_DOWN:
 			this.nextPage( event );
 			break;
-		case jQuery_WPF.ui.keyCode.HOME:
+		case $.ui.keyCode.HOME:
 			this._move( "first", "first", event );
 			break;
-		case jQuery_WPF.ui.keyCode.END:
+		case $.ui.keyCode.END:
 			this._move( "last", "last", event );
 			break;
-		case jQuery_WPF.ui.keyCode.UP:
+		case $.ui.keyCode.UP:
 			this.previous( event );
 			break;
-		case jQuery_WPF.ui.keyCode.DOWN:
+		case $.ui.keyCode.DOWN:
 			this.next( event );
 			break;
-		case jQuery_WPF.ui.keyCode.LEFT:
+		case $.ui.keyCode.LEFT:
 			this.collapse( event );
 			break;
-		case jQuery_WPF.ui.keyCode.RIGHT:
+		case $.ui.keyCode.RIGHT:
 			if ( this.active && !this.active.is( ".ui-state-disabled" ) ) {
 				this.expand( event );
 			}
 			break;
-		case jQuery_WPF.ui.keyCode.ENTER:
-		case jQuery_WPF.ui.keyCode.SPACE:
+		case $.ui.keyCode.ENTER:
+		case $.ui.keyCode.SPACE:
 			this._activate( event );
 			break;
-		case jQuery_WPF.ui.keyCode.ESCAPE:
+		case $.ui.keyCode.ESCAPE:
 			this.collapse( event );
 			break;
 		default:
@@ -5204,9 +5139,9 @@ var widgetsMenu = jQuery_WPF.widget( "ui.menu", {
 				"aria-expanded": "false"
 			} )
 			.each( function() {
-				var menu = jQuery_WPF( this ),
+				var menu = $( this ),
 					item = menu.prev(),
-					submenuCaret = jQuery_WPF( "<span>" ).data( "ui-menu-submenu-caret", true );
+					submenuCaret = $( "<span>" ).data( "ui-menu-submenu-caret", true );
 
 				that._addClass( submenuCaret, "ui-menu-icon", "ui-icon " + icon );
 				item
@@ -5222,7 +5157,7 @@ var widgetsMenu = jQuery_WPF.widget( "ui.menu", {
 
 		// Initialize menu-items containing spaces and/or dashes only as dividers
 		items.not( ".ui-menu-item" ).each( function() {
-			var item = jQuery_WPF( this );
+			var item = $( this );
 			if ( that._isDivider( item ) ) {
 				that._addClass( item, "ui-menu-divider", "ui-widget-content" );
 			}
@@ -5244,7 +5179,7 @@ var widgetsMenu = jQuery_WPF.widget( "ui.menu", {
 		items.filter( ".ui-state-disabled" ).attr( "aria-disabled", "true" );
 
 		// If the active item has been removed, blur the menu
-		if ( this.active && !jQuery_WPF.contains( this.element[ 0 ], this.active[ 0 ] ) ) {
+		if ( this.active && !$.contains( this.element[ 0 ], this.active[ 0 ] ) ) {
 			this.blur();
 		}
 	},
@@ -5316,8 +5251,8 @@ var widgetsMenu = jQuery_WPF.widget( "ui.menu", {
 	_scrollIntoView: function( item ) {
 		var borderTop, paddingTop, offset, scroll, elementHeight, itemHeight;
 		if ( this._hasScroll() ) {
-			borderTop = parseFloat( jQuery_WPF.css( this.activeMenu[ 0 ], "borderTopWidth" ) ) || 0;
-			paddingTop = parseFloat( jQuery_WPF.css( this.activeMenu[ 0 ], "paddingTop" ) ) || 0;
+			borderTop = parseFloat( $.css( this.activeMenu[ 0 ], "borderTopWidth" ) ) || 0;
+			paddingTop = parseFloat( $.css( this.activeMenu[ 0 ], "paddingTop" ) ) || 0;
 			offset = item.offset().top - this.activeMenu.offset().top - borderTop - paddingTop;
 			scroll = this.activeMenu.scrollTop();
 			elementHeight = this.activeMenu.height();
@@ -5363,7 +5298,7 @@ var widgetsMenu = jQuery_WPF.widget( "ui.menu", {
 	},
 
 	_open: function( submenu ) {
-		var position = jQuery_WPF.extend( {
+		var position = $.extend( {
 			of: this.active
 		}, this.options.position );
 
@@ -5385,7 +5320,7 @@ var widgetsMenu = jQuery_WPF.widget( "ui.menu", {
 
 			// If we were passed an event, look for the submenu that contains the event
 			var currentMenu = all ? this.element :
-				jQuery_WPF( event && event.target ).closest( this.element.find( ".ui-menu" ) );
+				$( event && event.target ).closest( this.element.find( ".ui-menu" ) );
 
 			// If we found no valid submenu ancestor, use the main menu to close all
 			// sub menus anyway
@@ -5401,7 +5336,7 @@ var widgetsMenu = jQuery_WPF.widget( "ui.menu", {
 			this._removeClass( currentMenu.find( ".ui-state-active" ), null, "ui-state-active" );
 
 			this.activeMenu = currentMenu;
-		}, this.delay );
+		}, all ? 0 : this.delay );
 	},
 
 	// With no arguments, closes the currently active menu - if nothing is active
@@ -5418,7 +5353,7 @@ var widgetsMenu = jQuery_WPF.widget( "ui.menu", {
 	},
 
 	_closeOnDocumentClick: function( event ) {
-		return !jQuery_WPF( event.target ).closest( ".ui-menu" ).length;
+		return !$( event.target ).closest( ".ui-menu" ).length;
 	},
 
 	_isDivider: function( item ) {
@@ -5437,11 +5372,7 @@ var widgetsMenu = jQuery_WPF.widget( "ui.menu", {
 	},
 
 	expand: function( event ) {
-		var newItem = this.active &&
-			this.active
-				.children( ".ui-menu " )
-					.find( this.options.items )
-						.first();
+		var newItem = this.active && this._menuItems( this.active.children( ".ui-menu" ) ).first();
 
 		if ( newItem && newItem.length ) {
 			this._open( newItem.parent() );
@@ -5469,21 +5400,27 @@ var widgetsMenu = jQuery_WPF.widget( "ui.menu", {
 		return this.active && !this.active.nextAll( ".ui-menu-item" ).length;
 	},
 
+	_menuItems: function( menu ) {
+		return ( menu || this.element )
+			.find( this.options.items )
+			.filter( ".ui-menu-item" );
+	},
+
 	_move: function( direction, filter, event ) {
 		var next;
 		if ( this.active ) {
 			if ( direction === "first" || direction === "last" ) {
 				next = this.active
 					[ direction === "first" ? "prevAll" : "nextAll" ]( ".ui-menu-item" )
-					.eq( -1 );
+					.last();
 			} else {
 				next = this.active
 					[ direction + "All" ]( ".ui-menu-item" )
-					.eq( 0 );
+					.first();
 			}
 		}
 		if ( !next || !next.length || !this.active ) {
-			next = this.activeMenu.find( this.options.items )[ filter ]();
+			next = this._menuItems( this.activeMenu )[ filter ]();
 		}
 
 		this.focus( event, next );
@@ -5501,15 +5438,21 @@ var widgetsMenu = jQuery_WPF.widget( "ui.menu", {
 		}
 		if ( this._hasScroll() ) {
 			base = this.active.offset().top;
-			height = this.element.height();
+			height = this.element.innerHeight();
+
+			// jQuery 3.2 doesn't include scrollbars in innerHeight, add it back.
+			if ( $.fn.jquery.indexOf( "3.2." ) === 0 ) {
+				height += this.element[ 0 ].offsetHeight - this.element.outerHeight();
+			}
+
 			this.active.nextAll( ".ui-menu-item" ).each( function() {
-				item = jQuery_WPF( this );
+				item = $( this );
 				return item.offset().top - base - height < 0;
 			} );
 
 			this.focus( event, item );
 		} else {
-			this.focus( event, this.activeMenu.find( this.options.items )
+			this.focus( event, this._menuItems( this.activeMenu )
 				[ !this.active ? "first" : "last" ]() );
 		}
 	},
@@ -5525,15 +5468,21 @@ var widgetsMenu = jQuery_WPF.widget( "ui.menu", {
 		}
 		if ( this._hasScroll() ) {
 			base = this.active.offset().top;
-			height = this.element.height();
+			height = this.element.innerHeight();
+
+			// jQuery 3.2 doesn't include scrollbars in innerHeight, add it back.
+			if ( $.fn.jquery.indexOf( "3.2." ) === 0 ) {
+				height += this.element[ 0 ].offsetHeight - this.element.outerHeight();
+			}
+
 			this.active.prevAll( ".ui-menu-item" ).each( function() {
-				item = jQuery_WPF( this );
+				item = $( this );
 				return item.offset().top - base + height > 0;
 			} );
 
 			this.focus( event, item );
 		} else {
-			this.focus( event, this.activeMenu.find( this.options.items ).first() );
+			this.focus( event, this._menuItems( this.activeMenu ).first() );
 		}
 	},
 
@@ -5545,7 +5494,7 @@ var widgetsMenu = jQuery_WPF.widget( "ui.menu", {
 
 		// TODO: It should never be possible to not have an active item at this
 		// point, but the tests don't trigger mouseenter before click.
-		this.active = this.active || jQuery_WPF( event.target ).closest( ".ui-menu-item" );
+		this.active = this.active || $( event.target ).closest( ".ui-menu-item" );
 		var ui = { item: this.active };
 		if ( !this.active.has( ".ui-menu" ).length ) {
 			this.collapseAll( event, true );
@@ -5564,34 +5513,34 @@ var widgetsMenu = jQuery_WPF.widget( "ui.menu", {
 				.filter( ".ui-menu-item" )
 					.filter( function() {
 						return regex.test(
-							jQuery_WPF.trim( jQuery_WPF( this ).children( ".ui-menu-item-wrapper" ).text() ) );
+							String.prototype.trim.call(
+								$( this ).children( ".ui-menu-item-wrapper" ).text() ) );
 					} );
 	}
 } );
 
 
 /*!
- * jQuery UI Autocomplete 1.12.1
- * http://jqueryui.com
+ * jQuery UI Autocomplete 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Autocomplete
 //>>group: Widgets
 //>>description: Lists suggested words as the user is typing.
-//>>docs: http://api.jqueryui.com/autocomplete/
-//>>demos: http://jqueryui.com/autocomplete/
+//>>docs: https://api.jqueryui.com/autocomplete/
+//>>demos: https://jqueryui.com/autocomplete/
 //>>css.structure: ../../themes/base/core.css
 //>>css.structure: ../../themes/base/autocomplete.css
 //>>css.theme: ../../themes/base/theme.css
 
 
-
-jQuery_WPF.widget( "ui.autocomplete", {
-	version: "1.12.1",
+$.widget( "ui.autocomplete", {
+	version: "1.14.1",
 	defaultElement: "<input>",
 	options: {
 		appendTo: null,
@@ -5617,6 +5566,7 @@ jQuery_WPF.widget( "ui.autocomplete", {
 
 	requestIndex: 0,
 	pending: 0,
+	liveRegionTimer: null,
 
 	_create: function() {
 
@@ -5634,9 +5584,9 @@ jQuery_WPF.widget( "ui.autocomplete", {
 
 		// Textareas are always multi-line
 		// Inputs are always single-line, even if inside a contentEditable element
-		// IE also treats inputs as contentEditable
-		// All other element types are determined by whether or not they're contentEditable
-		this.isMultiLine = isTextarea || !isInput && this._isContentEditable( this.element );
+		// All other element types are determined by whether they're contentEditable
+		this.isMultiLine = isTextarea ||
+			!isInput && this.element.prop( "contentEditable" ) === "true";
 
 		this.valueMethod = this.element[ isTextarea || isInput ? "val" : "text" ];
 		this.isNewMenu = true;
@@ -5656,7 +5606,7 @@ jQuery_WPF.widget( "ui.autocomplete", {
 				suppressKeyPress = false;
 				suppressInput = false;
 				suppressKeyPressRepeat = false;
-				var keyCode = jQuery_WPF.ui.keyCode;
+				var keyCode = $.ui.keyCode;
 				switch ( event.keyCode ) {
 				case keyCode.PAGE_UP:
 					suppressKeyPress = true;
@@ -5700,7 +5650,6 @@ jQuery_WPF.widget( "ui.autocomplete", {
 
 						// Different browsers have different default behavior for escape
 						// Single press can mean undo or clear
-						// Double press in IE means clear the whole form
 						event.preventDefault();
 					}
 					break;
@@ -5725,7 +5674,7 @@ jQuery_WPF.widget( "ui.autocomplete", {
 				}
 
 				// Replicate some key handlers to allow them to repeat in Firefox and Opera
-				var keyCode = jQuery_WPF.ui.keyCode;
+				var keyCode = $.ui.keyCode;
 				switch ( event.keyCode ) {
 				case keyCode.PAGE_UP:
 					this._move( "previousPage", event );
@@ -5754,11 +5703,6 @@ jQuery_WPF.widget( "ui.autocomplete", {
 				this.previous = this._value();
 			},
 			blur: function( event ) {
-				if ( this.cancelBlur ) {
-					delete this.cancelBlur;
-					return;
-				}
-
 				clearTimeout( this.searching );
 				this.close( event );
 				this._change( event );
@@ -5766,7 +5710,7 @@ jQuery_WPF.widget( "ui.autocomplete", {
 		} );
 
 		this._initSource();
-		this.menu = jQuery_WPF( "<ul>" )
+		this.menu = $( "<ul>" )
 			.appendTo( this._appendTo() )
 			.menu( {
 
@@ -5780,30 +5724,13 @@ jQuery_WPF.widget( "ui.autocomplete", {
 		this._on( this.menu.element, {
 			mousedown: function( event ) {
 
-				// prevent moving focus out of the text field
+				// Prevent moving focus out of the text field
 				event.preventDefault();
-
-				// IE doesn't prevent moving focus even with event.preventDefault()
-				// so we set a flag to know when we should ignore the blur event
-				this.cancelBlur = true;
-				this._delay( function() {
-					delete this.cancelBlur;
-
-					// Support: IE 8 only
-					// Right clicking a menu item or selecting text from the menu items will
-					// result in focus moving out of the input. However, we've already received
-					// and ignored the blur event because of the cancelBlur flag set above. So
-					// we restore focus to ensure that the menu closes properly based on the user's
-					// next actions.
-					if ( this.element[ 0 ] !== jQuery_WPF.ui.safeActiveElement( this.document[ 0 ] ) ) {
-						this.element.trigger( "focus" );
-					}
-				} );
 			},
 			menufocus: function( event, ui ) {
 				var label, item;
 
-				// support: Firefox
+				// Support: Firefox
 				// Prevent accidental activation of menu items in Firefox (#7024 #9118)
 				if ( this.isNewMenu ) {
 					this.isNewMenu = false;
@@ -5811,7 +5738,7 @@ jQuery_WPF.widget( "ui.autocomplete", {
 						this.menu.blur();
 
 						this.document.one( "mousemove", function() {
-							jQuery_WPF( event.target ).trigger( event.originalEvent );
+							$( event.target ).trigger( event.originalEvent );
 						} );
 
 						return;
@@ -5829,9 +5756,11 @@ jQuery_WPF.widget( "ui.autocomplete", {
 
 				// Announce the value in the liveRegion
 				label = ui.item.attr( "aria-label" ) || item.value;
-				if ( label && jQuery_WPF.trim( label ).length ) {
-					this.liveRegion.children().hide();
-					jQuery_WPF( "<div>" ).text( label ).appendTo( this.liveRegion );
+				if ( label && String.prototype.trim.call( label ).length ) {
+					clearTimeout( this.liveRegionTimer );
+					this.liveRegionTimer = this._delay( function() {
+						this.liveRegion.html( $( "<div>" ).text( label ) );
+					}, 100 );
 				}
 			},
 			menuselect: function( event, ui ) {
@@ -5839,17 +5768,9 @@ jQuery_WPF.widget( "ui.autocomplete", {
 					previous = this.previous;
 
 				// Only trigger when focus was lost (click on menu)
-				if ( this.element[ 0 ] !== jQuery_WPF.ui.safeActiveElement( this.document[ 0 ] ) ) {
+				if ( this.element[ 0 ] !== this.document[ 0 ].activeElement ) {
 					this.element.trigger( "focus" );
 					this.previous = previous;
-
-					// #6109 - IE triggers two focus events and the second
-					// is asynchronous, so we need to reset the previous
-					// term synchronously and asynchronously :-(
-					this._delay( function() {
-						this.previous = previous;
-						this.selectedItem = item;
-					} );
 				}
 
 				if ( false !== this._trigger( "select", event, { item: item } ) ) {
@@ -5865,7 +5786,7 @@ jQuery_WPF.widget( "ui.autocomplete", {
 			}
 		} );
 
-		this.liveRegion = jQuery_WPF( "<div>", {
+		this.liveRegion = $( "<div>", {
 			role: "status",
 			"aria-live": "assertive",
 			"aria-relevant": "additions"
@@ -5909,7 +5830,7 @@ jQuery_WPF.widget( "ui.autocomplete", {
 
 		return event.target === this.element[ 0 ] ||
 			event.target === menuElement ||
-			jQuery_WPF.contains( menuElement, event.target );
+			$.contains( menuElement, event.target );
 	},
 
 	_closeOnClickOutside: function( event ) {
@@ -5923,7 +5844,7 @@ jQuery_WPF.widget( "ui.autocomplete", {
 
 		if ( element ) {
 			element = element.jquery || element.nodeType ?
-				jQuery_WPF( element ) :
+				$( element ) :
 				this.document.find( element ).eq( 0 );
 		}
 
@@ -5941,10 +5862,10 @@ jQuery_WPF.widget( "ui.autocomplete", {
 	_initSource: function() {
 		var array, url,
 			that = this;
-		if ( jQuery_WPF.isArray( this.options.source ) ) {
+		if ( Array.isArray( this.options.source ) ) {
 			array = this.options.source;
 			this.source = function( request, response ) {
-				response( jQuery_WPF.ui.autocomplete.filter( array, request.term ) );
+				response( $.ui.autocomplete.filter( array, request.term ) );
 			};
 		} else if ( typeof this.options.source === "string" ) {
 			url = this.options.source;
@@ -5952,7 +5873,7 @@ jQuery_WPF.widget( "ui.autocomplete", {
 				if ( that.xhr ) {
 					that.xhr.abort();
 				}
-				that.xhr = jQuery_WPF.ajax( {
+				that.xhr = $.ajax( {
 					url: url,
 					data: request,
 					dataType: "json",
@@ -6013,7 +5934,7 @@ jQuery_WPF.widget( "ui.autocomplete", {
 	_response: function() {
 		var index = ++this.requestIndex;
 
-		return jQuery_WPF.proxy( function( content ) {
+		return function( content ) {
 			if ( index === this.requestIndex ) {
 				this.__response( content );
 			}
@@ -6022,7 +5943,7 @@ jQuery_WPF.widget( "ui.autocomplete", {
 			if ( !this.pending ) {
 				this._removeClass( "ui-autocomplete-loading" );
 			}
-		}, this );
+		}.bind( this );
 	},
 
 	__response: function( content ) {
@@ -6070,14 +5991,14 @@ jQuery_WPF.widget( "ui.autocomplete", {
 		if ( items.length && items[ 0 ].label && items[ 0 ].value ) {
 			return items;
 		}
-		return jQuery_WPF.map( items, function( item ) {
+		return $.map( items, function( item ) {
 			if ( typeof item === "string" ) {
 				return {
 					label: item,
 					value: item
 				};
 			}
-			return jQuery_WPF.extend( {}, item, {
+			return $.extend( {}, item, {
 				label: item.label || item.value,
 				value: item.value || item.label
 			} );
@@ -6093,7 +6014,7 @@ jQuery_WPF.widget( "ui.autocomplete", {
 		// Size and position menu
 		ul.show();
 		this._resizeMenu();
-		ul.position( jQuery_WPF.extend( {
+		ul.position( $.extend( {
 			of: this.element
 		}, this.options.position ) );
 
@@ -6120,7 +6041,7 @@ jQuery_WPF.widget( "ui.autocomplete", {
 
 	_renderMenu: function( ul, items ) {
 		var that = this;
-		jQuery_WPF.each( items, function( index, item ) {
+		$.each( items, function( index, item ) {
 			that._renderItemData( ul, item );
 		} );
 	},
@@ -6130,8 +6051,8 @@ jQuery_WPF.widget( "ui.autocomplete", {
 	},
 
 	_renderItem: function( ul, item ) {
-		return jQuery_WPF( "<li>" )
-			.append( jQuery_WPF( "<div>" ).text( item.label ) )
+		return $( "<li>" )
+			.append( $( "<div>" ).text( item.label ) )
 			.appendTo( ul );
 	},
 
@@ -6168,34 +6089,16 @@ jQuery_WPF.widget( "ui.autocomplete", {
 			// Prevents moving cursor to beginning/end of the text field in some browsers
 			event.preventDefault();
 		}
-	},
-
-	// Support: Chrome <=50
-	// We should be able to just use this.element.prop( "isContentEditable" )
-	// but hidden elements always report false in Chrome.
-	// https://code.google.com/p/chromium/issues/detail?id=313082
-	_isContentEditable: function( element ) {
-		if ( !element.length ) {
-			return false;
-		}
-
-		var editable = element.prop( "contentEditable" );
-
-		if ( editable === "inherit" ) {
-		  return this._isContentEditable( element.parent() );
-		}
-
-		return editable === "true";
 	}
 } );
 
-jQuery_WPF.extend( jQuery_WPF.ui.autocomplete, {
+$.extend( $.ui.autocomplete, {
 	escapeRegex: function( value ) {
 		return value.replace( /[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&" );
 	},
 	filter: function( array, term ) {
-		var matcher = new RegExp( jQuery_WPF.ui.autocomplete.escapeRegex( term ), "i" );
-		return jQuery_WPF.grep( array, function( value ) {
+		var matcher = new RegExp( $.ui.autocomplete.escapeRegex( term ), "i" );
+		return $.grep( array, function( value ) {
 			return matcher.test( value.label || value.value || value );
 		} );
 	}
@@ -6204,7 +6107,7 @@ jQuery_WPF.extend( jQuery_WPF.ui.autocomplete, {
 // Live region extension, adding a `messages` option
 // NOTE: This is an experimental API. We are still investigating
 // a full solution for string manipulation and internationalization.
-jQuery_WPF.widget( "ui.autocomplete", jQuery_WPF.ui.autocomplete, {
+$.widget( "ui.autocomplete", $.ui.autocomplete, {
 	options: {
 		messages: {
 			noResults: "No search results.",
@@ -6226,28 +6129,30 @@ jQuery_WPF.widget( "ui.autocomplete", jQuery_WPF.ui.autocomplete, {
 		} else {
 			message = this.options.messages.noResults;
 		}
-		this.liveRegion.children().hide();
-		jQuery_WPF( "<div>" ).text( message ).appendTo( this.liveRegion );
+		clearTimeout( this.liveRegionTimer );
+		this.liveRegionTimer = this._delay( function() {
+			this.liveRegion.html( $( "<div>" ).text( message ) );
+		}, 100 );
 	}
 } );
 
-var widgetsAutocomplete = jQuery_WPF.ui.autocomplete;
+var widgetsAutocomplete = $.ui.autocomplete;
 
 
 /*!
- * jQuery UI Controlgroup 1.12.1
- * http://jqueryui.com
+ * jQuery UI Controlgroup 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Controlgroup
 //>>group: Widgets
 //>>description: Visually groups form control widgets
-//>>docs: http://api.jqueryui.com/controlgroup/
-//>>demos: http://jqueryui.com/controlgroup/
+//>>docs: https://api.jqueryui.com/controlgroup/
+//>>demos: https://jqueryui.com/controlgroup/
 //>>css.structure: ../../themes/base/core.css
 //>>css.structure: ../../themes/base/controlgroup.css
 //>>css.theme: ../../themes/base/theme.css
@@ -6255,8 +6160,8 @@ var widgetsAutocomplete = jQuery_WPF.ui.autocomplete;
 
 var controlgroupCornerRegex = /ui-corner-([a-z]){2,6}/g;
 
-var widgetsControlgroup = jQuery_WPF.widget( "ui.controlgroup", {
-	version: "1.12.1",
+var widgetsControlgroup = $.widget( "ui.controlgroup", {
+	version: "1.14.1",
 	defaultElement: "<div>",
 	options: {
 		direction: "horizontal",
@@ -6298,7 +6203,7 @@ var widgetsControlgroup = jQuery_WPF.widget( "ui.controlgroup", {
 			childWidgets = [];
 
 		// First we iterate over each of the items options
-		jQuery_WPF.each( this.options.items, function( widget, selector ) {
+		$.each( this.options.items, function( widget, selector ) {
 			var labels;
 			var options = {};
 
@@ -6310,7 +6215,7 @@ var widgetsControlgroup = jQuery_WPF.widget( "ui.controlgroup", {
 			if ( widget === "controlgroupLabel" ) {
 				labels = that.element.find( selector );
 				labels.each( function() {
-					var element = jQuery_WPF( this );
+					var element = $( this );
 
 					if ( element.children( ".ui-controlgroup-label-contents" ).length ) {
 						return;
@@ -6324,7 +6229,7 @@ var widgetsControlgroup = jQuery_WPF.widget( "ui.controlgroup", {
 			}
 
 			// Make sure the widget actually exists
-			if ( !jQuery_WPF.fn[ widget ] ) {
+			if ( !$.fn[ widget ] ) {
 				return;
 			}
 
@@ -6340,12 +6245,12 @@ var widgetsControlgroup = jQuery_WPF.widget( "ui.controlgroup", {
 			that.element
 				.find( selector )
 				.each( function() {
-					var element = jQuery_WPF( this );
+					var element = $( this );
 					var instance = element[ widget ]( "instance" );
 
 					// We need to clone the default options for this type of widget to avoid
 					// polluting the variable options which has a wider scope than a single widget.
-					var instanceOptions = jQuery_WPF.widget.extend( {}, options );
+					var instanceOptions = $.widget.extend( {}, options );
 
 					// If the button is the child of a spinner ignore it
 					// TODO: Find a more generic solution
@@ -6366,20 +6271,20 @@ var widgetsControlgroup = jQuery_WPF.widget( "ui.controlgroup", {
 					// Store an instance of the controlgroup to be able to reference
 					// from the outermost element for changing options and refresh
 					var widgetElement = element[ widget ]( "widget" );
-					jQuery_WPF.data( widgetElement[ 0 ], "ui-controlgroup-data",
+					$.data( widgetElement[ 0 ], "ui-controlgroup-data",
 						instance ? instance : element[ widget ]( "instance" ) );
 
 					childWidgets.push( widgetElement[ 0 ] );
 				} );
 		} );
 
-		this.childWidgets = jQuery_WPF( jQuery_WPF.unique( childWidgets ) );
+		this.childWidgets = $( $.uniqueSort( childWidgets ) );
 		this._addClass( this.childWidgets, "ui-controlgroup-item" );
 	},
 
 	_callChildMethod: function( method ) {
 		this.childWidgets.each( function() {
-			var element = jQuery_WPF( this ),
+			var element = $( this ),
 				data = element.data( "ui-controlgroup-data" );
 			if ( data && data[ method ] ) {
 				data[ method ]();
@@ -6455,9 +6360,9 @@ var widgetsControlgroup = jQuery_WPF.widget( "ui.controlgroup", {
 
 	_resolveClassesValues: function( classes, instance ) {
 		var result = {};
-		jQuery_WPF.each( classes, function( key ) {
+		$.each( classes, function( key ) {
 			var current = instance.options.classes[ key ] || "";
-			current = jQuery_WPF.trim( current.replace( controlgroupCornerRegex, "" ) );
+			current = String.prototype.trim.call( current.replace( controlgroupCornerRegex, "" ) );
 			result[ key ] = ( current + " " + classes[ key ] ).replace( /\s+/g, " " );
 		} );
 		return result;
@@ -6499,7 +6404,7 @@ var widgetsControlgroup = jQuery_WPF.widget( "ui.controlgroup", {
 
 			// We do this last because we need to make sure all enhancment is done
 			// before determining first and last
-			jQuery_WPF.each( [ "first", "last" ], function( index, value ) {
+			$.each( [ "first", "last" ], function( index, value ) {
 				var instance = children[ value ]().data( "ui-controlgroup-data" );
 
 				if ( instance && that[ "_" + instance.widgetName + "Options" ] ) {
@@ -6520,28 +6425,27 @@ var widgetsControlgroup = jQuery_WPF.widget( "ui.controlgroup", {
 } );
 
 /*!
- * jQuery UI Checkboxradio 1.12.1
- * http://jqueryui.com
+ * jQuery UI Checkboxradio 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Checkboxradio
 //>>group: Widgets
 //>>description: Enhances a form with multiple themeable checkboxes or radio buttons.
-//>>docs: http://api.jqueryui.com/checkboxradio/
-//>>demos: http://jqueryui.com/checkboxradio/
+//>>docs: https://api.jqueryui.com/checkboxradio/
+//>>demos: https://jqueryui.com/checkboxradio/
 //>>css.structure: ../../themes/base/core.css
 //>>css.structure: ../../themes/base/button.css
 //>>css.structure: ../../themes/base/checkboxradio.css
 //>>css.theme: ../../themes/base/theme.css
 
 
-
-jQuery_WPF.widget( "ui.checkboxradio", [ jQuery_WPF.ui.formResetMixin, {
-	version: "1.12.1",
+$.widget( "ui.checkboxradio", [ $.ui.formResetMixin, {
+	version: "1.14.1",
 	options: {
 		disabled: null,
 		label: null,
@@ -6553,8 +6457,7 @@ jQuery_WPF.widget( "ui.checkboxradio", [ jQuery_WPF.ui.formResetMixin, {
 	},
 
 	_getCreateOptions: function() {
-		var disabled, labels;
-		var that = this;
+		var disabled, labels, labelContents;
 		var options = this._super() || {};
 
 		// We read the type here, because it makes more sense to throw a element type error first,
@@ -6565,21 +6468,27 @@ jQuery_WPF.widget( "ui.checkboxradio", [ jQuery_WPF.ui.formResetMixin, {
 		labels = this.element.labels();
 
 		// If there are multiple labels, use the last one
-		this.label = jQuery_WPF( labels[ labels.length - 1 ] );
+		this.label = $( labels[ labels.length - 1 ] );
 		if ( !this.label.length ) {
-			jQuery_WPF.error( "No label found for checkboxradio widget" );
+			$.error( "No label found for checkboxradio widget" );
 		}
 
 		this.originalLabel = "";
 
 		// We need to get the label text but this may also need to make sure it does not contain the
 		// input itself.
-		this.label.contents().not( this.element[ 0 ] ).each( function() {
+		// The label contents could be text, html, or a mix. We wrap all elements
+		// and read the wrapper's `innerHTML` to get a string representation of
+		// the label, without the input as part of it.
+		labelContents = this.label.contents().not( this.element[ 0 ] );
 
-			// The label contents could be text, html, or a mix. We concat each element to get a
-			// string representation of the label, without the input as part of it.
-			that.originalLabel += this.nodeType === 3 ? jQuery_WPF( this ).text() : this.outerHTML;
-		} );
+		if ( labelContents.length ) {
+			this.originalLabel += labelContents
+				.clone()
+				.wrapAll( "<div></div>" )
+				.parent()
+				.html();
+		}
 
 		// Set the label option if we found label text
 		if ( this.originalLabel ) {
@@ -6620,9 +6529,6 @@ jQuery_WPF.widget( "ui.checkboxradio", [ jQuery_WPF.ui.formResetMixin, {
 
 		if ( checked ) {
 			this._addClass( this.label, "ui-checkboxradio-checked", "ui-state-active" );
-			if ( this.icon ) {
-				this._addClass( this.icon, null, "ui-state-hover" );
-			}
 		}
 
 		this._on( {
@@ -6640,7 +6546,7 @@ jQuery_WPF.widget( "ui.checkboxradio", [ jQuery_WPF.ui.formResetMixin, {
 		var nodeName = this.element[ 0 ].nodeName.toLowerCase();
 		this.type = this.element[ 0 ].type;
 		if ( nodeName !== "input" || !/radio|checkbox/.test( this.type ) ) {
-			jQuery_WPF.error( "Can't create checkboxradio on element.nodeName=" + nodeName +
+			$.error( "Can't create checkboxradio on element.nodeName=" + nodeName +
 				" and element.type=" + this.type );
 		}
 	},
@@ -6657,19 +6563,19 @@ jQuery_WPF.widget( "ui.checkboxradio", [ jQuery_WPF.ui.formResetMixin, {
 	_getRadioGroup: function() {
 		var group;
 		var name = this.element[ 0 ].name;
-		var nameSelector = "input[name='" + jQuery_WPF.ui.escapeSelector( name ) + "']";
+		var nameSelector = "input[name='" + CSS.escape( name ) + "']";
 
 		if ( !name ) {
-			return jQuery_WPF( [] );
+			return $( [] );
 		}
 
 		if ( this.form.length ) {
-			group = jQuery_WPF( this.form[ 0 ].elements ).filter( nameSelector );
+			group = $( this.form[ 0 ].elements ).filter( nameSelector );
 		} else {
 
 			// Not inside a form, check all inputs that also are not inside a form
-			group = jQuery_WPF( nameSelector ).filter( function() {
-				return jQuery_WPF( this ).form().length === 0;
+			group = $( nameSelector ).filter( function() {
+				return $( $( this ).prop( "form" ) ).length === 0;
 			} );
 		}
 
@@ -6688,7 +6594,7 @@ jQuery_WPF.widget( "ui.checkboxradio", [ jQuery_WPF.ui.formResetMixin, {
 		if ( this.type === "radio" ) {
 			this._getRadioGroup()
 				.each( function() {
-					var instance = jQuery_WPF( this ).checkboxradio( "instance" );
+					var instance = $( this ).checkboxradio( "instance" );
 
 					if ( instance ) {
 						instance._removeClass( instance.label,
@@ -6731,8 +6637,8 @@ jQuery_WPF.widget( "ui.checkboxradio", [ jQuery_WPF.ui.formResetMixin, {
 
 		if ( this.options.icon ) {
 			if ( !this.icon ) {
-				this.icon = jQuery_WPF( "<span>" );
-				this.iconSpace = jQuery_WPF( "<span> </span>" );
+				this.icon = $( "<span>" );
+				this.iconSpace = $( "<span> </span>" );
 				this._addClass( this.iconSpace, "ui-checkboxradio-icon-space" );
 			}
 
@@ -6786,31 +6692,30 @@ jQuery_WPF.widget( "ui.checkboxradio", [ jQuery_WPF.ui.formResetMixin, {
 
 } ] );
 
-var widgetsCheckboxradio = jQuery_WPF.ui.checkboxradio;
+var widgetsCheckboxradio = $.ui.checkboxradio;
 
 
 /*!
- * jQuery UI Button 1.12.1
- * http://jqueryui.com
+ * jQuery UI Button 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Button
 //>>group: Widgets
 //>>description: Enhances a form with themeable buttons.
-//>>docs: http://api.jqueryui.com/button/
-//>>demos: http://jqueryui.com/button/
+//>>docs: https://api.jqueryui.com/button/
+//>>demos: https://jqueryui.com/button/
 //>>css.structure: ../../themes/base/core.css
 //>>css.structure: ../../themes/base/button.css
 //>>css.theme: ../../themes/base/theme.css
 
 
-
-jQuery_WPF.widget( "ui.button", {
-	version: "1.12.1",
+$.widget( "ui.button", {
+	version: "1.14.1",
 	defaultElement: "<button>",
 	options: {
 		classes: {
@@ -6874,12 +6779,12 @@ jQuery_WPF.widget( "ui.button", {
 		if ( this.element.is( "a" ) ) {
 			this._on( {
 				"keyup": function( event ) {
-					if ( event.keyCode === jQuery_WPF.ui.keyCode.SPACE ) {
+					if ( event.keyCode === $.ui.keyCode.SPACE ) {
 						event.preventDefault();
 
-						// Support: PhantomJS <= 1.9, IE 8 Only
-						// If a native click is available use it so we actually cause navigation
-						// otherwise just trigger a click event
+						// If a native click is available use it, so we
+						// actually cause navigation. Otherwise, just trigger
+						// a click event.
 						if ( this.element[ 0 ].click ) {
 							this.element[ 0 ].click();
 						} else {
@@ -6917,7 +6822,7 @@ jQuery_WPF.widget( "ui.button", {
 
 		// Create icon
 		if ( !this.icon ) {
-			this.icon = jQuery_WPF( "<span>" );
+			this.icon = $( "<span>" );
 
 			this._addClass( this.icon, "ui-button-icon", "ui-icon" );
 
@@ -6949,7 +6854,7 @@ jQuery_WPF.widget( "ui.button", {
 			// Position is beginning or end so remove the ui-widget-icon-block class and add the
 			// space if it does not exist
 			if ( !this.iconSpace ) {
-				this.iconSpace = jQuery_WPF( "<span> </span>" );
+				this.iconSpace = $( "<span> </span>" );
 				this._addClass( this.iconSpace, "ui-button-icon-space" );
 			}
 			this._removeClass( this.icon, null, "ui-wiget-icon-block" );
@@ -7034,7 +6939,7 @@ jQuery_WPF.widget( "ui.button", {
 			this._toggleClass( null, "ui-state-disabled", value );
 			this.element[ 0 ].disabled = value;
 			if ( value ) {
-				this.element.blur();
+				this.element.trigger( "blur" );
 			}
 		}
 	},
@@ -7055,10 +6960,10 @@ jQuery_WPF.widget( "ui.button", {
 } );
 
 // DEPRECATED
-if ( jQuery_WPF.uiBackCompat !== false ) {
+if ( $.uiBackCompat === true ) {
 
 	// Text and Icons options
-	jQuery_WPF.widget( "ui.button", jQuery_WPF.ui.button, {
+	$.widget( "ui.button", $.ui.button, {
 		options: {
 			text: true,
 			icons: {
@@ -7112,29 +7017,89 @@ if ( jQuery_WPF.uiBackCompat !== false ) {
 		}
 	} );
 
-	jQuery_WPF.fn.button = ( function( orig ) {
-		return function() {
-			if ( !this.length || ( this.length && this[ 0 ].tagName !== "INPUT" ) ||
-					( this.length && this[ 0 ].tagName === "INPUT" && (
-						this.attr( "type" ) !== "checkbox" && this.attr( "type" ) !== "radio"
-					) ) ) {
-				return orig.apply( this, arguments );
-			}
-			if ( !jQuery_WPF.ui.checkboxradio ) {
-				jQuery_WPF.error( "Checkboxradio widget missing" );
-			}
-			if ( arguments.length === 0 ) {
-				return this.checkboxradio( {
-					"icon": false
+	$.fn.button = ( function( orig ) {
+		return function( options ) {
+			var isMethodCall = typeof options === "string";
+			var args = Array.prototype.slice.call( arguments, 1 );
+			var returnValue = this;
+
+			if ( isMethodCall ) {
+
+				// If this is an empty collection, we need to have the instance method
+				// return undefined instead of the jQuery instance
+				if ( !this.length && options === "instance" ) {
+					returnValue = undefined;
+				} else {
+					this.each( function() {
+						var methodValue;
+						var type = $( this ).attr( "type" );
+						var name = type !== "checkbox" && type !== "radio" ?
+							"button" :
+							"checkboxradio";
+						var instance = $.data( this, "ui-" + name );
+
+						if ( options === "instance" ) {
+							returnValue = instance;
+							return false;
+						}
+
+						if ( !instance ) {
+							return $.error( "cannot call methods on button" +
+								" prior to initialization; " +
+								"attempted to call method '" + options + "'" );
+						}
+
+						if ( typeof instance[ options ] !== "function" ||
+							options.charAt( 0 ) === "_" ) {
+							return $.error( "no such method '" + options + "' for button" +
+								" widget instance" );
+						}
+
+						methodValue = instance[ options ].apply( instance, args );
+
+						if ( methodValue !== instance && methodValue !== undefined ) {
+							returnValue = methodValue && methodValue.jquery ?
+								returnValue.pushStack( methodValue.get() ) :
+								methodValue;
+							return false;
+						}
+					} );
+				}
+			} else {
+
+				// Allow multiple hashes to be passed on init
+				if ( args.length ) {
+					options = $.widget.extend.apply( null, [ options ].concat( args ) );
+				}
+
+				this.each( function() {
+					var type = $( this ).attr( "type" );
+					var name = type !== "checkbox" && type !== "radio" ? "button" : "checkboxradio";
+					var instance = $.data( this, "ui-" + name );
+
+					if ( instance ) {
+						instance.option( options || {} );
+						if ( instance._init ) {
+							instance._init();
+						}
+					} else {
+						if ( name === "button" ) {
+							orig.call( $( this ), options );
+							return;
+						}
+
+						$( this ).checkboxradio( $.extend( { icon: false }, options ) );
+					}
 				} );
 			}
-			return this.checkboxradio.apply( this, arguments );
-		};
-	} )( jQuery_WPF.fn.button );
 
-	jQuery_WPF.fn.buttonset = function() {
-		if ( !jQuery_WPF.ui.controlgroup ) {
-			jQuery_WPF.error( "Controlgroup widget missing" );
+			return returnValue;
+		};
+	} )( $.fn.button );
+
+	$.fn.buttonset = function() {
+		if ( !$.ui.controlgroup ) {
+			$.error( "Controlgroup widget missing" );
 		}
 		if ( arguments[ 0 ] === "option" && arguments[ 1 ] === "items" && arguments[ 2 ] ) {
 			return this.controlgroup.apply( this,
@@ -7152,32 +7117,30 @@ if ( jQuery_WPF.uiBackCompat !== false ) {
 	};
 }
 
-var widgetsButton = jQuery_WPF.ui.button;
+var widgetsButton = $.ui.button;
 
 
-// jscs:disable maximumLineLength
-/* jscs:disable requireCamelCaseOrUpperCaseIdentifiers */
+/* eslint-disable max-len, camelcase */
 /*!
- * jQuery UI Datepicker 1.12.1
- * http://jqueryui.com
+ * jQuery UI Datepicker 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Datepicker
 //>>group: Widgets
 //>>description: Displays a calendar from an input or inline for selecting dates.
-//>>docs: http://api.jqueryui.com/datepicker/
-//>>demos: http://jqueryui.com/datepicker/
+//>>docs: https://api.jqueryui.com/datepicker/
+//>>demos: https://jqueryui.com/datepicker/
 //>>css.structure: ../../themes/base/core.css
 //>>css.structure: ../../themes/base/datepicker.css
 //>>css.theme: ../../themes/base/theme.css
 
 
-
-jQuery_WPF.extend( jQuery_WPF.ui, { datepicker: { version: "1.12.1" } } );
+$.extend( $.ui, { datepicker: { version: "1.14.1" } } );
 
 var datepicker_instActive;
 
@@ -7205,8 +7168,9 @@ function datepicker_getZindex( elem ) {
 
 	return 0;
 }
+
 /* Date picker manager.
-   Use the singleton instance of this class, jQuery_WPF.datepicker, to interact with the date picker.
+   Use the singleton instance of this class, $.datepicker, to interact with the date picker.
    Settings for (groups of) date pickers are maintained in an instance object,
    allowing multiple different settings on the same page. */
 
@@ -7231,18 +7195,20 @@ function Datepicker() {
 		prevText: "Prev", // Display text for previous month link
 		nextText: "Next", // Display text for next month link
 		currentText: "Today", // Display text for current month link
-		monthNames: [ "January","February","March","April","May","June",
-			"July","August","September","October","November","December" ], // Names of months for drop-down and formatting
+		monthNames: [ "January", "February", "March", "April", "May", "June",
+			"July", "August", "September", "October", "November", "December" ], // Names of months for drop-down and formatting
 		monthNamesShort: [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ], // For formatting
 		dayNames: [ "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" ], // For formatting
 		dayNamesShort: [ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" ], // For formatting
-		dayNamesMin: [ "Su","Mo","Tu","We","Th","Fr","Sa" ], // Column headings for days starting at Sunday
+		dayNamesMin: [ "Su", "Mo", "Tu", "We", "Th", "Fr", "Sa" ], // Column headings for days starting at Sunday
 		weekHeader: "Wk", // Column header for week of the year
 		dateFormat: "mm/dd/yy", // See format options on parseDate
 		firstDay: 0, // The first day of the week, Sun = 0, Mon = 1, ...
 		isRTL: false, // True if right-to-left language, false if left-to-right
 		showMonthAfterYear: false, // True if the year select precedes month, false for month then year
-		yearSuffix: "" // Additional text to append to the year in the month headers
+		yearSuffix: "", // Additional text to append to the year in the month headers,
+		selectMonthLabel: "Select month", // Invisible label for month selector
+		selectYearLabel: "Select year" // Invisible label for year selector
 	};
 	this._defaults = { // Global defaults for all the date picker instances
 		showOn: "focus", // "focus" for popup on focus,
@@ -7277,12 +7243,13 @@ function Datepicker() {
 		duration: "fast", // Duration of display/closure
 		beforeShowDay: null, // Function that takes a date and returns an array with
 			// [0] = true if selectable, false if not, [1] = custom CSS class name(s) or "",
-			// [2] = cell title (optional), e.g. jQuery_WPF.datepicker.noWeekends
+			// [2] = cell title (optional), e.g. $.datepicker.noWeekends
 		beforeShow: null, // Function that takes an input field and
 			// returns a set of custom settings for the date picker
 		onSelect: null, // Define a callback function when a date is selected
 		onChangeMonthYear: null, // Define a callback function when the month or year is changed
 		onClose: null, // Define a callback function when the datepicker is closed
+		onUpdateDatepicker: null, // Define a callback function when the datepicker is updated
 		numberOfMonths: 1, // Number of months to show at a time
 		showCurrentAtPos: 0, // The position in multipe months at which to show the current month (starting at 0)
 		stepMonths: 1, // Number of months to step back/forward
@@ -7294,13 +7261,14 @@ function Datepicker() {
 		autoSize: false, // True to size the input for the date format, false to leave as is
 		disabled: false // The initial disabled state
 	};
-	jQuery_WPF.extend( this._defaults, this.regional[ "" ] );
-	this.regional.en = jQuery_WPF.extend( true, {}, this.regional[ "" ] );
-	this.regional[ "en-US" ] = jQuery_WPF.extend( true, {}, this.regional.en );
-	this.dpDiv = datepicker_bindHover( jQuery_WPF( "<div id='" + this._mainDivId + "' class='ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all'></div>" ) );
+	$.extend( this._defaults, this.regional[ "" ] );
+	this.regional.en = $.extend( true, {}, this.regional[ "" ] );
+	this.regional[ "en-US" ] = $.extend( true, {}, this.regional.en );
+	this.dpDiv = datepicker_bindHover( $( "<div id='" + this._mainDivId + "' class='ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all'></div>" ) );
 }
 
-jQuery_WPF.extend( Datepicker.prototype, {
+$.extend( Datepicker.prototype, {
+
 	/* Class name added to elements to indicate already configured with a date picker. */
 	markerClassName: "hasDatepicker",
 
@@ -7333,8 +7301,8 @@ jQuery_WPF.extend( Datepicker.prototype, {
 			this.uuid += 1;
 			target.id = "dp" + this.uuid;
 		}
-		inst = this._newInst( jQuery_WPF( target ), inline );
-		inst.settings = jQuery_WPF.extend( {}, settings || {} );
+		inst = this._newInst( $( target ), inline );
+		inst.settings = $.extend( {}, settings || {} );
 		if ( nodeName === "input" ) {
 			this._connectDatepicker( target, inst );
 		} else if ( inline ) {
@@ -7350,14 +7318,14 @@ jQuery_WPF.extend( Datepicker.prototype, {
 			drawMonth: 0, drawYear: 0, // month being drawn
 			inline: inline, // is datepicker inline or not
 			dpDiv: ( !inline ? this.dpDiv : // presentation div
-			datepicker_bindHover( jQuery_WPF( "<div class='" + this._inlineClass + " ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all'></div>" ) ) ) };
+			datepicker_bindHover( $( "<div class='" + this._inlineClass + " ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all'></div>" ) ) ) };
 	},
 
 	/* Attach the date picker to an input field. */
 	_connectDatepicker: function( target, inst ) {
-		var input = jQuery_WPF( target );
-		inst.append = jQuery_WPF( [] );
-		inst.trigger = jQuery_WPF( [] );
+		var input = $( target );
+		inst.append = $( [] );
+		inst.trigger = $( [] );
 		if ( input.hasClass( this.markerClassName ) ) {
 			return;
 		}
@@ -7365,7 +7333,7 @@ jQuery_WPF.extend( Datepicker.prototype, {
 		input.addClass( this.markerClassName ).on( "keydown", this._doKeyDown ).
 			on( "keypress", this._doKeyPress ).on( "keyup", this._doKeyUp );
 		this._autoSize( inst );
-		jQuery_WPF.data( target, "datepicker", inst );
+		$.data( target, "datepicker", inst );
 
 		//If disabled option is true, disable the datepicker once it has been attached to the input (see ticket #5665)
 		if ( inst.settings.disabled ) {
@@ -7383,7 +7351,9 @@ jQuery_WPF.extend( Datepicker.prototype, {
 			inst.append.remove();
 		}
 		if ( appendText ) {
-			inst.append = jQuery_WPF( "<span class='" + this._appendClass + "'>" + appendText + "</span>" );
+			inst.append = $( "<span>" )
+				.addClass( this._appendClass )
+				.text( appendText );
 			input[ isRTL ? "before" : "after" ]( inst.append );
 		}
 
@@ -7400,21 +7370,41 @@ jQuery_WPF.extend( Datepicker.prototype, {
 		if ( showOn === "button" || showOn === "both" ) { // pop-up date picker when button clicked
 			buttonText = this._get( inst, "buttonText" );
 			buttonImage = this._get( inst, "buttonImage" );
-			inst.trigger = jQuery_WPF( this._get( inst, "buttonImageOnly" ) ?
-				jQuery_WPF( "<img/>" ).addClass( this._triggerClass ).
-					attr( { src: buttonImage, alt: buttonText, title: buttonText } ) :
-				jQuery_WPF( "<button type='button'></button>" ).addClass( this._triggerClass ).
-					html( !buttonImage ? buttonText : jQuery_WPF( "<img/>" ).attr(
-					{ src:buttonImage, alt:buttonText, title:buttonText } ) ) );
+
+			if ( this._get( inst, "buttonImageOnly" ) ) {
+				inst.trigger = $( "<img>" )
+					.addClass( this._triggerClass )
+					.attr( {
+						src: buttonImage,
+						alt: buttonText,
+						title: buttonText
+					} );
+			} else {
+				inst.trigger = $( "<button type='button'>" )
+					.addClass( this._triggerClass );
+				if ( buttonImage ) {
+					inst.trigger.html(
+						$( "<img>" )
+							.attr( {
+								src: buttonImage,
+								alt: buttonText,
+								title: buttonText
+							} )
+					);
+				} else {
+					inst.trigger.text( buttonText );
+				}
+			}
+
 			input[ isRTL ? "before" : "after" ]( inst.trigger );
 			inst.trigger.on( "click", function() {
-				if ( jQuery_WPF.datepicker._datepickerShowing && jQuery_WPF.datepicker._lastInput === input[ 0 ] ) {
-					jQuery_WPF.datepicker._hideDatepicker();
-				} else if ( jQuery_WPF.datepicker._datepickerShowing && jQuery_WPF.datepicker._lastInput !== input[ 0 ] ) {
-					jQuery_WPF.datepicker._hideDatepicker();
-					jQuery_WPF.datepicker._showDatepicker( input[ 0 ] );
+				if ( $.datepicker._datepickerShowing && $.datepicker._lastInput === input[ 0 ] ) {
+					$.datepicker._hideDatepicker();
+				} else if ( $.datepicker._datepickerShowing && $.datepicker._lastInput !== input[ 0 ] ) {
+					$.datepicker._hideDatepicker();
+					$.datepicker._showDatepicker( input[ 0 ] );
 				} else {
-					jQuery_WPF.datepicker._showDatepicker( input[ 0 ] );
+					$.datepicker._showDatepicker( input[ 0 ] );
 				}
 				return false;
 			} );
@@ -7451,12 +7441,12 @@ jQuery_WPF.extend( Datepicker.prototype, {
 
 	/* Attach an inline date picker to a div. */
 	_inlineDatepicker: function( target, inst ) {
-		var divSpan = jQuery_WPF( target );
+		var divSpan = $( target );
 		if ( divSpan.hasClass( this.markerClassName ) ) {
 			return;
 		}
 		divSpan.addClass( this.markerClassName ).append( inst.dpDiv );
-		jQuery_WPF.data( target, "datepicker", inst );
+		$.data( target, "datepicker", inst );
 		this._setDate( inst, this._getDefaultDate( inst ), true );
 		this._updateDatepicker( inst );
 		this._updateAlternate( inst );
@@ -7467,7 +7457,7 @@ jQuery_WPF.extend( Datepicker.prototype, {
 		}
 
 		// Set display:block in place of inst.dpDiv.show() which won't work on disconnected elements
-		// http://bugs.jqueryui.com/ticket/7552 - A Datepicker created on a detached div has zero height
+		// https://bugs.jqueryui.com/ticket/7552 - A Datepicker created on a detached div has zero height
 		inst.dpDiv.css( "display", "block" );
 	},
 
@@ -7488,13 +7478,13 @@ jQuery_WPF.extend( Datepicker.prototype, {
 		if ( !inst ) {
 			this.uuid += 1;
 			id = "dp" + this.uuid;
-			this._dialogInput = jQuery_WPF( "<input type='text' id='" + id +
+			this._dialogInput = $( "<input type='text' id='" + id +
 				"' style='position: absolute; top: -100px; width: 0px;'/>" );
 			this._dialogInput.on( "keydown", this._doKeyDown );
-			jQuery_WPF( "body" ).append( this._dialogInput );
+			$( "body" ).append( this._dialogInput );
 			inst = this._dialogInst = this._newInst( this._dialogInput, false );
 			inst.settings = {};
-			jQuery_WPF.data( this._dialogInput[ 0 ], "datepicker", inst );
+			$.data( this._dialogInput[ 0 ], "datepicker", inst );
 		}
 		datepicker_extendRemove( inst.settings, settings || {} );
 		date = ( date && date.constructor === Date ? this._formatDate( inst, date ) : date );
@@ -7516,10 +7506,10 @@ jQuery_WPF.extend( Datepicker.prototype, {
 		this._inDialog = true;
 		this.dpDiv.addClass( this._dialogClass );
 		this._showDatepicker( this._dialogInput[ 0 ] );
-		if ( jQuery_WPF.blockUI ) {
-			jQuery_WPF.blockUI( this.dpDiv );
+		if ( $.blockUI ) {
+			$.blockUI( this.dpDiv );
 		}
-		jQuery_WPF.data( this._dialogInput[ 0 ], "datepicker", inst );
+		$.data( this._dialogInput[ 0 ], "datepicker", inst );
 		return this;
 	},
 
@@ -7528,15 +7518,15 @@ jQuery_WPF.extend( Datepicker.prototype, {
 	 */
 	_destroyDatepicker: function( target ) {
 		var nodeName,
-			$target = jQuery_WPF( target ),
-			inst = jQuery_WPF.data( target, "datepicker" );
+			$target = $( target ),
+			inst = $.data( target, "datepicker" );
 
 		if ( !$target.hasClass( this.markerClassName ) ) {
 			return;
 		}
 
 		nodeName = target.nodeName.toLowerCase();
-		jQuery_WPF.removeData( target, "datepicker" );
+		$.removeData( target, "datepicker" );
 		if ( nodeName === "input" ) {
 			inst.append.remove();
 			inst.trigger.remove();
@@ -7549,8 +7539,10 @@ jQuery_WPF.extend( Datepicker.prototype, {
 			$target.removeClass( this.markerClassName ).empty();
 		}
 
+		$.datepicker._hideDatepicker();
 		if ( datepicker_instActive === inst ) {
 			datepicker_instActive = null;
+			this._curInst = null;
 		}
 	},
 
@@ -7559,8 +7551,8 @@ jQuery_WPF.extend( Datepicker.prototype, {
 	 */
 	_enableDatepicker: function( target ) {
 		var nodeName, inline,
-			$target = jQuery_WPF( target ),
-			inst = jQuery_WPF.data( target, "datepicker" );
+			$target = $( target ),
+			inst = $.data( target, "datepicker" );
 
 		if ( !$target.hasClass( this.markerClassName ) ) {
 			return;
@@ -7570,7 +7562,9 @@ jQuery_WPF.extend( Datepicker.prototype, {
 		if ( nodeName === "input" ) {
 			target.disabled = false;
 			inst.trigger.filter( "button" ).
-				each( function() { this.disabled = false; } ).end().
+				each( function() {
+					this.disabled = false;
+				} ).end().
 				filter( "img" ).css( { opacity: "1.0", cursor: "" } );
 		} else if ( nodeName === "div" || nodeName === "span" ) {
 			inline = $target.children( "." + this._inlineClass );
@@ -7578,8 +7572,12 @@ jQuery_WPF.extend( Datepicker.prototype, {
 			inline.find( "select.ui-datepicker-month, select.ui-datepicker-year" ).
 				prop( "disabled", false );
 		}
-		this._disabledInputs = jQuery_WPF.map( this._disabledInputs,
-			function( value ) { return ( value === target ? null : value ); } ); // delete entry
+		this._disabledInputs = $.map( this._disabledInputs,
+
+			// Delete entry
+			function( value ) {
+				return ( value === target ? null : value );
+			} );
 	},
 
 	/* Disable the date picker to a jQuery selection.
@@ -7587,8 +7585,8 @@ jQuery_WPF.extend( Datepicker.prototype, {
 	 */
 	_disableDatepicker: function( target ) {
 		var nodeName, inline,
-			$target = jQuery_WPF( target ),
-			inst = jQuery_WPF.data( target, "datepicker" );
+			$target = $( target ),
+			inst = $.data( target, "datepicker" );
 
 		if ( !$target.hasClass( this.markerClassName ) ) {
 			return;
@@ -7598,7 +7596,9 @@ jQuery_WPF.extend( Datepicker.prototype, {
 		if ( nodeName === "input" ) {
 			target.disabled = true;
 			inst.trigger.filter( "button" ).
-				each( function() { this.disabled = true; } ).end().
+				each( function() {
+					this.disabled = true;
+				} ).end().
 				filter( "img" ).css( { opacity: "0.5", cursor: "default" } );
 		} else if ( nodeName === "div" || nodeName === "span" ) {
 			inline = $target.children( "." + this._inlineClass );
@@ -7606,8 +7606,12 @@ jQuery_WPF.extend( Datepicker.prototype, {
 			inline.find( "select.ui-datepicker-month, select.ui-datepicker-year" ).
 				prop( "disabled", true );
 		}
-		this._disabledInputs = jQuery_WPF.map( this._disabledInputs,
-			function( value ) { return ( value === target ? null : value ); } ); // delete entry
+		this._disabledInputs = $.map( this._disabledInputs,
+
+			// Delete entry
+			function( value ) {
+				return ( value === target ? null : value );
+			} );
 		this._disabledInputs[ this._disabledInputs.length ] = target;
 	},
 
@@ -7634,9 +7638,8 @@ jQuery_WPF.extend( Datepicker.prototype, {
 	 */
 	_getInst: function( target ) {
 		try {
-			return jQuery_WPF.data( target, "datepicker" );
-		}
-		catch ( err ) {
+			return $.data( target, "datepicker" );
+		} catch ( err ) {
 			throw "Missing instance data for this datepicker";
 		}
 	},
@@ -7655,8 +7658,8 @@ jQuery_WPF.extend( Datepicker.prototype, {
 			inst = this._getInst( target );
 
 		if ( arguments.length === 2 && typeof name === "string" ) {
-			return ( name === "defaults" ? jQuery_WPF.extend( {}, jQuery_WPF.datepicker._defaults ) :
-				( inst ? ( name === "all" ? jQuery_WPF.extend( {}, inst.settings ) :
+			return ( name === "defaults" ? $.extend( {}, $.datepicker._defaults ) :
+				( inst ? ( name === "all" ? $.extend( {}, inst.settings ) :
 				this._get( inst, name ) ) : null ) );
 		}
 
@@ -7690,7 +7693,7 @@ jQuery_WPF.extend( Datepicker.prototype, {
 					this._enableDatepicker( target );
 				}
 			}
-			this._attachments( jQuery_WPF( target ), inst );
+			this._attachments( $( target ), inst );
 			this._autoSize( inst );
 			this._setDate( inst, date );
 			this._updateAlternate( inst );
@@ -7742,95 +7745,95 @@ jQuery_WPF.extend( Datepicker.prototype, {
 	/* Handle keystrokes. */
 	_doKeyDown: function( event ) {
 		var onSelect, dateStr, sel,
-			inst = jQuery_WPF.datepicker._getInst( event.target ),
+			inst = $.datepicker._getInst( event.target ),
 			handled = true,
 			isRTL = inst.dpDiv.is( ".ui-datepicker-rtl" );
 
 		inst._keyEvent = true;
-		if ( jQuery_WPF.datepicker._datepickerShowing ) {
+		if ( $.datepicker._datepickerShowing ) {
 			switch ( event.keyCode ) {
-				case 9: jQuery_WPF.datepicker._hideDatepicker();
+				case 9: $.datepicker._hideDatepicker();
 						handled = false;
 						break; // hide on tab out
-				case 13: sel = jQuery_WPF( "td." + jQuery_WPF.datepicker._dayOverClass + ":not(." +
-									jQuery_WPF.datepicker._currentClass + ")", inst.dpDiv );
+				case 13: sel = $( "td." + $.datepicker._dayOverClass + ":not(." +
+									$.datepicker._currentClass + ")", inst.dpDiv );
 						if ( sel[ 0 ] ) {
-							jQuery_WPF.datepicker._selectDay( event.target, inst.selectedMonth, inst.selectedYear, sel[ 0 ] );
+							$.datepicker._selectDay( event.target, inst.selectedMonth, inst.selectedYear, sel[ 0 ] );
 						}
 
-						onSelect = jQuery_WPF.datepicker._get( inst, "onSelect" );
+						onSelect = $.datepicker._get( inst, "onSelect" );
 						if ( onSelect ) {
-							dateStr = jQuery_WPF.datepicker._formatDate( inst );
+							dateStr = $.datepicker._formatDate( inst );
 
 							// Trigger custom callback
 							onSelect.apply( ( inst.input ? inst.input[ 0 ] : null ), [ dateStr, inst ] );
 						} else {
-							jQuery_WPF.datepicker._hideDatepicker();
+							$.datepicker._hideDatepicker();
 						}
 
 						return false; // don't submit the form
-				case 27: jQuery_WPF.datepicker._hideDatepicker();
+				case 27: $.datepicker._hideDatepicker();
 						break; // hide on escape
-				case 33: jQuery_WPF.datepicker._adjustDate( event.target, ( event.ctrlKey ?
-							-jQuery_WPF.datepicker._get( inst, "stepBigMonths" ) :
-							-jQuery_WPF.datepicker._get( inst, "stepMonths" ) ), "M" );
+				case 33: $.datepicker._adjustDate( event.target, ( event.ctrlKey ?
+							-$.datepicker._get( inst, "stepBigMonths" ) :
+							-$.datepicker._get( inst, "stepMonths" ) ), "M" );
 						break; // previous month/year on page up/+ ctrl
-				case 34: jQuery_WPF.datepicker._adjustDate( event.target, ( event.ctrlKey ?
-							+jQuery_WPF.datepicker._get( inst, "stepBigMonths" ) :
-							+jQuery_WPF.datepicker._get( inst, "stepMonths" ) ), "M" );
+				case 34: $.datepicker._adjustDate( event.target, ( event.ctrlKey ?
+							+$.datepicker._get( inst, "stepBigMonths" ) :
+							+$.datepicker._get( inst, "stepMonths" ) ), "M" );
 						break; // next month/year on page down/+ ctrl
 				case 35: if ( event.ctrlKey || event.metaKey ) {
-							jQuery_WPF.datepicker._clearDate( event.target );
+							$.datepicker._clearDate( event.target );
 						}
 						handled = event.ctrlKey || event.metaKey;
 						break; // clear on ctrl or command +end
 				case 36: if ( event.ctrlKey || event.metaKey ) {
-							jQuery_WPF.datepicker._gotoToday( event.target );
+							$.datepicker._gotoToday( event.target );
 						}
 						handled = event.ctrlKey || event.metaKey;
 						break; // current on ctrl or command +home
 				case 37: if ( event.ctrlKey || event.metaKey ) {
-							jQuery_WPF.datepicker._adjustDate( event.target, ( isRTL ? +1 : -1 ), "D" );
+							$.datepicker._adjustDate( event.target, ( isRTL ? +1 : -1 ), "D" );
 						}
 						handled = event.ctrlKey || event.metaKey;
 
 						// -1 day on ctrl or command +left
 						if ( event.originalEvent.altKey ) {
-							jQuery_WPF.datepicker._adjustDate( event.target, ( event.ctrlKey ?
-								-jQuery_WPF.datepicker._get( inst, "stepBigMonths" ) :
-								-jQuery_WPF.datepicker._get( inst, "stepMonths" ) ), "M" );
+							$.datepicker._adjustDate( event.target, ( event.ctrlKey ?
+								-$.datepicker._get( inst, "stepBigMonths" ) :
+								-$.datepicker._get( inst, "stepMonths" ) ), "M" );
 						}
 
 						// next month/year on alt +left on Mac
 						break;
 				case 38: if ( event.ctrlKey || event.metaKey ) {
-							jQuery_WPF.datepicker._adjustDate( event.target, -7, "D" );
+							$.datepicker._adjustDate( event.target, -7, "D" );
 						}
 						handled = event.ctrlKey || event.metaKey;
 						break; // -1 week on ctrl or command +up
 				case 39: if ( event.ctrlKey || event.metaKey ) {
-							jQuery_WPF.datepicker._adjustDate( event.target, ( isRTL ? -1 : +1 ), "D" );
+							$.datepicker._adjustDate( event.target, ( isRTL ? -1 : +1 ), "D" );
 						}
 						handled = event.ctrlKey || event.metaKey;
 
 						// +1 day on ctrl or command +right
 						if ( event.originalEvent.altKey ) {
-							jQuery_WPF.datepicker._adjustDate( event.target, ( event.ctrlKey ?
-								+jQuery_WPF.datepicker._get( inst, "stepBigMonths" ) :
-								+jQuery_WPF.datepicker._get( inst, "stepMonths" ) ), "M" );
+							$.datepicker._adjustDate( event.target, ( event.ctrlKey ?
+								+$.datepicker._get( inst, "stepBigMonths" ) :
+								+$.datepicker._get( inst, "stepMonths" ) ), "M" );
 						}
 
 						// next month/year on alt +right
 						break;
 				case 40: if ( event.ctrlKey || event.metaKey ) {
-							jQuery_WPF.datepicker._adjustDate( event.target, +7, "D" );
+							$.datepicker._adjustDate( event.target, +7, "D" );
 						}
 						handled = event.ctrlKey || event.metaKey;
 						break; // +1 week on ctrl or command +down
 				default: handled = false;
 			}
 		} else if ( event.keyCode === 36 && event.ctrlKey ) { // display the date picker on ctrl+home
-			jQuery_WPF.datepicker._showDatepicker( this );
+			$.datepicker._showDatepicker( this );
 		} else {
 			handled = false;
 		}
@@ -7844,10 +7847,10 @@ jQuery_WPF.extend( Datepicker.prototype, {
 	/* Filter entered characters - based on date format. */
 	_doKeyPress: function( event ) {
 		var chars, chr,
-			inst = jQuery_WPF.datepicker._getInst( event.target );
+			inst = $.datepicker._getInst( event.target );
 
-		if ( jQuery_WPF.datepicker._get( inst, "constrainInput" ) ) {
-			chars = jQuery_WPF.datepicker._possibleChars( jQuery_WPF.datepicker._get( inst, "dateFormat" ) );
+		if ( $.datepicker._get( inst, "constrainInput" ) ) {
+			chars = $.datepicker._possibleChars( $.datepicker._get( inst, "dateFormat" ) );
 			chr = String.fromCharCode( event.charCode == null ? event.keyCode : event.charCode );
 			return event.ctrlKey || event.metaKey || ( chr < " " || !chars || chars.indexOf( chr ) > -1 );
 		}
@@ -7856,21 +7859,20 @@ jQuery_WPF.extend( Datepicker.prototype, {
 	/* Synchronise manual entry and field/alternate field. */
 	_doKeyUp: function( event ) {
 		var date,
-			inst = jQuery_WPF.datepicker._getInst( event.target );
+			inst = $.datepicker._getInst( event.target );
 
 		if ( inst.input.val() !== inst.lastVal ) {
 			try {
-				date = jQuery_WPF.datepicker.parseDate( jQuery_WPF.datepicker._get( inst, "dateFormat" ),
+				date = $.datepicker.parseDate( $.datepicker._get( inst, "dateFormat" ),
 					( inst.input ? inst.input.val() : null ),
-					jQuery_WPF.datepicker._getFormatConfig( inst ) );
+					$.datepicker._getFormatConfig( inst ) );
 
 				if ( date ) { // only if valid
-					jQuery_WPF.datepicker._setDateFromField( inst );
-					jQuery_WPF.datepicker._updateAlternate( inst );
-					jQuery_WPF.datepicker._updateDatepicker( inst );
+					$.datepicker._setDateFromField( inst );
+					$.datepicker._updateAlternate( inst );
+					$.datepicker._updateDatepicker( inst );
 				}
-			}
-			catch ( err ) {
+			} catch ( err ) {
 			}
 		}
 		return true;
@@ -7884,25 +7886,25 @@ jQuery_WPF.extend( Datepicker.prototype, {
 	_showDatepicker: function( input ) {
 		input = input.target || input;
 		if ( input.nodeName.toLowerCase() !== "input" ) { // find from button/image trigger
-			input = jQuery_WPF( "input", input.parentNode )[ 0 ];
+			input = $( "input", input.parentNode )[ 0 ];
 		}
 
-		if ( jQuery_WPF.datepicker._isDisabledDatepicker( input ) || jQuery_WPF.datepicker._lastInput === input ) { // already here
+		if ( $.datepicker._isDisabledDatepicker( input ) || $.datepicker._lastInput === input ) { // already here
 			return;
 		}
 
 		var inst, beforeShow, beforeShowSettings, isFixed,
 			offset, showAnim, duration;
 
-		inst = jQuery_WPF.datepicker._getInst( input );
-		if ( jQuery_WPF.datepicker._curInst && jQuery_WPF.datepicker._curInst !== inst ) {
-			jQuery_WPF.datepicker._curInst.dpDiv.stop( true, true );
-			if ( inst && jQuery_WPF.datepicker._datepickerShowing ) {
-				jQuery_WPF.datepicker._hideDatepicker( jQuery_WPF.datepicker._curInst.input[ 0 ] );
+		inst = $.datepicker._getInst( input );
+		if ( $.datepicker._curInst && $.datepicker._curInst !== inst ) {
+			$.datepicker._curInst.dpDiv.stop( true, true );
+			if ( inst && $.datepicker._datepickerShowing ) {
+				$.datepicker._hideDatepicker( $.datepicker._curInst.input[ 0 ] );
 			}
 		}
 
-		beforeShow = jQuery_WPF.datepicker._get( inst, "beforeShow" );
+		beforeShow = $.datepicker._get( inst, "beforeShow" );
 		beforeShowSettings = beforeShow ? beforeShow.apply( input, [ input, inst ] ) : {};
 		if ( beforeShowSettings === false ) {
 			return;
@@ -7910,57 +7912,57 @@ jQuery_WPF.extend( Datepicker.prototype, {
 		datepicker_extendRemove( inst.settings, beforeShowSettings );
 
 		inst.lastVal = null;
-		jQuery_WPF.datepicker._lastInput = input;
-		jQuery_WPF.datepicker._setDateFromField( inst );
+		$.datepicker._lastInput = input;
+		$.datepicker._setDateFromField( inst );
 
-		if ( jQuery_WPF.datepicker._inDialog ) { // hide cursor
+		if ( $.datepicker._inDialog ) { // hide cursor
 			input.value = "";
 		}
-		if ( !jQuery_WPF.datepicker._pos ) { // position below input
-			jQuery_WPF.datepicker._pos = jQuery_WPF.datepicker._findPos( input );
-			jQuery_WPF.datepicker._pos[ 1 ] += input.offsetHeight; // add the height
+		if ( !$.datepicker._pos ) { // position below input
+			$.datepicker._pos = $.datepicker._findPos( input );
+			$.datepicker._pos[ 1 ] += input.offsetHeight; // add the height
 		}
 
 		isFixed = false;
-		jQuery_WPF( input ).parents().each( function() {
-			isFixed |= jQuery_WPF( this ).css( "position" ) === "fixed";
+		$( input ).parents().each( function() {
+			isFixed |= $( this ).css( "position" ) === "fixed";
 			return !isFixed;
 		} );
 
-		offset = { left: jQuery_WPF.datepicker._pos[ 0 ], top: jQuery_WPF.datepicker._pos[ 1 ] };
-		jQuery_WPF.datepicker._pos = null;
+		offset = { left: $.datepicker._pos[ 0 ], top: $.datepicker._pos[ 1 ] };
+		$.datepicker._pos = null;
 
 		//to avoid flashes on Firefox
 		inst.dpDiv.empty();
 
 		// determine sizing offscreen
 		inst.dpDiv.css( { position: "absolute", display: "block", top: "-1000px" } );
-		jQuery_WPF.datepicker._updateDatepicker( inst );
+		$.datepicker._updateDatepicker( inst );
 
 		// fix width for dynamic number of date pickers
 		// and adjust position before showing
-		offset = jQuery_WPF.datepicker._checkOffset( inst, offset, isFixed );
-		inst.dpDiv.css( { position: ( jQuery_WPF.datepicker._inDialog && jQuery_WPF.blockUI ?
+		offset = $.datepicker._checkOffset( inst, offset, isFixed );
+		inst.dpDiv.css( { position: ( $.datepicker._inDialog && $.blockUI ?
 			"static" : ( isFixed ? "fixed" : "absolute" ) ), display: "none",
 			left: offset.left + "px", top: offset.top + "px" } );
 
 		if ( !inst.inline ) {
-			showAnim = jQuery_WPF.datepicker._get( inst, "showAnim" );
-			duration = jQuery_WPF.datepicker._get( inst, "duration" );
-			inst.dpDiv.css( "z-index", datepicker_getZindex( jQuery_WPF( input ) ) + 1 );
-			jQuery_WPF.datepicker._datepickerShowing = true;
+			showAnim = $.datepicker._get( inst, "showAnim" );
+			duration = $.datepicker._get( inst, "duration" );
+			inst.dpDiv.css( "z-index", datepicker_getZindex( $( input ) ) + 1 );
+			$.datepicker._datepickerShowing = true;
 
-			if ( jQuery_WPF.effects && jQuery_WPF.effects.effect[ showAnim ] ) {
-				inst.dpDiv.show( showAnim, jQuery_WPF.datepicker._get( inst, "showOptions" ), duration );
+			if ( $.effects && $.effects.effect[ showAnim ] ) {
+				inst.dpDiv.show( showAnim, $.datepicker._get( inst, "showOptions" ), duration );
 			} else {
 				inst.dpDiv[ showAnim || "show" ]( showAnim ? duration : null );
 			}
 
-			if ( jQuery_WPF.datepicker._shouldFocusInput( inst ) ) {
+			if ( $.datepicker._shouldFocusInput( inst ) ) {
 				inst.input.trigger( "focus" );
 			}
 
-			jQuery_WPF.datepicker._curInst = inst;
+			$.datepicker._curInst = inst;
 		}
 	},
 
@@ -7975,7 +7977,8 @@ jQuery_WPF.extend( Datepicker.prototype, {
 			numMonths = this._getNumberOfMonths( inst ),
 			cols = numMonths[ 1 ],
 			width = 17,
-			activeCell = inst.dpDiv.find( "." + this._dayOverClass + " a" );
+			activeCell = inst.dpDiv.find( "." + this._dayOverClass + " a" ),
+			onUpdateDatepicker = $.datepicker._get( inst, "onUpdateDatepicker" );
 
 		if ( activeCell.length > 0 ) {
 			datepicker_handleMouseover.apply( activeCell.get( 0 ) );
@@ -7990,7 +7993,7 @@ jQuery_WPF.extend( Datepicker.prototype, {
 		inst.dpDiv[ ( this._get( inst, "isRTL" ) ? "add" : "remove" ) +
 			"Class" ]( "ui-datepicker-rtl" );
 
-		if ( inst === jQuery_WPF.datepicker._curInst && jQuery_WPF.datepicker._datepickerShowing && jQuery_WPF.datepicker._shouldFocusInput( inst ) ) {
+		if ( inst === $.datepicker._curInst && $.datepicker._datepickerShowing && $.datepicker._shouldFocusInput( inst ) ) {
 			inst.input.trigger( "focus" );
 		}
 
@@ -8001,18 +8004,19 @@ jQuery_WPF.extend( Datepicker.prototype, {
 
 				//assure that inst.yearshtml didn't change.
 				if ( origyearshtml === inst.yearshtml && inst.yearshtml ) {
-					inst.dpDiv.find( "select.ui-datepicker-year:first" ).replaceWith( inst.yearshtml );
+					inst.dpDiv.find( "select.ui-datepicker-year" ).first().replaceWith( inst.yearshtml );
 				}
 				origyearshtml = inst.yearshtml = null;
 			}, 0 );
 		}
+
+		if ( onUpdateDatepicker ) {
+			onUpdateDatepicker.apply( ( inst.input ? inst.input[ 0 ] : null ), [ inst ] );
+		}
 	},
 
-	// #6694 - don't focus the input if it's already focused
-	// this breaks the change event in IE
-	// Support: IE and jQuery <1.9
 	_shouldFocusInput: function( inst ) {
-		return inst.input && inst.input.is( ":visible" ) && !inst.input.is( ":disabled" ) && !inst.input.is( ":focus" );
+		return inst.input && inst.input.is( ":visible" ) && !inst.input.is( ":disabled" );
 	},
 
 	/* Check positioning to remain on screen. */
@@ -8021,12 +8025,12 @@ jQuery_WPF.extend( Datepicker.prototype, {
 			dpHeight = inst.dpDiv.outerHeight(),
 			inputWidth = inst.input ? inst.input.outerWidth() : 0,
 			inputHeight = inst.input ? inst.input.outerHeight() : 0,
-			viewWidth = document.documentElement.clientWidth + ( isFixed ? 0 : jQuery_WPF( document ).scrollLeft() ),
-			viewHeight = document.documentElement.clientHeight + ( isFixed ? 0 : jQuery_WPF( document ).scrollTop() );
+			viewWidth = document.documentElement.clientWidth + ( isFixed ? 0 : $( document ).scrollLeft() ),
+			viewHeight = document.documentElement.clientHeight + ( isFixed ? 0 : $( document ).scrollTop() );
 
 		offset.left -= ( this._get( inst, "isRTL" ) ? ( dpWidth - inputWidth ) : 0 );
-		offset.left -= ( isFixed && offset.left === inst.input.offset().left ) ? jQuery_WPF( document ).scrollLeft() : 0;
-		offset.top -= ( isFixed && offset.top === ( inst.input.offset().top + inputHeight ) ) ? jQuery_WPF( document ).scrollTop() : 0;
+		offset.left -= ( isFixed && offset.left === inst.input.offset().left ) ? $( document ).scrollLeft() : 0;
+		offset.top -= ( isFixed && offset.top === ( inst.input.offset().top + inputHeight ) ) ? $( document ).scrollTop() : 0;
 
 		// Now check if datepicker is showing outside window viewport - move to a better place if so.
 		offset.left -= Math.min( offset.left, ( offset.left + dpWidth > viewWidth && viewWidth > dpWidth ) ?
@@ -8043,11 +8047,11 @@ jQuery_WPF.extend( Datepicker.prototype, {
 			inst = this._getInst( obj ),
 			isRTL = this._get( inst, "isRTL" );
 
-		while ( obj && ( obj.type === "hidden" || obj.nodeType !== 1 || jQuery_WPF.expr.filters.hidden( obj ) ) ) {
+		while ( obj && ( obj.type === "hidden" || obj.nodeType !== 1 || $.expr.pseudos.hidden( obj ) ) ) {
 			obj = obj[ isRTL ? "previousSibling" : "nextSibling" ];
 		}
 
-		position = jQuery_WPF( obj ).offset();
+		position = $( obj ).offset();
 		return [ position.left, position.top ];
 	},
 
@@ -8058,7 +8062,7 @@ jQuery_WPF.extend( Datepicker.prototype, {
 		var showAnim, duration, postProcess, onClose,
 			inst = this._curInst;
 
-		if ( !inst || ( input && inst !== jQuery_WPF.data( input, "datepicker" ) ) ) {
+		if ( !inst || ( input && inst !== $.data( input, "datepicker" ) ) ) {
 			return;
 		}
 
@@ -8066,12 +8070,11 @@ jQuery_WPF.extend( Datepicker.prototype, {
 			showAnim = this._get( inst, "showAnim" );
 			duration = this._get( inst, "duration" );
 			postProcess = function() {
-				jQuery_WPF.datepicker._tidyDialog( inst );
+				$.datepicker._tidyDialog( inst );
 			};
 
-			// DEPRECATED: after BC for 1.8.x jQuery_WPF.effects[ showAnim ] is not needed
-			if ( jQuery_WPF.effects && ( jQuery_WPF.effects.effect[ showAnim ] || jQuery_WPF.effects[ showAnim ] ) ) {
-				inst.dpDiv.hide( showAnim, jQuery_WPF.datepicker._get( inst, "showOptions" ), duration, postProcess );
+			if ( $.effects && ( $.effects.effect[ showAnim ] ) ) {
+				inst.dpDiv.hide( showAnim, $.datepicker._get( inst, "showOptions" ), duration, postProcess );
 			} else {
 				inst.dpDiv[ ( showAnim === "slideDown" ? "slideUp" :
 					( showAnim === "fadeIn" ? "fadeOut" : "hide" ) ) ]( ( showAnim ? duration : null ), postProcess );
@@ -8090,9 +8093,9 @@ jQuery_WPF.extend( Datepicker.prototype, {
 			this._lastInput = null;
 			if ( this._inDialog ) {
 				this._dialogInput.css( { position: "absolute", left: "0", top: "-100px" } );
-				if ( jQuery_WPF.blockUI ) {
-					jQuery_WPF.unblockUI();
-					jQuery_WPF( "body" ).append( this.dpDiv );
+				if ( $.blockUI ) {
+					$.unblockUI();
+					$( "body" ).append( this.dpDiv );
 				}
 			}
 			this._inDialog = false;
@@ -8106,41 +8109,39 @@ jQuery_WPF.extend( Datepicker.prototype, {
 
 	/* Close date picker if clicked elsewhere. */
 	_checkExternalClick: function( event ) {
-		if ( !jQuery_WPF.datepicker._curInst ) {
+		if ( !$.datepicker._curInst ) {
 			return;
 		}
 
-		var $target = jQuery_WPF( event.target ),
-			inst = jQuery_WPF.datepicker._getInst( $target[ 0 ] );
+		var $target = $( event.target ),
+			inst = $.datepicker._getInst( $target[ 0 ] );
 
-		if ( ( ( $target[ 0 ].id !== jQuery_WPF.datepicker._mainDivId &&
-				$target.parents( "#" + jQuery_WPF.datepicker._mainDivId ).length === 0 &&
-				!$target.hasClass( jQuery_WPF.datepicker.markerClassName ) &&
-				!$target.closest( "." + jQuery_WPF.datepicker._triggerClass ).length &&
-				jQuery_WPF.datepicker._datepickerShowing && !( jQuery_WPF.datepicker._inDialog && jQuery_WPF.blockUI ) ) ) ||
-			( $target.hasClass( jQuery_WPF.datepicker.markerClassName ) && jQuery_WPF.datepicker._curInst !== inst ) ) {
-				jQuery_WPF.datepicker._hideDatepicker();
+		if ( ( ( $target[ 0 ].id !== $.datepicker._mainDivId &&
+				$target.parents( "#" + $.datepicker._mainDivId ).length === 0 &&
+				!$target.hasClass( $.datepicker.markerClassName ) &&
+				!$target.closest( "." + $.datepicker._triggerClass ).length &&
+				$.datepicker._datepickerShowing && !( $.datepicker._inDialog && $.blockUI ) ) ) ||
+			( $target.hasClass( $.datepicker.markerClassName ) && $.datepicker._curInst !== inst ) ) {
+				$.datepicker._hideDatepicker();
 		}
 	},
 
 	/* Adjust one of the date sub-fields. */
 	_adjustDate: function( id, offset, period ) {
-		var target = jQuery_WPF( id ),
+		var target = $( id ),
 			inst = this._getInst( target[ 0 ] );
 
 		if ( this._isDisabledDatepicker( target[ 0 ] ) ) {
 			return;
 		}
-		this._adjustInstDate( inst, offset +
-			( period === "M" ? this._get( inst, "showCurrentAtPos" ) : 0 ), // undo positioning
-			period );
+		this._adjustInstDate( inst, offset, period );
 		this._updateDatepicker( inst );
 	},
 
 	/* Action for current link. */
 	_gotoToday: function( id ) {
 		var date,
-			target = jQuery_WPF( id ),
+			target = $( id ),
 			inst = this._getInst( target[ 0 ] );
 
 		if ( this._get( inst, "gotoCurrent" ) && inst.currentDay ) {
@@ -8159,7 +8160,7 @@ jQuery_WPF.extend( Datepicker.prototype, {
 
 	/* Action for selecting a new month/year. */
 	_selectMonthYear: function( id, select, period ) {
-		var target = jQuery_WPF( id ),
+		var target = $( id ),
 			inst = this._getInst( target[ 0 ] );
 
 		inst[ "selected" + ( period === "M" ? "Month" : "Year" ) ] =
@@ -8173,14 +8174,14 @@ jQuery_WPF.extend( Datepicker.prototype, {
 	/* Action for selecting a day. */
 	_selectDay: function( id, month, year, td ) {
 		var inst,
-			target = jQuery_WPF( id );
+			target = $( id );
 
-		if ( jQuery_WPF( td ).hasClass( this._unselectableClass ) || this._isDisabledDatepicker( target[ 0 ] ) ) {
+		if ( $( td ).hasClass( this._unselectableClass ) || this._isDisabledDatepicker( target[ 0 ] ) ) {
 			return;
 		}
 
 		inst = this._getInst( target[ 0 ] );
-		inst.selectedDay = inst.currentDay = jQuery_WPF( "a", td ).html();
+		inst.selectedDay = inst.currentDay = parseInt( $( "a", td ).attr( "data-date" ) );
 		inst.selectedMonth = inst.currentMonth = month;
 		inst.selectedYear = inst.currentYear = year;
 		this._selectDate( id, this._formatDate( inst,
@@ -8189,14 +8190,14 @@ jQuery_WPF.extend( Datepicker.prototype, {
 
 	/* Erase the input field and hide the date picker. */
 	_clearDate: function( id ) {
-		var target = jQuery_WPF( id );
+		var target = $( id );
 		this._selectDate( target, "" );
 	},
 
 	/* Update the input field with the selected date. */
 	_selectDate: function( id, dateStr ) {
 		var onSelect,
-			target = jQuery_WPF( id ),
+			target = $( id ),
 			inst = this._getInst( target[ 0 ] );
 
 		dateStr = ( dateStr != null ? dateStr : this._formatDate( inst ) );
@@ -8233,7 +8234,7 @@ jQuery_WPF.extend( Datepicker.prototype, {
 			altFormat = this._get( inst, "altFormat" ) || this._get( inst, "dateFormat" );
 			date = this._getDate( inst );
 			dateStr = this.formatDate( altFormat, date, this._getFormatConfig( inst ) );
-			jQuery_WPF( altField ).val( dateStr );
+			$( document ).find( altField ).val( dateStr );
 		}
 	},
 
@@ -8329,13 +8330,13 @@ jQuery_WPF.extend( Datepicker.prototype, {
 			// Extract a name from the string value and convert to an index
 			getName = function( match, shortNames, longNames ) {
 				var index = -1,
-					names = jQuery_WPF.map( lookAhead( match ) ? longNames : shortNames, function( v, k ) {
+					names = $.map( lookAhead( match ) ? longNames : shortNames, function( v, k ) {
 						return [ [ k, v ] ];
 					} ).sort( function( a, b ) {
 						return -( a[ 1 ].length - b[ 1 ].length );
 					} );
 
-				jQuery_WPF.each( names, function( i, pair ) {
+				$.each( names, function( i, pair ) {
 					var name = pair[ 1 ];
 					if ( value.substr( iValue, name.length ).toLowerCase() === name.toLowerCase() ) {
 						index = pair[ 0 ];
@@ -8670,16 +8671,15 @@ jQuery_WPF.extend( Datepicker.prototype, {
 			},
 			offsetString = function( offset ) {
 				try {
-					return jQuery_WPF.datepicker.parseDate( jQuery_WPF.datepicker._get( inst, "dateFormat" ),
-						offset, jQuery_WPF.datepicker._getFormatConfig( inst ) );
-				}
-				catch ( e ) {
+					return $.datepicker.parseDate( $.datepicker._get( inst, "dateFormat" ),
+						offset, $.datepicker._getFormatConfig( inst ) );
+				} catch ( e ) {
 
 					// Ignore
 				}
 
 				var date = ( offset.toLowerCase().match( /^c/ ) ?
-					jQuery_WPF.datepicker._getDate( inst ) : null ) || new Date(),
+					$.datepicker._getDate( inst ) : null ) || new Date(),
 					year = date.getFullYear(),
 					month = date.getMonth(),
 					day = date.getDate(),
@@ -8694,11 +8694,11 @@ jQuery_WPF.extend( Datepicker.prototype, {
 							day += parseInt( matches[ 1 ], 10 ) * 7; break;
 						case "m" : case "M" :
 							month += parseInt( matches[ 1 ], 10 );
-							day = Math.min( day, jQuery_WPF.datepicker._getDaysInMonth( year, month ) );
+							day = Math.min( day, $.datepicker._getDaysInMonth( year, month ) );
 							break;
 						case "y": case "Y" :
 							year += parseInt( matches[ 1 ], 10 );
-							day = Math.min( day, jQuery_WPF.datepicker._getDaysInMonth( year, month ) );
+							day = Math.min( day, $.datepicker._getDaysInMonth( year, month ) );
 							break;
 					}
 					matches = pattern.exec( offset );
@@ -8769,31 +8769,31 @@ jQuery_WPF.extend( Datepicker.prototype, {
 		inst.dpDiv.find( "[data-handler]" ).map( function() {
 			var handler = {
 				prev: function() {
-					jQuery_WPF.datepicker._adjustDate( id, -stepMonths, "M" );
+					$.datepicker._adjustDate( id, -stepMonths, "M" );
 				},
 				next: function() {
-					jQuery_WPF.datepicker._adjustDate( id, +stepMonths, "M" );
+					$.datepicker._adjustDate( id, +stepMonths, "M" );
 				},
 				hide: function() {
-					jQuery_WPF.datepicker._hideDatepicker();
+					$.datepicker._hideDatepicker();
 				},
 				today: function() {
-					jQuery_WPF.datepicker._gotoToday( id );
+					$.datepicker._gotoToday( id );
 				},
 				selectDay: function() {
-					jQuery_WPF.datepicker._selectDay( id, +this.getAttribute( "data-month" ), +this.getAttribute( "data-year" ), this );
+					$.datepicker._selectDay( id, +this.getAttribute( "data-month" ), +this.getAttribute( "data-year" ), this );
 					return false;
 				},
 				selectMonth: function() {
-					jQuery_WPF.datepicker._selectMonthYear( id, this, "M" );
+					$.datepicker._selectMonthYear( id, this, "M" );
 					return false;
 				},
 				selectYear: function() {
-					jQuery_WPF.datepicker._selectMonthYear( id, this, "Y" );
+					$.datepicker._selectMonthYear( id, this, "Y" );
 					return false;
 				}
 			};
-			jQuery_WPF( this ).on( this.getAttribute( "data-event" ), handler[ this.getAttribute( "data-handler" ) ] );
+			$( this ).on( this.getAttribute( "data-event" ), handler[ this.getAttribute( "data-handler" ) ] );
 		} );
 	},
 
@@ -8847,32 +8847,104 @@ jQuery_WPF.extend( Datepicker.prototype, {
 			this._daylightSavingAdjust( new Date( drawYear, drawMonth - stepMonths, 1 ) ),
 			this._getFormatConfig( inst ) ) );
 
-		prev = ( this._canAdjustMonth( inst, -1, drawYear, drawMonth ) ?
-			"<a class='ui-datepicker-prev ui-corner-all' data-handler='prev' data-event='click'" +
-			" title='" + prevText + "'><span class='ui-icon ui-icon-circle-triangle-" + ( isRTL ? "e" : "w" ) + "'>" + prevText + "</span></a>" :
-			( hideIfNoPrevNext ? "" : "<a class='ui-datepicker-prev ui-corner-all ui-state-disabled' title='" + prevText + "'><span class='ui-icon ui-icon-circle-triangle-" + ( isRTL ? "e" : "w" ) + "'>" + prevText + "</span></a>" ) );
+		if ( this._canAdjustMonth( inst, -1, drawYear, drawMonth ) ) {
+			prev = $( "<a>" )
+				.attr( {
+					"class": "ui-datepicker-prev ui-corner-all",
+					"data-handler": "prev",
+					"data-event": "click",
+					title: prevText
+				} )
+				.append(
+					$( "<span>" )
+						.addClass( "ui-icon ui-icon-circle-triangle-" +
+							( isRTL ? "e" : "w" ) )
+						.text( prevText )
+				)[ 0 ].outerHTML;
+		} else if ( hideIfNoPrevNext ) {
+			prev = "";
+		} else {
+			prev = $( "<a>" )
+				.attr( {
+					"class": "ui-datepicker-prev ui-corner-all ui-state-disabled",
+					title: prevText
+				} )
+				.append(
+					$( "<span>" )
+						.addClass( "ui-icon ui-icon-circle-triangle-" +
+							( isRTL ? "e" : "w" ) )
+						.text( prevText )
+				)[ 0 ].outerHTML;
+		}
 
 		nextText = this._get( inst, "nextText" );
 		nextText = ( !navigationAsDateFormat ? nextText : this.formatDate( nextText,
 			this._daylightSavingAdjust( new Date( drawYear, drawMonth + stepMonths, 1 ) ),
 			this._getFormatConfig( inst ) ) );
 
-		next = ( this._canAdjustMonth( inst, +1, drawYear, drawMonth ) ?
-			"<a class='ui-datepicker-next ui-corner-all' data-handler='next' data-event='click'" +
-			" title='" + nextText + "'><span class='ui-icon ui-icon-circle-triangle-" + ( isRTL ? "w" : "e" ) + "'>" + nextText + "</span></a>" :
-			( hideIfNoPrevNext ? "" : "<a class='ui-datepicker-next ui-corner-all ui-state-disabled' title='" + nextText + "'><span class='ui-icon ui-icon-circle-triangle-" + ( isRTL ? "w" : "e" ) + "'>" + nextText + "</span></a>" ) );
+		if ( this._canAdjustMonth( inst, +1, drawYear, drawMonth ) ) {
+			next = $( "<a>" )
+				.attr( {
+					"class": "ui-datepicker-next ui-corner-all",
+					"data-handler": "next",
+					"data-event": "click",
+					title: nextText
+				} )
+				.append(
+					$( "<span>" )
+						.addClass( "ui-icon ui-icon-circle-triangle-" +
+							( isRTL ? "w" : "e" ) )
+						.text( nextText )
+				)[ 0 ].outerHTML;
+		} else if ( hideIfNoPrevNext ) {
+			next = "";
+		} else {
+			next = $( "<a>" )
+				.attr( {
+					"class": "ui-datepicker-next ui-corner-all ui-state-disabled",
+					title: nextText
+				} )
+				.append(
+					$( "<span>" )
+						.attr( "class", "ui-icon ui-icon-circle-triangle-" +
+							( isRTL ? "w" : "e" ) )
+						.text( nextText )
+				)[ 0 ].outerHTML;
+		}
 
 		currentText = this._get( inst, "currentText" );
 		gotoDate = ( this._get( inst, "gotoCurrent" ) && inst.currentDay ? currentDate : today );
 		currentText = ( !navigationAsDateFormat ? currentText :
 			this.formatDate( currentText, gotoDate, this._getFormatConfig( inst ) ) );
 
-		controls = ( !inst.inline ? "<button type='button' class='ui-datepicker-close ui-state-default ui-priority-primary ui-corner-all' data-handler='hide' data-event='click'>" +
-			this._get( inst, "closeText" ) + "</button>" : "" );
+		controls = "";
+		if ( !inst.inline ) {
+			controls = $( "<button>" )
+				.attr( {
+					type: "button",
+					"class": "ui-datepicker-close ui-state-default ui-priority-primary ui-corner-all",
+					"data-handler": "hide",
+					"data-event": "click"
+				} )
+				.text( this._get( inst, "closeText" ) )[ 0 ].outerHTML;
+		}
 
-		buttonPanel = ( showButtonPanel ) ? "<div class='ui-datepicker-buttonpane ui-widget-content'>" + ( isRTL ? controls : "" ) +
-			( this._isInRange( inst, gotoDate ) ? "<button type='button' class='ui-datepicker-current ui-state-default ui-priority-secondary ui-corner-all' data-handler='today' data-event='click'" +
-			">" + currentText + "</button>" : "" ) + ( isRTL ? "" : controls ) + "</div>" : "";
+		buttonPanel = "";
+		if ( showButtonPanel ) {
+			buttonPanel = $( "<div class='ui-datepicker-buttonpane ui-widget-content'>" )
+				.append( isRTL ? controls : "" )
+				.append( this._isInRange( inst, gotoDate ) ?
+					$( "<button>" )
+						.attr( {
+							type: "button",
+							"class": "ui-datepicker-current ui-state-default ui-priority-secondary ui-corner-all",
+							"data-handler": "today",
+							"data-event": "click"
+						} )
+						.text( currentText ) :
+					"" )
+				.append( isRTL ? "" : controls )[ 0 ].outerHTML;
+		}
 
 		firstDay = parseInt( this._get( inst, "firstDay" ), 10 );
 		firstDay = ( isNaN( firstDay ) ? 0 : firstDay );
@@ -8960,7 +9032,9 @@ jQuery_WPF.extend( Datepicker.prototype, {
 							( printDate.getTime() === today.getTime() ? " ui-state-highlight" : "" ) +
 							( printDate.getTime() === currentDate.getTime() ? " ui-state-active" : "" ) + // highlight selected day
 							( otherMonth ? " ui-priority-secondary" : "" ) + // distinguish dates from other months
-							"' href='#'>" + printDate.getDate() + "</a>" ) ) + "</td>"; // display selectable date
+							"' href='#' aria-current='" + ( printDate.getTime() === currentDate.getTime() ? "true" : "false" ) + // mark date as selected for screen reader
+							"' data-date='" + printDate.getDate() + // store date as data
+							"'>" + printDate.getDate() + "</a>" ) ) + "</td>"; // display selectable date
 						printDate.setDate( printDate.getDate() + 1 );
 						printDate = this._daylightSavingAdjust( printDate );
 					}
@@ -8990,6 +9064,8 @@ jQuery_WPF.extend( Datepicker.prototype, {
 			changeMonth = this._get( inst, "changeMonth" ),
 			changeYear = this._get( inst, "changeYear" ),
 			showMonthAfterYear = this._get( inst, "showMonthAfterYear" ),
+			selectMonthLabel = this._get( inst, "selectMonthLabel" ),
+			selectYearLabel = this._get( inst, "selectYearLabel" ),
 			html = "<div class='ui-datepicker-title'>",
 			monthHtml = "";
 
@@ -8999,7 +9075,7 @@ jQuery_WPF.extend( Datepicker.prototype, {
 		} else {
 			inMinYear = ( minDate && minDate.getFullYear() === drawYear );
 			inMaxYear = ( maxDate && maxDate.getFullYear() === drawYear );
-			monthHtml += "<select class='ui-datepicker-month' data-handler='selectMonth' data-event='change'>";
+			monthHtml += "<select class='ui-datepicker-month' aria-label='" + selectMonthLabel + "' data-handler='selectMonth' data-event='change'>";
 			for ( month = 0; month < 12; month++ ) {
 				if ( ( !inMinYear || month >= minDate.getMonth() ) && ( !inMaxYear || month <= maxDate.getMonth() ) ) {
 					monthHtml += "<option value='" + month + "'" +
@@ -9034,7 +9110,7 @@ jQuery_WPF.extend( Datepicker.prototype, {
 				endYear = Math.max( year, determineYear( years[ 1 ] || "" ) );
 				year = ( minDate ? Math.max( year, minDate.getFullYear() ) : year );
 				endYear = ( maxDate ? Math.min( endYear, maxDate.getFullYear() ) : endYear );
-				inst.yearshtml += "<select class='ui-datepicker-year' data-handler='selectYear' data-event='change'>";
+				inst.yearshtml += "<select class='ui-datepicker-year' aria-label='" + selectYearLabel + "' data-handler='selectYear' data-event='change'>";
 				for ( ; year <= endYear; year++ ) {
 					inst.yearshtml += "<option value='" + year + "'" +
 						( year === drawYear ? " selected='selected'" : "" ) +
@@ -9179,33 +9255,33 @@ jQuery_WPF.extend( Datepicker.prototype, {
 function datepicker_bindHover( dpDiv ) {
 	var selector = "button, .ui-datepicker-prev, .ui-datepicker-next, .ui-datepicker-calendar td a";
 	return dpDiv.on( "mouseout", selector, function() {
-			jQuery_WPF( this ).removeClass( "ui-state-hover" );
+			$( this ).removeClass( "ui-state-hover" );
 			if ( this.className.indexOf( "ui-datepicker-prev" ) !== -1 ) {
-				jQuery_WPF( this ).removeClass( "ui-datepicker-prev-hover" );
+				$( this ).removeClass( "ui-datepicker-prev-hover" );
 			}
 			if ( this.className.indexOf( "ui-datepicker-next" ) !== -1 ) {
-				jQuery_WPF( this ).removeClass( "ui-datepicker-next-hover" );
+				$( this ).removeClass( "ui-datepicker-next-hover" );
 			}
 		} )
 		.on( "mouseover", selector, datepicker_handleMouseover );
 }
 
 function datepicker_handleMouseover() {
-	if ( !jQuery_WPF.datepicker._isDisabledDatepicker( datepicker_instActive.inline ? datepicker_instActive.dpDiv.parent()[ 0 ] : datepicker_instActive.input[ 0 ] ) ) {
-		jQuery_WPF( this ).parents( ".ui-datepicker-calendar" ).find( "a" ).removeClass( "ui-state-hover" );
-		jQuery_WPF( this ).addClass( "ui-state-hover" );
+	if ( !$.datepicker._isDisabledDatepicker( datepicker_instActive.inline ? datepicker_instActive.dpDiv.parent()[ 0 ] : datepicker_instActive.input[ 0 ] ) ) {
+		$( this ).parents( ".ui-datepicker-calendar" ).find( "a" ).removeClass( "ui-state-hover" );
+		$( this ).addClass( "ui-state-hover" );
 		if ( this.className.indexOf( "ui-datepicker-prev" ) !== -1 ) {
-			jQuery_WPF( this ).addClass( "ui-datepicker-prev-hover" );
+			$( this ).addClass( "ui-datepicker-prev-hover" );
 		}
 		if ( this.className.indexOf( "ui-datepicker-next" ) !== -1 ) {
-			jQuery_WPF( this ).addClass( "ui-datepicker-next-hover" );
+			$( this ).addClass( "ui-datepicker-next-hover" );
 		}
 	}
 }
 
 /* jQuery extend now ignores nulls! */
 function datepicker_extendRemove( target, props ) {
-	jQuery_WPF.extend( target, props );
+	$.extend( target, props );
 	for ( var name in props ) {
 		if ( props[ name ] == null ) {
 			target[ name ] = props[ name ];
@@ -9218,7 +9294,7 @@ function datepicker_extendRemove( target, props ) {
    @param  options  string - a command, optionally followed by additional parameters or
 					Object - settings for attaching new datepicker functionality
    @return  jQuery object */
-jQuery_WPF.fn.datepicker = function( options ) {
+$.fn.datepicker = function( options ) {
 
 	/* Verify an empty collection wasn't passed - Fixes #6976 */
 	if ( !this.length ) {
@@ -9226,69 +9302,65 @@ jQuery_WPF.fn.datepicker = function( options ) {
 	}
 
 	/* Initialise the date picker. */
-	if ( !jQuery_WPF.datepicker.initialized ) {
-		jQuery_WPF( document ).on( "mousedown", jQuery_WPF.datepicker._checkExternalClick );
-		jQuery_WPF.datepicker.initialized = true;
+	if ( !$.datepicker.initialized ) {
+		$( document ).on( "mousedown", $.datepicker._checkExternalClick );
+		$.datepicker.initialized = true;
 	}
 
 	/* Append datepicker main container to body if not exist. */
-	if ( jQuery_WPF( "#" + jQuery_WPF.datepicker._mainDivId ).length === 0 ) {
-		jQuery_WPF( "body" ).append( jQuery_WPF.datepicker.dpDiv );
+	if ( $( "#" + $.datepicker._mainDivId ).length === 0 ) {
+		$( "body" ).append( $.datepicker.dpDiv );
 	}
 
 	var otherArgs = Array.prototype.slice.call( arguments, 1 );
 	if ( typeof options === "string" && ( options === "isDisabled" || options === "getDate" || options === "widget" ) ) {
-		return jQuery_WPF.datepicker[ "_" + options + "Datepicker" ].
-			apply( jQuery_WPF.datepicker, [ this[ 0 ] ].concat( otherArgs ) );
+		return $.datepicker[ "_" + options + "Datepicker" ].
+			apply( $.datepicker, [ this[ 0 ] ].concat( otherArgs ) );
 	}
 	if ( options === "option" && arguments.length === 2 && typeof arguments[ 1 ] === "string" ) {
-		return jQuery_WPF.datepicker[ "_" + options + "Datepicker" ].
-			apply( jQuery_WPF.datepicker, [ this[ 0 ] ].concat( otherArgs ) );
+		return $.datepicker[ "_" + options + "Datepicker" ].
+			apply( $.datepicker, [ this[ 0 ] ].concat( otherArgs ) );
 	}
 	return this.each( function() {
-		typeof options === "string" ?
-			jQuery_WPF.datepicker[ "_" + options + "Datepicker" ].
-				apply( jQuery_WPF.datepicker, [ this ].concat( otherArgs ) ) :
-			jQuery_WPF.datepicker._attachDatepicker( this, options );
+		if ( typeof options === "string" ) {
+			$.datepicker[ "_" + options + "Datepicker" ]
+				.apply( $.datepicker, [ this ].concat( otherArgs ) );
+		} else {
+			$.datepicker._attachDatepicker( this, options );
+		}
 	} );
 };
 
-jQuery_WPF.datepicker = new Datepicker(); // singleton instance
-jQuery_WPF.datepicker.initialized = false;
-jQuery_WPF.datepicker.uuid = new Date().getTime();
-jQuery_WPF.datepicker.version = "1.12.1";
+$.datepicker = new Datepicker(); // singleton instance
+$.datepicker.initialized = false;
+$.datepicker.uuid = new Date().getTime();
+$.datepicker.version = "1.14.1";
 
-var widgetsDatepicker = jQuery_WPF.datepicker;
+var widgetsDatepicker = $.datepicker;
 
-
-
-
-// This file is deprecated
-var ie = jQuery_WPF.ui.ie = !!/msie [\w.]+/.exec( navigator.userAgent.toLowerCase() );
 
 /*!
- * jQuery UI Mouse 1.12.1
- * http://jqueryui.com
+ * jQuery UI Mouse 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Mouse
 //>>group: Widgets
 //>>description: Abstracts mouse-based interactions to assist in creating certain widgets.
-//>>docs: http://api.jqueryui.com/mouse/
-
+//>>docs: https://api.jqueryui.com/mouse/
 
 
 var mouseHandled = false;
-jQuery_WPF( document ).on( "mouseup", function() {
+$( document ).on( "mouseup", function() {
 	mouseHandled = false;
 } );
 
-var widgetsMouse = jQuery_WPF.widget( "ui.mouse", {
-	version: "1.12.1",
+var widgetsMouse = $.widget( "ui.mouse", {
+	version: "1.14.1",
 	options: {
 		cancel: "input, textarea, button, select, option",
 		distance: 1,
@@ -9302,8 +9374,8 @@ var widgetsMouse = jQuery_WPF.widget( "ui.mouse", {
 				return that._mouseDown( event );
 			} )
 			.on( "click." + this.widgetName, function( event ) {
-				if ( true === jQuery_WPF.data( event.target, that.widgetName + ".preventClickEvent" ) ) {
-					jQuery_WPF.removeData( event.target, that.widgetName + ".preventClickEvent" );
+				if ( true === $.data( event.target, that.widgetName + ".preventClickEvent" ) ) {
+					$.removeData( event.target, that.widgetName + ".preventClickEvent" );
 					event.stopImmediatePropagation();
 					return false;
 				}
@@ -9333,17 +9405,17 @@ var widgetsMouse = jQuery_WPF.widget( "ui.mouse", {
 		this._mouseMoved = false;
 
 		// We may have missed mouseup (out of window)
-		( this._mouseStarted && this._mouseUp( event ) );
+		if ( this._mouseStarted ) {
+			this._mouseUp( event );
+		}
 
 		this._mouseDownEvent = event;
 
 		var that = this,
-			btnIsLeft = ( event.which === 1 ),
-
-			// event.target.nodeName works around a bug in IE 8 with
-			// disabled inputs (#7620)
-			elIsCancel = ( typeof this.options.cancel === "string" && event.target.nodeName ?
-				jQuery_WPF( event.target ).closest( this.options.cancel ).length : false );
+			btnIsLeft = event.which === 1,
+			elIsCancel = typeof this.options.cancel === "string" ?
+				$( event.target ).closest( this.options.cancel ).length :
+				false;
 		if ( !btnIsLeft || elIsCancel || !this._mouseCapture( event ) ) {
 			return true;
 		}
@@ -9364,8 +9436,8 @@ var widgetsMouse = jQuery_WPF.widget( "ui.mouse", {
 		}
 
 		// Click event may never have fired (Gecko & Opera)
-		if ( true === jQuery_WPF.data( event.target, this.widgetName + ".preventClickEvent" ) ) {
-			jQuery_WPF.removeData( event.target, this.widgetName + ".preventClickEvent" );
+		if ( true === $.data( event.target, this.widgetName + ".preventClickEvent" ) ) {
+			$.removeData( event.target, this.widgetName + ".preventClickEvent" );
 		}
 
 		// These delegates are required to keep context
@@ -9389,28 +9461,17 @@ var widgetsMouse = jQuery_WPF.widget( "ui.mouse", {
 	_mouseMove: function( event ) {
 
 		// Only check for mouseups outside the document if you've moved inside the document
-		// at least once. This prevents the firing of mouseup in the case of IE<9, which will
-		// fire a mousemove event if content is placed under the cursor. See #7778
-		// Support: IE <9
-		if ( this._mouseMoved ) {
+		// at least once.
+		if ( this._mouseMoved && !event.which ) {
 
-			// IE mouseup check - mouseup happened when mouse was out of window
-			if ( jQuery_WPF.ui.ie && ( !document.documentMode || document.documentMode < 9 ) &&
-					!event.button ) {
+			// Support: Safari <=8 - 9
+			// Safari sets which to 0 if you press any of the following keys
+			// during a drag (#14461)
+			if ( event.originalEvent.altKey || event.originalEvent.ctrlKey ||
+					event.originalEvent.metaKey || event.originalEvent.shiftKey ) {
+				this.ignoreMissingWhich = true;
+			} else if ( !this.ignoreMissingWhich ) {
 				return this._mouseUp( event );
-
-			// Iframe mouseup check - mouseup occurred in another document
-			} else if ( !event.which ) {
-
-				// Support: Safari <=8 - 9
-				// Safari sets which to 0 if you press any of the following keys
-				// during a drag (#14461)
-				if ( event.originalEvent.altKey || event.originalEvent.ctrlKey ||
-						event.originalEvent.metaKey || event.originalEvent.shiftKey ) {
-					this.ignoreMissingWhich = true;
-				} else if ( !this.ignoreMissingWhich ) {
-					return this._mouseUp( event );
-				}
 			}
 		}
 
@@ -9426,7 +9487,11 @@ var widgetsMouse = jQuery_WPF.widget( "ui.mouse", {
 		if ( this._mouseDistanceMet( event ) && this._mouseDelayMet( event ) ) {
 			this._mouseStarted =
 				( this._mouseStart( this._mouseDownEvent, event ) !== false );
-			( this._mouseStarted ? this._mouseDrag( event ) : this._mouseUp( event ) );
+			if ( this._mouseStarted ) {
+				this._mouseDrag( event );
+			} else {
+				this._mouseUp( event );
+			}
 		}
 
 		return !this._mouseStarted;
@@ -9441,7 +9506,7 @@ var widgetsMouse = jQuery_WPF.widget( "ui.mouse", {
 			this._mouseStarted = false;
 
 			if ( event.target === this._mouseDownEvent.target ) {
-				jQuery_WPF.data( event.target, this.widgetName + ".preventClickEvent", true );
+				$.data( event.target, this.widgetName + ".preventClickEvent", true );
 			}
 
 			this._mouseStop( event );
@@ -9473,17 +9538,18 @@ var widgetsMouse = jQuery_WPF.widget( "ui.mouse", {
 	_mouseStart: function( /* event */ ) {},
 	_mouseDrag: function( /* event */ ) {},
 	_mouseStop: function( /* event */ ) {},
-	_mouseCapture: function( /* event */ ) { return true; }
+	_mouseCapture: function( /* event */ ) {
+		return true;
+	}
 } );
 
 
 
-
-// jQuery_WPF.ui.plugin is deprecated. Use jQuery_WPF.widget() extensions instead.
-var plugin = jQuery_WPF.ui.plugin = {
+// $.ui.plugin is deprecated. Use $.widget() extensions instead.
+var plugin = $.ui.plugin = {
 	add: function( module, option, set ) {
 		var i,
-			proto = jQuery_WPF.ui[ module ].prototype;
+			proto = $.ui[ module ].prototype;
 		for ( i in set ) {
 			proto.plugins[ i ] = proto.plugins[ i ] || [];
 			proto.plugins[ i ].push( [ option, set[ i ] ] );
@@ -9511,37 +9577,25 @@ var plugin = jQuery_WPF.ui.plugin = {
 };
 
 
-
-var safeBlur = jQuery_WPF.ui.safeBlur = function( element ) {
-
-	// Support: IE9 - 10 only
-	// If the <body> is blurred, IE will switch windows, see #9420
-	if ( element && element.nodeName.toLowerCase() !== "body" ) {
-		jQuery_WPF( element ).trigger( "blur" );
-	}
-};
-
-
 /*!
- * jQuery UI Draggable 1.12.1
- * http://jqueryui.com
+ * jQuery UI Draggable 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Draggable
 //>>group: Interactions
 //>>description: Enables dragging functionality for any element.
-//>>docs: http://api.jqueryui.com/draggable/
-//>>demos: http://jqueryui.com/draggable/
+//>>docs: https://api.jqueryui.com/draggable/
+//>>demos: https://jqueryui.com/draggable/
 //>>css.structure: ../../themes/base/draggable.css
 
 
-
-jQuery_WPF.widget( "ui.draggable", jQuery_WPF.ui.mouse, {
-	version: "1.12.1",
+$.widget( "ui.draggable", $.ui.mouse, {
+	version: "1.14.1",
 	widgetEventPrefix: "drag",
 	options: {
 		addClasses: true,
@@ -9609,7 +9663,7 @@ jQuery_WPF.widget( "ui.draggable", jQuery_WPF.ui.mouse, {
 
 		// Among others, prevent a drag on a resizable-handle
 		if ( this.helper || o.disabled ||
-				jQuery_WPF( event.target ).closest( ".ui-resizable-handle" ).length > 0 ) {
+				$( event.target ).closest( ".ui-resizable-handle" ).length > 0 ) {
 			return false;
 		}
 
@@ -9629,9 +9683,9 @@ jQuery_WPF.widget( "ui.draggable", jQuery_WPF.ui.mouse, {
 
 	_blockFrames: function( selector ) {
 		this.iframeBlocks = this.document.find( selector ).map( function() {
-			var iframe = jQuery_WPF( this );
+			var iframe = $( this );
 
-			return jQuery_WPF( "<div>" )
+			return $( "<div>" )
 				.css( "position", "absolute" )
 				.appendTo( iframe.parent() )
 				.outerWidth( iframe.outerWidth() )
@@ -9648,8 +9702,8 @@ jQuery_WPF.widget( "ui.draggable", jQuery_WPF.ui.mouse, {
 	},
 
 	_blurActiveElement: function( event ) {
-		var activeElement = jQuery_WPF.ui.safeActiveElement( this.document[ 0 ] ),
-			target = jQuery_WPF( event.target );
+		var activeElement = this.document[ 0 ].activeElement,
+			target = $( event.target );
 
 		// Don't blur if the event occurred on an element that is within
 		// the currently focused element
@@ -9659,7 +9713,7 @@ jQuery_WPF.widget( "ui.draggable", jQuery_WPF.ui.mouse, {
 		}
 
 		// Blur any element that currently has focus, see #4261
-		jQuery_WPF.ui.safeBlur( activeElement );
+		$( activeElement ).trigger( "blur" );
 	},
 
 	_mouseStart: function( event ) {
@@ -9675,8 +9729,8 @@ jQuery_WPF.widget( "ui.draggable", jQuery_WPF.ui.mouse, {
 		this._cacheHelperProportions();
 
 		//If ddmanager is used for droppables, set the global draggable
-		if ( jQuery_WPF.ui.ddmanager ) {
-			jQuery_WPF.ui.ddmanager.current = this;
+		if ( $.ui.ddmanager ) {
+			$.ui.ddmanager.current = this;
 		}
 
 		/*
@@ -9692,7 +9746,7 @@ jQuery_WPF.widget( "ui.draggable", jQuery_WPF.ui.mouse, {
 		this.scrollParent = this.helper.scrollParent( true );
 		this.offsetParent = this.helper.offsetParent();
 		this.hasFixedAncestor = this.helper.parents().filter( function() {
-				return jQuery_WPF( this ).css( "position" ) === "fixed";
+				return $( this ).css( "position" ) === "fixed";
 			} ).length > 0;
 
 		//The element's absolute position on the page minus margins
@@ -9705,7 +9759,9 @@ jQuery_WPF.widget( "ui.draggable", jQuery_WPF.ui.mouse, {
 		this.originalPageY = event.pageY;
 
 		//Adjust the mouse offset relative to the helper if "cursorAt" is supplied
-		( o.cursorAt && this._adjustOffsetFromHelper( o.cursorAt ) );
+		if ( o.cursorAt ) {
+			this._adjustOffsetFromHelper( o.cursorAt );
+		}
 
 		//Set a containment if given in the options
 		this._setContainment();
@@ -9720,8 +9776,8 @@ jQuery_WPF.widget( "ui.draggable", jQuery_WPF.ui.mouse, {
 		this._cacheHelperProportions();
 
 		//Prepare the droppable offsets
-		if ( jQuery_WPF.ui.ddmanager && !o.dropBehaviour ) {
-			jQuery_WPF.ui.ddmanager.prepareOffsets( this, event );
+		if ( $.ui.ddmanager && !o.dropBehaviour ) {
+			$.ui.ddmanager.prepareOffsets( this, event );
 		}
 
 		// Execute the drag once - this causes the helper not to be visible before getting its
@@ -9730,8 +9786,8 @@ jQuery_WPF.widget( "ui.draggable", jQuery_WPF.ui.mouse, {
 
 		// If the ddmanager is used for droppables, inform the manager that dragging has started
 		// (see #5003)
-		if ( jQuery_WPF.ui.ddmanager ) {
-			jQuery_WPF.ui.ddmanager.dragStart( this, event );
+		if ( $.ui.ddmanager ) {
+			$.ui.ddmanager.dragStart( this, event );
 		}
 
 		return true;
@@ -9767,7 +9823,7 @@ jQuery_WPF.widget( "ui.draggable", jQuery_WPF.ui.mouse, {
 		if ( !noPropagation ) {
 			var ui = this._uiHash();
 			if ( this._trigger( "drag", event, ui ) === false ) {
-				this._mouseUp( new jQuery_WPF.Event( "mouseup", event ) );
+				this._mouseUp( new $.Event( "mouseup", event ) );
 				return false;
 			}
 			this.position = ui.position;
@@ -9776,8 +9832,8 @@ jQuery_WPF.widget( "ui.draggable", jQuery_WPF.ui.mouse, {
 		this.helper[ 0 ].style.left = this.position.left + "px";
 		this.helper[ 0 ].style.top = this.position.top + "px";
 
-		if ( jQuery_WPF.ui.ddmanager ) {
-			jQuery_WPF.ui.ddmanager.drag( this, event );
+		if ( $.ui.ddmanager ) {
+			$.ui.ddmanager.drag( this, event );
 		}
 
 		return false;
@@ -9788,8 +9844,8 @@ jQuery_WPF.widget( "ui.draggable", jQuery_WPF.ui.mouse, {
 		//If we are using droppables, inform the manager about the drop
 		var that = this,
 			dropped = false;
-		if ( jQuery_WPF.ui.ddmanager && !this.options.dropBehaviour ) {
-			dropped = jQuery_WPF.ui.ddmanager.drop( this, event );
+		if ( $.ui.ddmanager && !this.options.dropBehaviour ) {
+			dropped = $.ui.ddmanager.drop( this, event );
 		}
 
 		//if a drop comes from outside (a sortable)
@@ -9800,10 +9856,10 @@ jQuery_WPF.widget( "ui.draggable", jQuery_WPF.ui.mouse, {
 
 		if ( ( this.options.revert === "invalid" && !dropped ) ||
 				( this.options.revert === "valid" && dropped ) ||
-				this.options.revert === true || ( jQuery_WPF.isFunction( this.options.revert ) &&
+				this.options.revert === true || ( typeof this.options.revert === "function" &&
 				this.options.revert.call( this.element, dropped ) )
 		) {
-			jQuery_WPF( this.helper ).animate(
+			$( this.helper ).animate(
 				this.originalPosition,
 				parseInt( this.options.revertDuration, 10 ),
 				function() {
@@ -9826,8 +9882,8 @@ jQuery_WPF.widget( "ui.draggable", jQuery_WPF.ui.mouse, {
 
 		// If the ddmanager is used for droppables, inform the manager that dragging has stopped
 		// (see #5003)
-		if ( jQuery_WPF.ui.ddmanager ) {
-			jQuery_WPF.ui.ddmanager.dragStop( this, event );
+		if ( $.ui.ddmanager ) {
+			$.ui.ddmanager.dragStop( this, event );
 		}
 
 		// Only need to focus if the event occurred on the draggable itself, see #10527
@@ -9838,13 +9894,13 @@ jQuery_WPF.widget( "ui.draggable", jQuery_WPF.ui.mouse, {
 			this.element.trigger( "focus" );
 		}
 
-		return jQuery_WPF.ui.mouse.prototype._mouseUp.call( this, event );
+		return $.ui.mouse.prototype._mouseUp.call( this, event );
 	},
 
 	cancel: function() {
 
 		if ( this.helper.is( ".ui-draggable-dragging" ) ) {
-			this._mouseUp( new jQuery_WPF.Event( "mouseup", { target: this.element[ 0 ] } ) );
+			this._mouseUp( new $.Event( "mouseup", { target: this.element[ 0 ] } ) );
 		} else {
 			this._clear();
 		}
@@ -9855,7 +9911,7 @@ jQuery_WPF.widget( "ui.draggable", jQuery_WPF.ui.mouse, {
 
 	_getHandle: function( event ) {
 		return this.options.handle ?
-			!!jQuery_WPF( event.target ).closest( this.element.find( this.options.handle ) ).length :
+			!!$( event.target ).closest( this.element.find( this.options.handle ) ).length :
 			true;
 	},
 
@@ -9872,9 +9928,9 @@ jQuery_WPF.widget( "ui.draggable", jQuery_WPF.ui.mouse, {
 	_createHelper: function( event ) {
 
 		var o = this.options,
-			helperIsFunction = jQuery_WPF.isFunction( o.helper ),
+			helperIsFunction = typeof o.helper === "function",
 			helper = helperIsFunction ?
-				jQuery_WPF( o.helper.apply( this.element[ 0 ], [ event ] ) ) :
+				$( o.helper.apply( this.element[ 0 ], [ event ] ) ) :
 				( o.helper === "clone" ?
 					this.element.clone().removeAttr( "id" ) :
 					this.element );
@@ -9885,7 +9941,7 @@ jQuery_WPF.widget( "ui.draggable", jQuery_WPF.ui.mouse, {
 				o.appendTo ) );
 		}
 
-		// Http://bugs.jqueryui.com/ticket/9446
+		// https://bugs.jqueryui.com/ticket/9446
 		// a helper function can return the original element
 		// which wouldn't have been set to relative in _create
 		if ( helperIsFunction && helper[ 0 ] === this.element[ 0 ] ) {
@@ -9911,7 +9967,7 @@ jQuery_WPF.widget( "ui.draggable", jQuery_WPF.ui.mouse, {
 		if ( typeof obj === "string" ) {
 			obj = obj.split( " " );
 		}
-		if ( jQuery_WPF.isArray( obj ) ) {
+		if ( Array.isArray( obj ) ) {
 			obj = { left: +obj[ 0 ], top: +obj[ 1 ] || 0 };
 		}
 		if ( "left" in obj ) {
@@ -9946,7 +10002,7 @@ jQuery_WPF.widget( "ui.draggable", jQuery_WPF.ui.mouse, {
 		// the document, which means that the scroll is included in the initial calculation of the
 		// offset of the parent, and never recalculated upon drag
 		if ( this.cssPosition === "absolute" && this.scrollParent[ 0 ] !== document &&
-				jQuery_WPF.contains( this.scrollParent[ 0 ], this.offsetParent[ 0 ] ) ) {
+				$.contains( this.scrollParent[ 0 ], this.offsetParent[ 0 ] ) ) {
 			po.left += this.scrollParent.scrollLeft();
 			po.top += this.scrollParent.scrollTop();
 		}
@@ -10010,12 +10066,12 @@ jQuery_WPF.widget( "ui.draggable", jQuery_WPF.ui.mouse, {
 
 		if ( o.containment === "window" ) {
 			this.containment = [
-				jQuery_WPF( window ).scrollLeft() - this.offset.relative.left - this.offset.parent.left,
-				jQuery_WPF( window ).scrollTop() - this.offset.relative.top - this.offset.parent.top,
-				jQuery_WPF( window ).scrollLeft() + jQuery_WPF( window ).width() -
+				$( window ).scrollLeft() - this.offset.relative.left - this.offset.parent.left,
+				$( window ).scrollTop() - this.offset.relative.top - this.offset.parent.top,
+				$( window ).scrollLeft() + $( window ).width() -
 					this.helperProportions.width - this.margins.left,
-				jQuery_WPF( window ).scrollTop() +
-					( jQuery_WPF( window ).height() || document.body.parentNode.scrollHeight ) -
+				$( window ).scrollTop() +
+					( $( window ).height() || document.body.parentNode.scrollHeight ) -
 					this.helperProportions.height - this.margins.top
 			];
 			return;
@@ -10025,8 +10081,8 @@ jQuery_WPF.widget( "ui.draggable", jQuery_WPF.ui.mouse, {
 			this.containment = [
 				0,
 				0,
-				jQuery_WPF( document ).width() - this.helperProportions.width - this.margins.left,
-				( jQuery_WPF( document ).height() || document.body.parentNode.scrollHeight ) -
+				$( document ).width() - this.helperProportions.width - this.margins.left,
+				( $( document ).height() || document.body.parentNode.scrollHeight ) -
 					this.helperProportions.height - this.margins.top
 			];
 			return;
@@ -10041,7 +10097,7 @@ jQuery_WPF.widget( "ui.draggable", jQuery_WPF.ui.mouse, {
 			o.containment = this.helper[ 0 ].parentNode;
 		}
 
-		c = jQuery_WPF( o.containment );
+		c = $( o.containment );
 		ce = c[ 0 ];
 
 		if ( !ce ) {
@@ -10249,14 +10305,14 @@ jQuery_WPF.widget( "ui.draggable", jQuery_WPF.ui.mouse, {
 
 	_trigger: function( type, event, ui ) {
 		ui = ui || this._uiHash();
-		jQuery_WPF.ui.plugin.call( this, type, [ event, ui, this ], true );
+		$.ui.plugin.call( this, type, [ event, ui, this ], true );
 
 		// Absolute position and offset (see #6884 ) have to be recalculated after plugins
 		if ( /^(drag|start|stop)/.test( type ) ) {
 			this.positionAbs = this._convertPositionTo( "absolute" );
 			ui.offset = this.positionAbs;
 		}
-		return jQuery_WPF.Widget.prototype._trigger.call( this, type, event, ui );
+		return $.Widget.prototype._trigger.call( this, type, event, ui );
 	},
 
 	plugins: {},
@@ -10272,15 +10328,15 @@ jQuery_WPF.widget( "ui.draggable", jQuery_WPF.ui.mouse, {
 
 } );
 
-jQuery_WPF.ui.plugin.add( "draggable", "connectToSortable", {
+$.ui.plugin.add( "draggable", "connectToSortable", {
 	start: function( event, ui, draggable ) {
-		var uiSortable = jQuery_WPF.extend( {}, ui, {
+		var uiSortable = $.extend( {}, ui, {
 			item: draggable.element
 		} );
 
 		draggable.sortables = [];
-		jQuery_WPF( draggable.options.connectToSortable ).each( function() {
-			var sortable = jQuery_WPF( this ).sortable( "instance" );
+		$( draggable.options.connectToSortable ).each( function() {
+			var sortable = $( this ).sortable( "instance" );
 
 			if ( sortable && !sortable.options.disabled ) {
 				draggable.sortables.push( sortable );
@@ -10294,13 +10350,13 @@ jQuery_WPF.ui.plugin.add( "draggable", "connectToSortable", {
 		} );
 	},
 	stop: function( event, ui, draggable ) {
-		var uiSortable = jQuery_WPF.extend( {}, ui, {
+		var uiSortable = $.extend( {}, ui, {
 			item: draggable.element
 		} );
 
 		draggable.cancelHelperRemoval = false;
 
-		jQuery_WPF.each( draggable.sortables, function() {
+		$.each( draggable.sortables, function() {
 			var sortable = this;
 
 			if ( sortable.isOver ) {
@@ -10336,7 +10392,7 @@ jQuery_WPF.ui.plugin.add( "draggable", "connectToSortable", {
 		} );
 	},
 	drag: function( event, ui, draggable ) {
-		jQuery_WPF.each( draggable.sortables, function() {
+		$.each( draggable.sortables, function() {
 			var innermostIntersecting = false,
 				sortable = this;
 
@@ -10348,7 +10404,7 @@ jQuery_WPF.ui.plugin.add( "draggable", "connectToSortable", {
 			if ( sortable._intersectsWith( sortable.containerCache ) ) {
 				innermostIntersecting = true;
 
-				jQuery_WPF.each( draggable.sortables, function() {
+				$.each( draggable.sortables, function() {
 
 					// Copy over variables that sortable's _intersectsWith uses
 					this.positionAbs = draggable.positionAbs;
@@ -10357,7 +10413,7 @@ jQuery_WPF.ui.plugin.add( "draggable", "connectToSortable", {
 
 					if ( this !== sortable &&
 							this._intersectsWith( this.containerCache ) &&
-							jQuery_WPF.contains( sortable.element[ 0 ], this.element[ 0 ] ) ) {
+							$.contains( sortable.element[ 0 ], this.element[ 0 ] ) ) {
 						innermostIntersecting = false;
 					}
 
@@ -10409,7 +10465,7 @@ jQuery_WPF.ui.plugin.add( "draggable", "connectToSortable", {
 
 					// Need to refreshPositions of all sortables in the case that
 					// adding to one sortable changes the location of the other sortables (#9675)
-					jQuery_WPF.each( draggable.sortables, function() {
+					$.each( draggable.sortables, function() {
 						this.refreshPositions();
 					} );
 
@@ -10466,7 +10522,7 @@ jQuery_WPF.ui.plugin.add( "draggable", "connectToSortable", {
 
 					// Need to refreshPositions of all sortables just in case removing
 					// from one sortable changes the location of other sortables (#9675)
-					jQuery_WPF.each( draggable.sortables, function() {
+					$.each( draggable.sortables, function() {
 						this.refreshPositions();
 					} );
 				}
@@ -10475,9 +10531,9 @@ jQuery_WPF.ui.plugin.add( "draggable", "connectToSortable", {
 	}
 } );
 
-jQuery_WPF.ui.plugin.add( "draggable", "cursor", {
+$.ui.plugin.add( "draggable", "cursor", {
 	start: function( event, ui, instance ) {
-		var t = jQuery_WPF( "body" ),
+		var t = $( "body" ),
 			o = instance.options;
 
 		if ( t.css( "cursor" ) ) {
@@ -10488,14 +10544,14 @@ jQuery_WPF.ui.plugin.add( "draggable", "cursor", {
 	stop: function( event, ui, instance ) {
 		var o = instance.options;
 		if ( o._cursor ) {
-			jQuery_WPF( "body" ).css( "cursor", o._cursor );
+			$( "body" ).css( "cursor", o._cursor );
 		}
 	}
 } );
 
-jQuery_WPF.ui.plugin.add( "draggable", "opacity", {
+$.ui.plugin.add( "draggable", "opacity", {
 	start: function( event, ui, instance ) {
-		var t = jQuery_WPF( ui.helper ),
+		var t = $( ui.helper ),
 			o = instance.options;
 		if ( t.css( "opacity" ) ) {
 			o._opacity = t.css( "opacity" );
@@ -10505,12 +10561,12 @@ jQuery_WPF.ui.plugin.add( "draggable", "opacity", {
 	stop: function( event, ui, instance ) {
 		var o = instance.options;
 		if ( o._opacity ) {
-			jQuery_WPF( ui.helper ).css( "opacity", o._opacity );
+			$( ui.helper ).css( "opacity", o._opacity );
 		}
 	}
 } );
 
-jQuery_WPF.ui.plugin.add( "draggable", "scroll", {
+$.ui.plugin.add( "draggable", "scroll", {
 	start: function( event, ui, i ) {
 		if ( !i.scrollParentNotHidden ) {
 			i.scrollParentNotHidden = i.helper.scrollParent( false );
@@ -10550,46 +10606,46 @@ jQuery_WPF.ui.plugin.add( "draggable", "scroll", {
 		} else {
 
 			if ( !o.axis || o.axis !== "x" ) {
-				if ( event.pageY - jQuery_WPF( document ).scrollTop() < o.scrollSensitivity ) {
-					scrolled = jQuery_WPF( document ).scrollTop( jQuery_WPF( document ).scrollTop() - o.scrollSpeed );
-				} else if ( jQuery_WPF( window ).height() - ( event.pageY - jQuery_WPF( document ).scrollTop() ) <
+				if ( event.pageY - $( document ).scrollTop() < o.scrollSensitivity ) {
+					scrolled = $( document ).scrollTop( $( document ).scrollTop() - o.scrollSpeed );
+				} else if ( $( window ).height() - ( event.pageY - $( document ).scrollTop() ) <
 						o.scrollSensitivity ) {
-					scrolled = jQuery_WPF( document ).scrollTop( jQuery_WPF( document ).scrollTop() + o.scrollSpeed );
+					scrolled = $( document ).scrollTop( $( document ).scrollTop() + o.scrollSpeed );
 				}
 			}
 
 			if ( !o.axis || o.axis !== "y" ) {
-				if ( event.pageX - jQuery_WPF( document ).scrollLeft() < o.scrollSensitivity ) {
-					scrolled = jQuery_WPF( document ).scrollLeft(
-						jQuery_WPF( document ).scrollLeft() - o.scrollSpeed
+				if ( event.pageX - $( document ).scrollLeft() < o.scrollSensitivity ) {
+					scrolled = $( document ).scrollLeft(
+						$( document ).scrollLeft() - o.scrollSpeed
 					);
-				} else if ( jQuery_WPF( window ).width() - ( event.pageX - jQuery_WPF( document ).scrollLeft() ) <
+				} else if ( $( window ).width() - ( event.pageX - $( document ).scrollLeft() ) <
 						o.scrollSensitivity ) {
-					scrolled = jQuery_WPF( document ).scrollLeft(
-						jQuery_WPF( document ).scrollLeft() + o.scrollSpeed
+					scrolled = $( document ).scrollLeft(
+						$( document ).scrollLeft() + o.scrollSpeed
 					);
 				}
 			}
 
 		}
 
-		if ( scrolled !== false && jQuery_WPF.ui.ddmanager && !o.dropBehaviour ) {
-			jQuery_WPF.ui.ddmanager.prepareOffsets( i, event );
+		if ( scrolled !== false && $.ui.ddmanager && !o.dropBehaviour ) {
+			$.ui.ddmanager.prepareOffsets( i, event );
 		}
 
 	}
 } );
 
-jQuery_WPF.ui.plugin.add( "draggable", "snap", {
+$.ui.plugin.add( "draggable", "snap", {
 	start: function( event, ui, i ) {
 
 		var o = i.options;
 
 		i.snapElements = [];
 
-		jQuery_WPF( o.snap.constructor !== String ? ( o.snap.items || ":data(ui-draggable)" ) : o.snap )
+		$( o.snap.constructor !== String ? ( o.snap.items || ":data(ui-draggable)" ) : o.snap )
 			.each( function() {
-				var $t = jQuery_WPF( this ),
+				var $t = $( this ),
 					$o = $t.offset();
 				if ( this !== i.element[ 0 ] ) {
 					i.snapElements.push( {
@@ -10617,15 +10673,16 @@ jQuery_WPF.ui.plugin.add( "draggable", "snap", {
 			b = t + inst.snapElements[ i ].height;
 
 			if ( x2 < l - d || x1 > r + d || y2 < t - d || y1 > b + d ||
-					!jQuery_WPF.contains( inst.snapElements[ i ].item.ownerDocument,
+					!$.contains( inst.snapElements[ i ].item.ownerDocument,
 					inst.snapElements[ i ].item ) ) {
 				if ( inst.snapElements[ i ].snapping ) {
-					( inst.options.snap.release &&
+					if ( inst.options.snap.release ) {
 						inst.options.snap.release.call(
 							inst.element,
 							event,
-							jQuery_WPF.extend( inst._uiHash(), { snapItem: inst.snapElements[ i ].item } )
-						) );
+							$.extend( inst._uiHash(), { snapItem: inst.snapElements[ i ].item } )
+						);
+					}
 				}
 				inst.snapElements[ i ].snapping = false;
 				continue;
@@ -10696,13 +10753,14 @@ jQuery_WPF.ui.plugin.add( "draggable", "snap", {
 			}
 
 			if ( !inst.snapElements[ i ].snapping && ( ts || bs || ls || rs || first ) ) {
-				( inst.options.snap.snap &&
+				if ( inst.options.snap.snap ) {
 					inst.options.snap.snap.call(
 						inst.element,
 						event,
-						jQuery_WPF.extend( inst._uiHash(), {
+						$.extend( inst._uiHash(), {
 							snapItem: inst.snapElements[ i ].item
-						} ) ) );
+						} ) );
+				}
 			}
 			inst.snapElements[ i ].snapping = ( ts || bs || ls || rs || first );
 
@@ -10711,28 +10769,30 @@ jQuery_WPF.ui.plugin.add( "draggable", "snap", {
 	}
 } );
 
-jQuery_WPF.ui.plugin.add( "draggable", "stack", {
+$.ui.plugin.add( "draggable", "stack", {
 	start: function( event, ui, instance ) {
 		var min,
 			o = instance.options,
-			group = jQuery_WPF.makeArray( jQuery_WPF( o.stack ) ).sort( function( a, b ) {
-				return ( parseInt( jQuery_WPF( a ).css( "zIndex" ), 10 ) || 0 ) -
-					( parseInt( jQuery_WPF( b ).css( "zIndex" ), 10 ) || 0 );
+			group = $.makeArray( $( o.stack ) ).sort( function( a, b ) {
+				return ( parseInt( $( a ).css( "zIndex" ), 10 ) || 0 ) -
+					( parseInt( $( b ).css( "zIndex" ), 10 ) || 0 );
 			} );
 
-		if ( !group.length ) { return; }
+		if ( !group.length ) {
+			return;
+		}
 
-		min = parseInt( jQuery_WPF( group[ 0 ] ).css( "zIndex" ), 10 ) || 0;
-		jQuery_WPF( group ).each( function( i ) {
-			jQuery_WPF( this ).css( "zIndex", min + i );
+		min = parseInt( $( group[ 0 ] ).css( "zIndex" ), 10 ) || 0;
+		$( group ).each( function( i ) {
+			$( this ).css( "zIndex", min + i );
 		} );
 		this.css( "zIndex", ( min + group.length ) );
 	}
 } );
 
-jQuery_WPF.ui.plugin.add( "draggable", "zIndex", {
+$.ui.plugin.add( "draggable", "zIndex", {
 	start: function( event, ui, instance ) {
-		var t = jQuery_WPF( ui.helper ),
+		var t = $( ui.helper ),
 			o = instance.options;
 
 		if ( t.css( "zIndex" ) ) {
@@ -10744,36 +10804,35 @@ jQuery_WPF.ui.plugin.add( "draggable", "zIndex", {
 		var o = instance.options;
 
 		if ( o._zIndex ) {
-			jQuery_WPF( ui.helper ).css( "zIndex", o._zIndex );
+			$( ui.helper ).css( "zIndex", o._zIndex );
 		}
 	}
 } );
 
-var widgetsDraggable = jQuery_WPF.ui.draggable;
+var widgetsDraggable = $.ui.draggable;
 
 
 /*!
- * jQuery UI Resizable 1.12.1
- * http://jqueryui.com
+ * jQuery UI Resizable 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Resizable
 //>>group: Interactions
 //>>description: Enables resize functionality for any element.
-//>>docs: http://api.jqueryui.com/resizable/
-//>>demos: http://jqueryui.com/resizable/
+//>>docs: https://api.jqueryui.com/resizable/
+//>>demos: https://jqueryui.com/resizable/
 //>>css.structure: ../../themes/base/core.css
 //>>css.structure: ../../themes/base/resizable.css
 //>>css.theme: ../../themes/base/theme.css
 
 
-
-jQuery_WPF.widget( "ui.resizable", jQuery_WPF.ui.mouse, {
-	version: "1.12.1",
+$.widget( "ui.resizable", $.ui.mouse, {
+	version: "1.14.1",
 	widgetEventPrefix: "resize",
 	options: {
 		alsoResize: false,
@@ -10814,12 +10873,18 @@ jQuery_WPF.widget( "ui.resizable", jQuery_WPF.ui.mouse, {
 
 	_hasScroll: function( el, a ) {
 
-		if ( jQuery_WPF( el ).css( "overflow" ) === "hidden" ) {
+		var scroll,
+			has = false,
+			overflow = $( el ).css( "overflow" );
+
+		if ( overflow === "hidden" ) {
 			return false;
 		}
+		if ( overflow === "scroll" ) {
+			return true;
+		}
 
-		var scroll = ( a && a === "left" ) ? "scrollLeft" : "scrollTop",
-			has = false;
+		scroll = ( a && a === "left" ) ? "scrollLeft" : "scrollTop";
 
 		if ( el[ scroll ] > 0 ) {
 			return true;
@@ -10828,9 +10893,15 @@ jQuery_WPF.widget( "ui.resizable", jQuery_WPF.ui.mouse, {
 		// TODO: determine which cases actually cause this to happen
 		// if the element doesn't have the scroll set, see if it's possible to
 		// set the scroll
-		el[ scroll ] = 1;
-		has = ( el[ scroll ] > 0 );
-		el[ scroll ] = 0;
+		try {
+			el[ scroll ] = 1;
+			has = ( el[ scroll ] > 0 );
+			el[ scroll ] = 0;
+		} catch ( e ) {
+
+			// `el` might be a string, then setting `scroll` will throw
+			// an error in strict mode; ignore it.
+		}
 		return has;
 	},
 
@@ -10841,7 +10912,7 @@ jQuery_WPF.widget( "ui.resizable", jQuery_WPF.ui.mouse, {
 			that = this;
 		this._addClass( "ui-resizable" );
 
-		jQuery_WPF.extend( this, {
+		$.extend( this, {
 			_aspectRatio: !!( o.aspectRatio ),
 			aspectRatio: o.aspectRatio,
 			originalElement: this.element,
@@ -10853,7 +10924,8 @@ jQuery_WPF.widget( "ui.resizable", jQuery_WPF.ui.mouse, {
 		if ( this.element[ 0 ].nodeName.match( /^(canvas|textarea|input|select|button|img)$/i ) ) {
 
 			this.element.wrap(
-				jQuery_WPF( "<div class='ui-wrapper' style='overflow: hidden;'></div>" ).css( {
+				$( "<div class='ui-wrapper'></div>" ).css( {
+					overflow: "hidden",
 					position: this.element.css( "position" ),
 					width: this.element.outerWidth(),
 					height: this.element.outerHeight(),
@@ -10876,9 +10948,8 @@ jQuery_WPF.widget( "ui.resizable", jQuery_WPF.ui.mouse, {
 			};
 
 			this.element.css( margins );
-			this.originalElement.css( "margin", 0 );
 
-			// support: Safari
+			// Support: Safari
 			// Prevent Safari textarea resize
 			this.originalResizeStyle = this.originalElement.css( "resize" );
 			this.originalElement.css( "resize", "none" );
@@ -10889,17 +10960,13 @@ jQuery_WPF.widget( "ui.resizable", jQuery_WPF.ui.mouse, {
 				display: "block"
 			} ) );
 
-			// Support: IE9
-			// avoid IE jump (hard set the margin)
-			this.originalElement.css( margins );
-
 			this._proportionallyResize();
 		}
 
 		this._setupHandles();
 
 		if ( o.autoHide ) {
-			jQuery_WPF( this.element )
+			$( this.element )
 				.on( "mouseenter", function() {
 					if ( o.disabled ) {
 						return;
@@ -10924,15 +10991,14 @@ jQuery_WPF.widget( "ui.resizable", jQuery_WPF.ui.mouse, {
 	_destroy: function() {
 
 		this._mouseDestroy();
+		this._addedHandles.remove();
 
 		var wrapper,
 			_destroy = function( exp ) {
-				jQuery_WPF( exp )
+				$( exp )
 					.removeData( "resizable" )
 					.removeData( "ui-resizable" )
-					.off( ".resizable" )
-					.find( ".ui-resizable-handle" )
-						.remove();
+					.off( ".resizable" );
 			};
 
 		// TODO: Unwrap at same DOM position
@@ -10963,6 +11029,9 @@ jQuery_WPF.widget( "ui.resizable", jQuery_WPF.ui.mouse, {
 			this._removeHandles();
 			this._setupHandles();
 			break;
+		case "aspectRatio":
+			this._aspectRatio = !!value;
+			break;
 		default:
 			break;
 		}
@@ -10971,7 +11040,7 @@ jQuery_WPF.widget( "ui.resizable", jQuery_WPF.ui.mouse, {
 	_setupHandles: function() {
 		var o = this.options, handle, i, n, hname, axis, that = this;
 		this.handles = o.handles ||
-			( !jQuery_WPF( ".ui-resizable-handle", this.element ).length ?
+			( !$( ".ui-resizable-handle", this.element ).length ?
 				"e,s,se" : {
 					n: ".ui-resizable-n",
 					e: ".ui-resizable-e",
@@ -10983,7 +11052,8 @@ jQuery_WPF.widget( "ui.resizable", jQuery_WPF.ui.mouse, {
 					nw: ".ui-resizable-nw"
 				} );
 
-		this._handles = jQuery_WPF();
+		this._handles = $();
+		this._addedHandles = $();
 		if ( this.handles.constructor === String ) {
 
 			if ( this.handles === "all" ) {
@@ -10995,15 +11065,18 @@ jQuery_WPF.widget( "ui.resizable", jQuery_WPF.ui.mouse, {
 
 			for ( i = 0; i < n.length; i++ ) {
 
-				handle = jQuery_WPF.trim( n[ i ] );
+				handle = String.prototype.trim.call( n[ i ] );
 				hname = "ui-resizable-" + handle;
-				axis = jQuery_WPF( "<div>" );
+				axis = $( "<div>" );
 				this._addClass( axis, "ui-resizable-handle " + hname );
 
 				axis.css( { zIndex: o.zIndex } );
 
 				this.handles[ handle ] = ".ui-resizable-" + handle;
-				this.element.append( axis );
+				if ( !this.element.children( this.handles[ handle ] ).length ) {
+					this.element.append( axis );
+					this._addedHandles = this._addedHandles.add( axis );
+				}
 			}
 
 		}
@@ -11019,7 +11092,7 @@ jQuery_WPF.widget( "ui.resizable", jQuery_WPF.ui.mouse, {
 				if ( this.handles[ i ].constructor === String ) {
 					this.handles[ i ] = this.element.children( this.handles[ i ] ).first().show();
 				} else if ( this.handles[ i ].jquery || this.handles[ i ].nodeType ) {
-					this.handles[ i ] = jQuery_WPF( this.handles[ i ] );
+					this.handles[ i ] = $( this.handles[ i ] );
 					this._on( this.handles[ i ], { "mousedown": that._mouseDown } );
 				}
 
@@ -11027,7 +11100,7 @@ jQuery_WPF.widget( "ui.resizable", jQuery_WPF.ui.mouse, {
 						this.originalElement[ 0 ]
 							.nodeName
 							.match( /^(textarea|input|select|button)$/i ) ) {
-					axis = jQuery_WPF( this.handles[ i ], this.element );
+					axis = $( this.handles[ i ], this.element );
 
 					padWrapper = /sw|ne|nw|se|n|s/.test( i ) ?
 						axis.outerHeight() :
@@ -11069,7 +11142,7 @@ jQuery_WPF.widget( "ui.resizable", jQuery_WPF.ui.mouse, {
 	},
 
 	_removeHandles: function() {
-		this._handles.remove();
+		this._addedHandles.remove();
 	},
 
 	_mouseCapture: function( event ) {
@@ -11077,8 +11150,8 @@ jQuery_WPF.widget( "ui.resizable", jQuery_WPF.ui.mouse, {
 			capture = false;
 
 		for ( i in this.handles ) {
-			handle = jQuery_WPF( this.handles[ i ] )[ 0 ];
-			if ( handle === event.target || jQuery_WPF.contains( handle, event.target ) ) {
+			handle = $( this.handles[ i ] )[ 0 ];
+			if ( handle === event.target || $.contains( handle, event.target ) ) {
 				capture = true;
 			}
 		}
@@ -11088,7 +11161,7 @@ jQuery_WPF.widget( "ui.resizable", jQuery_WPF.ui.mouse, {
 
 	_mouseStart: function( event ) {
 
-		var curleft, curtop, cursor,
+		var curleft, curtop, cursor, calculatedSize,
 			o = this.options,
 			el = this.element;
 
@@ -11100,27 +11173,31 @@ jQuery_WPF.widget( "ui.resizable", jQuery_WPF.ui.mouse, {
 		curtop = this._num( this.helper.css( "top" ) );
 
 		if ( o.containment ) {
-			curleft += jQuery_WPF( o.containment ).scrollLeft() || 0;
-			curtop += jQuery_WPF( o.containment ).scrollTop() || 0;
+			curleft += $( o.containment ).scrollLeft() || 0;
+			curtop += $( o.containment ).scrollTop() || 0;
 		}
 
 		this.offset = this.helper.offset();
 		this.position = { left: curleft, top: curtop };
 
+		if ( !this._helper ) {
+			calculatedSize = this._calculateAdjustedElementDimensions( el );
+		}
+
 		this.size = this._helper ? {
 				width: this.helper.width(),
 				height: this.helper.height()
 			} : {
-				width: el.width(),
-				height: el.height()
+				width: calculatedSize.width,
+				height: calculatedSize.height
 			};
 
 		this.originalSize = this._helper ? {
 				width: el.outerWidth(),
 				height: el.outerHeight()
 			} : {
-				width: el.width(),
-				height: el.height()
+				width: calculatedSize.width,
+				height: calculatedSize.height
 			};
 
 		this.sizeDiff = {
@@ -11135,8 +11212,8 @@ jQuery_WPF.widget( "ui.resizable", jQuery_WPF.ui.mouse, {
 			o.aspectRatio :
 			( ( this.originalSize.width / this.originalSize.height ) || 1 );
 
-		cursor = jQuery_WPF( ".ui-resizable-" + this.axis ).css( "cursor" );
-		jQuery_WPF( "body" ).css( "cursor", cursor === "auto" ? this.axis + "-resize" : cursor );
+		cursor = $( ".ui-resizable-" + this.axis ).css( "cursor" );
+		$( "body" ).css( "cursor", cursor === "auto" ? this.axis + "-resize" : cursor );
 
 		this._addClass( "ui-resizable-resizing" );
 		this._propagate( "start", event );
@@ -11177,7 +11254,7 @@ jQuery_WPF.widget( "ui.resizable", jQuery_WPF.ui.mouse, {
 			this._proportionallyResize();
 		}
 
-		if ( !jQuery_WPF.isEmptyObject( props ) ) {
+		if ( !$.isEmptyObject( props ) ) {
 			this._updatePrevProperties();
 			this._trigger( "resize", event, this.ui() );
 			this._applyChanges();
@@ -11209,7 +11286,7 @@ jQuery_WPF.widget( "ui.resizable", jQuery_WPF.ui.mouse, {
 				( that.position.top - that.originalPosition.top ) ) || null;
 
 			if ( !o.animate ) {
-				this.element.css( jQuery_WPF.extend( s, { top: top, left: left } ) );
+				this.element.css( $.extend( s, { top: top, left: left } ) );
 			}
 
 			that.helper.height( that.size.height );
@@ -11220,7 +11297,7 @@ jQuery_WPF.widget( "ui.resizable", jQuery_WPF.ui.mouse, {
 			}
 		}
 
-		jQuery_WPF( "body" ).css( "cursor", "auto" );
+		$( "body" ).css( "cursor", "auto" );
 
 		this._removeClass( "ui-resizable-resizing" );
 
@@ -11254,14 +11331,17 @@ jQuery_WPF.widget( "ui.resizable", jQuery_WPF.ui.mouse, {
 		if ( this.position.left !== this.prevPosition.left ) {
 			props.left = this.position.left + "px";
 		}
+
+		this.helper.css( props );
+
 		if ( this.size.width !== this.prevSize.width ) {
 			props.width = this.size.width + "px";
+			this.helper.width( props.width );
 		}
 		if ( this.size.height !== this.prevSize.height ) {
 			props.height = this.size.height + "px";
+			this.helper.height( props.height );
 		}
-
-		this.helper.css( props );
 
 		return props;
 	},
@@ -11413,6 +11493,52 @@ jQuery_WPF.widget( "ui.resizable", jQuery_WPF.ui.mouse, {
 		};
 	},
 
+	_calculateAdjustedElementDimensions: function( element ) {
+		var elWidth, elHeight, paddingBorder,
+			ce = element.get( 0 );
+
+		if ( element.css( "box-sizing" ) !== "content-box" ||
+			( !this._hasScroll( ce ) && !this._hasScroll( ce, "left" ) ) ) {
+				return {
+					height: parseFloat( element.css( "height" ) ),
+					width: parseFloat( element.css( "width" ) )
+				};
+		}
+
+		// Check if CSS inline styles are set and use those (usually from previous resizes)
+		elWidth = parseFloat( ce.style.width );
+		elHeight = parseFloat( ce.style.height );
+
+		paddingBorder = this._getPaddingPlusBorderDimensions( element );
+		elWidth = isNaN( elWidth ) ?
+			this._getElementTheoreticalSize( element, paddingBorder, "width" ) :
+			elWidth;
+		elHeight = isNaN( elHeight ) ?
+			this._getElementTheoreticalSize( element, paddingBorder, "height" ) :
+			elHeight;
+
+		return {
+			height: elHeight,
+			width: elWidth
+		};
+	},
+
+	_getElementTheoreticalSize: function( element, extraSize, dimension ) {
+
+		// offsetWidth/offsetHeight is a rounded sum of content, padding, scroll gutter, and border
+		var size = Math.max( 0, Math.ceil(
+			element.get( 0 )[ "offset" + dimension[ 0 ].toUpperCase() + dimension.slice( 1 ) ] -
+			extraSize[ dimension ] -
+			0.5
+
+		// If offsetWidth/offsetHeight is unknown, then we can't determine theoretical size.
+		// Use an explicit zero to avoid NaN.
+		// See https://github.com/jquery/jquery/issues/3964
+		) ) || 0;
+
+		return size;
+	},
+
 	_proportionallyResize: function() {
 
 		if ( !this._proportionallyResizeElements.length ) {
@@ -11449,7 +11575,7 @@ jQuery_WPF.widget( "ui.resizable", jQuery_WPF.ui.mouse, {
 
 		if ( this._helper ) {
 
-			this.helper = this.helper || jQuery_WPF( "<div style='overflow:hidden;'></div>" );
+			this.helper = this.helper || $( "<div></div>" ).css( { overflow: "hidden" } );
 
 			this._addClass( this.helper, this._helper );
 			this.helper.css( {
@@ -11487,26 +11613,28 @@ jQuery_WPF.widget( "ui.resizable", jQuery_WPF.ui.mouse, {
 			return { height: this.originalSize.height + dy };
 		},
 		se: function( event, dx, dy ) {
-			return jQuery_WPF.extend( this._change.s.apply( this, arguments ),
+			return $.extend( this._change.s.apply( this, arguments ),
 				this._change.e.apply( this, [ event, dx, dy ] ) );
 		},
 		sw: function( event, dx, dy ) {
-			return jQuery_WPF.extend( this._change.s.apply( this, arguments ),
+			return $.extend( this._change.s.apply( this, arguments ),
 				this._change.w.apply( this, [ event, dx, dy ] ) );
 		},
 		ne: function( event, dx, dy ) {
-			return jQuery_WPF.extend( this._change.n.apply( this, arguments ),
+			return $.extend( this._change.n.apply( this, arguments ),
 				this._change.e.apply( this, [ event, dx, dy ] ) );
 		},
 		nw: function( event, dx, dy ) {
-			return jQuery_WPF.extend( this._change.n.apply( this, arguments ),
+			return $.extend( this._change.n.apply( this, arguments ),
 				this._change.w.apply( this, [ event, dx, dy ] ) );
 		}
 	},
 
 	_propagate: function( n, event ) {
-		jQuery_WPF.ui.plugin.call( this, n, [ event, this.ui() ] );
-		( n !== "resize" && this._trigger( n, event, this.ui() ) );
+		$.ui.plugin.call( this, n, [ event, this.ui() ] );
+		if ( n !== "resize" ) {
+			this._trigger( n, event, this.ui() );
+		}
 	},
 
 	plugins: {},
@@ -11529,10 +11657,10 @@ jQuery_WPF.widget( "ui.resizable", jQuery_WPF.ui.mouse, {
  * Resizable Extensions
  */
 
-jQuery_WPF.ui.plugin.add( "resizable", "animate", {
+$.ui.plugin.add( "resizable", "animate", {
 
 	stop: function( event ) {
-		var that = jQuery_WPF( this ).resizable( "instance" ),
+		var that = $( this ).resizable( "instance" ),
 			o = that.options,
 			pr = that._proportionallyResizeElements,
 			ista = pr.length && ( /textarea/i ).test( pr[ 0 ].nodeName ),
@@ -11548,7 +11676,7 @@ jQuery_WPF.ui.plugin.add( "resizable", "animate", {
 				( that.position.top - that.originalPosition.top ) ) || null;
 
 		that.element.animate(
-			jQuery_WPF.extend( style, top && left ? { top: top, left: left } : {} ), {
+			$.extend( style, top && left ? { top: top, left: left } : {} ), {
 				duration: o.animateDuration,
 				easing: o.animateEasing,
 				step: function() {
@@ -11561,7 +11689,7 @@ jQuery_WPF.ui.plugin.add( "resizable", "animate", {
 					};
 
 					if ( pr && pr.length ) {
-						jQuery_WPF( pr[ 0 ] ).css( { width: data.width, height: data.height } );
+						$( pr[ 0 ] ).css( { width: data.width, height: data.height } );
 					}
 
 					// Propagating resize, and updating values for each animation step
@@ -11575,11 +11703,11 @@ jQuery_WPF.ui.plugin.add( "resizable", "animate", {
 
 } );
 
-jQuery_WPF.ui.plugin.add( "resizable", "containment", {
+$.ui.plugin.add( "resizable", "containment", {
 
 	start: function() {
 		var element, p, co, ch, cw, width, height,
-			that = jQuery_WPF( this ).resizable( "instance" ),
+			that = $( this ).resizable( "instance" ),
 			o = that.options,
 			el = that.element,
 			oc = o.containment,
@@ -11591,7 +11719,7 @@ jQuery_WPF.ui.plugin.add( "resizable", "containment", {
 			return;
 		}
 
-		that.containerElement = jQuery_WPF( ce );
+		that.containerElement = $( ce );
 
 		if ( /document/.test( oc ) || oc === document ) {
 			that.containerOffset = {
@@ -11604,16 +11732,16 @@ jQuery_WPF.ui.plugin.add( "resizable", "containment", {
 			};
 
 			that.parentData = {
-				element: jQuery_WPF( document ),
+				element: $( document ),
 				left: 0,
 				top: 0,
-				width: jQuery_WPF( document ).width(),
-				height: jQuery_WPF( document ).height() || document.body.parentNode.scrollHeight
+				width: $( document ).width(),
+				height: $( document ).height() || document.body.parentNode.scrollHeight
 			};
 		} else {
-			element = jQuery_WPF( ce );
+			element = $( ce );
 			p = [];
-			jQuery_WPF( [ "Top", "Right", "Left", "Bottom" ] ).each( function( i, name ) {
+			$( [ "Top", "Right", "Left", "Bottom" ] ).each( function( i, name ) {
 				p[ i ] = that._num( element.css( "padding" + name ) );
 			} );
 
@@ -11627,8 +11755,8 @@ jQuery_WPF.ui.plugin.add( "resizable", "containment", {
 			co = that.containerOffset;
 			ch = that.containerSize.height;
 			cw = that.containerSize.width;
-			width = ( that._hasScroll ( ce, "left" ) ? ce.scrollWidth : cw );
-			height = ( that._hasScroll ( ce ) ? ce.scrollHeight : ch ) ;
+			width = ( that._hasScroll( ce, "left" ) ? ce.scrollWidth : cw );
+			height = ( that._hasScroll( ce ) ? ce.scrollHeight : ch );
 
 			that.parentData = {
 				element: ce,
@@ -11642,7 +11770,7 @@ jQuery_WPF.ui.plugin.add( "resizable", "containment", {
 
 	resize: function( event ) {
 		var woset, hoset, isParent, isOffsetRelative,
-			that = jQuery_WPF( this ).resizable( "instance" ),
+			that = $( this ).resizable( "instance" ),
 			o = that.options,
 			co = that.containerOffset,
 			cp = that.position,
@@ -11730,18 +11858,18 @@ jQuery_WPF.ui.plugin.add( "resizable", "containment", {
 	},
 
 	stop: function() {
-		var that = jQuery_WPF( this ).resizable( "instance" ),
+		var that = $( this ).resizable( "instance" ),
 			o = that.options,
 			co = that.containerOffset,
 			cop = that.containerPosition,
 			ce = that.containerElement,
-			helper = jQuery_WPF( that.helper ),
+			helper = $( that.helper ),
 			ho = helper.offset(),
 			w = helper.outerWidth() - that.sizeDiff.width,
 			h = helper.outerHeight() - that.sizeDiff.height;
 
 		if ( that._helper && !o.animate && ( /relative/ ).test( ce.css( "position" ) ) ) {
-			jQuery_WPF( this ).css( {
+			$( this ).css( {
 				left: ho.left - cop.left - co.left,
 				width: w,
 				height: h
@@ -11749,7 +11877,7 @@ jQuery_WPF.ui.plugin.add( "resizable", "containment", {
 		}
 
 		if ( that._helper && !o.animate && ( /static/ ).test( ce.css( "position" ) ) ) {
-			jQuery_WPF( this ).css( {
+			$( this ).css( {
 				left: ho.left - cop.left - co.left,
 				width: w,
 				height: h
@@ -11758,23 +11886,25 @@ jQuery_WPF.ui.plugin.add( "resizable", "containment", {
 	}
 } );
 
-jQuery_WPF.ui.plugin.add( "resizable", "alsoResize", {
+$.ui.plugin.add( "resizable", "alsoResize", {
 
 	start: function() {
-		var that = jQuery_WPF( this ).resizable( "instance" ),
+		var that = $( this ).resizable( "instance" ),
 			o = that.options;
 
-		jQuery_WPF( o.alsoResize ).each( function() {
-			var el = jQuery_WPF( this );
+		$( o.alsoResize ).each( function() {
+			var el = $( this ),
+				elSize = that._calculateAdjustedElementDimensions( el );
+
 			el.data( "ui-resizable-alsoresize", {
-				width: parseFloat( el.width() ), height: parseFloat( el.height() ),
+				width: elSize.width, height: elSize.height,
 				left: parseFloat( el.css( "left" ) ), top: parseFloat( el.css( "top" ) )
 			} );
 		} );
 	},
 
 	resize: function( event, ui ) {
-		var that = jQuery_WPF( this ).resizable( "instance" ),
+		var that = $( this ).resizable( "instance" ),
 			o = that.options,
 			os = that.originalSize,
 			op = that.originalPosition,
@@ -11785,13 +11915,13 @@ jQuery_WPF.ui.plugin.add( "resizable", "alsoResize", {
 				left: ( that.position.left - op.left ) || 0
 			};
 
-			jQuery_WPF( o.alsoResize ).each( function() {
-				var el = jQuery_WPF( this ), start = jQuery_WPF( this ).data( "ui-resizable-alsoresize" ), style = {},
+			$( o.alsoResize ).each( function() {
+				var el = $( this ), start = $( this ).data( "ui-resizable-alsoresize" ), style = {},
 					css = el.parents( ui.originalElement[ 0 ] ).length ?
 							[ "width", "height" ] :
 							[ "width", "height", "top", "left" ];
 
-				jQuery_WPF.each( css, function( i, prop ) {
+				$.each( css, function( i, prop ) {
 					var sum = ( start[ prop ] || 0 ) + ( delta[ prop ] || 0 );
 					if ( sum && sum >= 0 ) {
 						style[ prop ] = sum || null;
@@ -11803,15 +11933,15 @@ jQuery_WPF.ui.plugin.add( "resizable", "alsoResize", {
 	},
 
 	stop: function() {
-		jQuery_WPF( this ).removeData( "ui-resizable-alsoresize" );
+		$( this ).removeData( "ui-resizable-alsoresize" );
 	}
 } );
 
-jQuery_WPF.ui.plugin.add( "resizable", "ghost", {
+$.ui.plugin.add( "resizable", "ghost", {
 
 	start: function() {
 
-		var that = jQuery_WPF( this ).resizable( "instance" ), cs = that.size;
+		var that = $( this ).resizable( "instance" ), cs = that.size;
 
 		that.ghost = that.originalElement.clone();
 		that.ghost.css( {
@@ -11829,7 +11959,7 @@ jQuery_WPF.ui.plugin.add( "resizable", "ghost", {
 
 		// DEPRECATED
 		// TODO: remove after 1.12
-		if ( jQuery_WPF.uiBackCompat !== false && typeof that.options.ghost === "string" ) {
+		if ( $.uiBackCompat === true && typeof that.options.ghost === "string" ) {
 
 			// Ghost option
 			that.ghost.addClass( this.options.ghost );
@@ -11840,7 +11970,7 @@ jQuery_WPF.ui.plugin.add( "resizable", "ghost", {
 	},
 
 	resize: function() {
-		var that = jQuery_WPF( this ).resizable( "instance" );
+		var that = $( this ).resizable( "instance" );
 		if ( that.ghost ) {
 			that.ghost.css( {
 				position: "relative",
@@ -11851,7 +11981,7 @@ jQuery_WPF.ui.plugin.add( "resizable", "ghost", {
 	},
 
 	stop: function() {
-		var that = jQuery_WPF( this ).resizable( "instance" );
+		var that = $( this ).resizable( "instance" );
 		if ( that.ghost && that.helper ) {
 			that.helper.get( 0 ).removeChild( that.ghost.get( 0 ) );
 		}
@@ -11859,11 +11989,11 @@ jQuery_WPF.ui.plugin.add( "resizable", "ghost", {
 
 } );
 
-jQuery_WPF.ui.plugin.add( "resizable", "grid", {
+$.ui.plugin.add( "resizable", "grid", {
 
 	resize: function() {
 		var outerDimensions,
-			that = jQuery_WPF( this ).resizable( "instance" ),
+			that = $( this ).resizable( "instance" ),
 			o = that.options,
 			cs = that.size,
 			os = that.originalSize,
@@ -11933,31 +12063,30 @@ jQuery_WPF.ui.plugin.add( "resizable", "grid", {
 
 } );
 
-var widgetsResizable = jQuery_WPF.ui.resizable;
+var widgetsResizable = $.ui.resizable;
 
 
 /*!
- * jQuery UI Dialog 1.12.1
- * http://jqueryui.com
+ * jQuery UI Dialog 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Dialog
 //>>group: Widgets
 //>>description: Displays customizable dialog windows.
-//>>docs: http://api.jqueryui.com/dialog/
-//>>demos: http://jqueryui.com/dialog/
+//>>docs: https://api.jqueryui.com/dialog/
+//>>demos: https://jqueryui.com/dialog/
 //>>css.structure: ../../themes/base/core.css
 //>>css.structure: ../../themes/base/dialog.css
 //>>css.theme: ../../themes/base/theme.css
 
 
-
-jQuery_WPF.widget( "ui.dialog", {
-	version: "1.12.1",
+$.widget( "ui.dialog", {
+	version: "1.14.1",
 	options: {
 		appendTo: "body",
 		autoOpen: true,
@@ -11984,15 +12113,16 @@ jQuery_WPF.widget( "ui.dialog", {
 
 			// Ensure the titlebar is always visible
 			using: function( pos ) {
-				var topOffset = jQuery_WPF( this ).css( pos ).offset().top;
+				var topOffset = $( this ).css( pos ).offset().top;
 				if ( topOffset < 0 ) {
-					jQuery_WPF( this ).css( "top", pos.top - topOffset );
+					$( this ).css( "top", pos.top - topOffset );
 				}
 			}
 		},
 		resizable: true,
 		show: null,
 		title: null,
+		uiDialogTitleHeadingLevel: 0,
 		width: 300,
 
 		// Callbacks
@@ -12059,10 +12189,10 @@ jQuery_WPF.widget( "ui.dialog", {
 		this._createTitlebar();
 		this._createButtonPane();
 
-		if ( this.options.draggable && jQuery_WPF.fn.draggable ) {
+		if ( this.options.draggable && $.fn.draggable ) {
 			this._makeDraggable();
 		}
-		if ( this.options.resizable && jQuery_WPF.fn.resizable ) {
+		if ( this.options.resizable && $.fn.resizable ) {
 			this._makeResizable();
 		}
 
@@ -12080,7 +12210,7 @@ jQuery_WPF.widget( "ui.dialog", {
 	_appendTo: function() {
 		var element = this.options.appendTo;
 		if ( element && ( element.jquery || element.nodeType ) ) {
-			return jQuery_WPF( element );
+			return $( element );
 		}
 		return this.document.find( element || "body" ).eq( 0 );
 	},
@@ -12119,8 +12249,8 @@ jQuery_WPF.widget( "ui.dialog", {
 		return this.uiDialog;
 	},
 
-	disable: jQuery_WPF.noop,
-	enable: jQuery_WPF.noop,
+	disable: $.noop,
+	enable: $.noop,
 
 	close: function( event ) {
 		var that = this;
@@ -12139,7 +12269,7 @@ jQuery_WPF.widget( "ui.dialog", {
 			// Hiding a focused element doesn't trigger blur in WebKit
 			// so in case we have nothing to focus on, explicitly blur the active element
 			// https://bugs.webkit.org/show_bug.cgi?id=47182
-			jQuery_WPF.ui.safeBlur( jQuery_WPF.ui.safeActiveElement( this.document[ 0 ] ) );
+			$( this.document[ 0 ].activeElement ).trigger( "blur" );
 		}
 
 		this._hide( this.uiDialog, this.options.hide, function() {
@@ -12158,7 +12288,7 @@ jQuery_WPF.widget( "ui.dialog", {
 	_moveToTop: function( event, silent ) {
 		var moved = false,
 			zIndices = this.uiDialog.siblings( ".ui-front:visible" ).map( function() {
-				return +jQuery_WPF( this ).css( "z-index" );
+				return +$( this ).css( "z-index" );
 			} ).get(),
 			zIndexMax = Math.max.apply( null, zIndices );
 
@@ -12183,7 +12313,7 @@ jQuery_WPF.widget( "ui.dialog", {
 		}
 
 		this._isOpen = true;
-		this.opener = jQuery_WPF( jQuery_WPF.ui.safeActiveElement( this.document[ 0 ] ) );
+		this.opener = $( this.document[ 0 ].activeElement );
 
 		this._size();
 		this._position();
@@ -12202,7 +12332,7 @@ jQuery_WPF.widget( "ui.dialog", {
 			that._trigger( "focus" );
 		} );
 
-		// Track the dialog immediately upon openening in case a focus event
+		// Track the dialog immediately upon opening in case a focus event
 		// somehow occurs outside of the dialog before an element inside the
 		// dialog is focused (#10152)
 		this._makeFocusTarget();
@@ -12238,32 +12368,29 @@ jQuery_WPF.widget( "ui.dialog", {
 		hasFocus.eq( 0 ).trigger( "focus" );
 	},
 
-	_keepFocus: function( event ) {
-		function checkFocus() {
-			var activeElement = jQuery_WPF.ui.safeActiveElement( this.document[ 0 ] ),
-				isActive = this.uiDialog[ 0 ] === activeElement ||
-					jQuery_WPF.contains( this.uiDialog[ 0 ], activeElement );
-			if ( !isActive ) {
-				this._focusTabbable();
-			}
+	_restoreTabbableFocus: function() {
+		var activeElement = this.document[ 0 ].activeElement,
+			isActive = this.uiDialog[ 0 ] === activeElement ||
+				$.contains( this.uiDialog[ 0 ], activeElement );
+		if ( !isActive ) {
+			this._focusTabbable();
 		}
-		event.preventDefault();
-		checkFocus.call( this );
+	},
 
-		// support: IE
-		// IE <= 8 doesn't prevent moving focus even with event.preventDefault()
-		// so we check again later
-		this._delay( checkFocus );
+	_keepFocus: function( event ) {
+		event.preventDefault();
+		this._restoreTabbableFocus();
 	},
 
 	_createWrapper: function() {
-		this.uiDialog = jQuery_WPF( "<div>" )
+		this.uiDialog = $( "<div>" )
 			.hide()
 			.attr( {
 
 				// Setting tabIndex makes the div focusable
 				tabIndex: -1,
-				role: "dialog"
+				role: "dialog",
+				"aria-modal": this.options.modal ? "true" : null
 			} )
 			.appendTo( this._appendTo() );
 
@@ -12271,19 +12398,19 @@ jQuery_WPF.widget( "ui.dialog", {
 		this._on( this.uiDialog, {
 			keydown: function( event ) {
 				if ( this.options.closeOnEscape && !event.isDefaultPrevented() && event.keyCode &&
-						event.keyCode === jQuery_WPF.ui.keyCode.ESCAPE ) {
+						event.keyCode === $.ui.keyCode.ESCAPE ) {
 					event.preventDefault();
 					this.close( event );
 					return;
 				}
 
 				// Prevent tabbing out of dialogs
-				if ( event.keyCode !== jQuery_WPF.ui.keyCode.TAB || event.isDefaultPrevented() ) {
+				if ( event.keyCode !== $.ui.keyCode.TAB || event.isDefaultPrevented() ) {
 					return;
 				}
 				var tabbables = this.uiDialog.find( ":tabbable" ),
-					first = tabbables.filter( ":first" ),
-					last = tabbables.filter( ":last" );
+					first = tabbables.first(),
+					last = tabbables.last();
 
 				if ( ( event.target === last[ 0 ] || event.target === this.uiDialog[ 0 ] ) &&
 						!event.shiftKey ) {
@@ -12319,7 +12446,7 @@ jQuery_WPF.widget( "ui.dialog", {
 	_createTitlebar: function() {
 		var uiDialogTitle;
 
-		this.uiDialogTitlebar = jQuery_WPF( "<div>" );
+		this.uiDialogTitlebar = $( "<div>" );
 		this._addClass( this.uiDialogTitlebar,
 			"ui-dialog-titlebar", "ui-widget-header ui-helper-clearfix" );
 		this._on( this.uiDialogTitlebar, {
@@ -12328,7 +12455,7 @@ jQuery_WPF.widget( "ui.dialog", {
 				// Don't prevent click on close button (#8838)
 				// Focusing a dialog that is partially scrolled out of view
 				// causes the browser to scroll it into view, preventing the click event
-				if ( !jQuery_WPF( event.target ).closest( ".ui-dialog-titlebar-close" ) ) {
+				if ( !$( event.target ).closest( ".ui-dialog-titlebar-close" ) ) {
 
 					// Dialog isn't getting focus when dragging (#8063)
 					this.uiDialog.trigger( "focus" );
@@ -12336,12 +12463,9 @@ jQuery_WPF.widget( "ui.dialog", {
 			}
 		} );
 
-		// Support: IE
-		// Use type="button" to prevent enter keypresses in textboxes from closing the
-		// dialog in IE (#9312)
-		this.uiDialogTitlebarClose = jQuery_WPF( "<button type='button'></button>" )
+		this.uiDialogTitlebarClose = $( "<button type='button'></button>" )
 			.button( {
-				label: jQuery_WPF( "<a>" ).text( this.options.closeText ).html(),
+				label: $( "<a>" ).text( this.options.closeText ).html(),
 				icon: "ui-icon-closethick",
 				showLabel: false
 			} )
@@ -12355,7 +12479,13 @@ jQuery_WPF.widget( "ui.dialog", {
 			}
 		} );
 
-		uiDialogTitle = jQuery_WPF( "<span>" ).uniqueId().prependTo( this.uiDialogTitlebar );
+		var uiDialogHeadingLevel = Number.isInteger( this.options.uiDialogTitleHeadingLevel ) &&
+			this.options.uiDialogTitleHeadingLevel > 0 &&
+			this.options.uiDialogTitleHeadingLevel <= 6 ?
+			"h" + this.options.uiDialogTitleHeadingLevel : "span";
+
+		uiDialogTitle = $( "<" + uiDialogHeadingLevel + ">" )
+			.uniqueId().prependTo( this.uiDialogTitlebar );
 		this._addClass( uiDialogTitle, "ui-dialog-title" );
 		this._title( uiDialogTitle );
 
@@ -12375,11 +12505,11 @@ jQuery_WPF.widget( "ui.dialog", {
 	},
 
 	_createButtonPane: function() {
-		this.uiDialogButtonPane = jQuery_WPF( "<div>" );
+		this.uiDialogButtonPane = $( "<div>" );
 		this._addClass( this.uiDialogButtonPane, "ui-dialog-buttonpane",
 			"ui-widget-content ui-helper-clearfix" );
 
-		this.uiButtonSet = jQuery_WPF( "<div>" )
+		this.uiButtonSet = $( "<div>" )
 			.appendTo( this.uiDialogButtonPane );
 		this._addClass( this.uiButtonSet, "ui-dialog-buttonset" );
 
@@ -12394,19 +12524,19 @@ jQuery_WPF.widget( "ui.dialog", {
 		this.uiDialogButtonPane.remove();
 		this.uiButtonSet.empty();
 
-		if ( jQuery_WPF.isEmptyObject( buttons ) || ( jQuery_WPF.isArray( buttons ) && !buttons.length ) ) {
+		if ( $.isEmptyObject( buttons ) || ( Array.isArray( buttons ) && !buttons.length ) ) {
 			this._removeClass( this.uiDialog, "ui-dialog-buttons" );
 			return;
 		}
 
-		jQuery_WPF.each( buttons, function( name, props ) {
+		$.each( buttons, function( name, props ) {
 			var click, buttonOptions;
-			props = jQuery_WPF.isFunction( props ) ?
+			props = typeof props === "function" ?
 				{ click: props, text: name } :
 				props;
 
 			// Default to a non-submitting button
-			props = jQuery_WPF.extend( { type: "button" }, props );
+			props = $.extend( { type: "button" }, props );
 
 			// Change the context for the click callback to be the main element
 			click = props.click;
@@ -12431,7 +12561,7 @@ jQuery_WPF.widget( "ui.dialog", {
 				delete props.text;
 			}
 
-			jQuery_WPF( "<button></button>", props )
+			$( "<button></button>", props )
 				.button( buttonOptions )
 				.appendTo( that.uiButtonSet )
 				.on( "click", function() {
@@ -12458,7 +12588,7 @@ jQuery_WPF.widget( "ui.dialog", {
 			handle: ".ui-dialog-titlebar",
 			containment: "document",
 			start: function( event, ui ) {
-				that._addClass( jQuery_WPF( this ), "ui-dialog-dragging" );
+				that._addClass( $( this ), "ui-dialog-dragging" );
 				that._blockFrames();
 				that._trigger( "dragStart", event, filteredUi( ui ) );
 			},
@@ -12475,7 +12605,7 @@ jQuery_WPF.widget( "ui.dialog", {
 						"top" + ( top >= 0 ? "+" : "" ) + top,
 					of: that.window
 				};
-				that._removeClass( jQuery_WPF( this ), "ui-dialog-dragging" );
+				that._removeClass( $( this ), "ui-dialog-dragging" );
 				that._unblockFrames();
 				that._trigger( "dragStop", event, filteredUi( ui ) );
 			}
@@ -12513,7 +12643,7 @@ jQuery_WPF.widget( "ui.dialog", {
 			minHeight: this._minHeight(),
 			handles: resizeHandles,
 			start: function( event, ui ) {
-				that._addClass( jQuery_WPF( this ), "ui-dialog-resizing" );
+				that._addClass( $( this ), "ui-dialog-resizing" );
 				that._blockFrames();
 				that._trigger( "resizeStart", event, filteredUi( ui ) );
 			},
@@ -12533,7 +12663,7 @@ jQuery_WPF.widget( "ui.dialog", {
 						"top" + ( top >= 0 ? "+" : "" ) + top,
 					of: that.window
 				};
-				that._removeClass( jQuery_WPF( this ), "ui-dialog-resizing" );
+				that._removeClass( $( this ), "ui-dialog-resizing" );
 				that._unblockFrames();
 				that._trigger( "resizeStop", event, filteredUi( ui ) );
 			}
@@ -12545,7 +12675,7 @@ jQuery_WPF.widget( "ui.dialog", {
 		this._on( this.widget(), {
 			focusin: function( event ) {
 				this._makeFocusTarget();
-				this._focusedElement = jQuery_WPF( event.target );
+				this._focusedElement = $( event.target );
 			}
 		} );
 	},
@@ -12557,7 +12687,7 @@ jQuery_WPF.widget( "ui.dialog", {
 
 	_untrackInstance: function() {
 		var instances = this._trackingInstances(),
-			exists = jQuery_WPF.inArray( this, instances );
+			exists = $.inArray( this, instances );
 		if ( exists !== -1 ) {
 			instances.splice( exists, 1 );
 		}
@@ -12598,7 +12728,7 @@ jQuery_WPF.widget( "ui.dialog", {
 			resize = false,
 			resizableOptions = {};
 
-		jQuery_WPF.each( options, function( key, value ) {
+		$.each( options, function( key, value ) {
 			that._setOption( key, value );
 
 			if ( key in that.sizeRelatedOptions ) {
@@ -12640,7 +12770,7 @@ jQuery_WPF.widget( "ui.dialog", {
 			this.uiDialogTitlebarClose.button( {
 
 				// Ensure that we always pass a string
-				label: jQuery_WPF( "<a>" ).text( "" + this.options.closeText ).html()
+				label: $( "<a>" ).text( "" + this.options.closeText ).html()
 			} );
 		}
 
@@ -12680,6 +12810,10 @@ jQuery_WPF.widget( "ui.dialog", {
 
 		if ( key === "title" ) {
 			this._title( this.uiDialogTitlebar.find( ".ui-dialog-title" ) );
+		}
+
+		if ( key === "modal" ) {
+			uiDialog.attr( "aria-modal", value ? "true" : null );
 		}
 	},
 
@@ -12731,9 +12865,9 @@ jQuery_WPF.widget( "ui.dialog", {
 
 	_blockFrames: function() {
 		this.iframeBlocks = this.document.find( "iframe" ).map( function() {
-			var iframe = jQuery_WPF( this );
+			var iframe = $( this );
 
-			return jQuery_WPF( "<div>" )
+			return $( "<div>" )
 				.css( {
 					position: "absolute",
 					width: iframe.outerWidth(),
@@ -12752,13 +12886,13 @@ jQuery_WPF.widget( "ui.dialog", {
 	},
 
 	_allowInteraction: function( event ) {
-		if ( jQuery_WPF( event.target ).closest( ".ui-dialog" ).length ) {
+		if ( $( event.target ).closest( ".ui-dialog" ).length ) {
 			return true;
 		}
 
 		// TODO: Remove hack when datepicker implements
 		// the .ui-front logic (#8989)
-		return !!jQuery_WPF( event.target ).closest( ".ui-datepicker" ).length;
+		return !!$( event.target ).closest( ".ui-datepicker" ).length;
 	},
 
 	_createOverlay: function() {
@@ -12776,23 +12910,22 @@ jQuery_WPF.widget( "ui.dialog", {
 		if ( !this.document.data( "ui-dialog-overlays" ) ) {
 
 			// Prevent use of anchors and inputs
-			// Using _on() for an event handler shared across many instances is
-			// safe because the dialogs stack and must be closed in reverse order
-			this._on( this.document, {
-				focusin: function( event ) {
-					if ( isOpening ) {
-						return;
-					}
-
-					if ( !this._allowInteraction( event ) ) {
-						event.preventDefault();
-						this._trackingInstances()[ 0 ]._focusTabbable();
-					}
+			// This doesn't use `_on()` because it is a shared event handler
+			// across all open modal dialogs.
+			this.document.on( "focusin.ui-dialog", function( event ) {
+				if ( isOpening ) {
+					return;
 				}
-			} );
+
+				var instance = this._trackingInstances()[ 0 ];
+				if ( !instance._allowInteraction( event ) ) {
+					event.preventDefault();
+					instance._focusTabbable();
+				}
+			}.bind( this ) );
 		}
 
-		this.overlay = jQuery_WPF( "<div>" )
+		this.overlay = $( "<div>" )
 			.appendTo( this._appendTo() );
 
 		this._addClass( this.overlay, null, "ui-widget-overlay ui-front" );
@@ -12812,7 +12945,7 @@ jQuery_WPF.widget( "ui.dialog", {
 			var overlays = this.document.data( "ui-dialog-overlays" ) - 1;
 
 			if ( !overlays ) {
-				this._off( this.document, "focusin" );
+				this.document.off( "focusin.ui-dialog" );
 				this.document.removeData( "ui-dialog-overlays" );
 			} else {
 				this.document.data( "ui-dialog-overlays", overlays );
@@ -12826,10 +12959,10 @@ jQuery_WPF.widget( "ui.dialog", {
 
 // DEPRECATED
 // TODO: switch return back to widget declaration at top of file when this is removed
-if ( jQuery_WPF.uiBackCompat !== false ) {
+if ( $.uiBackCompat === true ) {
 
 	// Backcompat for dialogClass option
-	jQuery_WPF.widget( "ui.dialog", jQuery_WPF.ui.dialog, {
+	$.widget( "ui.dialog", $.ui.dialog, {
 		options: {
 			dialogClass: ""
 		},
@@ -12848,28 +12981,27 @@ if ( jQuery_WPF.uiBackCompat !== false ) {
 	} );
 }
 
-var widgetsDialog = jQuery_WPF.ui.dialog;
+var widgetsDialog = $.ui.dialog;
 
 
 /*!
- * jQuery UI Droppable 1.12.1
- * http://jqueryui.com
+ * jQuery UI Droppable 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Droppable
 //>>group: Interactions
 //>>description: Enables drop targets for draggable elements.
-//>>docs: http://api.jqueryui.com/droppable/
-//>>demos: http://jqueryui.com/droppable/
+//>>docs: https://api.jqueryui.com/droppable/
+//>>demos: https://jqueryui.com/droppable/
 
 
-
-jQuery_WPF.widget( "ui.droppable", {
-	version: "1.12.1",
+$.widget( "ui.droppable", {
+	version: "1.14.1",
 	widgetEventPrefix: "drop",
 	options: {
 		accept: "*",
@@ -12894,7 +13026,7 @@ jQuery_WPF.widget( "ui.droppable", {
 		this.isover = false;
 		this.isout = true;
 
-		this.accept = jQuery_WPF.isFunction( accept ) ? accept : function( d ) {
+		this.accept = typeof accept === "function" ? accept : function( d ) {
 			return d.is( accept );
 		};
 
@@ -12917,15 +13049,17 @@ jQuery_WPF.widget( "ui.droppable", {
 
 		this._addToManager( o.scope );
 
-		o.addClasses && this._addClass( "ui-droppable" );
+		if ( o.addClasses ) {
+			this._addClass( "ui-droppable" );
+		}
 
 	},
 
 	_addToManager: function( scope ) {
 
 		// Add the reference and positions to the manager
-		jQuery_WPF.ui.ddmanager.droppables[ scope ] = jQuery_WPF.ui.ddmanager.droppables[ scope ] || [];
-		jQuery_WPF.ui.ddmanager.droppables[ scope ].push( this );
+		$.ui.ddmanager.droppables[ scope ] = $.ui.ddmanager.droppables[ scope ] || [];
+		$.ui.ddmanager.droppables[ scope ].push( this );
 	},
 
 	_splice: function( drop ) {
@@ -12938,7 +13072,7 @@ jQuery_WPF.widget( "ui.droppable", {
 	},
 
 	_destroy: function() {
-		var drop = jQuery_WPF.ui.ddmanager.droppables[ this.options.scope ];
+		var drop = $.ui.ddmanager.droppables[ this.options.scope ];
 
 		this._splice( drop );
 	},
@@ -12946,11 +13080,11 @@ jQuery_WPF.widget( "ui.droppable", {
 	_setOption: function( key, value ) {
 
 		if ( key === "accept" ) {
-			this.accept = jQuery_WPF.isFunction( value ) ? value : function( d ) {
+			this.accept = typeof value === "function" ? value : function( d ) {
 				return d.is( value );
 			};
 		} else if ( key === "scope" ) {
-			var drop = jQuery_WPF.ui.ddmanager.droppables[ this.options.scope ];
+			var drop = $.ui.ddmanager.droppables[ this.options.scope ];
 
 			this._splice( drop );
 			this._addToManager( value );
@@ -12960,7 +13094,7 @@ jQuery_WPF.widget( "ui.droppable", {
 	},
 
 	_activate: function( event ) {
-		var draggable = jQuery_WPF.ui.ddmanager.current;
+		var draggable = $.ui.ddmanager.current;
 
 		this._addActiveClass();
 		if ( draggable ) {
@@ -12969,7 +13103,7 @@ jQuery_WPF.widget( "ui.droppable", {
 	},
 
 	_deactivate: function( event ) {
-		var draggable = jQuery_WPF.ui.ddmanager.current;
+		var draggable = $.ui.ddmanager.current;
 
 		this._removeActiveClass();
 		if ( draggable ) {
@@ -12979,7 +13113,7 @@ jQuery_WPF.widget( "ui.droppable", {
 
 	_over: function( event ) {
 
-		var draggable = jQuery_WPF.ui.ddmanager.current;
+		var draggable = $.ui.ddmanager.current;
 
 		// Bail if draggable and droppable are same element
 		if ( !draggable || ( draggable.currentItem ||
@@ -12997,7 +13131,7 @@ jQuery_WPF.widget( "ui.droppable", {
 
 	_out: function( event ) {
 
-		var draggable = jQuery_WPF.ui.ddmanager.current;
+		var draggable = $.ui.ddmanager.current;
 
 		// Bail if draggable and droppable are same element
 		if ( !draggable || ( draggable.currentItem ||
@@ -13015,7 +13149,7 @@ jQuery_WPF.widget( "ui.droppable", {
 
 	_drop: function( event, custom ) {
 
-		var draggable = custom || jQuery_WPF.ui.ddmanager.current,
+		var draggable = custom || $.ui.ddmanager.current,
 			childrenIntersection = false;
 
 		// Bail if draggable and droppable are same element
@@ -13028,7 +13162,7 @@ jQuery_WPF.widget( "ui.droppable", {
 			.find( ":data(ui-droppable)" )
 			.not( ".ui-draggable-dragging" )
 			.each( function() {
-				var inst = jQuery_WPF( this ).droppable( "instance" );
+				var inst = $( this ).droppable( "instance" );
 				if (
 					inst.options.greedy &&
 					!inst.options.disabled &&
@@ -13036,14 +13170,15 @@ jQuery_WPF.widget( "ui.droppable", {
 					inst.accept.call(
 						inst.element[ 0 ], ( draggable.currentItem || draggable.element )
 					) &&
-					intersect(
+					$.ui.intersect(
 						draggable,
-						jQuery_WPF.extend( inst, { offset: inst.element.offset() } ),
+						$.extend( inst, { offset: inst.element.offset() } ),
 						inst.options.tolerance, event
 					)
 				) {
 					childrenIntersection = true;
-					return false; }
+					return false;
+				}
 			} );
 		if ( childrenIntersection ) {
 			return false;
@@ -13072,7 +13207,7 @@ jQuery_WPF.widget( "ui.droppable", {
 	},
 
 	// Extension points just to make backcompat sane and avoid duplicating logic
-	// TODO: Remove in 1.13 along with call to it below
+	// TODO: Remove in 1.14 along with call to it below
 	_addHoverClass: function() {
 		this._addClass( "ui-droppable-hover" );
 	},
@@ -13090,7 +13225,7 @@ jQuery_WPF.widget( "ui.droppable", {
 	}
 } );
 
-var intersect = jQuery_WPF.ui.intersect = ( function() {
+$.ui.intersect = ( function() {
 	function isOverAxis( x, reference, size ) {
 		return ( x >= reference ) && ( x < ( reference + size ) );
 	}
@@ -13142,13 +13277,13 @@ var intersect = jQuery_WPF.ui.intersect = ( function() {
 /*
 	This manager tracks offsets of draggables and droppables
 */
-jQuery_WPF.ui.ddmanager = {
+$.ui.ddmanager = {
 	current: null,
 	droppables: { "default": [] },
 	prepareOffsets: function( t, event ) {
 
 		var i, j,
-			m = jQuery_WPF.ui.ddmanager.droppables[ t.options.scope ] || [],
+			m = $.ui.ddmanager.droppables[ t.options.scope ] || [],
 			type = event ? event.type : null, // workaround for #2317
 			list = ( t.currentItem || t.element ).find( ":data(ui-droppable)" ).addBack();
 
@@ -13192,13 +13327,13 @@ jQuery_WPF.ui.ddmanager = {
 		var dropped = false;
 
 		// Create a copy of the droppables in case the list changes during the drop (#9116)
-		jQuery_WPF.each( ( jQuery_WPF.ui.ddmanager.droppables[ draggable.options.scope ] || [] ).slice(), function() {
+		$.each( ( $.ui.ddmanager.droppables[ draggable.options.scope ] || [] ).slice(), function() {
 
 			if ( !this.options ) {
 				return;
 			}
 			if ( !this.options.disabled && this.visible &&
-					intersect( draggable, this, this.options.tolerance, event ) ) {
+					$.ui.intersect( draggable, this, this.options.tolerance, event ) ) {
 				dropped = this._drop.call( this, event ) || dropped;
 			}
 
@@ -13219,7 +13354,7 @@ jQuery_WPF.ui.ddmanager = {
 		// droppables can be recalculated (see #5003)
 		draggable.element.parentsUntil( "body" ).on( "scroll.droppable", function() {
 			if ( !draggable.options.refreshPositions ) {
-				jQuery_WPF.ui.ddmanager.prepareOffsets( draggable, event );
+				$.ui.ddmanager.prepareOffsets( draggable, event );
 			}
 		} );
 	},
@@ -13228,18 +13363,18 @@ jQuery_WPF.ui.ddmanager = {
 		// If you have a highly dynamic page, you might try this option. It renders positions
 		// every time you move the mouse.
 		if ( draggable.options.refreshPositions ) {
-			jQuery_WPF.ui.ddmanager.prepareOffsets( draggable, event );
+			$.ui.ddmanager.prepareOffsets( draggable, event );
 		}
 
 		// Run through all droppables and check their positions based on specific tolerance options
-		jQuery_WPF.each( jQuery_WPF.ui.ddmanager.droppables[ draggable.options.scope ] || [], function() {
+		$.each( $.ui.ddmanager.droppables[ draggable.options.scope ] || [], function() {
 
 			if ( this.options.disabled || this.greedyChild || !this.visible ) {
 				return;
 			}
 
 			var parentInstance, scope, parent,
-				intersects = intersect( draggable, this, this.options.tolerance, event ),
+				intersects = $.ui.intersect( draggable, this, this.options.tolerance, event ),
 				c = !intersects && this.isover ?
 					"isout" :
 					( intersects && !this.isover ? "isover" : null );
@@ -13252,11 +13387,11 @@ jQuery_WPF.ui.ddmanager = {
 				// find droppable parents with same scope
 				scope = this.options.scope;
 				parent = this.element.parents( ":data(ui-droppable)" ).filter( function() {
-					return jQuery_WPF( this ).droppable( "instance" ).options.scope === scope;
+					return $( this ).droppable( "instance" ).options.scope === scope;
 				} );
 
 				if ( parent.length ) {
-					parentInstance = jQuery_WPF( parent[ 0 ] ).droppable( "instance" );
+					parentInstance = $( parent[ 0 ] ).droppable( "instance" );
 					parentInstance.greedyChild = ( c === "isover" );
 				}
 			}
@@ -13287,17 +13422,17 @@ jQuery_WPF.ui.ddmanager = {
 		// Call prepareOffsets one final time since IE does not fire return scroll events when
 		// overflow was caused by drag (see #5003)
 		if ( !draggable.options.refreshPositions ) {
-			jQuery_WPF.ui.ddmanager.prepareOffsets( draggable, event );
+			$.ui.ddmanager.prepareOffsets( draggable, event );
 		}
 	}
 };
 
 // DEPRECATED
 // TODO: switch return back to widget declaration at top of file when this is removed
-if ( jQuery_WPF.uiBackCompat !== false ) {
+if ( $.uiBackCompat === true ) {
 
 	// Backcompat for activeClass and hoverClass options
-	jQuery_WPF.widget( "ui.droppable", jQuery_WPF.ui.droppable, {
+	$.widget( "ui.droppable", $.ui.droppable, {
 		options: {
 			hoverClass: false,
 			activeClass: false
@@ -13329,33 +13464,32 @@ if ( jQuery_WPF.uiBackCompat !== false ) {
 	} );
 }
 
-var widgetsDroppable = jQuery_WPF.ui.droppable;
+var widgetsDroppable = $.ui.droppable;
 
 
 /*!
- * jQuery UI Progressbar 1.12.1
- * http://jqueryui.com
+ * jQuery UI Progressbar 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Progressbar
 //>>group: Widgets
-// jscs:disable maximumLineLength
+/* eslint-disable max-len */
 //>>description: Displays a status indicator for loading state, standard percentage, and other progress indicators.
-// jscs:enable maximumLineLength
-//>>docs: http://api.jqueryui.com/progressbar/
-//>>demos: http://jqueryui.com/progressbar/
+/* eslint-enable max-len */
+//>>docs: https://api.jqueryui.com/progressbar/
+//>>demos: https://jqueryui.com/progressbar/
 //>>css.structure: ../../themes/base/core.css
 //>>css.structure: ../../themes/base/progressbar.css
 //>>css.theme: ../../themes/base/theme.css
 
 
-
-var widgetsProgressbar = jQuery_WPF.widget( "ui.progressbar", {
-	version: "1.12.1",
+var widgetsProgressbar = $.widget( "ui.progressbar", {
+	version: "1.14.1",
 	options: {
 		classes: {
 			"ui-progressbar": "ui-corner-all",
@@ -13385,7 +13519,7 @@ var widgetsProgressbar = jQuery_WPF.widget( "ui.progressbar", {
 		} );
 		this._addClass( "ui-progressbar", "ui-widget ui-widget-content" );
 
-		this.valueDiv = jQuery_WPF( "<div>" ).appendTo( this.element );
+		this.valueDiv = $( "<div>" ).appendTo( this.element );
 		this._addClass( this.valueDiv, "ui-progressbar-value", "ui-widget-header" );
 		this._refreshValue();
 	},
@@ -13471,7 +13605,7 @@ var widgetsProgressbar = jQuery_WPF.widget( "ui.progressbar", {
 		if ( this.indeterminate ) {
 			this.element.removeAttr( "aria-valuenow" );
 			if ( !this.overlayDiv ) {
-				this.overlayDiv = jQuery_WPF( "<div>" ).appendTo( this.valueDiv );
+				this.overlayDiv = $( "<div>" ).appendTo( this.valueDiv );
 				this._addClass( this.overlayDiv, "ui-progressbar-overlay" );
 			}
 		} else {
@@ -13497,25 +13631,24 @@ var widgetsProgressbar = jQuery_WPF.widget( "ui.progressbar", {
 
 
 /*!
- * jQuery UI Selectable 1.12.1
- * http://jqueryui.com
+ * jQuery UI Selectable 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Selectable
 //>>group: Interactions
 //>>description: Allows groups of elements to be selected with the mouse.
-//>>docs: http://api.jqueryui.com/selectable/
-//>>demos: http://jqueryui.com/selectable/
+//>>docs: https://api.jqueryui.com/selectable/
+//>>demos: https://jqueryui.com/selectable/
 //>>css.structure: ../../themes/base/selectable.css
 
 
-
-var widgetsSelectable = jQuery_WPF.widget( "ui.selectable", jQuery_WPF.ui.mouse, {
-	version: "1.12.1",
+var widgetsSelectable = $.widget( "ui.selectable", $.ui.mouse, {
+	version: "1.14.1",
 	options: {
 		appendTo: "body",
 		autoRefresh: true,
@@ -13540,17 +13673,17 @@ var widgetsSelectable = jQuery_WPF.widget( "ui.selectable", jQuery_WPF.ui.mouse,
 
 		// Cache selectee children based on filter
 		this.refresh = function() {
-			that.elementPos = jQuery_WPF( that.element[ 0 ] ).offset();
-			that.selectees = jQuery_WPF( that.options.filter, that.element[ 0 ] );
+			that.elementPos = $( that.element[ 0 ] ).offset();
+			that.selectees = $( that.options.filter, that.element[ 0 ] );
 			that._addClass( that.selectees, "ui-selectee" );
 			that.selectees.each( function() {
-				var $this = jQuery_WPF( this ),
+				var $this = $( this ),
 					selecteeOffset = $this.offset(),
 					pos = {
 						left: selecteeOffset.left - that.elementPos.left,
 						top: selecteeOffset.top - that.elementPos.top
 					};
-				jQuery_WPF.data( this, "selectable-item", {
+				$.data( this, "selectable-item", {
 					element: this,
 					$element: $this,
 					left: pos.left,
@@ -13568,7 +13701,7 @@ var widgetsSelectable = jQuery_WPF.widget( "ui.selectable", jQuery_WPF.ui.mouse,
 
 		this._mouseInit();
 
-		this.helper = jQuery_WPF( "<div>" );
+		this.helper = $( "<div>" );
 		this._addClass( this.helper, "ui-selectable-helper" );
 	},
 
@@ -13582,17 +13715,17 @@ var widgetsSelectable = jQuery_WPF.widget( "ui.selectable", jQuery_WPF.ui.mouse,
 			options = this.options;
 
 		this.opos = [ event.pageX, event.pageY ];
-		this.elementPos = jQuery_WPF( this.element[ 0 ] ).offset();
+		this.elementPos = $( this.element[ 0 ] ).offset();
 
 		if ( this.options.disabled ) {
 			return;
 		}
 
-		this.selectees = jQuery_WPF( options.filter, this.element[ 0 ] );
+		this.selectees = $( options.filter, this.element[ 0 ] );
 
 		this._trigger( "start", event );
 
-		jQuery_WPF( options.appendTo ).append( this.helper );
+		$( options.appendTo ).append( this.helper );
 
 		// position helper (lasso)
 		this.helper.css( {
@@ -13607,7 +13740,7 @@ var widgetsSelectable = jQuery_WPF.widget( "ui.selectable", jQuery_WPF.ui.mouse,
 		}
 
 		this.selectees.filter( ".ui-selected" ).each( function() {
-			var selectee = jQuery_WPF.data( this, "selectable-item" );
+			var selectee = $.data( this, "selectable-item" );
 			selectee.startselected = true;
 			if ( !event.metaKey && !event.ctrlKey ) {
 				that._removeClass( selectee.$element, "ui-selected" );
@@ -13622,9 +13755,9 @@ var widgetsSelectable = jQuery_WPF.widget( "ui.selectable", jQuery_WPF.ui.mouse,
 			}
 		} );
 
-		jQuery_WPF( event.target ).parents().addBack().each( function() {
+		$( event.target ).parents().addBack().each( function() {
 			var doSelect,
-				selectee = jQuery_WPF.data( this, "selectable-item" );
+				selectee = $.data( this, "selectable-item" );
 			if ( selectee ) {
 				doSelect = ( !event.metaKey && !event.ctrlKey ) ||
 					!selectee.$element.hasClass( "ui-selected" );
@@ -13666,12 +13799,16 @@ var widgetsSelectable = jQuery_WPF.widget( "ui.selectable", jQuery_WPF.ui.mouse,
 			x2 = event.pageX,
 			y2 = event.pageY;
 
-		if ( x1 > x2 ) { tmp = x2; x2 = x1; x1 = tmp; }
-		if ( y1 > y2 ) { tmp = y2; y2 = y1; y1 = tmp; }
+		if ( x1 > x2 ) {
+			tmp = x2; x2 = x1; x1 = tmp;
+		}
+		if ( y1 > y2 ) {
+			tmp = y2; y2 = y1; y1 = tmp;
+		}
 		this.helper.css( { left: x1, top: y1, width: x2 - x1, height: y2 - y1 } );
 
 		this.selectees.each( function() {
-			var selectee = jQuery_WPF.data( this, "selectable-item" ),
+			var selectee = $.data( this, "selectable-item" ),
 				hit = false,
 				offset = {};
 
@@ -13761,8 +13898,8 @@ var widgetsSelectable = jQuery_WPF.widget( "ui.selectable", jQuery_WPF.ui.mouse,
 
 		this.dragged = false;
 
-		jQuery_WPF( ".ui-unselecting", this.element[ 0 ] ).each( function() {
-			var selectee = jQuery_WPF.data( this, "selectable-item" );
+		$( ".ui-unselecting", this.element[ 0 ] ).each( function() {
+			var selectee = $.data( this, "selectable-item" );
 			that._removeClass( selectee.$element, "ui-unselecting" );
 			selectee.unselecting = false;
 			selectee.startselected = false;
@@ -13770,8 +13907,8 @@ var widgetsSelectable = jQuery_WPF.widget( "ui.selectable", jQuery_WPF.ui.mouse,
 				unselected: selectee.element
 			} );
 		} );
-		jQuery_WPF( ".ui-selecting", this.element[ 0 ] ).each( function() {
-			var selectee = jQuery_WPF.data( this, "selectable-item" );
+		$( ".ui-selecting", this.element[ 0 ] ).each( function() {
+			var selectee = $.data( this, "selectable-item" );
 			that._removeClass( selectee.$element, "ui-selecting" )
 				._addClass( selectee.$element, "ui-selected" );
 			selectee.selecting = false;
@@ -13792,29 +13929,28 @@ var widgetsSelectable = jQuery_WPF.widget( "ui.selectable", jQuery_WPF.ui.mouse,
 
 
 /*!
- * jQuery UI Selectmenu 1.12.1
- * http://jqueryui.com
+ * jQuery UI Selectmenu 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Selectmenu
 //>>group: Widgets
-// jscs:disable maximumLineLength
+/* eslint-disable max-len */
 //>>description: Duplicates and extends the functionality of a native HTML select element, allowing it to be customizable in behavior and appearance far beyond the limitations of a native select.
-// jscs:enable maximumLineLength
-//>>docs: http://api.jqueryui.com/selectmenu/
-//>>demos: http://jqueryui.com/selectmenu/
+/* eslint-enable max-len */
+//>>docs: https://api.jqueryui.com/selectmenu/
+//>>demos: https://jqueryui.com/selectmenu/
 //>>css.structure: ../../themes/base/core.css
 //>>css.structure: ../../themes/base/selectmenu.css, ../../themes/base/button.css
 //>>css.theme: ../../themes/base/theme.css
 
 
-
-var widgetsSelectmenu = jQuery_WPF.widget( "ui.selectmenu", [ jQuery_WPF.ui.formResetMixin, {
-	version: "1.12.1",
+var widgetsSelectmenu = $.widget( "ui.selectmenu", [ $.ui.formResetMixin, {
+	version: "1.14.1",
 	defaultElement: "<select>",
 	options: {
 		appendTo: null,
@@ -13854,7 +13990,7 @@ var widgetsSelectmenu = jQuery_WPF.widget( "ui.selectmenu", [ jQuery_WPF.ui.form
 		this._bindFormResetHandler();
 
 		this._rendered = false;
-		this.menuItems = jQuery_WPF();
+		this.menuItems = $();
 	},
 
 	_drawButton: function() {
@@ -13869,7 +14005,7 @@ var widgetsSelectmenu = jQuery_WPF.widget( "ui.selectmenu", [ jQuery_WPF.ui.form
 		this.labels = this.element.labels().attr( "for", this.ids.button );
 		this._on( this.labels, {
 			click: function( event ) {
-				this.button.focus();
+				this.button.trigger( "focus" );
 				event.preventDefault();
 			}
 		} );
@@ -13878,7 +14014,7 @@ var widgetsSelectmenu = jQuery_WPF.widget( "ui.selectmenu", [ jQuery_WPF.ui.form
 		this.element.hide();
 
 		// Create button
-		this.button = jQuery_WPF( "<span>", {
+		this.button = $( "<span>", {
 			tabindex: this.options.disabled ? -1 : 0,
 			id: this.ids.button,
 			role: "combobox",
@@ -13893,7 +14029,7 @@ var widgetsSelectmenu = jQuery_WPF.widget( "ui.selectmenu", [ jQuery_WPF.ui.form
 		this._addClass( this.button, "ui-selectmenu-button ui-selectmenu-button-closed",
 			"ui-button ui-widget" );
 
-		icon = jQuery_WPF( "<span>" ).appendTo( this.button );
+		icon = $( "<span>" ).appendTo( this.button );
 		this._addClass( icon, "ui-selectmenu-icon", "ui-icon " + this.options.icons.button );
 		this.buttonItem = this._renderButtonItem( item )
 			.appendTo( this.button );
@@ -13917,14 +14053,14 @@ var widgetsSelectmenu = jQuery_WPF.widget( "ui.selectmenu", [ jQuery_WPF.ui.form
 		var that = this;
 
 		// Create menu
-		this.menu = jQuery_WPF( "<ul>", {
+		this.menu = $( "<ul>", {
 			"aria-hidden": "true",
 			"aria-labelledby": this.ids.button,
 			id: this.ids.menu
 		} );
 
 		// Wrap menu
-		this.menuWrap = jQuery_WPF( "<div>" ).append( this.menu );
+		this.menuWrap = $( "<div>" ).append( this.menu );
 		this._addClass( this.menuWrap, "ui-selectmenu-menu", "ui-front" );
 		this.menuWrap.appendTo( this._appendTo() );
 
@@ -13937,12 +14073,6 @@ var widgetsSelectmenu = jQuery_WPF.widget( "ui.selectmenu", [ jQuery_WPF.ui.form
 				role: "listbox",
 				select: function( event, ui ) {
 					event.preventDefault();
-
-					// Support: IE8
-					// If the item was selected via a click, the text selection
-					// will be destroyed in IE
-					that._setSelection();
-
 					that._select( ui.item.data( "ui-selectmenu-item" ), event );
 				},
 				focus: function( event, ui ) {
@@ -14052,7 +14182,7 @@ var widgetsSelectmenu = jQuery_WPF.widget( "ui.selectmenu", [ jQuery_WPF.ui.form
 	},
 
 	_position: function() {
-		this.menuWrap.position( jQuery_WPF.extend( { of: this.button }, this.options.position ) );
+		this.menuWrap.position( $.extend( { of: this.button }, this.options.position ) );
 	},
 
 	close: function( event ) {
@@ -14078,7 +14208,7 @@ var widgetsSelectmenu = jQuery_WPF.widget( "ui.selectmenu", [ jQuery_WPF.ui.form
 	},
 
 	_renderButtonItem: function( item ) {
-		var buttonItem = jQuery_WPF( "<span>" );
+		var buttonItem = $( "<span>" );
 
 		this._setText( buttonItem, item.label );
 		this._addClass( buttonItem, "ui-selectmenu-text" );
@@ -14090,11 +14220,11 @@ var widgetsSelectmenu = jQuery_WPF.widget( "ui.selectmenu", [ jQuery_WPF.ui.form
 		var that = this,
 			currentOptgroup = "";
 
-		jQuery_WPF.each( items, function( index, item ) {
+		$.each( items, function( index, item ) {
 			var li;
 
 			if ( item.optgroup !== currentOptgroup ) {
-				li = jQuery_WPF( "<li>", {
+				li = $( "<li>", {
 					text: item.optgroup
 				} );
 				that._addClass( li, "ui-selectmenu-optgroup", "ui-menu-divider" +
@@ -14116,15 +14246,20 @@ var widgetsSelectmenu = jQuery_WPF.widget( "ui.selectmenu", [ jQuery_WPF.ui.form
 	},
 
 	_renderItem: function( ul, item ) {
-		var li = jQuery_WPF( "<li>" ),
-			wrapper = jQuery_WPF( "<div>", {
+		var li = $( "<li>" ),
+			wrapper = $( "<div>", {
 				title: item.element.attr( "title" )
 			} );
 
 		if ( item.disabled ) {
 			this._addClass( li, null, "ui-state-disabled" );
 		}
-		this._setText( wrapper, item.label );
+
+		if ( item.hidden ) {
+			li.prop( "hidden", true );
+		} else {
+			this._setText( wrapper, item.label );
+		}
 
 		return li.append( wrapper ).appendTo( ul );
 	},
@@ -14174,20 +14309,9 @@ var widgetsSelectmenu = jQuery_WPF.widget( "ui.selectmenu", [ jQuery_WPF.ui.form
 			return;
 		}
 
-		if ( window.getSelection ) {
-			selection = window.getSelection();
-			selection.removeAllRanges();
-			selection.addRange( this.range );
-
-		// Support: IE8
-		} else {
-			this.range.select();
-		}
-
-		// Support: IE
-		// Setting the text selection kills the button focus in IE, but
-		// restoring the focus doesn't kill the selection.
-		this.button.focus();
+		selection = window.getSelection();
+		selection.removeAllRanges();
+		selection.addRange( this.range );
 	},
 
 	_documentClick: {
@@ -14196,8 +14320,8 @@ var widgetsSelectmenu = jQuery_WPF.widget( "ui.selectmenu", [ jQuery_WPF.ui.form
 				return;
 			}
 
-			if ( !jQuery_WPF( event.target ).closest( ".ui-selectmenu-menu, #" +
-					jQuery_WPF.ui.escapeSelector( this.ids.button ) ).length ) {
+			if ( !$( event.target ).closest( ".ui-selectmenu-menu, #" +
+				CSS.escape( this.ids.button ) ).length ) {
 				this.close( event );
 			}
 		}
@@ -14207,17 +14331,9 @@ var widgetsSelectmenu = jQuery_WPF.widget( "ui.selectmenu", [ jQuery_WPF.ui.form
 
 		// Prevent text selection from being reset when interacting with the selectmenu (#10144)
 		mousedown: function() {
-			var selection;
-
-			if ( window.getSelection ) {
-				selection = window.getSelection();
-				if ( selection.rangeCount ) {
-					this.range = selection.getRangeAt( 0 );
-				}
-
-			// Support: IE8
-			} else {
-				this.range = document.selection.createRange();
+			var selection = window.getSelection();
+			if ( selection.rangeCount ) {
+				this.range = selection.getRangeAt( 0 );
 			}
 		},
 
@@ -14229,49 +14345,49 @@ var widgetsSelectmenu = jQuery_WPF.widget( "ui.selectmenu", [ jQuery_WPF.ui.form
 		keydown: function( event ) {
 			var preventDefault = true;
 			switch ( event.keyCode ) {
-			case jQuery_WPF.ui.keyCode.TAB:
-			case jQuery_WPF.ui.keyCode.ESCAPE:
+			case $.ui.keyCode.TAB:
+			case $.ui.keyCode.ESCAPE:
 				this.close( event );
 				preventDefault = false;
 				break;
-			case jQuery_WPF.ui.keyCode.ENTER:
+			case $.ui.keyCode.ENTER:
 				if ( this.isOpen ) {
 					this._selectFocusedItem( event );
 				}
 				break;
-			case jQuery_WPF.ui.keyCode.UP:
+			case $.ui.keyCode.UP:
 				if ( event.altKey ) {
 					this._toggle( event );
 				} else {
 					this._move( "prev", event );
 				}
 				break;
-			case jQuery_WPF.ui.keyCode.DOWN:
+			case $.ui.keyCode.DOWN:
 				if ( event.altKey ) {
 					this._toggle( event );
 				} else {
 					this._move( "next", event );
 				}
 				break;
-			case jQuery_WPF.ui.keyCode.SPACE:
+			case $.ui.keyCode.SPACE:
 				if ( this.isOpen ) {
 					this._selectFocusedItem( event );
 				} else {
 					this._toggle( event );
 				}
 				break;
-			case jQuery_WPF.ui.keyCode.LEFT:
+			case $.ui.keyCode.LEFT:
 				this._move( "prev", event );
 				break;
-			case jQuery_WPF.ui.keyCode.RIGHT:
+			case $.ui.keyCode.RIGHT:
 				this._move( "next", event );
 				break;
-			case jQuery_WPF.ui.keyCode.HOME:
-			case jQuery_WPF.ui.keyCode.PAGE_UP:
+			case $.ui.keyCode.HOME:
+			case $.ui.keyCode.PAGE_UP:
 				this._move( "first", event );
 				break;
-			case jQuery_WPF.ui.keyCode.END:
-			case jQuery_WPF.ui.keyCode.PAGE_DOWN:
+			case $.ui.keyCode.END:
+			case $.ui.keyCode.PAGE_DOWN:
 				this._move( "last", event );
 				break;
 			default:
@@ -14357,7 +14473,7 @@ var widgetsSelectmenu = jQuery_WPF.widget( "ui.selectmenu", [ jQuery_WPF.ui.form
 
 		if ( element ) {
 			element = element.jquery || element.nodeType ?
-				jQuery_WPF( element ) :
+				$( element ) :
 				this.document.find( element ).eq( 0 );
 		}
 
@@ -14408,11 +14524,7 @@ var widgetsSelectmenu = jQuery_WPF.widget( "ui.selectmenu", [ jQuery_WPF.ui.form
 	_resizeMenu: function() {
 		this.menu.outerWidth( Math.max(
 			this.button.outerWidth(),
-
-			// Support: IE10
-			// IE10 wraps long text (possibly a rounding bug)
-			// so we add 1px to avoid the wrapping
-			this.menu.width( "" ).outerWidth() + 1
+			this.menu.width( "" ).outerWidth()
 		) );
 	},
 
@@ -14428,7 +14540,7 @@ var widgetsSelectmenu = jQuery_WPF.widget( "ui.selectmenu", [ jQuery_WPF.ui.form
 		var that = this,
 			data = [];
 		options.each( function( index, item ) {
-			data.push( that._parseOption( jQuery_WPF( item ), index ) );
+			data.push( that._parseOption( $( item ), index ) );
 		} );
 		this.items = data;
 	},
@@ -14441,6 +14553,7 @@ var widgetsSelectmenu = jQuery_WPF.widget( "ui.selectmenu", [ jQuery_WPF.ui.form
 			index: index,
 			value: option.val(),
 			label: option.text(),
+			hidden: optgroup.prop( "hidden" ) || option.prop( "hidden" ),
 			optgroup: optgroup.attr( "label" ) || "",
 			disabled: optgroup.prop( "disabled" ) || option.prop( "disabled" )
 		};
@@ -14458,27 +14571,26 @@ var widgetsSelectmenu = jQuery_WPF.widget( "ui.selectmenu", [ jQuery_WPF.ui.form
 
 
 /*!
- * jQuery UI Slider 1.12.1
- * http://jqueryui.com
+ * jQuery UI Slider 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Slider
 //>>group: Widgets
 //>>description: Displays a flexible slider with ranges and accessibility via keyboard.
-//>>docs: http://api.jqueryui.com/slider/
-//>>demos: http://jqueryui.com/slider/
+//>>docs: https://api.jqueryui.com/slider/
+//>>demos: https://jqueryui.com/slider/
 //>>css.structure: ../../themes/base/core.css
 //>>css.structure: ../../themes/base/slider.css
 //>>css.theme: ../../themes/base/theme.css
 
 
-
-var widgetsSlider = jQuery_WPF.widget( "ui.slider", jQuery_WPF.ui.mouse, {
-	version: "1.12.1",
+var widgetsSlider = $.widget( "ui.slider", $.ui.mouse, {
+	version: "1.14.1",
 	widgetEventPrefix: "slide",
 
 	options: {
@@ -14553,14 +14665,14 @@ var widgetsSlider = jQuery_WPF.widget( "ui.slider", jQuery_WPF.ui.mouse, {
 			handles.push( handle );
 		}
 
-		this.handles = existingHandles.add( jQuery_WPF( handles.join( "" ) ).appendTo( this.element ) );
+		this.handles = existingHandles.add( $( handles.join( "" ) ).appendTo( this.element ) );
 
 		this._addClass( this.handles, "ui-slider-handle", "ui-state-default" );
 
 		this.handle = this.handles.eq( 0 );
 
 		this.handles.each( function( i ) {
-			jQuery_WPF( this )
+			$( this )
 				.data( "ui-slider-handle-index", i )
 				.attr( "tabIndex", 0 );
 		} );
@@ -14575,13 +14687,13 @@ var widgetsSlider = jQuery_WPF.widget( "ui.slider", jQuery_WPF.ui.mouse, {
 					options.values = [ this._valueMin(), this._valueMin() ];
 				} else if ( options.values.length && options.values.length !== 2 ) {
 					options.values = [ options.values[ 0 ], options.values[ 0 ] ];
-				} else if ( jQuery_WPF.isArray( options.values ) ) {
+				} else if ( Array.isArray( options.values ) ) {
 					options.values = options.values.slice( 0 );
 				}
 			}
 
 			if ( !this.range || !this.range.length ) {
-				this.range = jQuery_WPF( "<div>" )
+				this.range = $( "<div>" )
 					.appendTo( this.element );
 
 				this._addClass( this.range, "ui-slider-range" );
@@ -14645,7 +14757,7 @@ var widgetsSlider = jQuery_WPF.widget( "ui.slider", jQuery_WPF.ui.mouse, {
 				( distance === thisDistance &&
 					( i === that._lastChangedValue || that.values( i ) === o.min ) ) ) {
 				distance = thisDistance;
-				closestHandle = jQuery_WPF( this );
+				closestHandle = $( this );
 				index = i;
 			}
 		} );
@@ -14662,7 +14774,7 @@ var widgetsSlider = jQuery_WPF.widget( "ui.slider", jQuery_WPF.ui.mouse, {
 		closestHandle.trigger( "focus" );
 
 		offset = closestHandle.offset();
-		mouseOverHandle = !jQuery_WPF( event.target ).parents().addBack().is( ".ui-slider-handle" );
+		mouseOverHandle = !$( event.target ).parents().addBack().is( ".ui-slider-handle" );
 		this._clickOffset = mouseOverHandle ? { left: 0, top: 0 } : {
 			left: event.pageX - offset.left - ( closestHandle.width() / 2 ),
 			top: event.pageY - offset.top -
@@ -14838,7 +14950,7 @@ var widgetsSlider = jQuery_WPF.widget( "ui.slider", jQuery_WPF.ui.mouse, {
 		}
 
 		if ( arguments.length ) {
-			if ( jQuery_WPF.isArray( arguments[ 0 ] ) ) {
+			if ( Array.isArray( arguments[ 0 ] ) ) {
 				vals = this.options.values;
 				newValues = arguments[ 0 ];
 				for ( i = 0; i < vals.length; i += 1 ) {
@@ -14872,7 +14984,7 @@ var widgetsSlider = jQuery_WPF.widget( "ui.slider", jQuery_WPF.ui.mouse, {
 			}
 		}
 
-		if ( jQuery_WPF.isArray( this.options.values ) ) {
+		if ( Array.isArray( this.options.values ) ) {
 			valsLength = this.options.values.length;
 		}
 
@@ -15045,7 +15157,7 @@ var widgetsSlider = jQuery_WPF.widget( "ui.slider", jQuery_WPF.ui.mouse, {
 				valPercent = ( that.values( i ) - that._valueMin() ) / ( that._valueMax() -
 					that._valueMin() ) * 100;
 				_set[ that.orientation === "horizontal" ? "left" : "bottom" ] = valPercent + "%";
-				jQuery_WPF( this ).stop( 1, 1 )[ animate ? "animate" : "css" ]( _set, o.animate );
+				$( this ).stop( 1, 1 )[ animate ? "animate" : "css" ]( _set, o.animate );
 				if ( that.options.range === true ) {
 					if ( that.orientation === "horizontal" ) {
 						if ( i === 0 ) {
@@ -15115,21 +15227,21 @@ var widgetsSlider = jQuery_WPF.widget( "ui.slider", jQuery_WPF.ui.mouse, {
 	_handleEvents: {
 		keydown: function( event ) {
 			var allowed, curVal, newVal, step,
-				index = jQuery_WPF( event.target ).data( "ui-slider-handle-index" );
+				index = $( event.target ).data( "ui-slider-handle-index" );
 
 			switch ( event.keyCode ) {
-				case jQuery_WPF.ui.keyCode.HOME:
-				case jQuery_WPF.ui.keyCode.END:
-				case jQuery_WPF.ui.keyCode.PAGE_UP:
-				case jQuery_WPF.ui.keyCode.PAGE_DOWN:
-				case jQuery_WPF.ui.keyCode.UP:
-				case jQuery_WPF.ui.keyCode.RIGHT:
-				case jQuery_WPF.ui.keyCode.DOWN:
-				case jQuery_WPF.ui.keyCode.LEFT:
+				case $.ui.keyCode.HOME:
+				case $.ui.keyCode.END:
+				case $.ui.keyCode.PAGE_UP:
+				case $.ui.keyCode.PAGE_DOWN:
+				case $.ui.keyCode.UP:
+				case $.ui.keyCode.RIGHT:
+				case $.ui.keyCode.DOWN:
+				case $.ui.keyCode.LEFT:
 					event.preventDefault();
 					if ( !this._keySliding ) {
 						this._keySliding = true;
-						this._addClass( jQuery_WPF( event.target ), null, "ui-state-active" );
+						this._addClass( $( event.target ), null, "ui-state-active" );
 						allowed = this._start( event, index );
 						if ( allowed === false ) {
 							return;
@@ -15146,30 +15258,30 @@ var widgetsSlider = jQuery_WPF.widget( "ui.slider", jQuery_WPF.ui.mouse, {
 			}
 
 			switch ( event.keyCode ) {
-				case jQuery_WPF.ui.keyCode.HOME:
+				case $.ui.keyCode.HOME:
 					newVal = this._valueMin();
 					break;
-				case jQuery_WPF.ui.keyCode.END:
+				case $.ui.keyCode.END:
 					newVal = this._valueMax();
 					break;
-				case jQuery_WPF.ui.keyCode.PAGE_UP:
+				case $.ui.keyCode.PAGE_UP:
 					newVal = this._trimAlignValue(
 						curVal + ( ( this._valueMax() - this._valueMin() ) / this.numPages )
 					);
 					break;
-				case jQuery_WPF.ui.keyCode.PAGE_DOWN:
+				case $.ui.keyCode.PAGE_DOWN:
 					newVal = this._trimAlignValue(
 						curVal - ( ( this._valueMax() - this._valueMin() ) / this.numPages ) );
 					break;
-				case jQuery_WPF.ui.keyCode.UP:
-				case jQuery_WPF.ui.keyCode.RIGHT:
+				case $.ui.keyCode.UP:
+				case $.ui.keyCode.RIGHT:
 					if ( curVal === this._valueMax() ) {
 						return;
 					}
 					newVal = this._trimAlignValue( curVal + step );
 					break;
-				case jQuery_WPF.ui.keyCode.DOWN:
-				case jQuery_WPF.ui.keyCode.LEFT:
+				case $.ui.keyCode.DOWN:
+				case $.ui.keyCode.LEFT:
 					if ( curVal === this._valueMin() ) {
 						return;
 					}
@@ -15180,13 +15292,13 @@ var widgetsSlider = jQuery_WPF.widget( "ui.slider", jQuery_WPF.ui.mouse, {
 			this._slide( event, index, newVal );
 		},
 		keyup: function( event ) {
-			var index = jQuery_WPF( event.target ).data( "ui-slider-handle-index" );
+			var index = $( event.target ).data( "ui-slider-handle-index" );
 
 			if ( this._keySliding ) {
 				this._keySliding = false;
 				this._stop( event, index );
 				this._change( event, index );
-				this._removeClass( jQuery_WPF( event.target ), null, "ui-state-active" );
+				this._removeClass( $( event.target ), null, "ui-state-active" );
 			}
 		}
 	}
@@ -15194,25 +15306,24 @@ var widgetsSlider = jQuery_WPF.widget( "ui.slider", jQuery_WPF.ui.mouse, {
 
 
 /*!
- * jQuery UI Sortable 1.12.1
- * http://jqueryui.com
+ * jQuery UI Sortable 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Sortable
 //>>group: Interactions
 //>>description: Enables items in a list to be sorted using the mouse.
-//>>docs: http://api.jqueryui.com/sortable/
-//>>demos: http://jqueryui.com/sortable/
+//>>docs: https://api.jqueryui.com/sortable/
+//>>demos: https://jqueryui.com/sortable/
 //>>css.structure: ../../themes/base/sortable.css
 
 
-
-var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
-	version: "1.12.1",
+var widgetsSortable = $.widget( "ui.sortable", $.ui.mouse, {
+	version: "1.14.1",
 	widgetEventPrefix: "sort",
 	ready: false,
 	options: {
@@ -15294,7 +15405,7 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 	_setHandleClassName: function() {
 		var that = this;
 		this._removeClass( this.element.find( ".ui-sortable-handle" ), "ui-sortable-handle" );
-		jQuery_WPF.each( this.items, function() {
+		$.each( this.items, function() {
 			that._addClass(
 				this.instance.options.handle ?
 					this.item.find( this.instance.options.handle ) :
@@ -15331,21 +15442,21 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 		this._refreshItems( event );
 
 		//Find out if the clicked node (or one of its parents) is a actual item in this.items
-		jQuery_WPF( event.target ).parents().each( function() {
-			if ( jQuery_WPF.data( this, that.widgetName + "-item" ) === that ) {
-				currentItem = jQuery_WPF( this );
+		$( event.target ).parents().each( function() {
+			if ( $.data( this, that.widgetName + "-item" ) === that ) {
+				currentItem = $( this );
 				return false;
 			}
 		} );
-		if ( jQuery_WPF.data( event.target, that.widgetName + "-item" ) === that ) {
-			currentItem = jQuery_WPF( event.target );
+		if ( $.data( event.target, that.widgetName + "-item" ) === that ) {
+			currentItem = $( event.target );
 		}
 
 		if ( !currentItem ) {
 			return false;
 		}
 		if ( this.options.handle && !overrideHandle ) {
-			jQuery_WPF( this.options.handle, currentItem ).find( "*" ).addBack().each( function() {
+			$( this.options.handle, currentItem ).find( "*" ).addBack().each( function() {
 				if ( this === event.target ) {
 					validHandle = true;
 				}
@@ -15372,6 +15483,11 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 		// mouseCapture
 		this.refreshPositions();
 
+		//Prepare the dragged items parent
+		this.appendTo = $( o.appendTo !== "parent" ?
+				o.appendTo :
+				this.currentItem.parent() );
+
 		//Create and append the visible helper
 		this.helper = this._createHelper( event );
 
@@ -15386,9 +15502,6 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 		//Cache the margins of the original element
 		this._cacheMargins();
 
-		//Get the next scrolling parent
-		this.scrollParent = this.helper.scrollParent();
-
 		//The element's absolute position on the page minus margins
 		this.offset = this.currentItem.offset();
 		this.offset = {
@@ -15396,30 +15509,27 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 			left: this.offset.left - this.margins.left
 		};
 
-		jQuery_WPF.extend( this.offset, {
+		$.extend( this.offset, {
 			click: { //Where the click happened, relative to the element
 				left: event.pageX - this.offset.left,
 				top: event.pageY - this.offset.top
 			},
-			parent: this._getParentOffset(),
 
 			// This is a relative to absolute position minus the actual position calculation -
 			// only used for relative positioned helper
 			relative: this._getRelativeOffset()
 		} );
 
-		// Only after we got the offset, we can change the helper's position to absolute
+		// After we get the helper offset, but before we get the parent offset we can
+		// change the helper's position to absolute
 		// TODO: Still need to figure out a way to make relative sorting possible
 		this.helper.css( "position", "absolute" );
 		this.cssPosition = this.helper.css( "position" );
 
-		//Generate the original position
-		this.originalPosition = this._generatePosition( event );
-		this.originalPageX = event.pageX;
-		this.originalPageY = event.pageY;
-
 		//Adjust the mouse offset relative to the helper if "cursorAt" is supplied
-		( o.cursorAt && this._adjustOffsetFromHelper( o.cursorAt ) );
+		if ( o.cursorAt ) {
+			this._adjustOffsetFromHelper( o.cursorAt );
+		}
 
 		//Cache the former DOM position
 		this.domPosition = {
@@ -15436,6 +15546,13 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 		//Create the placeholder
 		this._createPlaceholder();
 
+		//Get the next scrolling parent
+		this.scrollParent = this.placeholder.scrollParent();
+
+		$.extend( this.offset, {
+			parent: this._getParentOffset()
+		} );
+
 		//Set a containment if given in the options
 		if ( o.containment ) {
 			this._setContainment();
@@ -15444,12 +15561,18 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 		if ( o.cursor && o.cursor !== "auto" ) { // cursor option
 			body = this.document.find( "body" );
 
-			// Support: IE
-			this.storedCursor = body.css( "cursor" );
-			body.css( "cursor", o.cursor );
+			this._storedStylesheet =
+				$( "<style>*{ cursor: " + o.cursor + " !important; }</style>" ).appendTo( body );
+		}
 
-			this.storedStylesheet =
-				jQuery_WPF( "<style>*{ cursor: " + o.cursor + " !important; }</style>" ).appendTo( body );
+		// We need to make sure to grab the zIndex before setting the
+		// opacity, because setting the opacity to anything lower than 1
+		// causes the zIndex to change from "auto" to 0.
+		if ( o.zIndex ) { // zIndex option
+			if ( this.helper.css( "zIndex" ) ) {
+				this._storedZIndex = this.helper.css( "zIndex" );
+			}
+			this.helper.css( "zIndex", o.zIndex );
 		}
 
 		if ( o.opacity ) { // opacity option
@@ -15457,13 +15580,6 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 				this._storedOpacity = this.helper.css( "opacity" );
 			}
 			this.helper.css( "opacity", o.opacity );
-		}
-
-		if ( o.zIndex ) { // zIndex option
-			if ( this.helper.css( "zIndex" ) ) {
-				this._storedZIndex = this.helper.css( "zIndex" );
-			}
-			this.helper.css( "zIndex", o.zIndex );
 		}
 
 		//Prepare scrolling
@@ -15488,89 +15604,94 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 		}
 
 		//Prepare possible droppables
-		if ( jQuery_WPF.ui.ddmanager ) {
-			jQuery_WPF.ui.ddmanager.current = this;
+		if ( $.ui.ddmanager ) {
+			$.ui.ddmanager.current = this;
 		}
 
-		if ( jQuery_WPF.ui.ddmanager && !o.dropBehaviour ) {
-			jQuery_WPF.ui.ddmanager.prepareOffsets( this, event );
+		if ( $.ui.ddmanager && !o.dropBehaviour ) {
+			$.ui.ddmanager.prepareOffsets( this, event );
 		}
 
 		this.dragging = true;
 
 		this._addClass( this.helper, "ui-sortable-helper" );
 
-		// Execute the drag once - this causes the helper not to be visiblebefore getting its
-		// correct position
+		//Move the helper, if needed
+		if ( !this.helper.parent().is( this.appendTo ) ) {
+			this.helper.detach().appendTo( this.appendTo );
+
+			//Update position
+			this.offset.parent = this._getParentOffset();
+		}
+
+		//Generate the original position
+		this.position = this.originalPosition = this._generatePosition( event );
+		this.originalPageX = event.pageX;
+		this.originalPageY = event.pageY;
+		this.lastPositionAbs = this.positionAbs = this._convertPositionTo( "absolute" );
+
 		this._mouseDrag( event );
+
 		return true;
 
 	},
 
+	_scroll: function( event ) {
+		var o = this.options,
+			scrolled = false;
+
+		if ( this.scrollParent[ 0 ] !== this.document[ 0 ] &&
+				this.scrollParent[ 0 ].tagName !== "HTML" ) {
+
+			if ( ( this.overflowOffset.top + this.scrollParent[ 0 ].offsetHeight ) -
+					event.pageY < o.scrollSensitivity ) {
+				this.scrollParent[ 0 ].scrollTop =
+					scrolled = this.scrollParent[ 0 ].scrollTop + o.scrollSpeed;
+			} else if ( event.pageY - this.overflowOffset.top < o.scrollSensitivity ) {
+				this.scrollParent[ 0 ].scrollTop =
+					scrolled = this.scrollParent[ 0 ].scrollTop - o.scrollSpeed;
+			}
+
+			if ( ( this.overflowOffset.left + this.scrollParent[ 0 ].offsetWidth ) -
+					event.pageX < o.scrollSensitivity ) {
+				this.scrollParent[ 0 ].scrollLeft = scrolled =
+					this.scrollParent[ 0 ].scrollLeft + o.scrollSpeed;
+			} else if ( event.pageX - this.overflowOffset.left < o.scrollSensitivity ) {
+				this.scrollParent[ 0 ].scrollLeft = scrolled =
+					this.scrollParent[ 0 ].scrollLeft - o.scrollSpeed;
+			}
+
+		} else {
+
+			if ( event.pageY - this.document.scrollTop() < o.scrollSensitivity ) {
+				scrolled = this.document.scrollTop( this.document.scrollTop() - o.scrollSpeed );
+			} else if ( this.window.height() - ( event.pageY - this.document.scrollTop() ) <
+					o.scrollSensitivity ) {
+				scrolled = this.document.scrollTop( this.document.scrollTop() + o.scrollSpeed );
+			}
+
+			if ( event.pageX - this.document.scrollLeft() < o.scrollSensitivity ) {
+				scrolled = this.document.scrollLeft(
+					this.document.scrollLeft() - o.scrollSpeed
+				);
+			} else if ( this.window.width() - ( event.pageX - this.document.scrollLeft() ) <
+					o.scrollSensitivity ) {
+				scrolled = this.document.scrollLeft(
+					this.document.scrollLeft() + o.scrollSpeed
+				);
+			}
+
+		}
+
+		return scrolled;
+	},
+
 	_mouseDrag: function( event ) {
 		var i, item, itemElement, intersection,
-			o = this.options,
-			scrolled = false;
+			o = this.options;
 
 		//Compute the helpers position
 		this.position = this._generatePosition( event );
-		this.positionAbs = this._convertPositionTo( "absolute" );
-
-		if ( !this.lastPositionAbs ) {
-			this.lastPositionAbs = this.positionAbs;
-		}
-
-		//Do scrolling
-		if ( this.options.scroll ) {
-			if ( this.scrollParent[ 0 ] !== this.document[ 0 ] &&
-					this.scrollParent[ 0 ].tagName !== "HTML" ) {
-
-				if ( ( this.overflowOffset.top + this.scrollParent[ 0 ].offsetHeight ) -
-						event.pageY < o.scrollSensitivity ) {
-					this.scrollParent[ 0 ].scrollTop =
-						scrolled = this.scrollParent[ 0 ].scrollTop + o.scrollSpeed;
-				} else if ( event.pageY - this.overflowOffset.top < o.scrollSensitivity ) {
-					this.scrollParent[ 0 ].scrollTop =
-						scrolled = this.scrollParent[ 0 ].scrollTop - o.scrollSpeed;
-				}
-
-				if ( ( this.overflowOffset.left + this.scrollParent[ 0 ].offsetWidth ) -
-						event.pageX < o.scrollSensitivity ) {
-					this.scrollParent[ 0 ].scrollLeft = scrolled =
-						this.scrollParent[ 0 ].scrollLeft + o.scrollSpeed;
-				} else if ( event.pageX - this.overflowOffset.left < o.scrollSensitivity ) {
-					this.scrollParent[ 0 ].scrollLeft = scrolled =
-						this.scrollParent[ 0 ].scrollLeft - o.scrollSpeed;
-				}
-
-			} else {
-
-				if ( event.pageY - this.document.scrollTop() < o.scrollSensitivity ) {
-					scrolled = this.document.scrollTop( this.document.scrollTop() - o.scrollSpeed );
-				} else if ( this.window.height() - ( event.pageY - this.document.scrollTop() ) <
-						o.scrollSensitivity ) {
-					scrolled = this.document.scrollTop( this.document.scrollTop() + o.scrollSpeed );
-				}
-
-				if ( event.pageX - this.document.scrollLeft() < o.scrollSensitivity ) {
-					scrolled = this.document.scrollLeft(
-						this.document.scrollLeft() - o.scrollSpeed
-					);
-				} else if ( this.window.width() - ( event.pageX - this.document.scrollLeft() ) <
-						o.scrollSensitivity ) {
-					scrolled = this.document.scrollLeft(
-						this.document.scrollLeft() + o.scrollSpeed
-					);
-				}
-
-			}
-
-			if ( scrolled !== false && jQuery_WPF.ui.ddmanager && !o.dropBehaviour ) {
-				jQuery_WPF.ui.ddmanager.prepareOffsets( this, event );
-			}
-		}
-
-		//Regenerate the absolute position used for position checks
 		this.positionAbs = this._convertPositionTo( "absolute" );
 
 		//Set the helper position
@@ -15580,6 +15701,24 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 		if ( !this.options.axis || this.options.axis !== "x" ) {
 			this.helper[ 0 ].style.top = this.position.top + "px";
 		}
+
+		//Do scrolling
+		if ( o.scroll ) {
+			if ( this._scroll( event ) !== false ) {
+
+				//Update item positions used in position checks
+				this._refreshItemPositions( true );
+
+				if ( $.ui.ddmanager && !o.dropBehaviour ) {
+					$.ui.ddmanager.prepareOffsets( this, event );
+				}
+			}
+		}
+
+		this.dragDirection = {
+			vertical: this._getDragVerticalDirection(),
+			horizontal: this._getDragHorizontalDirection()
+		};
 
 		//Rearrange
 		for ( i = this.items.length - 1; i >= 0; i-- ) {
@@ -15607,17 +15746,19 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 			// no useless actions that have been done before
 			// no action if the item moved is the parent of the item checked
 			if ( itemElement !== this.currentItem[ 0 ] &&
-				this.placeholder[ intersection === 1 ? "next" : "prev" ]()[ 0 ] !== itemElement &&
-				!jQuery_WPF.contains( this.placeholder[ 0 ], itemElement ) &&
+				this.placeholder[ intersection === 1 ?
+				"next" : "prev" ]()[ 0 ] !== itemElement &&
+				!$.contains( this.placeholder[ 0 ], itemElement ) &&
 				( this.options.type === "semi-dynamic" ?
-					!jQuery_WPF.contains( this.element[ 0 ], itemElement ) :
+					!$.contains( this.element[ 0 ], itemElement ) :
 					true
 				)
 			) {
 
 				this.direction = intersection === 1 ? "down" : "up";
 
-				if ( this.options.tolerance === "pointer" || this._intersectsWithSides( item ) ) {
+				if ( this.options.tolerance === "pointer" ||
+						this._intersectsWithSides( item ) ) {
 					this._rearrange( event, item );
 				} else {
 					break;
@@ -15632,8 +15773,8 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 		this._contactContainers( event );
 
 		//Interconnect with droppables
-		if ( jQuery_WPF.ui.ddmanager ) {
-			jQuery_WPF.ui.ddmanager.drag( this, event );
+		if ( $.ui.ddmanager ) {
+			$.ui.ddmanager.drag( this, event );
 		}
 
 		//Call callbacks
@@ -15651,8 +15792,8 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 		}
 
 		//If we are using droppables, inform the manager about the drop
-		if ( jQuery_WPF.ui.ddmanager && !this.options.dropBehaviour ) {
-			jQuery_WPF.ui.ddmanager.drop( this, event );
+		if ( $.ui.ddmanager && !this.options.dropBehaviour ) {
+			$.ui.ddmanager.drop( this, event );
 		}
 
 		if ( this.options.revert ) {
@@ -15676,7 +15817,7 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 					);
 			}
 			this.reverting = true;
-			jQuery_WPF( this.helper ).animate(
+			$( this.helper ).animate(
 				animation,
 				parseInt( this.options.revert, 10 ) || 500,
 				function() {
@@ -15695,7 +15836,7 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 
 		if ( this.dragging ) {
 
-			this._mouseUp( new jQuery_WPF.Event( "mouseup", { target: null } ) );
+			this._mouseUp( new $.Event( "mouseup", { target: null } ) );
 
 			if ( this.options.helper === "original" ) {
 				this.currentItem.css( this._storedCSS );
@@ -15717,7 +15858,7 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 
 		if ( this.placeholder ) {
 
-			//jQuery_WPF(this.placeholder[0]).remove(); would have been the jQuery way - unfortunately,
+			//$(this.placeholder[0]).remove(); would have been the jQuery way - unfortunately,
 			// it unbinds ALL events from the original node!
 			if ( this.placeholder[ 0 ].parentNode ) {
 				this.placeholder[ 0 ].parentNode.removeChild( this.placeholder[ 0 ] );
@@ -15727,7 +15868,7 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 				this.helper.remove();
 			}
 
-			jQuery_WPF.extend( this, {
+			$.extend( this, {
 				helper: null,
 				dragging: false,
 				reverting: false,
@@ -15735,9 +15876,9 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 			} );
 
 			if ( this.domPosition.prev ) {
-				jQuery_WPF( this.domPosition.prev ).after( this.currentItem );
+				$( this.domPosition.prev ).after( this.currentItem );
 			} else {
-				jQuery_WPF( this.domPosition.parent ).prepend( this.currentItem );
+				$( this.domPosition.parent ).prepend( this.currentItem );
 			}
 		}
 
@@ -15751,8 +15892,8 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 			str = [];
 		o = o || {};
 
-		jQuery_WPF( items ).each( function() {
-			var res = ( jQuery_WPF( o.item || this ).attr( o.attribute || "id" ) || "" )
+		$( items ).each( function() {
+			var res = ( $( o.item || this ).attr( o.attribute || "id" ) || "" )
 				.match( o.expression || ( /(.+)[\-=_](.+)/ ) );
 			if ( res ) {
 				str.push(
@@ -15771,13 +15912,13 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 
 	toArray: function( o ) {
 
-		var items = this._getItemsAsjQuery_WPF( o && o.connected ),
+		var items = this._getItemsAsjQuery( o && o.connected ),
 			ret = [];
 
 		o = o || {};
 
 		items.each( function() {
-			ret.push( jQuery_WPF( o.item || this ).attr( o.attribute || "id" ) || "" );
+			ret.push( $( o.item || this ).attr( o.attribute || "id" ) || "" );
 		} );
 		return ret;
 
@@ -15833,12 +15974,12 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 			return false;
 		}
 
-		verticalDirection = this._getDragVerticalDirection();
-		horizontalDirection = this._getDragHorizontalDirection();
+		verticalDirection = this.dragDirection.vertical;
+		horizontalDirection = this.dragDirection.horizontal;
 
 		return this.floating ?
-			( ( horizontalDirection === "right" || verticalDirection === "down" ) ? 2 : 1 )
-			: ( verticalDirection && ( verticalDirection === "down" ? 2 : 1 ) );
+			( ( horizontalDirection === "right" || verticalDirection === "down" ) ? 2 : 1 ) :
+			( verticalDirection && ( verticalDirection === "down" ? 2 : 1 ) );
 
 	},
 
@@ -15848,8 +15989,8 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 				this.offset.click.top, item.top + ( item.height / 2 ), item.height ),
 			isOverRightHalf = this._isOverAxis( this.positionAbs.left +
 				this.offset.click.left, item.left + ( item.width / 2 ), item.width ),
-			verticalDirection = this._getDragVerticalDirection(),
-			horizontalDirection = this._getDragHorizontalDirection();
+			verticalDirection = this.dragDirection.vertical,
+			horizontalDirection = this.dragDirection.horizontal;
 
 		if ( this.floating && horizontalDirection ) {
 			return ( ( horizontalDirection === "right" && isOverRightHalf ) ||
@@ -15894,13 +16035,13 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 
 		if ( connectWith && connected ) {
 			for ( i = connectWith.length - 1; i >= 0; i-- ) {
-				cur = jQuery_WPF( connectWith[ i ], this.document[ 0 ] );
+				cur = $( connectWith[ i ], this.document[ 0 ] );
 				for ( j = cur.length - 1; j >= 0; j-- ) {
-					inst = jQuery_WPF.data( cur[ j ], this.widgetFullName );
+					inst = $.data( cur[ j ], this.widgetFullName );
 					if ( inst && inst !== this && !inst.options.disabled ) {
-						queries.push( [ jQuery_WPF.isFunction( inst.options.items ) ?
+						queries.push( [ typeof inst.options.items === "function" ?
 							inst.options.items.call( inst.element ) :
-							jQuery_WPF( inst.options.items, inst.element )
+							$( inst.options.items, inst.element )
 								.not( ".ui-sortable-helper" )
 								.not( ".ui-sortable-placeholder" ), inst ] );
 					}
@@ -15908,10 +16049,10 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 			}
 		}
 
-		queries.push( [ jQuery_WPF.isFunction( this.options.items ) ?
+		queries.push( [ typeof this.options.items === "function" ?
 			this.options.items
 				.call( this.element, null, { options: this.options, item: this.currentItem } ) :
-			jQuery_WPF( this.options.items, this.element )
+			$( this.options.items, this.element )
 				.not( ".ui-sortable-helper" )
 				.not( ".ui-sortable-placeholder" ), this ] );
 
@@ -15922,7 +16063,7 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 			queries[ i ][ 0 ].each( addItems );
 		}
 
-		return jQuery_WPF( items );
+		return $( items );
 
 	},
 
@@ -15930,7 +16071,7 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 
 		var list = this.currentItem.find( ":data(" + this.widgetName + "-item)" );
 
-		this.items = jQuery_WPF.grep( this.items, function( item ) {
+		this.items = $.grep( this.items, function( item ) {
 			for ( var j = 0; j < list.length; j++ ) {
 				if ( list[ j ] === item.item[ 0 ] ) {
 					return false;
@@ -15948,22 +16089,22 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 
 		var i, j, cur, inst, targetData, _queries, item, queriesLength,
 			items = this.items,
-			queries = [ [ jQuery_WPF.isFunction( this.options.items ) ?
+			queries = [ [ typeof this.options.items === "function" ?
 				this.options.items.call( this.element[ 0 ], event, { item: this.currentItem } ) :
-				jQuery_WPF( this.options.items, this.element ), this ] ],
+				$( this.options.items, this.element ), this ] ],
 			connectWith = this._connectWith();
 
 		//Shouldn't be run the first time through due to massive slow-down
 		if ( connectWith && this.ready ) {
 			for ( i = connectWith.length - 1; i >= 0; i-- ) {
-				cur = jQuery_WPF( connectWith[ i ], this.document[ 0 ] );
+				cur = $( connectWith[ i ], this.document[ 0 ] );
 				for ( j = cur.length - 1; j >= 0; j-- ) {
-					inst = jQuery_WPF.data( cur[ j ], this.widgetFullName );
+					inst = $.data( cur[ j ], this.widgetFullName );
 					if ( inst && inst !== this && !inst.options.disabled ) {
-						queries.push( [ jQuery_WPF.isFunction( inst.options.items ) ?
+						queries.push( [ typeof inst.options.items === "function" ?
 							inst.options.items
 								.call( inst.element[ 0 ], event, { item: this.currentItem } ) :
-							jQuery_WPF( inst.options.items, inst.element ), inst ] );
+							$( inst.options.items, inst.element ), inst ] );
 						this.containers.push( inst );
 					}
 				}
@@ -15975,7 +16116,7 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 			_queries = queries[ i ][ 0 ];
 
 			for ( j = 0, queriesLength = _queries.length; j < queriesLength; j++ ) {
-				item = jQuery_WPF( _queries[ j ] );
+				item = $( _queries[ j ] );
 
 				// Data for target checking (mouse manager)
 				item.data( this.widgetName + "-item", targetData );
@@ -15991,32 +16132,20 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 
 	},
 
-	refreshPositions: function( fast ) {
-
-		// Determine whether items are being displayed horizontally
-		this.floating = this.items.length ?
-			this.options.axis === "x" || this._isFloating( this.items[ 0 ].item ) :
-			false;
-
-		//This has to be redone because due to the item being moved out/into the offsetParent,
-		// the offsetParent's position will change
-		if ( this.offsetParent && this.helper ) {
-			this.offset.parent = this._getParentOffset();
-		}
-
+	_refreshItemPositions: function( fast ) {
 		var i, item, t, p;
 
 		for ( i = this.items.length - 1; i >= 0; i-- ) {
 			item = this.items[ i ];
 
 			//We ignore calculating positions of all connected containers when we're not over them
-			if ( item.instance !== this.currentContainer && this.currentContainer &&
+			if ( this.currentContainer && item.instance !== this.currentContainer &&
 					item.item[ 0 ] !== this.currentItem[ 0 ] ) {
 				continue;
 			}
 
 			t = this.options.toleranceElement ?
-				jQuery_WPF( this.options.toleranceElement, item.item ) :
+				$( this.options.toleranceElement, item.item ) :
 				item.item;
 
 			if ( !fast ) {
@@ -16028,6 +16157,24 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 			item.left = p.left;
 			item.top = p.top;
 		}
+	},
+
+	refreshPositions: function( fast ) {
+
+		// Determine whether items are being displayed horizontally
+		this.floating = this.items.length ?
+			this.options.axis === "x" || this._isFloating( this.items[ 0 ].item ) :
+			false;
+
+		// This has to be redone because due to the item being moved out/into the offsetParent,
+		// the offsetParent's position will change
+		if ( this.offsetParent && this.helper ) {
+			this.offset.parent = this._getParentOffset();
+		}
+
+		this._refreshItemPositions( fast );
+
+		var i, p;
 
 		if ( this.options.custom && this.options.custom.refreshContainers ) {
 			this.options.custom.refreshContainers.call( this );
@@ -16048,25 +16195,25 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 
 	_createPlaceholder: function( that ) {
 		that = that || this;
-		var className,
+		var className, nodeName,
 			o = that.options;
 
 		if ( !o.placeholder || o.placeholder.constructor === String ) {
 			className = o.placeholder;
+			nodeName = that.currentItem[ 0 ].nodeName.toLowerCase();
 			o.placeholder = {
 				element: function() {
 
-					var nodeName = that.currentItem[ 0 ].nodeName.toLowerCase(),
-						element = jQuery_WPF( "<" + nodeName + ">", that.document[ 0 ] );
+					var element = $( "<" + nodeName + ">", that.document[ 0 ] );
 
-						that._addClass( element, "ui-sortable-placeholder",
-								className || that.currentItem[ 0 ].className )
-							._removeClass( element, "ui-sortable-helper" );
+					that._addClass( element, "ui-sortable-placeholder",
+							className || that.currentItem[ 0 ].className )
+						._removeClass( element, "ui-sortable-helper" );
 
 					if ( nodeName === "tbody" ) {
 						that._createTrPlaceholder(
 							that.currentItem.find( "tr" ).eq( 0 ),
-							jQuery_WPF( "<tr>", that.document[ 0 ] ).appendTo( element )
+							$( "<tr>", that.document[ 0 ] ).appendTo( element )
 						);
 					} else if ( nodeName === "tr" ) {
 						that._createTrPlaceholder( that.currentItem, element );
@@ -16090,9 +16237,15 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 						return;
 					}
 
-					//If the element doesn't have a actual height by itself (without styles coming
-					// from a stylesheet), it receives the inline height from the dragged item
-					if ( !p.height() ) {
+					// If the element doesn't have a actual height or width by itself (without
+					// styles coming from a stylesheet), it receives the inline height and width
+					// from the dragged item. Or, if it's a tbody or tr, it's going to have a height
+					// anyway since we're populating them with <td>s above, but they're unlikely to
+					// be the correct height on their own if the row heights are dynamic, so we'll
+					// always assign the height of the dragged item given forcePlaceholderSize
+					// is true.
+					if ( !p.height() || ( o.forcePlaceholderSize &&
+							( nodeName === "tbody" || nodeName === "tr" ) ) ) {
 						p.height(
 							that.currentItem.innerHeight() -
 							parseInt( that.currentItem.css( "paddingTop" ) || 0, 10 ) -
@@ -16109,7 +16262,7 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 		}
 
 		//Create the placeholder
-		that.placeholder = jQuery_WPF( o.placeholder.element.call( that.element, that.currentItem ) );
+		that.placeholder = $( o.placeholder.element.call( that.element, that.currentItem ) );
 
 		//Append it after the actual current item
 		that.currentItem.after( that.placeholder );
@@ -16123,8 +16276,8 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 		var that = this;
 
 		sourceTr.children().each( function() {
-			jQuery_WPF( "<td>&#160;</td>", that.document[ 0 ] )
-				.attr( "colspan", jQuery_WPF( this ).attr( "colspan" ) || 1 )
+			$( "<td>&#160;</td>", that.document[ 0 ] )
+				.attr( "colspan", $( this ).attr( "colspan" ) || 1 )
 				.appendTo( targetTr );
 		} );
 	},
@@ -16139,7 +16292,7 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 		for ( i = this.containers.length - 1; i >= 0; i-- ) {
 
 			// Never consider a container that's located within the item itself
-			if ( jQuery_WPF.contains( this.currentItem[ 0 ], this.containers[ i ].element[ 0 ] ) ) {
+			if ( $.contains( this.currentItem[ 0 ], this.containers[ i ].element[ 0 ] ) ) {
 				continue;
 			}
 
@@ -16147,7 +16300,7 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 
 				// If we've already found a container and it's more "inner" than this, then continue
 				if ( innermostContainer &&
-						jQuery_WPF.contains(
+						$.contains(
 							this.containers[ i ].element[ 0 ],
 							innermostContainer.element[ 0 ] ) ) {
 					continue;
@@ -16190,7 +16343,7 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 			axis = floating ? "pageX" : "pageY";
 
 			for ( j = this.items.length - 1; j >= 0; j-- ) {
-				if ( !jQuery_WPF.contains(
+				if ( !$.contains(
 						this.containers[ innermostIndex ].element[ 0 ], this.items[ j ].item[ 0 ] )
 				) {
 					continue;
@@ -16225,15 +16378,26 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 				return;
 			}
 
-			itemWithLeastDistance ?
-				this._rearrange( event, itemWithLeastDistance, null, true ) :
+			if ( itemWithLeastDistance ) {
+				this._rearrange( event, itemWithLeastDistance, null, true );
+			} else {
 				this._rearrange( event, null, this.containers[ innermostIndex ].element, true );
+			}
 			this._trigger( "change", event, this._uiHash() );
 			this.containers[ innermostIndex ]._trigger( "change", event, this._uiHash( this ) );
 			this.currentContainer = this.containers[ innermostIndex ];
 
 			//Update the placeholder
 			this.options.placeholder.update( this.currentContainer, this.placeholder );
+
+			//Update scrollParent
+			this.scrollParent = this.placeholder.scrollParent();
+
+			//Update overflowOffset
+			if ( this.scrollParent[ 0 ] !== this.document[ 0 ] &&
+					this.scrollParent[ 0 ].tagName !== "HTML" ) {
+				this.overflowOffset = this.scrollParent.offset();
+			}
 
 			this.containers[ innermostIndex ]._trigger( "over", event, this._uiHash( this ) );
 			this.containers[ innermostIndex ].containerCache.over = 1;
@@ -16244,15 +16408,13 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 	_createHelper: function( event ) {
 
 		var o = this.options,
-			helper = jQuery_WPF.isFunction( o.helper ) ?
-				jQuery_WPF( o.helper.apply( this.element[ 0 ], [ event, this.currentItem ] ) ) :
+			helper = typeof o.helper === "function" ?
+				$( o.helper.apply( this.element[ 0 ], [ event, this.currentItem ] ) ) :
 				( o.helper === "clone" ? this.currentItem.clone() : this.currentItem );
 
 		//Add the helper to the DOM if that didn't happen already
 		if ( !helper.parents( "body" ).length ) {
-			jQuery_WPF( o.appendTo !== "parent" ?
-				o.appendTo :
-				this.currentItem[ 0 ].parentNode )[ 0 ].appendChild( helper[ 0 ] );
+			this.appendTo[ 0 ].appendChild( helper[ 0 ] );
 		}
 
 		if ( helper[ 0 ] === this.currentItem[ 0 ] ) {
@@ -16280,7 +16442,7 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 		if ( typeof obj === "string" ) {
 			obj = obj.split( " " );
 		}
-		if ( jQuery_WPF.isArray( obj ) ) {
+		if ( Array.isArray( obj ) ) {
 			obj = { left: +obj[ 0 ], top: +obj[ 1 ] || 0 };
 		}
 		if ( "left" in obj ) {
@@ -16311,16 +16473,14 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 		// the document, which means that the scroll is included in the initial calculation of the
 		// offset of the parent, and never recalculated upon drag
 		if ( this.cssPosition === "absolute" && this.scrollParent[ 0 ] !== this.document[ 0 ] &&
-				jQuery_WPF.contains( this.scrollParent[ 0 ], this.offsetParent[ 0 ] ) ) {
+				$.contains( this.scrollParent[ 0 ], this.offsetParent[ 0 ] ) ) {
 			po.left += this.scrollParent.scrollLeft();
 			po.top += this.scrollParent.scrollTop();
 		}
 
-		// This needs to be actually done for all browsers, since pageX/pageY includes this
-		// information with an ugly IE fix
-		if ( this.offsetParent[ 0 ] === this.document[ 0 ].body ||
-				( this.offsetParent[ 0 ].tagName &&
-				this.offsetParent[ 0 ].tagName.toLowerCase() === "html" && jQuery_WPF.ui.ie ) ) {
+		// This needs to be actually done for all browsers, since pageX/pageY includes
+		// this information.
+		if ( this.offsetParent[ 0 ] === this.document[ 0 ].body ) {
 			po = { top: 0, left: 0 };
 		}
 
@@ -16383,22 +16543,22 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 		}
 
 		if ( !( /^(document|window|parent)$/ ).test( o.containment ) ) {
-			ce = jQuery_WPF( o.containment )[ 0 ];
-			co = jQuery_WPF( o.containment ).offset();
-			over = ( jQuery_WPF( ce ).css( "overflow" ) !== "hidden" );
+			ce = $( o.containment )[ 0 ];
+			co = $( o.containment ).offset();
+			over = ( $( ce ).css( "overflow" ) !== "hidden" );
 
 			this.containment = [
-				co.left + ( parseInt( jQuery_WPF( ce ).css( "borderLeftWidth" ), 10 ) || 0 ) +
-					( parseInt( jQuery_WPF( ce ).css( "paddingLeft" ), 10 ) || 0 ) - this.margins.left,
-				co.top + ( parseInt( jQuery_WPF( ce ).css( "borderTopWidth" ), 10 ) || 0 ) +
-					( parseInt( jQuery_WPF( ce ).css( "paddingTop" ), 10 ) || 0 ) - this.margins.top,
+				co.left + ( parseInt( $( ce ).css( "borderLeftWidth" ), 10 ) || 0 ) +
+					( parseInt( $( ce ).css( "paddingLeft" ), 10 ) || 0 ) - this.margins.left,
+				co.top + ( parseInt( $( ce ).css( "borderTopWidth" ), 10 ) || 0 ) +
+					( parseInt( $( ce ).css( "paddingTop" ), 10 ) || 0 ) - this.margins.top,
 				co.left + ( over ? Math.max( ce.scrollWidth, ce.offsetWidth ) : ce.offsetWidth ) -
-					( parseInt( jQuery_WPF( ce ).css( "borderLeftWidth" ), 10 ) || 0 ) -
-					( parseInt( jQuery_WPF( ce ).css( "paddingRight" ), 10 ) || 0 ) -
+					( parseInt( $( ce ).css( "borderLeftWidth" ), 10 ) || 0 ) -
+					( parseInt( $( ce ).css( "paddingRight" ), 10 ) || 0 ) -
 					this.helperProportions.width - this.margins.left,
 				co.top + ( over ? Math.max( ce.scrollHeight, ce.offsetHeight ) : ce.offsetHeight ) -
-					( parseInt( jQuery_WPF( ce ).css( "borderTopWidth" ), 10 ) || 0 ) -
-					( parseInt( jQuery_WPF( ce ).css( "paddingBottom" ), 10 ) || 0 ) -
+					( parseInt( $( ce ).css( "borderTopWidth" ), 10 ) || 0 ) -
+					( parseInt( $( ce ).css( "paddingBottom" ), 10 ) || 0 ) -
 					this.helperProportions.height - this.margins.top
 			];
 		}
@@ -16413,7 +16573,7 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 		var mod = d === "absolute" ? 1 : -1,
 			scroll = this.cssPosition === "absolute" &&
 				!( this.scrollParent[ 0 ] !== this.document[ 0 ] &&
-				jQuery_WPF.contains( this.scrollParent[ 0 ], this.offsetParent[ 0 ] ) ) ?
+				$.contains( this.scrollParent[ 0 ], this.offsetParent[ 0 ] ) ) ?
 					this.offsetParent :
 					this.scrollParent,
 			scrollIsRootNode = ( /(html|body)/i ).test( scroll[ 0 ].tagName );
@@ -16459,7 +16619,7 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 			pageY = event.pageY,
 			scroll = this.cssPosition === "absolute" &&
 				!( this.scrollParent[ 0 ] !== this.document[ 0 ] &&
-				jQuery_WPF.contains( this.scrollParent[ 0 ], this.offsetParent[ 0 ] ) ) ?
+				$.contains( this.scrollParent[ 0 ], this.offsetParent[ 0 ] ) ) ?
 					this.offsetParent :
 					this.scrollParent,
 				scrollIsRootNode = ( /(html|body)/i ).test( scroll[ 0 ].tagName );
@@ -16560,9 +16720,12 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 
 	_rearrange: function( event, i, a, hardRefresh ) {
 
-		a ? a[ 0 ].appendChild( this.placeholder[ 0 ] ) :
+		if ( a ) {
+			a[ 0 ].appendChild( this.placeholder[ 0 ] );
+		} else {
 			i.item[ 0 ].parentNode.insertBefore( this.placeholder[ 0 ],
 				( this.direction === "down" ? i.item[ 0 ] : i.item[ 0 ].nextSibling ) );
+		}
 
 		//Various things done here to improve the performance:
 		// 1. we create a setTimeout, that calls refreshPositions
@@ -16665,9 +16828,9 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 		}
 
 		//Do what was originally in plugins
-		if ( this.storedCursor ) {
-			this.document.find( "body" ).css( "cursor", this.storedCursor );
-			this.storedStylesheet.remove();
+		if ( this._storedStylesheet ) {
+			this._storedStylesheet.remove();
+			this._storedStylesheet = null;
 		}
 		if ( this._storedOpacity ) {
 			this.helper.css( "opacity", this._storedOpacity );
@@ -16682,7 +16845,7 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 			this._trigger( "beforeStop", event, this._uiHash() );
 		}
 
-		//jQuery_WPF(this.placeholder[0]).remove(); would have been the jQuery way - unfortunately,
+		//$(this.placeholder[0]).remove(); would have been the jQuery way - unfortunately,
 		// it unbinds ALL events from the original node!
 		this.placeholder[ 0 ].parentNode.removeChild( this.placeholder[ 0 ] );
 
@@ -16708,7 +16871,7 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 	},
 
 	_trigger: function() {
-		if ( jQuery_WPF.Widget.prototype._trigger.apply( this, arguments ) === false ) {
+		if ( $.Widget.prototype._trigger.apply( this, arguments ) === false ) {
 			this.cancel();
 		}
 	},
@@ -16717,7 +16880,7 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 		var inst = _inst || this;
 		return {
 			helper: inst.helper,
-			placeholder: inst.placeholder || jQuery_WPF( [] ),
+			placeholder: inst.placeholder || $( [] ),
 			position: inst.position,
 			originalPosition: inst.originalPosition,
 			offset: inst.positionAbs,
@@ -16730,26 +16893,25 @@ var widgetsSortable = jQuery_WPF.widget( "ui.sortable", jQuery_WPF.ui.mouse, {
 
 
 /*!
- * jQuery UI Spinner 1.12.1
- * http://jqueryui.com
+ * jQuery UI Spinner 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Spinner
 //>>group: Widgets
 //>>description: Displays buttons to easily input numbers via the keyboard or mouse.
-//>>docs: http://api.jqueryui.com/spinner/
-//>>demos: http://jqueryui.com/spinner/
+//>>docs: https://api.jqueryui.com/spinner/
+//>>demos: https://jqueryui.com/spinner/
 //>>css.structure: ../../themes/base/core.css
 //>>css.structure: ../../themes/base/spinner.css
 //>>css.theme: ../../themes/base/theme.css
 
 
-
-function spinnerModifer( fn ) {
+function spinnerModifier( fn ) {
 	return function() {
 		var previous = this.element.val();
 		fn.apply( this, arguments );
@@ -16760,8 +16922,8 @@ function spinnerModifer( fn ) {
 	};
 }
 
-jQuery_WPF.widget( "ui.spinner", {
-	version: "1.12.1",
+$.widget( "ui.spinner", {
+	version: "1.14.1",
 	defaultElement: "<input>",
 	widgetEventPrefix: "spin",
 	options: {
@@ -16821,7 +16983,7 @@ jQuery_WPF.widget( "ui.spinner", {
 		var options = this._super();
 		var element = this.element;
 
-		jQuery_WPF.each( [ "min", "max", "step" ], function( i, option ) {
+		$.each( [ "min", "max", "step" ], function( i, option ) {
 			var value = element.attr( option );
 			if ( value != null && value.length ) {
 				options[ option ] = value;
@@ -16842,11 +17004,6 @@ jQuery_WPF.widget( "ui.spinner", {
 			this.previous = this.element.val();
 		},
 		blur: function( event ) {
-			if ( this.cancelBlur ) {
-				delete this.cancelBlur;
-				return;
-			}
-
 			this._stop();
 			this._refresh();
 			if ( this.previous !== this.element.val() ) {
@@ -16854,9 +17011,13 @@ jQuery_WPF.widget( "ui.spinner", {
 			}
 		},
 		mousewheel: function( event, delta ) {
-			if ( !delta ) {
+			var activeElement = this.document[ 0 ].activeElement;
+			var isActive = this.element[ 0 ] === activeElement;
+
+			if ( !isActive || !delta ) {
 				return;
 			}
+
 			if ( !this.spinning && !this._start( event ) ) {
 				return false;
 			}
@@ -16878,20 +17039,13 @@ jQuery_WPF.widget( "ui.spinner", {
 			// If the input is focused then this.previous is properly set from
 			// when the input first received focus. If the input is not focused
 			// then we need to set this.previous based on the value before spinning.
-			previous = this.element[ 0 ] === jQuery_WPF.ui.safeActiveElement( this.document[ 0 ] ) ?
+			previous = this.element[ 0 ] === this.document[ 0 ].activeElement ?
 				this.previous : this.element.val();
 			function checkFocus() {
-				var isActive = this.element[ 0 ] === jQuery_WPF.ui.safeActiveElement( this.document[ 0 ] );
+				var isActive = this.element[ 0 ] === this.document[ 0 ].activeElement;
 				if ( !isActive ) {
 					this.element.trigger( "focus" );
 					this.previous = previous;
-
-					// support: IE
-					// IE sets focus asynchronously, so we need to check if focus
-					// moved off of the input because the user clicked on the button.
-					this._delay( function() {
-						this.previous = previous;
-					} );
 				}
 			}
 
@@ -16899,35 +17053,25 @@ jQuery_WPF.widget( "ui.spinner", {
 			event.preventDefault();
 			checkFocus.call( this );
 
-			// Support: IE
-			// IE doesn't prevent moving focus even with event.preventDefault()
-			// so we set a flag to know when we should ignore the blur event
-			// and check (again) if focus moved off of the input.
-			this.cancelBlur = true;
-			this._delay( function() {
-				delete this.cancelBlur;
-				checkFocus.call( this );
-			} );
-
 			if ( this._start( event ) === false ) {
 				return;
 			}
 
-			this._repeat( null, jQuery_WPF( event.currentTarget )
+			this._repeat( null, $( event.currentTarget )
 				.hasClass( "ui-spinner-up" ) ? 1 : -1, event );
 		},
 		"mouseup .ui-spinner-button": "_stop",
 		"mouseenter .ui-spinner-button": function( event ) {
 
 			// button will add ui-state-active if mouse was down while mouseleave and kept down
-			if ( !jQuery_WPF( event.currentTarget ).hasClass( "ui-state-active" ) ) {
+			if ( !$( event.currentTarget ).hasClass( "ui-state-active" ) ) {
 				return;
 			}
 
 			if ( this._start( event ) === false ) {
 				return false;
 			}
-			this._repeat( null, jQuery_WPF( event.currentTarget )
+			this._repeat( null, $( event.currentTarget )
 				.hasClass( "ui-spinner-up" ) ? 1 : -1, event );
 		},
 
@@ -16992,7 +17136,7 @@ jQuery_WPF.widget( "ui.spinner", {
 
 	_keydown: function( event ) {
 		var options = this.options,
-			keyCode = jQuery_WPF.ui.keyCode;
+			keyCode = $.ui.keyCode;
 
 		switch ( event.keyCode ) {
 		case keyCode.UP:
@@ -17054,7 +17198,7 @@ jQuery_WPF.widget( "ui.spinner", {
 		var incremental = this.options.incremental;
 
 		if ( incremental ) {
-			return jQuery_WPF.isFunction( incremental ) ?
+			return typeof incremental === "function" ?
 				incremental( i ) :
 				Math.floor( i * i * i / 50000 - i * i / 500 + 17 * i / 200 + 1 );
 		}
@@ -17152,7 +17296,7 @@ jQuery_WPF.widget( "ui.spinner", {
 		this.buttons.button( value ? "disable" : "enable" );
 	},
 
-	_setOptions: spinnerModifer( function( options ) {
+	_setOptions: spinnerModifier( function( options ) {
 		this._super( options );
 	} ),
 
@@ -17219,7 +17363,7 @@ jQuery_WPF.widget( "ui.spinner", {
 		this.uiSpinner.replaceWith( this.element );
 	},
 
-	stepUp: spinnerModifer( function( steps ) {
+	stepUp: spinnerModifier( function( steps ) {
 		this._stepUp( steps );
 	} ),
 	_stepUp: function( steps ) {
@@ -17229,7 +17373,7 @@ jQuery_WPF.widget( "ui.spinner", {
 		}
 	},
 
-	stepDown: spinnerModifer( function( steps ) {
+	stepDown: spinnerModifier( function( steps ) {
 		this._stepDown( steps );
 	} ),
 	_stepDown: function( steps ) {
@@ -17239,11 +17383,11 @@ jQuery_WPF.widget( "ui.spinner", {
 		}
 	},
 
-	pageUp: spinnerModifer( function( pages ) {
+	pageUp: spinnerModifier( function( pages ) {
 		this._stepUp( ( pages || 1 ) * this.options.page );
 	} ),
 
-	pageDown: spinnerModifer( function( pages ) {
+	pageDown: spinnerModifier( function( pages ) {
 		this._stepDown( ( pages || 1 ) * this.options.page );
 	} ),
 
@@ -17251,7 +17395,7 @@ jQuery_WPF.widget( "ui.spinner", {
 		if ( !arguments.length ) {
 			return this._parse( this.element.val() );
 		}
-		spinnerModifer( this._value ).call( this, newVal );
+		spinnerModifier( this._value ).call( this, newVal );
 	},
 
 	widget: function() {
@@ -17261,10 +17405,10 @@ jQuery_WPF.widget( "ui.spinner", {
 
 // DEPRECATED
 // TODO: switch return back to widget declaration at top of file when this is removed
-if ( jQuery_WPF.uiBackCompat !== false ) {
+if ( $.uiBackCompat === true ) {
 
 	// Backcompat for spinner html extension points
-	jQuery_WPF.widget( "ui.spinner", jQuery_WPF.ui.spinner, {
+	$.widget( "ui.spinner", $.ui.spinner, {
 		_enhance: function() {
 			this.uiSpinner = this.element
 				.attr( "autocomplete", "off" )
@@ -17284,31 +17428,30 @@ if ( jQuery_WPF.uiBackCompat !== false ) {
 	} );
 }
 
-var widgetsSpinner = jQuery_WPF.ui.spinner;
+var widgetsSpinner = $.ui.spinner;
 
 
 /*!
- * jQuery UI Tabs 1.12.1
- * http://jqueryui.com
+ * jQuery UI Tabs 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Tabs
 //>>group: Widgets
 //>>description: Transforms a set of container elements into a tab structure.
-//>>docs: http://api.jqueryui.com/tabs/
-//>>demos: http://jqueryui.com/tabs/
+//>>docs: https://api.jqueryui.com/tabs/
+//>>demos: https://jqueryui.com/tabs/
 //>>css.structure: ../../themes/base/core.css
 //>>css.structure: ../../themes/base/tabs.css
 //>>css.theme: ../../themes/base/theme.css
 
 
-
-jQuery_WPF.widget( "ui.tabs", {
-	version: "1.12.1",
+$.widget( "ui.tabs", {
+	version: "1.14.1",
 	delay: 300,
 	options: {
 		active: null,
@@ -17366,9 +17509,9 @@ jQuery_WPF.widget( "ui.tabs", {
 
 		// Take disabling tabs via class attribute from HTML
 		// into account and update option properly.
-		if ( jQuery_WPF.isArray( options.disabled ) ) {
-			options.disabled = jQuery_WPF.unique( options.disabled.concat(
-				jQuery_WPF.map( this.tabs.filter( ".ui-state-disabled" ), function( li ) {
+		if ( Array.isArray( options.disabled ) ) {
+			options.disabled = $.uniqueSort( options.disabled.concat(
+				$.map( this.tabs.filter( ".ui-state-disabled" ), function( li ) {
 					return that.tabs.index( li );
 				} )
 			) ).sort();
@@ -17378,7 +17521,7 @@ jQuery_WPF.widget( "ui.tabs", {
 		if ( this.options.active !== false && this.anchors.length ) {
 			this.active = this._findActive( options.active );
 		} else {
-			this.active = jQuery_WPF();
+			this.active = $();
 		}
 
 		this._refresh();
@@ -17391,14 +17534,14 @@ jQuery_WPF.widget( "ui.tabs", {
 	_initialActive: function() {
 		var active = this.options.active,
 			collapsible = this.options.collapsible,
-			locationHash = location.hash.substring( 1 );
+			locationHashDecoded = decodeURIComponent( location.hash.substring( 1 ) );
 
 		if ( active === null ) {
 
 			// check the fragment identifier in the URL
-			if ( locationHash ) {
+			if ( locationHashDecoded ) {
 				this.tabs.each( function( i, tab ) {
-					if ( jQuery_WPF( tab ).attr( "aria-controls" ) === locationHash ) {
+					if ( $( tab ).attr( "aria-controls" ) === locationHashDecoded ) {
 						active = i;
 						return false;
 					}
@@ -17435,12 +17578,12 @@ jQuery_WPF.widget( "ui.tabs", {
 	_getCreateEventData: function() {
 		return {
 			tab: this.active,
-			panel: !this.active.length ? jQuery_WPF() : this._getPanelForTab( this.active )
+			panel: !this.active.length ? $() : this._getPanelForTab( this.active )
 		};
 	},
 
 	_tabKeydown: function( event ) {
-		var focusedTab = jQuery_WPF( jQuery_WPF.ui.safeActiveElement( this.document[ 0 ] ) ).closest( "li" ),
+		var focusedTab = $( this.document[ 0 ].activeElement ).closest( "li" ),
 			selectedIndex = this.tabs.index( focusedTab ),
 			goingForward = true;
 
@@ -17449,29 +17592,29 @@ jQuery_WPF.widget( "ui.tabs", {
 		}
 
 		switch ( event.keyCode ) {
-		case jQuery_WPF.ui.keyCode.RIGHT:
-		case jQuery_WPF.ui.keyCode.DOWN:
+		case $.ui.keyCode.RIGHT:
+		case $.ui.keyCode.DOWN:
 			selectedIndex++;
 			break;
-		case jQuery_WPF.ui.keyCode.UP:
-		case jQuery_WPF.ui.keyCode.LEFT:
+		case $.ui.keyCode.UP:
+		case $.ui.keyCode.LEFT:
 			goingForward = false;
 			selectedIndex--;
 			break;
-		case jQuery_WPF.ui.keyCode.END:
+		case $.ui.keyCode.END:
 			selectedIndex = this.anchors.length - 1;
 			break;
-		case jQuery_WPF.ui.keyCode.HOME:
+		case $.ui.keyCode.HOME:
 			selectedIndex = 0;
 			break;
-		case jQuery_WPF.ui.keyCode.SPACE:
+		case $.ui.keyCode.SPACE:
 
 			// Activate only, no collapsing
 			event.preventDefault();
 			clearTimeout( this.activating );
 			this._activate( selectedIndex );
 			return;
-		case jQuery_WPF.ui.keyCode.ENTER:
+		case $.ui.keyCode.ENTER:
 
 			// Toggle (cancel delayed activation, allow collapsing)
 			event.preventDefault();
@@ -17510,7 +17653,7 @@ jQuery_WPF.widget( "ui.tabs", {
 		}
 
 		// Ctrl+up moves focus to the current tab
-		if ( event.ctrlKey && event.keyCode === jQuery_WPF.ui.keyCode.UP ) {
+		if ( event.ctrlKey && event.keyCode === $.ui.keyCode.UP ) {
 			event.preventDefault();
 			this.active.trigger( "focus" );
 		}
@@ -17518,11 +17661,11 @@ jQuery_WPF.widget( "ui.tabs", {
 
 	// Alt+page up/down moves focus to the previous/next tab (and activates)
 	_handlePageNav: function( event ) {
-		if ( event.altKey && event.keyCode === jQuery_WPF.ui.keyCode.PAGE_UP ) {
+		if ( event.altKey && event.keyCode === $.ui.keyCode.PAGE_UP ) {
 			this._activate( this._focusNextTab( this.options.active - 1, false ) );
 			return true;
 		}
-		if ( event.altKey && event.keyCode === jQuery_WPF.ui.keyCode.PAGE_DOWN ) {
+		if ( event.altKey && event.keyCode === $.ui.keyCode.PAGE_DOWN ) {
 			this._activate( this._focusNextTab( this.options.active + 1, true ) );
 			return true;
 		}
@@ -17541,7 +17684,7 @@ jQuery_WPF.widget( "ui.tabs", {
 			return index;
 		}
 
-		while ( jQuery_WPF.inArray( constrain(), this.options.disabled ) !== -1 ) {
+		while ( $.inArray( constrain(), this.options.disabled ) !== -1 ) {
 			index = goingForward ? index + 1 : index - 1;
 		}
 
@@ -17582,17 +17725,13 @@ jQuery_WPF.widget( "ui.tabs", {
 		}
 	},
 
-	_sanitizeSelector: function( hash ) {
-		return hash ? hash.replace( /[!"$%&'()*+,.\/:;<=>?@\[\]\^`{|}~]/g, "\\$&" ) : "";
-	},
-
 	refresh: function() {
 		var options = this.options,
 			lis = this.tablist.children( ":has(a[href])" );
 
 		// Get disabled tabs from class attribute from HTML
 		// this will get converted to a boolean if needed in _refresh()
-		options.disabled = jQuery_WPF.map( lis.filter( ".ui-state-disabled" ), function( tab ) {
+		options.disabled = $.map( lis.filter( ".ui-state-disabled" ), function( tab ) {
 			return lis.index( tab );
 		} );
 
@@ -17601,15 +17740,15 @@ jQuery_WPF.widget( "ui.tabs", {
 		// Was collapsed or no tabs
 		if ( options.active === false || !this.anchors.length ) {
 			options.active = false;
-			this.active = jQuery_WPF();
+			this.active = $();
 
 		// was active, but active tab is gone
-		} else if ( this.active.length && !jQuery_WPF.contains( this.tablist[ 0 ], this.active[ 0 ] ) ) {
+		} else if ( this.active.length && !$.contains( this.tablist[ 0 ], this.active[ 0 ] ) ) {
 
 			// all remaining tabs are disabled
 			if ( this.tabs.length === options.disabled.length ) {
 				options.active = false;
-				this.active = jQuery_WPF();
+				this.active = $();
 
 			// activate previous tab
 			} else {
@@ -17674,20 +17813,8 @@ jQuery_WPF.widget( "ui.tabs", {
 		// Prevent users from focusing disabled tabs via click
 		this.tablist
 			.on( "mousedown" + this.eventNamespace, "> li", function( event ) {
-				if ( jQuery_WPF( this ).is( ".ui-state-disabled" ) ) {
+				if ( $( this ).is( ".ui-state-disabled" ) ) {
 					event.preventDefault();
-				}
-			} )
-
-			// Support: IE <9
-			// Preventing the default action in mousedown doesn't prevent IE
-			// from focusing the element, so if the anchor gets focused, blur.
-			// We don't have to worry about focusing the previously focused
-			// element since clicking on a non-focusable element should focus
-			// the body anyway.
-			.on( "focus" + this.eventNamespace, ".ui-tabs-anchor", function() {
-				if ( jQuery_WPF( this ).closest( "li" ).is( ".ui-state-disabled" ) ) {
-					this.blur();
 				}
 			} );
 
@@ -17699,34 +17826,33 @@ jQuery_WPF.widget( "ui.tabs", {
 		this._addClass( this.tabs, "ui-tabs-tab", "ui-state-default" );
 
 		this.anchors = this.tabs.map( function() {
-			return jQuery_WPF( "a", this )[ 0 ];
+			return $( "a", this )[ 0 ];
 		} )
 			.attr( {
-				role: "presentation",
 				tabIndex: -1
 			} );
 		this._addClass( this.anchors, "ui-tabs-anchor" );
 
-		this.panels = jQuery_WPF();
+		this.panels = $();
 
 		this.anchors.each( function( i, anchor ) {
 			var selector, panel, panelId,
-				anchorId = jQuery_WPF( anchor ).uniqueId().attr( "id" ),
-				tab = jQuery_WPF( anchor ).closest( "li" ),
+				anchorId = $( anchor ).uniqueId().attr( "id" ),
+				tab = $( anchor ).closest( "li" ),
 				originalAriaControls = tab.attr( "aria-controls" );
 
 			// Inline tab
 			if ( that._isLocal( anchor ) ) {
-				selector = anchor.hash;
+				selector = decodeURIComponent( anchor.hash );
 				panelId = selector.substring( 1 );
-				panel = that.element.find( that._sanitizeSelector( selector ) );
+				panel = that.element.find( "#" + CSS.escape( panelId ) );
 
 			// remote tab
 			} else {
 
 				// If the tab doesn't already have aria-controls,
 				// generate an id by using a throw-away element
-				panelId = tab.attr( "aria-controls" ) || jQuery_WPF( {} ).uniqueId()[ 0 ].id;
+				panelId = tab.attr( "aria-controls" ) || $( {} ).uniqueId()[ 0 ].id;
 				selector = "#" + panelId;
 				panel = that.element.find( selector );
 				if ( !panel.length ) {
@@ -17766,7 +17892,7 @@ jQuery_WPF.widget( "ui.tabs", {
 	},
 
 	_createPanel: function( id ) {
-		return jQuery_WPF( "<div>" )
+		return $( "<div>" )
 			.attr( "id", id )
 			.data( "ui-tabs-destroy", true );
 	},
@@ -17774,7 +17900,7 @@ jQuery_WPF.widget( "ui.tabs", {
 	_setOptionDisabled: function( disabled ) {
 		var currentItem, li, i;
 
-		if ( jQuery_WPF.isArray( disabled ) ) {
+		if ( Array.isArray( disabled ) ) {
 			if ( !disabled.length ) {
 				disabled = false;
 			} else if ( disabled.length === this.anchors.length ) {
@@ -17784,8 +17910,8 @@ jQuery_WPF.widget( "ui.tabs", {
 
 		// Disable tabs
 		for ( i = 0; ( li = this.tabs[ i ] ); i++ ) {
-			currentItem = jQuery_WPF( li );
-			if ( disabled === true || jQuery_WPF.inArray( i, disabled ) !== -1 ) {
+			currentItem = $( li );
+			if ( disabled === true || $.inArray( i, disabled ) !== -1 ) {
 				currentItem.attr( "aria-disabled", "true" );
 				this._addClass( currentItem, null, "ui-state-disabled" );
 			} else {
@@ -17803,7 +17929,7 @@ jQuery_WPF.widget( "ui.tabs", {
 	_setupEvents: function( event ) {
 		var events = {};
 		if ( event ) {
-			jQuery_WPF.each( event.split( " " ), function( index, eventName ) {
+			$.each( event.split( " " ), function( index, eventName ) {
 				events[ eventName ] = "_eventHandler";
 			} );
 		}
@@ -17833,7 +17959,7 @@ jQuery_WPF.widget( "ui.tabs", {
 			maxHeight -= this.element.outerHeight() - this.element.height();
 
 			this.element.siblings( ":visible" ).each( function() {
-				var elem = jQuery_WPF( this ),
+				var elem = $( this ),
 					position = elem.css( "position" );
 
 				if ( position === "absolute" || position === "fixed" ) {
@@ -17843,18 +17969,18 @@ jQuery_WPF.widget( "ui.tabs", {
 			} );
 
 			this.element.children().not( this.panels ).each( function() {
-				maxHeight -= jQuery_WPF( this ).outerHeight( true );
+				maxHeight -= $( this ).outerHeight( true );
 			} );
 
 			this.panels.each( function() {
-				jQuery_WPF( this ).height( Math.max( 0, maxHeight -
-					jQuery_WPF( this ).innerHeight() + jQuery_WPF( this ).height() ) );
+				$( this ).height( Math.max( 0, maxHeight -
+					$( this ).innerHeight() + $( this ).height() ) );
 			} )
 				.css( "overflow", "auto" );
 		} else if ( heightStyle === "auto" ) {
 			maxHeight = 0;
 			this.panels.each( function() {
-				maxHeight = Math.max( maxHeight, jQuery_WPF( this ).height( "" ).height() );
+				maxHeight = Math.max( maxHeight, $( this ).height( "" ).height() );
 			} ).height( maxHeight );
 		}
 	},
@@ -17862,16 +17988,16 @@ jQuery_WPF.widget( "ui.tabs", {
 	_eventHandler: function( event ) {
 		var options = this.options,
 			active = this.active,
-			anchor = jQuery_WPF( event.currentTarget ),
+			anchor = $( event.currentTarget ),
 			tab = anchor.closest( "li" ),
 			clickedIsActive = tab[ 0 ] === active[ 0 ],
 			collapsing = clickedIsActive && options.collapsible,
-			toShow = collapsing ? jQuery_WPF() : this._getPanelForTab( tab ),
-			toHide = !active.length ? jQuery_WPF() : this._getPanelForTab( active ),
+			toShow = collapsing ? $() : this._getPanelForTab( tab ),
+			toHide = !active.length ? $() : this._getPanelForTab( active ),
 			eventData = {
 				oldTab: active,
 				oldPanel: toHide,
-				newTab: collapsing ? jQuery_WPF() : tab,
+				newTab: collapsing ? $() : tab,
 				newPanel: toShow
 			};
 
@@ -17895,13 +18021,13 @@ jQuery_WPF.widget( "ui.tabs", {
 
 		options.active = collapsing ? false : this.tabs.index( tab );
 
-		this.active = clickedIsActive ? jQuery_WPF() : tab;
+		this.active = clickedIsActive ? $() : tab;
 		if ( this.xhr ) {
 			this.xhr.abort();
 		}
 
 		if ( !toHide.length && !toShow.length ) {
-			jQuery_WPF.error( "jQuery UI Tabs: Mismatching fragment identifier." );
+			$.error( "jQuery UI Tabs: Mismatching fragment identifier." );
 		}
 
 		if ( toShow.length ) {
@@ -17961,7 +18087,7 @@ jQuery_WPF.widget( "ui.tabs", {
 			eventData.oldTab.attr( "tabIndex", -1 );
 		} else if ( toShow.length ) {
 			this.tabs.filter( function() {
-				return jQuery_WPF( this ).attr( "tabIndex" ) === 0;
+				return $( this ).attr( "tabIndex" ) === 0;
 			} )
 				.attr( "tabIndex", -1 );
 		}
@@ -17992,12 +18118,12 @@ jQuery_WPF.widget( "ui.tabs", {
 		this._eventHandler( {
 			target: anchor,
 			currentTarget: anchor,
-			preventDefault: jQuery_WPF.noop
+			preventDefault: $.noop
 		} );
 	},
 
 	_findActive: function( index ) {
-		return index === false ? jQuery_WPF() : this.tabs.eq( index );
+		return index === false ? $() : this.tabs.eq( index );
 	},
 
 	_getIndex: function( index ) {
@@ -18005,7 +18131,7 @@ jQuery_WPF.widget( "ui.tabs", {
 		// meta-function to give users option to provide a href string instead of a numerical index.
 		if ( typeof index === "string" ) {
 			index = this.anchors.index( this.anchors.filter( "[href$='" +
-				jQuery_WPF.ui.escapeSelector( index ) + "']" ) );
+				CSS.escape( index ) + "']" ) );
 		}
 
 		return index;
@@ -18025,16 +18151,16 @@ jQuery_WPF.widget( "ui.tabs", {
 			.removeUniqueId();
 
 		this.tabs.add( this.panels ).each( function() {
-			if ( jQuery_WPF.data( this, "ui-tabs-destroy" ) ) {
-				jQuery_WPF( this ).remove();
+			if ( $.data( this, "ui-tabs-destroy" ) ) {
+				$( this ).remove();
 			} else {
-				jQuery_WPF( this ).removeAttr( "role tabIndex " +
+				$( this ).removeAttr( "role tabIndex " +
 					"aria-live aria-busy aria-selected aria-labelledby aria-hidden aria-expanded" );
 			}
 		} );
 
 		this.tabs.each( function() {
-			var li = jQuery_WPF( this ),
+			var li = $( this ),
 				prev = li.data( "ui-tabs-aria-controls" );
 			if ( prev ) {
 				li
@@ -18062,12 +18188,12 @@ jQuery_WPF.widget( "ui.tabs", {
 			disabled = false;
 		} else {
 			index = this._getIndex( index );
-			if ( jQuery_WPF.isArray( disabled ) ) {
-				disabled = jQuery_WPF.map( disabled, function( num ) {
+			if ( Array.isArray( disabled ) ) {
+				disabled = $.map( disabled, function( num ) {
 					return num !== index ? num : null;
 				} );
 			} else {
-				disabled = jQuery_WPF.map( this.tabs, function( li, num ) {
+				disabled = $.map( this.tabs, function( li, num ) {
 					return num !== index ? num : null;
 				} );
 			}
@@ -18085,11 +18211,11 @@ jQuery_WPF.widget( "ui.tabs", {
 			disabled = true;
 		} else {
 			index = this._getIndex( index );
-			if ( jQuery_WPF.inArray( index, disabled ) !== -1 ) {
+			if ( $.inArray( index, disabled ) !== -1 ) {
 				return;
 			}
-			if ( jQuery_WPF.isArray( disabled ) ) {
-				disabled = jQuery_WPF.merge( [ index ], disabled ).sort();
+			if ( Array.isArray( disabled ) ) {
+				disabled = $.merge( [ index ], disabled ).sort();
 			} else {
 				disabled = [ index ];
 			}
@@ -18125,34 +18251,21 @@ jQuery_WPF.widget( "ui.tabs", {
 			return;
 		}
 
-		this.xhr = jQuery_WPF.ajax( this._ajaxSettings( anchor, event, eventData ) );
+		this.xhr = $.ajax( this._ajaxSettings( anchor, event, eventData ) );
 
-		// Support: jQuery <1.8
-		// jQuery <1.8 returns false if the request is canceled in beforeSend,
-		// but as of 1.8, jQuery_WPF.ajax() always returns a jqXHR object.
-		if ( this.xhr && this.xhr.statusText !== "canceled" ) {
+		if ( this.xhr.statusText !== "canceled" ) {
 			this._addClass( tab, "ui-tabs-loading" );
 			panel.attr( "aria-busy", "true" );
 
 			this.xhr
 				.done( function( response, status, jqXHR ) {
+					panel.html( response );
+					that._trigger( "load", event, eventData );
 
-					// support: jQuery <1.8
-					// http://bugs.jQuery_WPF.com/ticket/11778
-					setTimeout( function() {
-						panel.html( response );
-						that._trigger( "load", event, eventData );
-
-						complete( jqXHR, status );
-					}, 1 );
+					complete( jqXHR, status );
 				} )
 				.fail( function( jqXHR, status ) {
-
-					// support: jQuery <1.8
-					// http://bugs.jQuery_WPF.com/ticket/11778
-					setTimeout( function() {
-						complete( jqXHR, status );
-					}, 1 );
+					complete( jqXHR, status );
 				} );
 		}
 	},
@@ -18160,29 +18273,26 @@ jQuery_WPF.widget( "ui.tabs", {
 	_ajaxSettings: function( anchor, event, eventData ) {
 		var that = this;
 		return {
-
-			// Support: IE <11 only
-			// Strip any hash that exists to prevent errors with the Ajax request
-			url: anchor.attr( "href" ).replace( /#.*$/, "" ),
+			url: anchor.attr( "href" ),
 			beforeSend: function( jqXHR, settings ) {
 				return that._trigger( "beforeLoad", event,
-					jQuery_WPF.extend( { jqXHR: jqXHR, ajaxSettings: settings }, eventData ) );
+					$.extend( { jqXHR: jqXHR, ajaxSettings: settings }, eventData ) );
 			}
 		};
 	},
 
 	_getPanelForTab: function( tab ) {
-		var id = jQuery_WPF( tab ).attr( "aria-controls" );
-		return this.element.find( this._sanitizeSelector( "#" + id ) );
+		var id = $( tab ).attr( "aria-controls" );
+		return this.element.find( "#" + CSS.escape( id ) );
 	}
 } );
 
 // DEPRECATED
 // TODO: Switch return back to widget declaration at top of file when this is removed
-if ( jQuery_WPF.uiBackCompat !== false ) {
+if ( $.uiBackCompat === true ) {
 
 	// Backcompat for ui-tab class (now ui-tabs-tab)
-	jQuery_WPF.widget( "ui.tabs", jQuery_WPF.ui.tabs, {
+	$.widget( "ui.tabs", $.ui.tabs, {
 		_processTabs: function() {
 			this._superApply( arguments );
 			this._addClass( this.tabs, "ui-tab" );
@@ -18190,43 +18300,39 @@ if ( jQuery_WPF.uiBackCompat !== false ) {
 	} );
 }
 
-var widgetsTabs = jQuery_WPF.ui.tabs;
+var widgetsTabs = $.ui.tabs;
 
 
 /*!
- * jQuery UI Tooltip 1.12.1
- * http://jqueryui.com
+ * jQuery UI Tooltip 1.14.1
+ * https://jqueryui.com
  *
- * Copyright jQuery Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license.
- * http://jQuery_WPF.org/license
+ * https://jquery.org/license
  */
 
 //>>label: Tooltip
 //>>group: Widgets
 //>>description: Shows additional information for any element on hover or focus.
-//>>docs: http://api.jqueryui.com/tooltip/
-//>>demos: http://jqueryui.com/tooltip/
+//>>docs: https://api.jqueryui.com/tooltip/
+//>>demos: https://jqueryui.com/tooltip/
 //>>css.structure: ../../themes/base/core.css
 //>>css.structure: ../../themes/base/tooltip.css
 //>>css.theme: ../../themes/base/theme.css
 
 
-
-jQuery_WPF.widget( "ui.tooltip", {
-	version: "1.12.1",
+$.widget( "ui.tooltip", {
+	version: "1.14.1",
 	options: {
 		classes: {
 			"ui-tooltip": "ui-corner-all ui-widget-shadow"
 		},
 		content: function() {
-
-			// support: IE<9, Opera in jQuery <1.7
-			// .text() can't accept undefined, so coerce to a string
-			var title = jQuery_WPF( this ).attr( "title" ) || "";
+			var title = $( this ).attr( "title" );
 
 			// Escape title, since we're going from an attribute to raw HTML
-			return jQuery_WPF( "<a>" ).text( title ).html();
+			return $( "<a>" ).text( title ).html();
 		},
 		hide: true,
 
@@ -18250,20 +18356,20 @@ jQuery_WPF.widget( "ui.tooltip", {
 		describedby.push( id );
 		elem
 			.data( "ui-tooltip-id", id )
-			.attr( "aria-describedby", jQuery_WPF.trim( describedby.join( " " ) ) );
+			.attr( "aria-describedby", String.prototype.trim.call( describedby.join( " " ) ) );
 	},
 
 	_removeDescribedBy: function( elem ) {
 		var id = elem.data( "ui-tooltip-id" ),
 			describedby = ( elem.attr( "aria-describedby" ) || "" ).split( /\s+/ ),
-			index = jQuery_WPF.inArray( id, describedby );
+			index = $.inArray( id, describedby );
 
 		if ( index !== -1 ) {
 			describedby.splice( index, 1 );
 		}
 
 		elem.removeData( "ui-tooltip-id" );
-		describedby = jQuery_WPF.trim( describedby.join( " " ) );
+		describedby = String.prototype.trim.call( describedby.join( " " ) );
 		if ( describedby ) {
 			elem.attr( "aria-describedby", describedby );
 		} else {
@@ -18284,7 +18390,7 @@ jQuery_WPF.widget( "ui.tooltip", {
 		this.parents = {};
 
 		// Append the aria-live region so tooltips announce correctly
-		this.liveRegion = jQuery_WPF( "<div>" )
+		this.liveRegion = $( "<div>" )
 			.attr( {
 				role: "log",
 				"aria-live": "assertive",
@@ -18293,7 +18399,7 @@ jQuery_WPF.widget( "ui.tooltip", {
 			.appendTo( this.document[ 0 ].body );
 		this._addClass( this.liveRegion, null, "ui-helper-hidden-accessible" );
 
-		this.disabledTitles = jQuery_WPF( [] );
+		this.disabledTitles = $( [] );
 	},
 
 	_setOption: function( key, value ) {
@@ -18302,7 +18408,7 @@ jQuery_WPF.widget( "ui.tooltip", {
 		this._super( key, value );
 
 		if ( key === "content" ) {
-			jQuery_WPF.each( this.tooltips, function( id, tooltipData ) {
+			$.each( this.tooltips, function( id, tooltipData ) {
 				that._updateContent( tooltipData.element );
 			} );
 		}
@@ -18316,8 +18422,8 @@ jQuery_WPF.widget( "ui.tooltip", {
 		var that = this;
 
 		// Close open tooltips
-		jQuery_WPF.each( this.tooltips, function( id, tooltipData ) {
-			var event = jQuery_WPF.Event( "blur" );
+		$.each( this.tooltips, function( id, tooltipData ) {
+			var event = $.Event( "blur" );
 			event.target = event.currentTarget = tooltipData.element[ 0 ];
 			that.close( event, true );
 		} );
@@ -18326,7 +18432,7 @@ jQuery_WPF.widget( "ui.tooltip", {
 		this.disabledTitles = this.disabledTitles.add(
 			this.element.find( this.options.items ).addBack()
 				.filter( function() {
-					var element = jQuery_WPF( this );
+					var element = $( this );
 					if ( element.is( "[title]" ) ) {
 						return element
 							.data( "ui-tooltip-title", element.attr( "title" ) )
@@ -18340,17 +18446,17 @@ jQuery_WPF.widget( "ui.tooltip", {
 
 		// restore title attributes
 		this.disabledTitles.each( function() {
-			var element = jQuery_WPF( this );
+			var element = $( this );
 			if ( element.data( "ui-tooltip-title" ) ) {
 				element.attr( "title", element.data( "ui-tooltip-title" ) );
 			}
 		} );
-		this.disabledTitles = jQuery_WPF( [] );
+		this.disabledTitles = $( [] );
 	},
 
 	open: function( event ) {
 		var that = this,
-			target = jQuery_WPF( event ? event.target : this.element )
+			target = $( event ? event.target : this.element )
 
 				// we need closest here due to mouseover bubbling,
 				// but always pointing at the same event target
@@ -18370,10 +18476,10 @@ jQuery_WPF.widget( "ui.tooltip", {
 		// Kill parent tooltips, custom or native, for hover
 		if ( event && event.type === "mouseover" ) {
 			target.parents().each( function() {
-				var parent = jQuery_WPF( this ),
+				var parent = $( this ),
 					blurEvent;
 				if ( parent.data( "ui-tooltip-open" ) ) {
-					blurEvent = jQuery_WPF.Event( "blur" );
+					blurEvent = $.Event( "blur" );
 					blurEvent.target = blurEvent.currentTarget = this;
 					that.close( blurEvent, true );
 				}
@@ -18405,25 +18511,20 @@ jQuery_WPF.widget( "ui.tooltip", {
 
 		content = contentOption.call( target[ 0 ], function( response ) {
 
-			// IE may instantly serve a cached response for ajax requests
-			// delay this call to _open so the other call to _open runs first
-			that._delay( function() {
+			// Ignore async response if tooltip was closed already
+			if ( !target.data( "ui-tooltip-open" ) ) {
+				return;
+			}
 
-				// Ignore async response if tooltip was closed already
-				if ( !target.data( "ui-tooltip-open" ) ) {
-					return;
-				}
-
-				// JQuery creates a special event for focusin when it doesn't
-				// exist natively. To improve performance, the native event
-				// object is reused and the type is changed. Therefore, we can't
-				// rely on the type being correct after the event finished
-				// bubbling, so we set it back to the previous value. (#8740)
-				if ( event ) {
-					event.type = eventType;
-				}
-				this._open( event, target, response );
-			} );
+			// JQuery creates a special event for focusin when it doesn't
+			// exist natively. To improve performance, the native event
+			// object is reused and the type is changed. Therefore, we can't
+			// rely on the type being correct after the event finished
+			// bubbling, so we set it back to the previous value. (#8740)
+			if ( event ) {
+				event.type = eventType;
+			}
+			that._open( event, target, response );
 		} );
 		if ( content ) {
 			this._open( event, target, content );
@@ -18432,7 +18533,7 @@ jQuery_WPF.widget( "ui.tooltip", {
 
 	_open: function( event, target, content ) {
 		var tooltipData, tooltip, delayedShow, a11yContent,
-			positionOption = jQuery_WPF.extend( {}, this.options.position );
+			positionOption = $.extend( {}, this.options.position );
 
 		if ( !content ) {
 			return;
@@ -18470,7 +18571,7 @@ jQuery_WPF.widget( "ui.tooltip", {
 		// JAWS announces deletions even when aria-relevant="additions"
 		// Voiceover will sometimes re-read the entire log region's contents from the beginning
 		this.liveRegion.children().hide();
-		a11yContent = jQuery_WPF( "<div>" ).html( tooltip.find( ".ui-tooltip-content" ).html() );
+		a11yContent = $( "<div>" ).html( tooltip.find( ".ui-tooltip-content" ).html() );
 		a11yContent.removeAttr( "name" ).find( "[name]" ).removeAttr( "name" );
 		a11yContent.removeAttr( "id" ).find( "[id]" ).removeAttr( "id" );
 		a11yContent.appendTo( this.liveRegion );
@@ -18490,7 +18591,7 @@ jQuery_WPF.widget( "ui.tooltip", {
 			// trigger once to override element-relative positioning
 			position( event );
 		} else {
-			tooltip.position( jQuery_WPF.extend( {
+			tooltip.position( $.extend( {
 				of: target
 			}, this.options.position ) );
 		}
@@ -18509,7 +18610,7 @@ jQuery_WPF.widget( "ui.tooltip", {
 					position( positionOption.of );
 					clearInterval( delayedShow );
 				}
-			}, jQuery_WPF.fx.interval );
+			}, 13 );
 		}
 
 		this._trigger( "open", event, { tooltip: tooltip } );
@@ -18518,8 +18619,8 @@ jQuery_WPF.widget( "ui.tooltip", {
 	_registerCloseHandlers: function( event, target ) {
 		var events = {
 			keyup: function( event ) {
-				if ( event.keyCode === jQuery_WPF.ui.keyCode.ESCAPE ) {
-					var fakeEvent = jQuery_WPF.Event( event );
+				if ( event.keyCode === $.ui.keyCode.ESCAPE ) {
+					var fakeEvent = $.Event( event );
 					fakeEvent.currentTarget = target[ 0 ];
 					this.close( fakeEvent, true );
 				}
@@ -18530,7 +18631,10 @@ jQuery_WPF.widget( "ui.tooltip", {
 		// tooltips will handle this in destroy.
 		if ( target[ 0 ] !== this.element[ 0 ] ) {
 			events.remove = function() {
-				this._removeTooltip( this._find( target ).tooltip );
+				var targetElement = this._find( target );
+				if ( targetElement ) {
+					this._removeTooltip( targetElement.tooltip );
+				}
 			};
 		}
 
@@ -18546,7 +18650,7 @@ jQuery_WPF.widget( "ui.tooltip", {
 	close: function( event ) {
 		var tooltip,
 			that = this,
-			target = jQuery_WPF( event ? event.currentTarget : this.element ),
+			target = $( event ? event.currentTarget : this.element ),
 			tooltipData = this._find( target );
 
 		// The tooltip may already be closed
@@ -18582,7 +18686,7 @@ jQuery_WPF.widget( "ui.tooltip", {
 		tooltipData.hiding = true;
 		tooltip.stop( true );
 		this._hide( tooltip, this.options.hide, function() {
-			that._removeTooltip( jQuery_WPF( this ) );
+			that._removeTooltip( $( this ) );
 		} );
 
 		target.removeData( "ui-tooltip-open" );
@@ -18595,8 +18699,8 @@ jQuery_WPF.widget( "ui.tooltip", {
 		this._off( this.document, "mousemove" );
 
 		if ( event && event.type === "mouseleave" ) {
-			jQuery_WPF.each( this.parents, function( id, parent ) {
-				jQuery_WPF( parent.element ).attr( "title", parent.title );
+			$.each( this.parents, function( id, parent ) {
+				$( parent.element ).attr( "title", parent.title );
 				delete that.parents[ id ];
 			} );
 		}
@@ -18609,8 +18713,8 @@ jQuery_WPF.widget( "ui.tooltip", {
 	},
 
 	_tooltip: function( element ) {
-		var tooltip = jQuery_WPF( "<div>" ).attr( "role", "tooltip" ),
-			content = jQuery_WPF( "<div>" ).appendTo( tooltip ),
+		var tooltip = $( "<div>" ).attr( "role", "tooltip" ),
+			content = $( "<div>" ).appendTo( tooltip ),
 			id = tooltip.uniqueId().attr( "id" );
 
 		this._addClass( content, "ui-tooltip-content" );
@@ -18630,6 +18734,10 @@ jQuery_WPF.widget( "ui.tooltip", {
 	},
 
 	_removeTooltip: function( tooltip ) {
+
+		// Clear the interval for delayed tracking tooltips
+		clearInterval( this.delayedShow );
+
 		tooltip.remove();
 		delete this.tooltips[ tooltip.attr( "id" ) ];
 	},
@@ -18648,17 +18756,17 @@ jQuery_WPF.widget( "ui.tooltip", {
 		var that = this;
 
 		// Close open tooltips
-		jQuery_WPF.each( this.tooltips, function( id, tooltipData ) {
+		$.each( this.tooltips, function( id, tooltipData ) {
 
 			// Delegate to close method to handle common cleanup
-			var event = jQuery_WPF.Event( "blur" ),
+			var event = $.Event( "blur" ),
 				element = tooltipData.element;
 			event.target = event.currentTarget = element[ 0 ];
 			that.close( event, true );
 
 			// Remove immediately; destroying an open tooltip doesn't use the
 			// hide animation
-			jQuery_WPF( "#" + id ).remove();
+			$( "#" + id ).remove();
 
 			// Restore the title
 			if ( element.data( "ui-tooltip-title" ) ) {
@@ -18676,10 +18784,10 @@ jQuery_WPF.widget( "ui.tooltip", {
 
 // DEPRECATED
 // TODO: Switch return back to widget declaration at top of file when this is removed
-if ( jQuery_WPF.uiBackCompat !== false ) {
+if ( $.uiBackCompat === true ) {
 
 	// Backcompat for tooltipClass option
-	jQuery_WPF.widget( "ui.tooltip", jQuery_WPF.ui.tooltip, {
+	$.widget( "ui.tooltip", $.ui.tooltip, {
 		options: {
 			tooltipClass: null
 		},
@@ -18693,9 +18801,9 @@ if ( jQuery_WPF.uiBackCompat !== false ) {
 	} );
 }
 
-var widgetsTooltip = jQuery_WPF.ui.tooltip;
+var widgetsTooltip = $.ui.tooltip;
 
 
 
 
-}));
+} );

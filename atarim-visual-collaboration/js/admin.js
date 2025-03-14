@@ -590,7 +590,7 @@ function wpf_general_comment(){
 function wpf_generate_front_task(is_internal = 0, note = false){
     var wpf_comment = jQuery_WPF('#wpf_comment').val();
     var curr_browser = get_browser();
-    var new_task = Array();
+    var new_task = {};
     var current_page_id = jQuery_WPF('#wpf_page_list').val();
     var task_priority = jQuery_WPF('#wpf_attributes_content #task_task_priority_attr').val();
     var task_status = jQuery_WPF('#wpf_attributes_content #task_task_status_attr').val();
@@ -599,31 +599,31 @@ function wpf_generate_front_task(is_internal = 0, note = false){
     jQuery_WPF.each(jQuery_WPF('#wpf_attributes_content input[name=author_list_task]:checked'), function(){
         task_notify_users.push(jQuery_WPF(this).val());
     });
-    task_notify_users =task_notify_users.join(",");
-    new_task['task_number']=comment_count;
-    new_task['task_priority']=task_priority;
-    new_task['task_status']=task_status;
-    new_task['task_config_author_browser']=curr_browser['name'];
-    new_task['task_config_author_browserVersion']=curr_browser['version'];
-    new_task['task_config_author_browserOS']=curr_browser['OS'];
-    new_task['task_config_author_name']=current_user_name;
-    new_task['task_config_author_id']=current_user_id;
-    new_task['task_config_author_resX']=window.screen.width;
-    new_task['task_config_author_resY']=window.screen.height;
-    new_task['task_title']=task_comment;
-    new_task['current_page_id']=current_page_id;
-    new_task['task_comment_message']=task_comment;
-    new_task['task_notify_users']=task_notify_users;
-    new_task['task_type']='general';
-    new_task['is_note'] = note;
+    task_notify_users = task_notify_users.join(",");
+    new_task.task_number = comment_count;
+    new_task.task_priority = task_priority;
+    new_task.task_status = task_status;
+    new_task.task_config_author_browser = curr_browser.name;
+    new_task.task_config_author_browserVersion = curr_browser.version;
+    new_task.task_config_author_browserOS = curr_browser.OS;
+    new_task.task_config_author_name = current_user_name;
+    new_task.task_config_author_id = current_user_id;
+    new_task.task_config_author_resX = window.screen.width;
+    new_task.task_config_author_resY = window.screen.height;
+    new_task.task_title = task_comment;
+    new_task.current_page_id = current_page_id;
+    new_task.task_comment_message = task_comment;
+    new_task.task_notify_users = task_notify_users;
+    new_task.task_type = 'general';
+    new_task.is_note = note;
 
-    if ( is_internal ) {
-        new_task['is_internal'] = true;
+    if (is_internal) {
+        new_task.is_internal = true;
     }
 
-    var new_task_obj = jQuery_WPF.extend({}, new_task);
+    var new_task_obj = JSON.stringify(new_task);
    
-     if ( jQuery_WPF('#wpf_comment').val().trim().length > 0 && task_notify_users.length > 0 && jQuery_WPF('#wpf_page_list').val() && !note ) {
+     if ( jQuery_WPF('#wpf_comment').val().trim().length > 0 && task_notify_users.length > 0 && jQuery_WPF('#wpf_pages_list').val() && !note ) {
         jQuery_WPF.ajax({
             method : "POST",
             url : ajaxurl,
@@ -643,26 +643,25 @@ function wpf_generate_front_task(is_internal = 0, note = false){
                 location.reload();
             }
         });
-     }
-    else {
-        if(!jQuery_WPF('#wpf_page_list').val() ){
+     } else {
+        if( !jQuery_WPF('#wpf_pages_list').val() ){
             jQuery_WPF("p.form-submit.chat_button #wpf_error_page").remove();
             jQuery_WPF("p.form-submit.chat_button #wpf_error").remove();
-            jQuery_WPF("#wpf_page_list").css('border', '1px solid red');
+            jQuery_WPF("#wpf_pages_list").css('border', '1px solid red');
             jQuery_WPF("p.form-submit.chat_button").append('<p id="wpf_error_page">Page/post must be selected to post a comment</span>');
         }
         else if(task_notify_users.length == 0){
-            jQuery_WPF("#wpf_page_list").removeAttr('style');
+            jQuery_WPF("#wpf_pages_list").removeAttr('style');
             jQuery_WPF("p.form-submit.chat_button #wpf_error_page").remove();
             jQuery_WPF("p.form-submit.chat_button #wpf_error").remove();
             jQuery_WPF("p.form-submit.chat_button").append('<p id="wpf_error">'+wpf_task_text_error_msg+'</span>');
         }else if( note ){
-            jQuery_WPF("#wpf_page_list").removeAttr('style');
+            jQuery_WPF("#wpf_pages_list").removeAttr('style');
             jQuery_WPF("p.form-submit.chat_button #wpf_error_page").remove();
             jQuery_WPF("p.form-submit.chat_button #wpf_error").remove();
             jQuery_WPF("p.form-submit.chat_button").append('<p id="wpf_error">'+wpf_task_note_error_msg+'</span>');
         }else{
-            jQuery_WPF("#wpf_page_list").removeAttr('style');
+            jQuery_WPF("#wpf_pages_list").removeAttr('style');
             jQuery_WPF("#wpf_comment").css('border', '1px solid red');
             jQuery_WPF("#wpf_comment").focus();
         }

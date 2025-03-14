@@ -1119,7 +1119,7 @@ function load_wpfb_tasks(){
                         generate_wpfb_task_html(value,onload_wpfb_tasks[value]);
 
                         jQuery_WPF( function() {
-                            jQuery_WPF( "#bubble-"+onload_wpfb_tasks[value].wpf_task_id).draggable({ containment: "document" });
+                            jQuery_WPF( "#bubble-"+onload_wpfb_tasks[value].wpf_task_id).draggable({ containment: "body" });
                         });
 
                         comment_count_initial--;
@@ -1983,7 +1983,7 @@ function load_popover_content(element){
                         generate_popover_html(value, onload_wpfb_tasks[value]);
                     }
                     jQuery_WPF( function() {
-                            jQuery_WPF( "#bubble-"+onload_wpfb_tasks[value].wpf_task_id).draggable({ containment: "document" });
+                            jQuery_WPF( "#bubble-"+onload_wpfb_tasks[value].wpf_task_id).draggable({ containment: "body" });
                     });
                     comment_count_initial--;
                 });
@@ -3403,13 +3403,9 @@ jQuery_WPF(document).ready(function() {
             load_wpfb_tasks();
             load_wpfb_pages();
         }
-        jQuery_WPF( function() {
-            // added drag on the parent of the wpf_launch_buttons => v2.1.0
-            jQuery_WPF( "#wpf_launcher > #wpf_launch_buttons_wrapper" ).draggable({ containment: "body" });
-        });
     }
-    jQuery_WPF('.wpf_sidebar_container').draggable();
-    jQuery_WPF('#wpf_bottom_bar').draggable();  
+    jQuery_WPF('.wpf_sidebar_container').draggable({ containment: "body" });
+    jQuery_WPF('#wpf_bottom_bar').draggable({ containment: "body" });  
     var previous_element = [];
     jQuery_WPF(area).find('*').on('click', function(event) {
         var no_of_elements = jQuery_WPF(this).parents().addBack().not('html').length-1, temp_count = 0;

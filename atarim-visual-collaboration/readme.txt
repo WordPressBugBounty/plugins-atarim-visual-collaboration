@@ -3,7 +3,7 @@ Contributors: wpfeedback, pratapdungrani
 Tags: collaboration, feedback, bug tracking, project management, website feedback
 Requires at least: 5.0
 Tested up to: 6.7
-Stable tag: 4.1.2
+Stable tag: 4.1.3
 Requires PHP: 7.4
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -374,6 +374,10 @@ You can report any security bugs found in the source code of this plugin through
 
 
 == Changelog ==
+
+= 4.1.3 =
+* **jQuery conflict** - Our jQuery UI library had conflict with WordPress's default sortable UI jQuery. This is fixed.
+* **Task center** - Issue creating General task from plugin's Task center. This is fixed.
 
 = 4.1.2 =
 * **XSS vulnerability** - A Cross-Site Scripting (XSS) vulnerability was identified in our plugin, this is now fixed.
