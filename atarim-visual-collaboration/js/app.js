@@ -73,8 +73,13 @@ jQuery_WPF(document).ready(function(){
         
         jQuery_WPF.ajax({
             url: ajaxurl,
+            method : 'POST',
             type: 'POST',
-            data: {action:'push_to_media',wpf_nonce:wpf_nonce,media_link:media_link },
+            data: {
+                action: 'push_to_media',
+                wpf_nonce: wpf_nonce,
+                media_link: media_link
+            },
             beforeSend: function(){
                 if ( !curElement.parents('.chat_author').length )
                     jQuery_WPF('.wpf_loader_'+current_id).show();
@@ -183,8 +188,14 @@ function screenshot(id){
 
             jQuery_WPF.ajax({
                 url: ajaxurl,
+                method : 'POST',
                 type: 'POST',
-                data: {action:'wpfb_save_screenshot',wpf_nonce:wpf_nonce,task_screenshot:new_task_screenshot_obj, image: base64URL},
+                data: {
+                    action: 'wpfb_save_screenshot',
+                    wpf_nonce: wpf_nonce,
+                    task_screenshot: new_task_screenshot_obj,
+                    image: base64URL
+                },
                 beforeSend: function(){
                     jQuery_WPF('.wpf_loader_'+id).show();
                 },
@@ -263,9 +274,14 @@ function wpfb_edit_comment(comment_id) {
         jQuery_WPF('#wpfb-edit-comment-wrapper-' + comment_id + ' .wpf_hide').hide();
         var task_info_obj = jQuery_WPF.extend({}, task_info);
         jQuery_WPF.ajax({
-            method : "POST",
+            method : 'POST',
+            type: 'POST',
             url : ajaxurl,
-            data : {action: "wpfb_edit_comment",wpf_nonce:wpf_nonce,task_info:task_info_obj},
+            data : {
+                action: "wpfb_edit_comment",
+                wpf_nonce: wpf_nonce,
+                task_info: task_info_obj
+            },
             beforeSend: function(){
                 jQuery_WPF("#wpf-chat-text-"+comment_id).html(task_info['comment_content']);
                 jQuery_WPF("#wpfb-edit-comment-wrapper-"+comment_id).hide();
@@ -412,9 +428,15 @@ function getParameterByName( name ){
 
 function wpf_send_report(type) {
     jQuery_WPF.ajax({
-        method: "POST",
+        method : 'POST',
+        type: 'POST',
         url: ajaxurl,
-        data: {action: "wpf_send_email_report", wpf_nonce: wpf_nonce, type:type, forced: "yes"},
+        data: {
+            action: "wpf_send_email_report",
+            wpf_nonce: wpf_nonce,
+            type: type,
+            forced: "yes"
+        },
         beforeSend: function(){
             jQuery_WPF('.wpf_sidebar_loader').show();
         },
@@ -532,9 +554,14 @@ function wpf_add_tag(id) {
 
     if(id !='' && tag_name !=''){
         jQuery_WPF.ajax({
-            method : "POST",
+            method : 'POST',
+            type: 'POST',
             url : ajaxurl,
-            data : {action: "wpfb_set_task_tag",wpf_nonce:wpf_nonce,wpf_task_tag_info:wpf_task_tag_info_obj},
+            data : {
+                action: "wpfb_set_task_tag",
+                wpf_nonce: wpf_nonce,
+                wpf_task_tag_info: wpf_task_tag_info_obj
+            },
             beforeSend: function(){
 				jQuery_WPF('.wpf_loader_'+commentid).show();
             },
@@ -566,9 +593,14 @@ function wpf_delete_tag(wpf_task_tag_name,wpf_task_tag_slug, id){
     var wpf_task_tag_info_obj = jQuery_WPF.extend({}, wpf_task_tag_info);
     if(id !='' && wpf_task_tag_slug !=''){
         jQuery_WPF.ajax({
-            method : "POST",
+            method : 'POST',
+            type: 'POST',
             url : ajaxurl,
-            data : {action: "wpfb_delete_task_tag",wpf_nonce:wpf_nonce,wpf_task_tag_info:wpf_task_tag_info_obj},
+            data : {
+                action: "wpfb_delete_task_tag",
+                wpf_nonce: wpf_nonce,
+                wpf_task_tag_info: wpf_task_tag_info_obj
+            },
             beforeSend: function(){
                 jQuery_WPF('.wpf_loader').show();
             },

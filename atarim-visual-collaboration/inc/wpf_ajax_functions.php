@@ -1282,12 +1282,11 @@ add_action( 'wp_ajax_nopriv_wpf_initial_setup_done', 'wpf_initial_setup_done' );
 if ( ! function_exists( 'wpfb_delete_task' ) ) {
     function wpfb_delete_task() {
         wpf_security_check();
-        $ids = [];
-        foreach ( $_POST['task_info'] as  $value ) {
-            array_push( $ids, $value );
-        }
+        $site_id = get_option( 'wpf_site_id' );
+        $taskid = array($_POST['task_info']['task_id']);
         $args = array(
-            'task_id' => $ids
+            'wpf_site_id' => $site_id,
+            'task_id' => $taskid
         );
 
         $url         = WPF_CRM_API . 'wp-api/task/delete';

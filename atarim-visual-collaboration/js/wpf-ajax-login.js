@@ -24,6 +24,7 @@ jQuery(document).ready(function() {
     jQuery('form#wpf_login').on('submit', function(e){
         jQuery('form#wpf_login p.wpf_status').show().text( checkinguser );
         jQuery.ajax({
+            method : 'POST',
             type: 'POST',
             dataType: 'json',
             url: wpf_ajax_login_object.ajaxurl,

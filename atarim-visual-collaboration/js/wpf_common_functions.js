@@ -92,6 +92,7 @@ function new_comment(id, internal=0, note=false){
             }else{ /*updated by Pratap*/
                 jQuery_WPF.ajax({
                     url: ajaxurl,
+                    method : 'POST',
                     type: 'POST',
                     data: {action:'wpf_is_internal_allowed' },
                     success: function(data){
@@ -282,7 +283,8 @@ function generate_task(id, internal, note) {
     }
 
     jQuery_WPF.ajax({
-        method : "POST",
+        method : 'POST',
+        type: 'POST',
         url : ajaxurl,
         data: wpf_upload_form,
         contentType: false,
@@ -565,7 +567,8 @@ function generate_comment(id, note) {
 
     // Send the AJAX request to add the comment
     jQuery_WPF.ajax({
-        method: "POST",
+        method : 'POST',
+        type: 'POST',
         url: ajaxurl,
         data: wpf_upload_form,
         contentType: false,
@@ -773,7 +776,8 @@ function mark_internal(id,internal){
     task_info['internal'] = internal;
     var task_info_obj = jQuery_WPF.extend({}, task_info);
     jQuery_WPF.ajax({
-        method : "POST",
+        method : 'POST',
+        type: 'POST',
         url : ajaxurl,
         data : {
             action: "wpfb_mark_as_internal",
@@ -1047,7 +1051,8 @@ function load_wpfb_tasks(){
         return;
     }
     jQuery_WPF.ajax({
-        method:"POST",
+        method : 'POST',
+        type: 'POST',
         url: ajaxurl,
         data: {
             action: 'load_wpfb_tasks',
@@ -1245,7 +1250,8 @@ function load_wpfb_pages() {
         return;
     }
     jQuery_WPF.ajax({
-        method:"POST",
+        method : 'POST',
+        type: 'POST',
         url: ajaxurl,
         data: {
             action: 'load_wpfb_pages',
@@ -1261,7 +1267,8 @@ function wpf_load_general_task(id) {
     var load_general=1;
     jQuery_WPF.ajax({
         url:ajaxurl,
-        method:'POST',
+        method : 'POST',
+        type: 'POST',
         data: {
             action:'load_wpfb_tasks',
             wpf_nonce: wpf_nonce,
@@ -1452,7 +1459,8 @@ var reload_task = false;
 var page_no = 1;
 function load_all_page_tasks(){
     jQuery_WPF.ajax({
-        method:"POST",
+        method : 'POST',
+        type: 'POST',
         url: ajaxurl,
         data: {
             action:'load_wpfb_tasks',
@@ -1954,7 +1962,8 @@ function wpf_task_popover_html(wpf_task_type, comment_count, wpfb_task_id, wpfb_
 }
 function load_popover_content(element){
     jQuery_WPF.ajax({
-        method:"POST",
+        method : 'POST',
+        type: 'POST',
         url: ajaxurl,
         data: {
             action: 'load_wpfb_tasks',
@@ -2380,6 +2389,7 @@ function new_task_screenshot( id, base64URL ){
         var new_task_screenshot_obj = jQuery_WPF.extend({}, task_screenshot);
         jQuery_WPF.ajax({
             url: ajaxurl,
+            method : 'POST',
             type: 'POST',
             data: {action:'wpfb_save_screenshot',wpf_nonce:wpf_nonce,task_screenshot:new_task_screenshot_obj, image: base64URL, autoscreen:1},
             success: function(data){
@@ -2402,7 +2412,8 @@ function wpf_delete_comment( comment_id ) {
     var task_info_obj = jQuery_WPF.extend({}, task_info);
 
     jQuery_WPF.ajax({
-        method : "POST",
+        method : 'POST',
+        type: 'POST',
         url : ajaxurl,
         data : {
             action: "wpf_delete_comment",
@@ -2440,7 +2451,8 @@ function set_task_prioirty(id, task_priority, previous_prio = 'low') {
 
     var task_info_obj = jQuery_WPF.extend({}, task_info);
     jQuery_WPF.ajax({
-        method : "POST",
+        method : 'POST',
+        type: 'POST',
         url : ajaxurl,
         data : {action: "wpfb_set_task_priority",wpf_nonce:wpf_nonce,task_info:task_info_obj},
         beforeSend: function() {
@@ -2511,7 +2523,8 @@ function set_task_status(id, task_status, previous_status = 'open'){
 
     var task_info_obj = jQuery_WPF.extend({}, task_info);
     jQuery_WPF.ajax({
-        method : "POST",
+        method : 'POST',
+        type: 'POST',
         url : ajaxurl,
         data : {
             action: "wpfb_set_task_status",
@@ -2610,12 +2623,17 @@ function set_task_notify_users(id) {
         task_notify_usernames.push(jQuery_WPF(this).data('wp-usrn'));
     });
     task_notify_users = task_notify_users.join(",");
+    if( tasks_on_page[id] < 1 ) {
+        console.log( 'Invalid task id: ' + tasks_on_page[id] );
+        return;
+    }
     task_info['task_id'] = tasks_on_page[id];
     task_info['task_notify_users'] = task_notify_users;
     var task_info_obj = jQuery_WPF.extend({}, task_info);
 
     jQuery_WPF.ajax({
-        method : "POST",
+        method : 'POST',
+        type: 'POST',
         url : ajaxurl,
         data : {
             action : "wpfb_set_task_notify_users",
@@ -3363,7 +3381,8 @@ function wpf_delete_task(id, task_id){
     task_info['task_no'] = id;
     var task_info_obj = jQuery_WPF.extend({}, task_info);
     jQuery_WPF.ajax({
-        method : "POST",
+        method : 'POST',
+        type: 'POST',
         url : ajaxurl,
         data : {action: "wpfb_delete_task",wpf_nonce:wpf_nonce,task_info:task_info_obj},
         beforeSend: function(){
@@ -3391,7 +3410,6 @@ jQuery_WPF(document).on('keydown', function(event) {
         }
         localStorage.setItem('wpf_comment_mode', 'no');
         jQuery_WPF('.wpf_bottom_middle .wpf_bc_switch_slider').addClass('active_browse');
-        jQuery_WPF('.wpf_bottombar_section').addClass('wpf_hide');
         jQuery_WPF('.wpf_launch_comment_mode').removeClass('hide_comment_mode');
         disable_comment();
     }
@@ -3482,7 +3500,8 @@ jQuery_WPF(document).ready(function() {
                     wpf_reconnect_meta['html_element_width']=html_element_width;
                     var new_reconnect_obj = jQuery_WPF.extend({}, wpf_reconnect_meta);
                     jQuery_WPF.ajax({
-                        method:"POST",
+                        method : 'POST',
+                        type: 'POST',
                         url: ajaxurl,
                         data: {action:'wpf_reconnect_task',wpf_nonce:wpf_nonce,new_reconnect_obj:new_reconnect_obj},
                         beforeSend: function(){
@@ -3627,6 +3646,7 @@ jQuery_WPF('#confirm_approve_page').on('click',function(){
     let complete_tasks=Number(jQuery_WPF("#wpf_approve_all").is(":checked"))
         jQuery_WPF.ajax({
             url: ajaxurl,
+            method : 'POST',
             type: 'POST',
             data: {action:'wpfb_approve_page',wpf_nonce:wpf_nonce,page_id:current_page_id,complete_tasks:complete_tasks,current_user_id:current_user_id},
             beforeSend: function(){
@@ -3820,6 +3840,7 @@ function wpf_task_image_delete(e){
     var comment_li = jQuery_WPF(e).closest('li');
     var comment_id = comment_li.data('comment_id');
     jQuery_WPF.ajax({
+        method : 'POST',
         type: 'POST',
         url: ajaxurl,
         data : {action: "wpfb_delete_task_image",wpf_nonce:wpf_nonce,task_img_url:task_img_url,comment_id:comment_id},
@@ -3981,6 +4002,7 @@ jQuery_WPF( document ).on( 'click', '#wpf_site_milestone', () => {
         // fetch site's milestone API to list the phases (milestones)
         jQuery_WPF.ajax({
             url: ajaxurl,
+            method : 'POST',
             type: 'POST',
             data: {action:'wpf_fetch_milestones', wpf_nonce: wpf_nonce },
             beforeSend: function(){
@@ -4213,6 +4235,7 @@ jQuery_WPF(document).on( 'click', '#send_invite', function() {
         var site_title  = jQuery_WPF('#avc_site_title').val();
         jQuery_WPF.ajax({
             url: ajaxurl,
+            method : 'POST',
             type: 'POST',
             data: {
                 action:'avc_send_invitations',
@@ -4279,6 +4302,7 @@ jQuery_WPF(document).on( 'click', '.avc_delete_ivi_user', function() {
         if ( user_id > 0 ) {
             jQuery_WPF.ajax({
                 url: ajaxurl,
+                method : 'POST',
                 type: 'POST',
                 data: {
                     action:'avc_delete_invitations',
@@ -4323,6 +4347,7 @@ jQuery_WPF('.wpf_add_page').on('click', function() {
     }
     jQuery_WPF.ajax({
         url: ajaxurl,
+        method : 'POST',
         type: 'POST',
         data: {
             action:'wpf_add_page',
@@ -4347,6 +4372,7 @@ jQuery_WPF(document).on('click', '.wpf_delete_page', function() {
     var page = jQuery_WPF(this).parents('.wpf_each_page');
     jQuery_WPF.ajax({
         url: ajaxurl,
+        method : 'POST',
         type: 'POST',
         data: {
             action:'wpf_delete_page',
@@ -4409,6 +4435,7 @@ jQuery_WPF(document).on('click', '.wpf_delete_icon', function() {
     var doc = jQuery_WPF(this).closest('.wpf_uploaded_doc');
     jQuery_WPF.ajax({
         url: ajaxurl,
+        method : 'POST',
         type: 'POST',
         data: {
             action:'wpf_delete_file',

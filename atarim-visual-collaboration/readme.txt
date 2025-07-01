@@ -2,8 +2,8 @@
 Contributors: wpfeedback, pratapdungrani
 Tags: collaboration, feedback, bug tracking, project management, website feedback
 Requires at least: 5.0
-Tested up to: 6.7
-Stable tag: 4.1.3
+Tested up to: 6.8
+Stable tag: 4.2
 Requires PHP: 7.4
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -55,9 +55,7 @@ Manage your website projects visually with your clients and team on live, stagin
 
 * **Automated Screenshots**: Requests automatically generate a screenshot with the current view. See exactly what they see and debug problems easier.
  
-* **File Uploads** : Upload images, PDF's and all file types to a request that can then be pushed to the Media Folder with one click, keeping your Media Folder clean.
-
-* **Push To Media Folder**: Automatically optimise images for web and push to the WordPress media folder with one click.
+* **File Uploads** : Upload images, PDF's and all file types to a request with one click, keeping your Media Folder clean.
 
 * **Technical Info**: Requests contain technical information like the browser version, screen resolution and the exact page URL about the request creator. So you spend less time debugging and figuring out what the request creator meant.
 
@@ -149,9 +147,6 @@ OR [check out our Premium Plans here](https://atarim.io/pricing)
 
 * **File Uploads**
 	Upload files to requests, including images, PDF's, zips and more...
-
-* **1 Click "Push To Media Folder"**
-	Minify and push images straight to the WordPress media library with one click.
 
 * **Grouped Email Notifications"**
 	Assign users to requests so they receive grouped notifications about changes, including status/urgency updates, new comments and more.
@@ -374,6 +369,11 @@ You can report any security bugs found in the source code of this plugin through
 
 
 == Changelog ==
+
+= 4.2 =
+* **ESC key conflict** – Fixed an issue where toggling between browse and comment modes using the ESC key caused the collaboration bar to not appear.
+* **Legacy jQuery override** – Resolved a conflict where older jQuery versions (below 2.0) loaded by some themes caused AJAX POST requests to degrade to GET, breaking functionality.
+
 
 = 4.1.3 =
 * **jQuery conflict** - Our jQuery UI library had conflict with WordPress's default sortable UI jQuery. This is fixed.

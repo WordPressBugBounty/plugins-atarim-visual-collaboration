@@ -2,7 +2,7 @@
 /*
  * Plugin Name: Atarim: Visual Website Collaboration, Feedback & Workflow Management
  * Description: Atarim Visual Collaboration makes it easy and efficient to collaborate on websites with your clients, internal team, contractors…anyone! It’s used by nearly 10,000 agencies and freelancers worldwide on over 120,000 websites.
- * Version: 4.1.3
+ * Version: 4.2
  * Requires at least: 5.0
  * Require PHP: 7.4
  * Author: Atarim
@@ -29,7 +29,7 @@ if ( ! defined( 'WPF_PLUGIN_URL' ) ) {
     define( 'WPF_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 }
 if ( ! defined( 'WPF_VERSION' ) ) {
-    define( 'WPF_VERSION', '4.1.3' );
+    define( 'WPF_VERSION', '4.2' );
 }
 
 define( 'SCOPER_ALL_UPLOADS_EDITABLE ', true );
@@ -728,7 +728,8 @@ function wpf_backed_scripts() {
                     var selected_author_list_values      = author_list.join(",");
                     var wpf_display_all_taskmeta_tasktab = jQuery('#wpf_display_all_taskmeta_tasktab').prop("checked") ? 1 : 0;
                     jQuery.ajax({
-                        method: "POST",
+                        method : 'POST',
+                        type: 'POST',
                         url: ajaxurl,
                         data: {
                             action: "wpfeedback_get_post_list_ajax",
@@ -774,7 +775,8 @@ function wpf_backed_scripts() {
 
                 function load_task_center_all_tasks() {
                     jQuery.ajax({
-                        method: "POST",
+                        method : 'POST',
+                        type: 'POST',
                         url: ajaxurl,
                         data: {
                             action: "wpfeedback_get_post_list_ajax",
@@ -836,7 +838,8 @@ function wpf_backed_scripts() {
 
                     if ( jQuery('#wpf_comment').val().trim().length > 0 ) {
                         jQuery.ajax({
-                            method: "POST",
+                            method : 'POST',
+                            type: 'POST',
                             url: ajaxurl,
                             data: {
                                 action: "insert_wpf_comment_func",
@@ -918,7 +921,8 @@ function wpf_backed_scripts() {
                     var task_info_obj     = jQuery_WPF.extend({}, task_info);       
                     var task_info_obj     = jQuery_WPF.extend({}, task_info);
                     jQuery_WPF.ajax({
-                        method : "POST",
+                        method : 'POST',
+                        type: 'POST',
                         url : ajaxurl,
                         data : {
                             action: "wpfb_mark_as_internal",
@@ -963,6 +967,7 @@ function wpf_backed_scripts() {
                 let task_id_permission         = wpf_tab_permission_display_task_id;
                 jQuery.ajax({
                     url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                    method : 'POST',
                     type: 'POST',
                     data: {
                         action: "wpfb_set_task_status",
@@ -1045,7 +1050,8 @@ function wpf_backed_scripts() {
                 var task_info_obj          = jQuery.extend({}, task_info);
                 let sticker_permission     = wpf_tab_permission_display_stickers;
                 jQuery.ajax({
-                    method: "POST",
+                    method : 'POST',
+                    type: 'POST',
                     url: "<?php echo admin_url('admin-ajax.php'); ?>",
                     data: {
                         action: "wpfb_set_task_priority",
@@ -1103,13 +1109,18 @@ function wpf_backed_scripts() {
                     jQuery('#wpf_attributes_content input[name="author_list_task"]:checked'), function () {
                     task_notify_users.push(jQuery(this).val());
                 });
-                task_notify_users              = task_notify_users.join(",");
+                task_notify_users = task_notify_users.join(",");
+                if( current_task < 1 ) {
+                    console.log( 'Invalid task id: ' + current_task );
+                    return;
+                }
                 task_info['task_id']           = current_task;
                 task_info['task_notify_users'] = task_notify_users;
                 var task_info_obj              = jQuery.extend({}, task_info);
 
                 jQuery.ajax({
-                    method: "POST",
+                    method : 'POST',
+                    type: 'POST',
                     url: "<?php echo admin_url('admin-ajax.php'); ?>",
                     data: {
                         action: "wpfb_set_task_notify_users",
@@ -1163,7 +1174,8 @@ function wpf_backed_scripts() {
                 var click                             = 'yes';
                 var additional_info_html              = '<p><span class="wpf_task_ad_info_title">' + wpf_resolution + '</span> ' +''+ task_config_author_res + '</p><p><span class="wpf_task_ad_info_title">' + wpf_browser + '</span> ' + task_config_author_browser + ' ' + task_config_author_browserversion + '</p><p><span class="wpf_task_ad_info_title">' + wpf_user_name + '</span> ' + task_author_name + '</p><p><span class="wpf_task_ad_info_title">' + wpf_task_id + '</span> ' + post_id + '</p>';
                 jQuery.ajax({
-                    method: "POST",
+                    method : 'POST',
+                    type: 'POST',
                     url: ajaxurl,
                     data: {
                         action: "list_wpf_comment_func",
