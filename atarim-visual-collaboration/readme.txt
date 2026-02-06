@@ -1,379 +1,267 @@
-=== Visual Website Collaboration, Feedback & Project Management - Atarim ===
+=== Visual Feedback, Review & AI Collaboration Tool For WordPress - Atarim ===
 Contributors: wpfeedback, pratapdungrani
-Tags: collaboration, feedback, bug tracking, project management, website feedback
-Requires at least: 5.0
-Tested up to: 6.8
-Stable tag: 4.2
+Tags: visual feedback, client feedback, project management, design review, AI feedback
+Requires at least: 4.3.2
+Tested up to: 6.9
+Stable tag: 5.0
 Requires PHP: 7.4
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
-Speed up the projects with fast feedback and a better workflow. Collect, triage, and action tasks on your projects like sticky notes on a webpage.
+Make collecting feedback on WordPress sites MUCH faster and easier, with the visual collaboration tool used on over 120,000 websites worldwide.
 
 == Description ==
-**An easy to use visual collaboration tool that clients LOVE! Atarim allows you to collect feedback on your WordPress websites and making design project management a breeze.**
+Atarim Visual Collaboration makes getting design and website feedback from clients, internal teams, contractors or your AI creative team MUCH faster and easier!  It’s used by tens of thousands of freelancers and agencies worldwide on over 120,000 websites and designs across multiple platforms.
 
-Atarim Visual Collaboration makes it easy and efficient to collaborate on websites with your clients, internal team, contractors…anyone! It's used by nearly 10,000 agencies and freelancers worldwide on over 120,000 websites. 
+Need to collect design feedback? Anyone can suggest revisions, request changes and click to add feedback directly on the website… with each task augmented for clarity, context and automatically fed into your preferred project management system (or within the Atarim Dashboard)!
 
-Need to submit some feedback? Do it straight on the front-end (or back-end) of your WordPress websites without the need to create a task on your project management tool, take a screenshot, upload it, rename it, annotate it, notify your team...and all the other steps required!
-
-### 🚀 What is Atarim & how do I get started?
-[youtube https://youtu.be/Yyydw1OM4vI] 
-Atarim consistently reduces project and task completion time by more than half, saving literally HOURS from every single day per team member, and removes the agency owner from being the bottleneck of their own business by automating most of the day-to-day work, follow-ups, back-and-forth with clients and internal collaboration within the team. 
-
-### 👩‍🏭👷‍♂️ Who Is This For?
-**If you are working on a WordPress website with clients, your team, contractors, your partner...anyone, then this plugin is for you.**
-
-Whether you are a freelancer, a huge agency, or running your own website – our plugin makes collaboration easy.
-
-Atarim can replace project management tools you're already using, eliminating the disorganization that occurs when your feedback, requests, and tasks are all fragmented between 10 different tools - as well as the need to take constant screenshots for annotation and sharing. 
-
-This visual feedback tool slots easily into your workflow, and it automatically takes screenshots, saves user information, minifies images shared by your clients...and so much more!
+And now, Atarim transforms every WordPress website into a live creative workspace where human and AI teammates work together in real time. The best bit? It’s free… forever.
 
 
-### 🤯 Start using now for free - forever!
+### 🚀 What is Atarim? A WordPress visual feedback and AI collaboration tool
+[youtube https://www.youtube.com/watch?v=G1vkIkqxBKc]
+Tracking feedback, requesting changes and handling client communication on a website build can be tricky. Atarim slashes project and task completion time by more than half, saving literally HOURS per team member, every single day.
 
-Visually collaborate on as many websites as you want. Our free plan is FREE FOREVER - if it suits your needs you'll never need to pay a penny, log credit card details or watch a single ad! 
+🌍 **Work together in real time** – Collaborate directly on live WordPress pages with built-in AI support from the InnerCircle..
+📸 **See what your clients see** – Every comment they leave includes an automatic screenshot and all the context you need to act fast.
+🔗 **Stay connected** – Integrate with your favourite tools such as ClickUp, Asana, Slack and Jira to keep everything in sync.
+💡 **Think bigger** – Atarim AI contributes ideas and improvements, offering strategic and creative guidance when you need it most.
+📈 **Finish projects faster** – Save hours of back-and-forth each week and move from concept to completion with confidence.
 
-**Empower everyone by delivering the ability to leave post-it note like feedback on your live WordPress websites**, getting rid of outdated, time consuming and wasteful forms of communication like emails, Zoom, Slack and the 10 other tools you’re using for project management.
 
-Atarim is a cloud-based app where you can manage all requests that are made on your WordPress websites from one platform, making it the most efficient Wordpress website project management platform to use.
+### 🤯️ How Do I Get Started For Free (Forever)?
+Getting started with Atarim is simple and our free plan is FREE FOREVER. Claim countless hours back from every project and review cycle.
 
-Manage your website projects visually with your clients and team on live, staging and even development websites! And even after the project is finished, Atarim will help get everyone involved on the same page (literally) for your ongoing internal communications around the website.
+1️⃣ **Install the plugin** – Add Atarim to your WordPress site in seconds.
+2️⃣ **Connect your account** – Log in or create a free Atarim account to sync everything to your dashboard.
+3️⃣ **Start collaborating** – Invite your team, clients and your AI teammates to review pages, leave feedback and suggest improvements.
+4️⃣ **Work together in real time** – Watch ideas evolve, changes appear and projects move forward directly inside your site.
 
-**Get rid of the crazy long back and forth to get to project completion in a fraction of the time it usually takes and efficiently dealing with post-launch, ongoing requests and feedback!**
+No learning curve, no setup headaches and no more chasing client revisions through endless messages. Everything happens right where the work is: website reviews have never been easier!
 
-### ✅ What Atarim can do for you and your team: 
 
-* **Visually Collaborate**: Enable everyone to leave you visual requests and feedback on live WordPress websites, making tasks like bug tracking and content updates a breeze.
+### 👩‍🏭👷‍♂️ Who is Atarim for? Website Builders, Designers and Project Managers
+Whether you are a freelancer, an agency owner, or part of an in-house team, Atarim gives you the same powerful way to collaborate with clarity.
 
-* **Urgency**: Update the urgency of requests, letting everyone know how quickly they need to be completed.
+👩‍💻 **Freelancers** – Keep every client project running smoothly with clear, visual communication and a helping hand from your AI teammates: the InnerCircle.
+🚀 **For Marketers & Content Teams** – Stop staring at a blank cursor or second-guessing your layout. Atarim’s AI doesn't just critique; it co-creates, giving you the context you need to move fast.
+🧩 **Internal Brand and Product Teams** – Manage feedback and iterations across departments while your AI collaborators handle context, suggestions and summaries automatically.
+🏢 **Agencies** – Unite designers, developers, clients and the InnerCircle in one workspace to remove bottlenecks and deliver work that exceeds expectations.
 
-* **Status**: Change the status of a request from “Open” to “In Progress”, “Pending Review” or “Complete” which will be included in a grouped email notification, so you don’t have to ping team members or clients on Slack!
+Atarim syncs with the project management tools you’re already using, eliminating the disorganization that occurs when your feedback, requests, and tasks are all fragmented between 10 different tools.
 
-* **Comments Feed**: Requests contain all updates in the comments feed, so everyone knows what’s happening! Updates contain what was changed and who changed it.
 
-* **Automated Screenshots**: Requests automatically generate a screenshot with the current view. See exactly what they see and debug problems easier.
- 
-* **File Uploads** : Upload images, PDF's and all file types to a request with one click, keeping your Media Folder clean.
+### 🔥 Some of Our Features:
+Atarim brings visual collaboration directly into your WordPress workflow. Every feature is designed to make teamwork smoother, faster and more creative.
 
-* **Technical Info**: Requests contain technical information like the browser version, screen resolution and the exact page URL about the request creator. So you spend less time debugging and figuring out what the request creator meant.
+🖱️ **Visual feedback on any page** – Leave clear, contextual notes that appear exactly where you click - just like putting post-it on a page.
+📸 **Automatic screenshots** – Each request includes a visual snapshot so you always see what your clients see.
+💬 **In-context discussions** – Unlike traditional client feedback tools, everything stays in one place with no need for external apps or project management back-and-forth.
+🎯 **Smart task management** – Assign, prioritise and track progress without switching tools.
+🔐 **Guest access** – Allow anyone to leave feedback quickly, perfect for client reviews or staging sites.
+📨 **Grouped notifications** – Receive simple, organised updates instead of endless email threads.
+⚙️ **Technical context included** – Browser details, screen size and URLs are captured automatically to speed up debugging.
+🧠 **AI-assisted insights** – Your AI teammates offer helpful suggestions and creative ideas right inside your workspace.
 
-* **Guest Mode**: Enable anyone visiting your WordPress website to leave requests, perfect for staging websites or the build stage of a project.
+Atarim makes it the easiest it’s ever been to collaborate on a website. Stop using emails and Slack for client communication, and start using visual collaboration to make task management a breeze.
 
-* **Auto-login**: Automatically login to all WordPress websites you have installed from the centralised Atarim Dashboard, making project management even easier!
 
-* **One Platform**: Manage all requests from one inbox inside the Atarim Dashboard so you can quickly tackle requests and complex revisions rounds at scale.
+### ✨ The Ultimate AI WordPress Plugin
+[youtube https://www.youtube.com/watch?v=13BxsJdjC5c]
+Atarim transforms every WordPress website into a live creative workspace where human and AI teammates work together in real time.
 
-* **Grouped Email Notifications**: Instead of filling up your email inbox with many notifications, Atarim groups notifications into easy-to-read and beautiful reports.
+✨ **Point and click feedback** – Mark up pages, or use AI teammates instantly understand context, purpose and intent.
+💬 **Smarter collaboration** – The InnerCircle helps translate ideas into tasks, resolves confusion and keeps projects flowing.
+🧠 **Strategic input, not just QA** – Your AI team contributes creative insight across design, UX, SEO, copy and accessibility.
+⚡ **No more endless loops** – Turn “make it pop” into measurable progress and complete projects up to 70% faster.
 
-* **Back-end Collaboration**: Create requests on any of your WP admin screens, perfect for pointing out things and teaching your clients how to use the WP Dashboard, or having discussions with your internal team.
 
-* **Request Sidebar**: Use the Atarim sidebar to click on requests, taking you directly to them, making feedback easy to find.
+### 👩🏆 Introducing The InnerCircle: Your AI Creative Team
+Add 6 senior Creative Experts to every stage of your workflow - not “yes men,” but trusted advisors who research, strategize, uphold standards, and elevate your entire creative process. Save senior team time, or gain the team that helps you see what’s next.
 
-* **Request Filter**: Filter the Atarim sidebar to show requests that have a certain status or urgency.
+**Pixel - Design Guardian**
+Keeps your visuals polished, consistent, and brand-safe – before anyone sees mistakes.
+* Make your designs sharp & aligned
+* Catch visual issues early
+* Protect your visual reputation
 
-* **Assign WP Users**: Assign WordPress users to requests so they receive notifications about changes.
+**Claro - Clarity Coach**
+Turns vague feedback into task-ready notes to keep teams moving fast.
+* Fewer revision loops
+* Aligned, clear communication
+* Fast action from first comment
 
-* **Share Links**: Share requests via link to send to others, which will take them directly to that request on the relevant page, on the WordPress website.
+**Lexi - Voice of Reason**
+Fixes tone, typos, and clarity – so your message hits and sounds right.
+* Sharpen your message
+* Keep things typo-free
+* Stay on-brand and search-friendly
 
-* **Front-end Login**: Use a custom front-end login pop-up when sharing request links on any page. Once logged in, it will keep you on the page, as opposed to the standard WP login which confusingly takes you to the WP Admin Dashboard screen.
+**Index - SEO & GEO Master**
+Boosts discoverability, structure, and AI-readiness – from code to content.
+* Spot SEO and AIO gaps fast
+* Improve performance & structure
+* Help AI understand your site better
 
-* **Additional Email Notifications**: If you need someone to receive grouped notifications outside of the WP website, you can add as many additional email addresses you need.
+**Navi - UX & Accessibility Guide**
+Finds friction, improves flow, and makes sure everyone can use your product.
+* Smooth out confusing journeys
+*  Flag accessibility issues
+* Ensure mobile usability
 
-* **Request Visibility**: Control default request visibility on the website to hide requests if you ever need to.
+**Glitch - Frontend Inspector**
+Catches bugs, broken links, and layout issues before anyone else does.
+* Find bugs early
+* Speed up QA
+* Launch with confidence
 
-* **WP User Role Permissions**: Decide which user roles inside your WP website should have access to using visual collaboration.
 
-* **Default Users**: Assign default main client and main webmaster users for automated related workflows.
+### 📈 What else can the AI do?
+Atarim brings Six senior AI teammates who spot issues, polish your work, and streamline feedback, so you can focus on creating, not correcting.
 
-### 🤷‍♂️🤷‍♀️ Why Should You Use Atarim??
-One of the biggest problems we face when working on a website is the constant back and forth that occurs from outdated methods of communication when trying to manage projects.
+**If you’re preparing work for a stakeholder review and want it to be bulletproof…**
+Then your InnerCircle assembles — Pixel polishes layout and consistency, Lexi refines the messaging, and Glitch hunts for technical snags. Claro wraps it all into a strategic summary, so you walk into the meeting with total confidence.
 
-**78% of website teams and digital agencies confirmed that constant back and forth and confusing communication as being the most common roadblock** when trying to get a project to the finish line, or when generally collaborating on website-related work.
+**If you're writing copy for a page and think, “This doesn’t flow quite right”...**
+Lexi and Claro work together to untangle tone, intent, and rhythm — sharpening your message for clarity and conversion. No guesswork, just natural, persuasive flow your audience will feel.
 
-Atarim makes it the easiest it’s ever been to collaborate on a website. Stop using emails and Slack to discuss a website, and start using visual collaboration to make task management a breeze.
+**If you need to review a junior colleague’s work and are tired of repeating yourself...**
+The InnerCircle become your patient mentors — Pixel and Glitch flag design and QA gaps, while Claro structures feedback into clear, teachable insights. You save time and your teammate learns faster.
 
-Over the past few years Atarim has served thousands of teams and agencies that are collaborating with hundreds of thousands of collaborators, team members, clients, and stakeholders through our platform.
+**If you need a senior to review your work to show you what you don’t know yet...**
+Navi, Lexi, and Pixel step in like your dream creative leads. They spot what even experienced eyes miss — from accessibility contrast to microcopy tension — and explain why it matters, not just what to fix.
 
-We are now excited to offer our solution for free, to help you and your team get the benefits of visual collaboration, and take your project management and task management to the next level.
+**If you’re reviewing a prospect’s old website and need to find sharp, relevant insights ahead of a pitch…**
+Index and Navi scan the site’s structure, flow, and SEO gaps, while Lexi and Claro turn the findings into a clear, story-ready summary. Together they help you spot what’s broken, show what could be better, and walk into the meeting sounding like you’ve already audited their entire brand.
 
-###🌍 What Our Users Say:
+**If you’re optimizing your page for conversions and want real insight, not guesses...**
+Claro and Lexi debate tone, hierarchy, and intent, while Index provides the SEO and metadata context. The result? A holistic conversion strategy — actionable changes that improve results without breaking your brand voice.
 
-"This has saved me so much time and confusion, my clients now simply send me feedback and I have all of the information I need to get the work done”
+== 🥇Premium Benefits
+Upgrade to unlock advanced collaboration tools that help larger teams work at scale with even greater control and creativity.
 
-**Sarah Crawford - A Lined Design**
+🌈 **White-label customisation** – Brand the Atarim experience as your own.
+🧩 **Team management** – View activity across all users and projects for complete transparency.
+📊 **Automated reports** – Receive daily or weekly summaries of all feedback and progress.
+📁 **Centralised Task Centre** – Manage every request from one organised dashboard inside WordPress.
+🧱 **Integrations that fit your flow** – Connect deeper with tools such as Slack, ClickUp, Asana, MainWP and Rocket.
+🧠 **Enhanced AI collaboration** – Access deeper strategic and creative input from your InnerCircle team.
 
-"Unbelievably powerful project management tool, along with outstanding service from the support team”
+[See more about our Premium Plans here](https://atarim.io/pricing/)
 
+
+== 🌍 What Our Users Say:
+“This has saved me so much time and confusion, my clients now simply send me feedback and I have all of the information I need to get the work done”
+**Sarah Crawford – A Lined Design**
+
+“Unbelievably powerful project management tool, along with outstanding service from the support team”
 **John Comley**
 
-"A must-have for any WordPress consultant or designer working with clients.”
+“A must-have for any WordPress consultant or designer working with clients.”
+**Fanny Veldmeyer – So Pressed**
 
-**Fanny Veldmeyer - So Pressed**
-
-"One of the biggest time saver for me in years. Working with clients is now really simple, fast and intuitive for me.”
-
+“One of the biggest time saver for me in years. Working with clients is now really simple, fast and intuitive for me.”
 **Patrik Čada – Patrik Čada Web Design**
 
-###🙌 Let’s see what you get with the Atarim Plugin
-OR [check out our Premium Plans here](https://atarim.io/pricing)
 
-**ATARIM VISUAL COLLABORATION PLUGIN**
-
-* **Unlimited Websites**
-	Install the plugin on as many WordPress websites as you want, there is no limit.
-
-* **Unlimited Collaborators Within WordPress**
-	Visual collaboration can be used by everyone who has a WordPress account on a website (subject to which user roles are active).
-
-* **Front-End Visual Collaboration**
-	Create post-it note like requests and feedback on the front-end of the live website.
-
-* **Status**
-	Update the status of requests to let your clients and team know when they are complete.
-
-* **Urgency**
-	Set how urgent a task is to set the priority of a request so critical work gets done first.
-
-* **Auto-screenshot**
-	A screenshot of the request creator's view is generated for every request, making it easy to debug issues.
-
-* **Detailed Info**
-	See the browser and screen size of the request creator, enabling you to cut down on back-and-forth with your clients.
-
-* **WordPress Admin Visual Collaboration**
-	Create requests on the back-end to teach your clients how to use their website.
-
-* **File Uploads**
-	Upload files to requests, including images, PDF's, zips and more...
-
-* **Grouped Email Notifications"**
-	Assign users to requests so they receive grouped notifications about changes, including status/urgency updates, new comments and more.
-
-* **Guest Mode**
-	No login or registration needed to use Atarim on the front-end, perfect for staging sites.
-
-* **Task Centre [PREMIUM]** 
-	View and manage all requests from an internal task centre inside the WordPress admin, making project management so much easier.
-
-* **White Label [PREMIUM]** 
-	Customise the logo, icon and colour of the entire plugin, making it your own.
-
-* **Compact Mode [PREMIUM]** 
-Create a more compact experience by replacing the bottom bar with a small widget, making it clearer for everyone involved to use. 
-
-* **Approve Pages [PREMIUM]** 
-	Approve pages with the click of a button and have the option to change the status of all requests on that page to complete.
-
-* **Internal Tasks [PREMIUM]** 
-	Create internal tasks which are hidden from user roles with less permissions, perfect for collaborating with your team on things others don’t need to see.
-
-* **Task Centre [PREMIUM]** 
-	View and manage all requests from an internal task centre inside the WordPress admin.
-
-* **User Permissions [PREMIUM]** 
-	Fully customise what each user role can do with the plugin, giving you full control.
-
-* **Automated Reports [PREMIUM]** 
-	Send 24 hour, and 7 day reports containing all requests created and updates to those requests.
-
-* **Edit/Delete Comments[PREMIUM]** 
-	Made a mistake in your comment? Simply edit or delete it!
-
-* **Global Settings [PREMIUM]** 
-	Turning global settings on will apply the settings configured inside your Dashboard, making it super quick and easy to setup your projects.
-
-* **Remove Mention Atarim [PREMIUM]** 
-	Completely remove the mention of Atarim inside the plugin, making it your own (especially combined with white labelling).
-
-**ATARIM DASHBOARD**
-
-* **Unlimited Websites**
-	Active assets within your Atarim Dashboard, you can add/archive assets freely. Archived sites are not counted.
-
-* **Visual Collaboration on ANY Website**
-	Add "Stickers" to annotate any website visually. From WordPress, to cloud applications like Shopify or WebFlow, and even custom builds.
-
-* **Image-Based Collaboration**
-	Make it easy to work together with your clients and team by visually collaborating on that beautiful new mockup you made, or a new logo!
-
-* **Email-Based Support Desk**
-	Send and receive emails that will automatically filter incoming clients requests into their respective websites.
-
-* **Productivity KPIs**
-	Unlock your profits by becoming a data-driven agency - Seeing statistics, benchmarks, and KPIs.
-
-* **Kanban Boards**
-	Drag & drop boards where requests become to-do lists for your team, creating an amazing workflow for project and task management.
-
-* **Image Optimisations**
-	Every image uploaded is automatically optimised for web, no need for TinyPNG, Imagify, ShortPixel, Optimole or WP Smush!
-
-* **Track Time [PREMIUM]** 
-	Add estimations on how long a request will take to complete and create timers, giving you accurate data on how long things are taking to complete.
-
-* **Export Time Reports [PREMIUM]** 
-	Export white labelled reports that contain all time that has been tracked. 
-
-* **Team Management [PREMIUM]** 
-	See all activity that has been done by your entire team, giving you a full overview of all work done inside the Dashboard.
-
-* **Basic Integrations [PREMIUM]** 
-	Get access to webhooks and an API key to integrate Atarim with platforms like Zapier, Integromat and Pabbly.
-
-* **Deep Integrations [PREMIUM]** 
-	Fully integrate with platforms like Slack, MainWP, Rocket.net and more. To embed Atarim into your workflow even further.
-
-### 👩‍💻 Atarim Integrations Available:
-* **Zapier, Pabbly and Integromat**: Connect Atarim to 5000+ apps. Create triggers from visual collaboration like request creation and status changes and push them to apps like ClickUp and Trello
-
-
+== 👩‍💻 Atarim Integrations Available:
+* **Zapier, Pabbly and Make**: Connect Atarim to 5000+ apps. Create triggers from visual collaboration like request creation and status changes and push them to apps like ClickUp and Trello
 * **ClickUp**: Automatically push all requests created to a specific task list inside ClickUp and deploy full task lists from ClickUp into a website inside Atarim.
-
-
 * **Slack**: Connect Atarim to a Slack bot to automatically post new requests, request changes and more to a specific Slack channel.
-
-* **Bertha.ai**: With both plugins installed, you can use Bertha to generate copy directly into task pop-overs, making create amazing content for your sites easy!
-
-
+* **Figma**: Open designs directly in Atarim, sync projects and easily manage feedback on your Figma files.
 * **Asana**: Automatically push all requests created to a specific project inside Asana, and pull in full task lists from Asana to a website inside your Atarim Dashboard.
-
-
 * **Jira**: Automatically push all requests created to a specific list inside Jira, and pull in full task lists from Asana to a website inside your Atarim Dashboard.
-
-
 * **MainWP**: Add websites from your MainWP Dashboard to Atarim with one click, manage all requests from your MainWP Dashboard created inside Atarim and get an overview of a website’s health inside your Atarim Dashboard.
-
-
-* **Rocket**: Create Rocket staging websites and automatically install the Visual Collaboration plugin inside your Atarim Dashboard, and manage the Rocket hosting settings of your websites from your Atarim Dashboard.
-
+* **Rocket(.)net**: Create Rocket staging websites and automatically install the Visual Collaboration plugin inside your Atarim Dashboard, and manage the Rocket hosting settings of your websites from your Atarim Dashboard.
 * **Trello**: Automatically add requests created on your WordPress websites to a board inside Trello, ensuring that nothing is ever missed when using both platforms.
-
 * **Basecamp**: Automatically add requests created on your WordPress websites to your Basecamp Task Lists, keeping all of your work synchronized.
-
 * **Webhooks**: Create your own integrations with any app you want by using webhooks for pushing new requests, status/urgency changes and more…
 
-###📆 Atarim Integrations Coming Soon:
-* **TeamWork**
-* **Zendesk**
-* **Figma**
-* **Adobe XD**
-* **RunCloud**
-* **Monday**
-* **Notion**
-* **Airtable**
 
-_(You can already integrate with all these via Zapier, but we are working on developing deeper integrations, which we'll start launching in 2023. Stay tuned to hear when they go live!)_
-
-###🔥 Atarim works with all the major page builders, SEO, Ecom and LMS plugins on the market: 
-* **WordPress Blocks Editor (Gutenberg)**
-* **Divi Theme**
-* **Elementor**
-* **Visual Composer**
-* **Beaver Builder**
-* **Oxygen Builder**
-* **Thrive Architect**
-and more...
-
-###🚀 Learn how to use Atarim
-[youtube https://www.youtube.com/watch?v=AS9p-mHoAuM&list=PLFonzSqznz8en-x_MEnuLsnnh0gdg1qrs&index=1]
-**[Check out our YouTube channel for full capabilities ](https://www.youtube.com/c/Atarim-io)**
-
-== Frequently Asked Questions ==
-= Is it free? =
-Absolutely! The free version of the Atarim can be used with as many websites as you want, with some of the more advanced features of benefit to larger agencies being offered on our premium plans.
-
-= Why do I need to register? =
-Registering creates a free account on the Atarim Dashboard.
-
-The reason for this is to stop your WordPress Database being cluttered with all of the requests being made. We store all information securely off-site, very much like Slack, support desks and project management systems.
-
-Your free account acts as the central hub for your communications on as many websites as you want. The registration (or login process if you already have an account with us) allows us to connect this website to your Atarim account.
-
-This will give you access to the entire platform, where you can see all of the websites that currently have the Atarim Visual Collaboration Plugin installed.
-
-One click login, assign team members to requests, reply to requests and a whole lot more...
-
-= How and why is this free? =
-Atarim as a whole platform offers some advanced functionality for digital agencies and website teams who are trying to really up their game in project management.
-
-However, the free version gives you everything you need to visually collaborate and start cutting out the crazy back-and-forth that happens when working on a website.
-
-The premium plans just give you a lot more functionality to take it a few steps further!
+== 🔥 Atarim works with all the major page builders, SEO, Ecom and LMS plugins on the market:
+* WordPress Blocks Editor (Gutenberg)
+* Divi Theme
+* Elementor
+* Visual Composer
+* Beaver Builder
+* Bricks Builder
+* Oxygen Builder
+* Thrive Architect and more…
 
 
-= How is this reducing 80% of the time it takes to get work done? =
-An average basic website project takes between 4-6 weeks (if all goes well), yet we all know that if we have everything we need, building a website on our own takes between 3-5 days.
+== 🤷‍♂️🤷‍♀️ FAQs ==
+= Is Atarim free to use? =
+Yes. You can use Atarim for free on as many websites as you like. The free plan includes everything you need to collaborate visually on live pages. Premium plans add more advanced AI features, deeper integrations and white-labelling options for agencies and larger teams.
 
-Where did the extra 2-4 weeks go (84% of the time)?
+= Do I need to create an account? =
+Yes. Connecting your free Atarim account keeps all feedback, screenshots and updates organised and secure in your central dashboard. It also activates your InnerCircle AI teammates so they can assist you during projects.
 
-**We’re tackling the 84% by providing you the clarity that you need to run a successful website team or agency, with each request and empowering the client with a single intuitive tool that they enjoy using.**
+= Does it work with my theme or page builder? =
+Yes. Atarim works seamlessly with all popular themes and page builders, including Elementor, Divi, Beaver Builder, Gutenberg, Bricks Builder and Thrive Architect. Whatever your setup, collaboration stays smooth and consistent.
 
-= How simple is it to use? =
+= How do i collect client feedback on WordPress? =
+The Atarim plugin works with all WordPress websites. If you need to collaborate on non-WordPress sites such as Webflow, Shopify or custom builds, even your Figma projects,, you can do so through the Atarim Dashboard. It allows you to add feedback, tasks and comments on any live URL, keeping all your feedback in one place.
 
-Atarim is designed to be so easy and intuitive that even your grandma would get it.
+= How easy is it to use? =
+Even your grandma can do it - Atarim is built for simplicity. Anyone can click on an element, leave a note and get back to work. There is no learning curve or complicated setup. Clients, designers and developers gain deeper functionality and clear actionable feedback: all boosted with additional context and clarity. Make collaboration clear and effortless from day one.
 
-You can train your client, team and colleagues with 1 sentence “Please click the + icon and make a request/add your content/give your feedback”.
+= What does the Atarim AI do? =
+The InnerCircle are your built-in AI teammates. They help you refine design ideas, improve copy, check accessibility and offer creative and technical insight. They can also summarise discussions, highlight recurring issues and keep projects moving smoothly.
 
-We even provide swipe copy and video tutorials that you can send your client directly to teach them in 5 minutes how to use our platform.
+= Can people leave comments without logging in? =
+Yes. Guest mode allows clients and collaborators to leave feedback without creating an account, ideal for review and staging sites. Our mindset: “They just want to give quick feedback and get out”.
 
-Also, the first time a WordPress user visits the website after installation, they are shown a pop-up with a tutorial that lasts a few seconds to train them.
+= What kind of support do you offer? =
+Free users can get help via the WordPress support forum or the [Atarim Community on Discord](https://atarim.io/discord). Premium users gain access to our world-class human  support through live chat and email, with direct access to our customer success team for setup and strategy advice.
 
-= Will this work with my theme & page builder? =
-Yes. Atarim is designed to work with any theme or page builder available on the market. 
+= Can I upgrade later if I start with the free version? =
+Of course. You can upgrade to a [premium plan](http://atarim.io/pricing) at any time. All your projects and feedback stay connected and carry over automatically.
 
-= Will this work with any website? =
-The Atarim Visual Collaboration Plugin will only work on WordPress websites.
-
-However, from the web-based Atarim Dashboard you can use visual collaboration on ANY website, all you need to do is add the URL. Instead of this being on the live website itself, visual collaboration will happen inside the Dashboard!
-
-= What if my clients start adding hundreds of requests? =
-Great! Charge them for it 💪
-This is the ultimate upsell tool.
-
-What we find is that this will increase your engagement and satisfaction level with your clients but you can expect similar behaviour from them.
-
-Those that reach out often will reach out more, it will take you 20-30% of the time it took before to handle the requests, those that rarely reached out will probably stay the same.
-
-= Should I only use Atarim on new websites? =
-We strongly encourage you to add every single website you are working on, regardless of which stage you are at.
-
-For example, use it to work internally with your team on your ecomm website, when gathering content from a client on their brand new project, taking support requests on your care plans etc. It’s perfect for all stages.
-
-= Will you provide support? = 
-Yes! For free users, you can request support through the WordPress forum, OR [join our community on Facebook to get the answers you need]( https://www.atarim.io/facebook)
-
-Once you join Atarim on a premium plan, you’re practically part of the family!
-
-You can reach out to us via email or on our live chat with any questions you may have and our team of support engineers and customer care experts will be delighted to provide advice.
-
-= I want to test with a premium plan, can I upgrade after? =
-Of course. You can upgrade to any plan at any time, whatever works for you.
-
-= Where do I report security bugs? =
-
-You can report any security bugs found in the source code of this plugin through the [Patchstack Vulnerability Disclosure Program](https://patchstack.com/database/vdp). The Patchstack team will assist you with verification, CVE assignment and take care of notifying the developers of this plugin.
-
+= How secure is Atarim? =
+All data is stored securely off-site, away from your WordPress database to avoid DB bloat. We use encrypted communication, follow strict privacy standards and never sell or share your information.
+Atarim holds SOC 2 Type 1 compliance, aligns with GDPR principles, and exclusively employs premium LLMs configured for maximum data privacy.
 
 
 == Screenshots ==
-
-1. **Comment Mode**: Enable the comment mode on the front end of the website to highlight a section of the page and leave a request.
-2. **Creating Requests**: Add your first comment and create the request in the section.
-3. **Task Pop-Over**: You can assign users, change status/urgency, or take a screenshot when creating a request.
-4. **The Atarim Sidebar**: All requests can be found inside the sidebar, by clicking a request it will scroll to where it is and open it.
-5. **Back-end Requests**: Create requests on the WordPress Dashboard, perfect for collaborating with your team or showing your client something.
-6. **Atarim Dashboard**: Manage all requests across all of your websites from one platform.
-7. **Auto-login**: Automatically get logged into your WordPress websites and get taken straight to a request with the click of a button.
+1. Chat with Atarim’s AI teammates inside WordPress to refine copy, polish design and brainstorm creative ideas that enhance collaboration.
+2. Bring your team and clients together with visual feedback on any WordPress site; Atarim’s AI supports every stage of real time collaboration and review.
+3. Create an AI powered project brief within your Atarim dashboard to outline goals and tasks, jump starting collaboration and project management.
+4. Convert vague client comments into clear, actionable tasks with Atarim’s AI clarity coach, keeping collaboration smooth and reducing revision loops.
+5. Let Atarim’s AI review your WordPress site and generate actionable feedback, streamlining website audits and client collaboration.
+6. Share a visual feedback link with teammates or clients so they can comment without logging in, keeping everyone aligned and nothing missed.
+7. Switch to mobile view in Atarim to leave visual feedback on the responsive version of your website, helping you capture and fix mobile‑specific issues.
+8. Annotate an automatically captured screenshot with context, browser details and URLs, giving your team the exact information they need to make changes.
+9. Add a visual feedback comment directly on any WordPress page and pinpoint exactly where changes are needed, so clients and team members provide clear, contextual feedback.
+10. Let Atarim’s AI review your WordPress site and generate actionable feedback, streamlining website audits and client collaboration.
 
 
 == Changelog ==
 
+= 4.3.2 =
+* **Security** - Improved permission checks when saving plugin settings to prevent unauthorized access.
+
+= 4.3.1 =
+* Fixed: Consent modal readability issues caused by CSS overrides.
+
+= 4.3 =
+* **Simplified settings** for a faster and more intuitive configuration experience
+* **Unified experience** across URL method, script injection, and Chrome extension
+* **Optimized performance and improved security**
+
+= 4.2.2 =
+* **Security Fixes & Hardening**
+  - Improved authorization and request validation in the license activation flow.
+  - Enhanced access controls for internal REST API endpoints.
+  - Strengthened validation and handling of media-related requests.
+  - Improved user-related request validation to prevent exposure of sensitive information.
+  - Hardened token authentication flow in coordination with the Atarim platform.
+
+= 4.2.1 =
+* **Heads up** - This version is preparing the plugin for a major release on the next version: bringing deep AI collaboration to the plugin and fixing security concerns.
+
 = 4.2 =
 * **ESC key conflict** – Fixed an issue where toggling between browse and comment modes using the ESC key caused the collaboration bar to not appear.
 * **Legacy jQuery override** – Resolved a conflict where older jQuery versions (below 2.0) loaded by some themes caused AJAX POST requests to degrade to GET, breaking functionality.
-
 
 = 4.1.3 =
 * **jQuery conflict** - Our jQuery UI library had conflict with WordPress's default sortable UI jQuery. This is fixed.
@@ -402,12 +290,10 @@ You can report any security bugs found in the source code of this plugin through
 * **Avada Theme Conflict** - Fixed a conflict with the Avada theme structure that prevented proper click actions in collaboration mode.
 * **Conflict with Mobile Menu Plugin** - Addressed a conflict with a third-party mobile menu plugin, which updated the DOM and caused element location issues, preventing click actions from working in collaboration mode.
 
-
 = 4.0.6 =
 * **Multiple Default Users** - Integrated the option to set multiple default users for task assignments, instead of just one.
 * **Guest User Restrictions** - Disabled the edit and delete options for guest users, preventing them from modifying or deleting comments.
 * **Custom Post Type Archive Support** - Added support for custom post type archive pages, ensuring the collaboration interface loads properly on these pages.
-
 
 = 4.0.5 =
 * **Task Assignment Issue** - Fixed issue where assigning/unassigning users to tasks was not reflecting live in the sidebar.
@@ -443,8 +329,7 @@ You can report any security bugs found in the source code of this plugin through
 * **Task Tab Information Overflow** - Fixed information overflow in the task tab for each task element.
 * **Sidebar Pagination** - Fixed pagination not working for 'All page' filter in the sidebar.
 
-
-= 4.0 =
+= v4.0 =
 * **Optimization** - Modified page tab integration to optimize the page loading speed.
 * **Compatibility** - Added support to resolve Bootstrap conflict with Woodmart themes.
 * **Code Cleanup** - Removed code that was not needed after UX changes.
@@ -457,26 +342,26 @@ You can report any security bugs found in the source code of this plugin through
 * **Security** - Improved overall security of the plugin.
 * **Other Changes** - Removed EDD license key dependency from the code.
 
-= 3.32 =
+= v3.32 =
 * **XSS vulnerability** - A Cross-Site Scripting (XSS) vulnerability was identified for tag integration in our plugin, this is now fixed.
 
-= 3.31 =
+= v3.31 =
 * **XSS vulnerability** - A Cross-Site Scripting (XSS) vulnerability was identified in a previous version of our plugin, this is now fixed.
 
-= 3.30 =
+= v3.30 =
 * **License key** - We have removed license key dependency for better security and compatibility with our platform.
 * **Plugin check** - Implemented recommended changes suggested by the plugin check plugin.
 
-= 3.22.6 =
+= v3.22.6 =
 * **Subfolder Support** - Our plugin now supports subfolder structures, enabling you to activate our plugin and collaborate on site with the subfolder structure.
 
-= 3.22.4 =
+= v3.22.4 =
 * **Removed models** - We have removed a few restriction models that were not relevant to the current integration.
 
-= 3.22.3 =
+= v3.22.3 =
 * **Activation error** - Upon plugin activation on plugin-install.php page, it was throwing an error due to the inability to redirect after activation. This is fixed.
 
-= 3.22.2 =
+= v3.22.2 =
 * **Animation** - Added animation for task completion action.
 * **Priority reflection** - Fixed issue where changing priority on a new task did not reflect in the sidebar.
 * **Image preview** - Resolved issue where deleting a previewed image inside popover did not remove the last one.
@@ -484,8 +369,7 @@ You can report any security bugs found in the source code of this plugin through
 * **Guest link** - Addressed a bug related to guest token link cookies.
 * **Sidebar view** - Sidebar task text now clips to a single line for better display.
 
-
-= 3.22 =
+= v3.22 =
 * **New sidebar** - Redesigned the sidebar with a modern layout and improved functionality, enhancing user navigation and accessibility to tasks and pages in the collaboration interface.
 * **New bottombar** - Revamped the bottom bar design to provide a sleek and intuitive user experience, offering quick access to essential functions and options while minimizing screen clutter and maximizing workspace efficiency.
 * **Collaboration mode** - Introduced a collaboration mode feature, enabling users to collaborate more effectively by toggling between different modes:
@@ -502,58 +386,56 @@ You can report any security bugs found in the source code of this plugin through
 * **Code optimization** - Conducted comprehensive code optimization and refactoring to improve overall performance, stability, and maintainability of the plugin, resulting in smoother operation and reduced resource consumption.
 * **Default user** - Fixed issue with setting default user for new task upon plugin activation.
 
-
-= 3.19 =
+= v3.19 =
 * **Theme conflict** - Beaver Builder Bootstrap had a conflict with our plugin.
 * **Code optimization** - We have optimized some APIs to improve response time.
 
-= 3.18 =
+= v3.18 =
 * **Auto login** - We have integrated option to enable/disable auto login to site from app.
 * **Image optimization** - To reduce the plugin size, many images have been optimized.
 
-= 3.17 =
+= v3.17 =
 * **GeneratePress theme JS/CSS** - The theme had JS and CSS conflict with our plugin which is now fixed.
 * **Beaver Child theme JS** - The theme had JS and CSS conflict with our plugin which is now fixed.
 * **Guest URL token** - For the old plugin versions, we have added support for guest URL with token.
 
-= 3.16 =
+= v3.16 =
 * **ePress theme JS/CSS** - The ePress theme had JS and CSS conflict with our plugin which is now fixed.
 * **CSS changes** - We have made some small CSS changes to improve some element alignments.
 
-= 3.15 =
+= v3.15 =
 * **JS/CSS exclusion** - We have integrated a way to auto-exclude our JS and CSS from blocking inside the WP Rocket plugin.
 * **Guest mode** - Allowing collaboration on-site via sharing URL with token has been integrated to provide quick and easy guest invitations.
 
-= 3.14 =
+= v3.14 =
 * **Conflict with Block editor** - Js conflict with Block editor was detected, this is now fixed.
 * **CSS override** - CSS of certain themes was overriding a few elements, this is now fixed.
 * **Password strength** - Password validation during user registration has been upgraded to allow the user to set a strong password.
 * **License activation** - There was an issue updating database value during license reactivation on some sites, this is now fixed.
 
-= 3.13 =
+= v3.13 =
 * **XSS vulnerability** - A Cross-Site Scripting (XSS) vulnerability was identified in a previous version of our plugin, this is now fixed.
 * **Js conflict with ACF** - Date selection on the date field was not working due to js conflict, this is now fixed.
 * **User Avatar** - Due to the changes on the Gravatar API data response, comment author images were not loading, this is now fixed.
 
-= 3.12 =
+= v3.12 =
 * **Comment overflow** - On certain themes, there was a problem with comment box overflow which cut off the comment, this is now fixed.
 * **CSS conflict with Springfield theme** - Springfield theme CSS was overriding Comment box CSS, this is now fixed.
 * **Default permission for users** - We have modified the default permission for users when the user type is not selected.
 
-= 3.11 =
+= v3.11 =
 * **Screenshot issue with Bricks Theme** - There was a problem with automatic screenshots with Bricks Theme, this is now fixed.
 * **Push To Media** -  There was an issue with pushing media from the Atarim Dashboard to WordPress websites, this is now fixed.
 * **CSS Fixes** - There were a few CSS fixes required inside the Atarim interface, these have been fixed.
 
-= 3.10 =
+= v3.10 =
 * **Activation Flow** - We have stripped loads from the activation flow to make it super fast to get started, no more wizard and no more role selection on the front-end.
 * **Automatically assigning roles** - When you invite users via the front-end share, they will be automatically assigned as a client inside the plugin.
 * **Removal of graphics** - Graphic feedback has now been completely removed from the plugin, you can collaborate visually on designs inside the Atarim Dashboard. <a href="https://atarim.io/help/dashboard/image-based-collaboration/" target=_ > More info on that here. </a> 
 * **Reduced triggers on page load** - We've reduced the number of action triggers on page load when collaboration is enabled, to make everything faster!
 * **CSS fixes** - Some minor CSS fixes across the board.
 
-
-= 3.9.6 =
+= v3.9.6 =
 * **Task pop-up design update** - We've improved the design of the task pop-over, making it nicer to use.
 * **Date and time** - The plugin now uses the time inside your browser, to ensure you see the correct timings on tasks.
 * **Tag CSS** - The alignment of tags were not pretty, we've fixed the CSS.
@@ -566,25 +448,25 @@ You can report any security bugs found in the source code of this plugin through
 * **Inviting from the back-end** - When inviting from the back-end of the website, the invite link has been changed to the homepage of the website.
 * **Uploaded files** - Sometimes the uploaded files were not rendering properly inside the task popup, this is now fixed.
 
-= 3.9.3 =
+= v3.9.3 =
 * **Task center author** - Sometimes the author name of comments inside the task center was incorrect, this is now fixed.
 * **Theme css conflict** - There was an issue where theme CSS was overriding the comment box CSS, this is now fixed.
 * **Text domain support** - We've added text domain support for many strings that were missing for translation.
 * **French translation** - The plugin is now fully translated into French.
 * **Reorder post conflict** - There was a conflict with the reorder post plugin, this is now fixed.
 
-= 3.9.2 =
+= v3.9.2 =
 * **CSS Fix** - Some theme styles were conflicting with the new "Invite to Collaborate" feature. This is now fixed.
 * **Security** - There was a security risk (not abused) that needed to be fixed which was spotted by one of our users. Was fixed with priority.
 * **Language support** - Added plugin translation for French(France), Spanish(Spain), and Portuguese(Brazil) languages.
 
-= 3.9.1 =
+= v3.9.1 =
 * **Menu Bar** - We have now added the option to open the Atarim Dashboard menu bar, to give Admins quick access.
 * **White Label Invite** - Previously if you had the white label on, the invitation email was not displaying it, this is now fixed.
 * **PHP Notices** - A warning was showing because of PHP, this is now fixed.
 * **Post-Type Taxonomy** - Tasks were not loading correctly on custom taxonomy pages, this is now fixed.
 
-= 3.9 =
+= v3.9 =
 * **Bottom bar conflict** - There was a JS conflict happening with our new bottom bar, this has been fixed.
 * **Red overlay** -  When a task was being created, sometimes a red overlay would show, this has been fixed.
 * **Task complete validation** - You could mark a task as complete before creation, this has been fixed. 
@@ -594,7 +476,7 @@ You can report any security bugs found in the source code of this plugin through
 * **JS validation with username** - We've added validation to fix tasks not listing when a username was not present.
 * **Formidable forms** - We fixed a conflict that was occurring when Formidable Forms was installed along with Atarim.
 
-= 3.8 =
+= v3.8 =
 * **Bottom bar** - We've redesigned the bottom bar of the Atarim plugin to make it more in line with the Atarim Dashboard.
 * **Skip wizard** - You now have the option to skip the initial wizard, making installation even faster.
 * **Sharing version 2** - The share function inside your websites has been updated in a variety of ways to increase the speed of collaboration with your clients. By inviting them, you generate and send a unique link to their email, enabling them to see the Atarim plugin on their website without being logged in.
@@ -602,7 +484,7 @@ You can report any security bugs found in the source code of this plugin through
 * **CSS fix** - There were some font css conflicts causing text not to show correctly, this has now been fixed.
 * **Autologin error** - Auto logging was not working with all websites, this has now been fixed.
 
-= 3.7 =
+= v3.7 =
 * **Links in comments** - There was an issue with links not working in comments when some tasks load, this is now fixed
 * **CSS in Task Center** - When the author of a comment's name was too long, it broke the design, this is now fixed.
 * **Comments container** - When a link was too long it would break the design, this is now fixed.
@@ -610,21 +492,21 @@ You can report any security bugs found in the source code of this plugin through
 * **Sites disconnecting** - Sometimes sites would become disconnected and you'd have to re-activate, this is now fixed.
 * **Woocommerce function** - A function inside Woocommerce became deprecated, this is now replaced. 
 
-= 3.6.1 =
+= v3.6.1 =
 * **White label** - Fixed white label integration not working sometimes.
 
-= 3.6 = 
+= v3.6 = 
 * **Main file name** - We have changed the main file name as per the WordPress standard.
 * **Updraft conflict** - Fixed a JS conflict with the Updraft plugin.
 * **Loading Icon** - Moved the loading icon to local storage to prevent a CORS error.
 
-= 3.5.1 = 
+= v3.5.1 = 
 * **Non-English Characters** - Non English characters were causing some comments to load incorrectly, this is now fixed.
 * **Auto-login from the dashboard** - Auto-logging in from the dashboard was not working in some cases, this is now fixed.
 * **Alt-text on images** - Added alt text to all image tags to make them SEO friendly.
 * **Support for The Theme** - Added support for the theme to adjust the dashed box on the front side.
 
-= 3.5 = 
+= v3.5 = 
 * **One click activation** - You can now activate with one click, speeding up with the setup process for the Atarim plugin.
 * **Added a password field when creating an account** - You can now create your password for brand new accounts inside the plugin, making it faster!
 * **Bottom bar during installation** - The bottom bar was showing during the wizard, this has now been removed.
@@ -634,7 +516,7 @@ You can report any security bugs found in the source code of this plugin through
 * **Edit comments** - Editing a comment was not showing the comment inside the box, this is now fixed.
 * **Added support for the Black Bros theme** - The selection box had an alignment issue on the front end when the Black Bros theme was installed.
 
-= 3.4.3 = 
+= v3.4.3 = 
 * **Blocked interface on Bricks theme editor mode** - The plugin was showing when using the Bricks theme editor mode, this has now been fixed.
 * **Conflict with Bricks quill classes** - There was a class conflict with Bricks quill classes, this has now been fixed.
 * **Mark as complete** - We changed "Mark as complete" on the task pop-over to "Complete", to clear up some space.
@@ -643,10 +525,10 @@ You can report any security bugs found in the source code of this plugin through
 * **FluentCRM issue** - There was an issue where the plugin was not loading inside FluentCRM, this is now fixed.
 * **General CSS fixes** - We fixed a few CSS issues and made some small changes to improve design
 
-= 3.4.2 = 
+= v3.4.2 = 
 * **Skipped a version** - The plugin was one version behind the dashboard, so we have gone straight to 3.4.3
 
-= 3.4.1 = 
+= v3.4.1 = 
 * **General task icon** - We have changed the icon on the general task icon to make it more pleasing to the eye!
 * **Comment text font size** - We have updated the font size on comments to make it more readable.
 * **CSS changes** - Multiple small CSS updates and changes to make the design of the plugin more consistent.
@@ -654,14 +536,14 @@ You can report any security bugs found in the source code of this plugin through
 * **Internal task icon toggle** - There was an issue with the internal task icon on the pop-over, this has been fixed.
 * **Author name alignment** - Fixed an issue where the length of the author name could break the design if too long.
 
-= 3.4 =
+= v3.4 =
 * **Pop-over design update** - We've slightly updated the pop-over design for tasks, including the order of icons and color of the comment button.
 * **Comments feed design update** - We've changed the layout of the comments feed to make it more of a chat, by adding author images and aligning everything to the left.
 * **Notes issue:** Previously you could create a task with the first comment being a note, this has now been fixed.
 * **Divi add-on conflict:** There was a conflict with a Divi add-on that made page ID's incorrect, this is now fixed.
 * **Warnings generated by plugin code:** A warning was showing in the WP admin due to some code inconsistencies, this has now been fixed.
 
-= 3.3.3 =
+= v3.3.3 =
 * **Secured SQL Query:** Fixed an edgecase security vulnerability inside the plugin.
 * **General Tasks:** In some cases, you could not add text to a general task, this is now fixed.
 * **Formidable Forms Plugin Conflict:** When this plugin was installed alongside Atarim, it was causing issues, this has now been fixed.
@@ -669,15 +551,15 @@ You can report any security bugs found in the source code of this plugin through
 * **Bootstrap JS conflict:** There were a few conflicts that have now been fixed with the JS.
 * **Bootstrap CSS conflict:** There were a few conflicts that have now been fixed with the CSS.
 
-= 3.3.2 =
+= v3.3.2 =
 * **Tablet View:** Tablet view was not showing correctly due to the width being too small, this has now been fixed.
 
-= 3.3.1 =
+= v3.3.1 =
 * **Filter issue:** There was previously an issue with the sticker color of task status in the task center, this is now fixed. 
 * **Empty comments:** It was possible to add empty comments due to rich text, we have added more validation to stop this from happening.
 * **Graphic Feedback Notice:** The notice we added in our last update kept showing, now when you close it you'll never see it again.
 
-= 3.3 = 
+= v3.3 = 
 * For the full list of what was included in this update, [check out our changelog here!](https://headwayapp.co/atarim-changelog/atarim-3-3-merge-sites-integrations-permissions-more-245450)
 * **Google signup:** When you install the plugin on a WordPress website, you now have the option to sign up for a new free account with Google, making the signup process even shorter!
 * **Graphic FeedBack Notice:** We are planning to move the graphic feedback tool from the plugin to the dashboard, with this update you’ll see a notice to let you know about this.Plugin
@@ -686,10 +568,16 @@ You can report any security bugs found in the source code of this plugin through
 * **Bottom bar:** On some websites, the bottom bar had a problem with its width, this is now fixed.
 * **CSS Conflict:** There were some CSS conflicts on specific websites, this has been fixed.
 
-= 3.2 =
+= V3.2 =
 * **Rich Text:** You can now highlight your comments while adding to add rich text. You can also edit previous comments and add it too!
 * **Tag Creation:** Previously, you could not add tags to a task after creating it, you needed to refresh, this has been fixed.
 * **Tasks At The Bottom Of A Page:** Sometimes tasks at the bottom of the page caused the comment button to be hidden, this has been fixed.
 * **Arrow On Pop-Over:**After we removed bootstrap, we lost the arrow on pop-overs that connected the sticker, this has been fixed.
 * **Removing Stickers:** Previously, if you tried to create a task, and then create another one without finishing the first, you'd have two stickers. This has been fixed.
 * **Automatic Screenshots Not Showing Images or Gradient:** Sometimes images and gradients inside automatic screenshots were not showing, this has now been fixed.
+
+
+== upgrade notice ==
+= 4.3 =
+**🚀 Big Update Incoming!**
+We're bringing deep AI collaboration to Atarim. Before updating, please back up your site and reach out to [support](https://atarim.io/help/#hs-chat-open) if you need help. Thanks for building with us.

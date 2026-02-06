@@ -1,0 +1,190 @@
+/*user consent modal*/
+.avc_consent_form_launcher {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    position: fixed !important;
+    z-index: 214748366 !important;
+    right: 0 !important;
+    top: calc(25% - 23px) !important;
+    width: 55px !important;
+    height: 55px !important;
+    flex-shrink: 0 !important;
+    border-radius: 8px 0px 0px 8px !important;
+    cursor: grab;
+    pointer-events: auto !important;
+    box-shadow: 0px 3px 20px 6px rgba(0, 0, 0, .025), 0px 0px 7px 2px rgba(0, 0, 0, .05) !important;
+    background: #ffffff !important;
+    transition: 0.8s !important;
+}
+.avc_consent_form_launcher img {
+    border-radius: 8px !important;
+    max-height: 35px !important;
+    max-width: 35px !important;
+    height: auto !important;
+    width: 100% !important;
+    margin: 0 !important;
+    user-select: none !important;
+    -webkit-user-drag: none !important;
+}
+.avc_hide_launcher {
+    right: -85px !important
+}
+.avc_user_consent_container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(8px);
+    display: none;
+    z-index: 9999;
+}
+.avc_user_consent_wrapper {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+.avc_user_consent_modal {
+    --tw-shadow: 0 10px 15px -3px rgb(0 0 0 / .1), 0 4px 6px -4px rgb(0 0 0 / .1);
+    --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);
+    box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+    background-image: linear-gradient(142deg, #6d5df3, #8f5df3);
+    border-radius: 1rem;
+    overflow: hidden;
+    width: 100%;
+    max-width: 950px;
+    font-family: Roboto, sans-serif;
+    box-sizing: border-box;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+}
+.avc_start_collab_modal {
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    border-radius: .5rem;
+    margin: .75rem;
+    width: 43%;
+    background: #fff;
+    padding: 50px 14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: rgba(39, 45, 60, 1);
+}
+.avc_user_consent_logo {
+    max-width: 150px;
+    margin-bottom: 25px;
+}
+.avc_user_consent_title {
+    font-weight: 700;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    margin-bottom: 20px;
+}
+.avc_user_consent_button {
+    width: 100%;
+    max-width: 300px;
+    height: 36px;
+    border-radius: 8px;
+    background: rgba(62, 214, 150, 1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+.avc_user_consent_button.loading {
+    opacity: 0.7;
+    pointer-events: none;
+    cursor: not-allowed;
+    background: #cccccc;
+}
+.avc_consent_loader {
+    display: none;
+    margin-right: 5px;
+}
+.avc_user_consent_button_text {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 16px;
+    text-align: right;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    margin-left: 5px;
+}
+.avc_user_consent_terms {
+    font-weight: 500;
+    font-size: .875rem;
+    line-height: 1.25rem;
+    text-align: center;
+}
+.avc_user_consent_terms a {
+    font-weight: 500 !important;
+    text-decoration: none;
+    color: rgba(109, 93, 243, 1) !important;
+}
+.avc_consent_meta_info {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 57%;
+    padding: 4rem 2.5rem;
+    color: #fff;
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+}
+.avc_user_consent_close {
+    position: absolute;
+    top: 15px;
+    right: 25px;
+    font-size: 28px;
+    font-weight: 500;
+    line-height: 28px;
+    cursor: pointer;
+    background: none;
+    border: none;
+}
+.avc_consent_meta_title {
+    margin-bottom: 10px;
+    font-size: 22px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 20px;
+}
+.avc_consent_meta_desc {
+    color: #fff;
+    font-size: 14px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+.avc_consent_meta_img {
+    position: relative;
+    width: 100%;
+}
+.avc_comment_overlay {
+    position: absolute !important;
+    height: 100% !important;
+    width: 100% !important;
+    left: 0 !important;
+    top: 0 !important;
+    margin-left: -30px !important;
+    z-index: 1 !important;
+}
+.avc_current_screen {
+    --tw-shadow: 0 10px 15px -3px rgb(0 0 0 / .1), 0 4px 6px -4px rgb(0 0 0 / .1);
+    --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);
+    box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+    object-fit: cover;
+    border-radius: .5rem;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+}
+.avc_show {
+    display: block !important;
+}

@@ -1,0 +1,103 @@
+.avc-settings-layout {
+    display: flex;
+    align-items: flex-start;
+    gap: 25px;
+}
+.avc_setting_parent {
+    font-family: Arial !important;
+    max-width: 400px;
+    padding-top: 20px;
+    font-size: 13px;
+    font-weight: 500;
+}
+.avc-guest-link {
+    padding: 8px 8px;
+}
+.avc-guest-collab-link {
+    color: #1D2327;
+    flex: 1;
+}
+.avc-setting-block {
+    margin-bottom: 24px;
+}
+.avc-setting-block label.components-base-control__label, .avc-setting-block label.components-input-control__label {
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    display: inline-block !important;
+    text-transform: uppercase !important;
+    margin-bottom: 6px !important;
+    color: #1D2327 !important;
+}
+.avc-setting-block label.components-input-control__label {
+    margin-bottom: 0px !important;
+}
+.avc-setting-block .css-1p3m7a8-multiValue .css-9jq23d {
+    text-transform: capitalize;
+    color: #1E1E1E;
+}
+.avc-who-can-collaborate .css-19bb58m {
+    opacity: 0;
+}
+.avc-auto-login-user select {
+    height: 42px !important;
+}
+.avc-setting-block .components-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 10px 0;
+}
+.avc-setting-block .avc-guest-link .components-button {
+    width: 100%;
+}
+.avc-guest-link, .avc-who-can-collaborate .css-13cymwt-control, .avc-auto-login-user select {
+    border: 1px solid #949494 !important;
+    border-radius: 4px !important;
+}
+.avc_hide {
+    display: none !important;
+}
+.avc-notice-column {
+    display: flex;
+    flex: 1 1 auto;
+    align-content: center;
+    justify-content: center;
+}
+.avc-notice {
+    padding: 12px 16px;
+    border-radius: 4px;
+    border: 1px solid #ccd0d4;
+    background: #f8fafc;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    position: relative;
+    max-width: 400px;
+    margin-top: 20px;
+}
+.avc-notice-content {
+    flex: 1 1 auto;
+}
+.avc-notice-title {
+    font-weight: 600;
+}
+.avc-notice-description {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+}
+.avc-notice-close {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    padding: 0 4px;
+    color: #555;
+}
+.avc-notice-close:hover {
+    color: #000;
+}
+.avc_success_message {
+    color: green;
+}

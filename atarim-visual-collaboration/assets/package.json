@@ -1,0 +1,24 @@
+{
+  "name": "assets",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "wp-scripts build --webpack-no-externals",
+    "start": "wp-scripts start --webpack-no-externals"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@wordpress/scripts": "^30.9.0"
+  },
+  "dependencies": {
+    "@wordpress/api-fetch": "^6.55.0",
+    "@wordpress/components": "^23.9.0",
+    "@wordpress/element": "^6.36.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-select": "^5.10.1"
+  }
+}
