@@ -2,10 +2,10 @@ jQuery(document).ready(function() {
     jQuery(document).on('click', '.avc-deactivate-project', function(e) {
         e.preventDefault();
         jQuery.ajax({
-            url:ajax.ajaxurl,
+            url:avcajax.ajaxurl,
             method: 'POST',
             data:{ 
-                action: 'avc_deactivate_collab',
+                action: 'avcf_deactivate_collab',
                 avc_nonce: avcSettings.avc_nonce,
             },
             beforeSend: function(){},

@@ -1,10 +1,10 @@
-=== Visual Feedback, Review & AI Collaboration Tool For WordPress - Atarim ===
+=== Atarim - Visual Feedback, Review & AI Collaboration ===
 Contributors: wpfeedback, pratapdungrani
 Tags: visual feedback, client feedback, project management, design review, AI feedback
-Requires at least: 4.3.2
-Tested up to: 6.9
-Stable tag: 5.0
+Stable tag: 4.3.3
+Requires at least: 5.0
 Requires PHP: 7.4
+Tested up to: 6.9.1
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -137,7 +137,7 @@ Index and Navi scan the site’s structure, flow, and SEO gaps, while Lexi and C
 **If you’re optimizing your page for conversions and want real insight, not guesses...**
 Claro and Lexi debate tone, hierarchy, and intent, while Index provides the SEO and metadata context. The result? A holistic conversion strategy — actionable changes that improve results without breaking your brand voice.
 
-== 🥇Premium Benefits
+== 🥇Premium Benefits ==
 Upgrade to unlock advanced collaboration tools that help larger teams work at scale with even greater control and creativity.
 
 🌈 **White-label customisation** – Brand the Atarim experience as your own.
@@ -150,7 +150,7 @@ Upgrade to unlock advanced collaboration tools that help larger teams work at sc
 [See more about our Premium Plans here](https://atarim.io/pricing/)
 
 
-== 🌍 What Our Users Say:
+== 🌍 What Our Users Say: ==
 “This has saved me so much time and confusion, my clients now simply send me feedback and I have all of the information I need to get the work done”
 **Sarah Crawford – A Lined Design**
 
@@ -164,7 +164,7 @@ Upgrade to unlock advanced collaboration tools that help larger teams work at sc
 **Patrik Čada – Patrik Čada Web Design**
 
 
-== 👩‍💻 Atarim Integrations Available:
+== 👩‍💻 Atarim Integrations Available: ==
 * **Zapier, Pabbly and Make**: Connect Atarim to 5000+ apps. Create triggers from visual collaboration like request creation and status changes and push them to apps like ClickUp and Trello
 * **ClickUp**: Automatically push all requests created to a specific task list inside ClickUp and deploy full task lists from ClickUp into a website inside Atarim.
 * **Slack**: Connect Atarim to a Slack bot to automatically post new requests, request changes and more to a specific Slack channel.
@@ -178,7 +178,7 @@ Upgrade to unlock advanced collaboration tools that help larger teams work at sc
 * **Webhooks**: Create your own integrations with any app you want by using webhooks for pushing new requests, status/urgency changes and more…
 
 
-== 🔥 Atarim works with all the major page builders, SEO, Ecom and LMS plugins on the market:
+== 🔥 Atarim works with all the major page builders, SEO, Ecom and LMS plugins on the market: ==
 * WordPress Blocks Editor (Gutenberg)
 * Divi Theme
 * Elementor
@@ -189,7 +189,66 @@ Upgrade to unlock advanced collaboration tools that help larger teams work at sc
 * Thrive Architect and more…
 
 
+== External Services ==
+
+This plugin integrates with the Atarim collaboration platform to enable real-time visual feedback, commenting, and AI collaboration directly on your website.
+The collaboration interface is powered by a remote JavaScript file hosted on Atarim’s infrastructure.
+
+= What the service does =
+When enabled, the plugin loads a remote JavaScript file from Atarim’s servers to inject the collaboration interface into the front end of the website. This script enables:
+
+* Visual feedback overlays
+* Real-time commenting
+* AI-powered collaboration tools
+* Task synchronization with the Atarim dashboard
+
+= Service domains =
+The plugin communicates with the following external domains:
+
+* https://ij-script.pages.dev/atarim.js
+
+= Data transmitted =
+Depending on configuration and usage, the following data may be transmitted to Atarim:
+
+* Site ID (generated during connection process)
+* Current page URL (to associate feedback with the correct page)
+* Authentication tokens (for connected users)
+* Minimal metadata required to initialize the collaboration interface
+
+No personal data is transmitted unless a user explicitly authenticates with Atarim.
+
+= When data is transmitted =
+Data is transmitted only under the following conditions:
+
+* The site administrator has connected the website to an Atarim account.
+* Collaboration is enabled in the plugin settings.
+* An authorized user accesses the site.
+* A user has provided consent (see “User Consent” below).
+
+The remote collaboration script is not loaded unless collaboration is active.
+
+= Account requirement =
+An Atarim account is required to use collaboration features.
+
+= Terms and Privacy =
+[Terms of Service](https://atarim.io/terms-and-conditions/)
+[Privacy Policy](https://atarim.io/privacy-policy/)
+
+= User Consent =
+Before loading the Atarim collaboration interface, the plugin displays a consent modal to eligible WordPress users.
+Users are informed that enabling collaboration will load the Atarim collaboration interface from Atarim’s servers.
+By clicking the consent button (e.g., “Connect Your WordPress Account”), users explicitly agree to:
+
+* Loading the Atarim collaboration script
+* Transmitting required site and session data to Atarim’s services
+* Processing data in accordance with Atarim’s Terms of Service and Privacy Policy
+
+The collaboration interface is injected only after consent is granted.
+Site administrators can disable collaboration at any time in the plugin settings.
+
+
 == 🤷‍♂️🤷‍♀️ FAQs ==
+
 = Is Atarim free to use? =
 Yes. You can use Atarim for free on as many websites as you like. The free plan includes everything you need to collaborate visually on live pages. Premium plans add more advanced AI features, deeper integrations and white-labelling options for agencies and larger teams.
 
@@ -236,6 +295,13 @@ Atarim holds SOC 2 Type 1 compliance, aligns with GDPR principles, and exclusive
 
 
 == Changelog ==
+
+= 4.3.3 =
+* Security: Sanitized and improved input validation.
+* Compatibility: Standardized plugin prefixes to prevent naming conflicts.
+* Compliance: Updated plugin headers and readme to align with WordPress.org guidelines.
+* Service Disclosure: Added External Services and User Consent documentation for the remote collaboration script.
+* Enhancement: Integrated improved True Guest Mode flow for smoother client feedback without requiring WordPress login.
 
 = 4.3.2 =
 * **Security** - Improved permission checks when saving plugin settings to prevent unauthorized access.

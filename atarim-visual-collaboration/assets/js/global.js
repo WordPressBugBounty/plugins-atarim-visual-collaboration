@@ -56,10 +56,10 @@ class ConsentFormHandler {
 
     async submitUserConsent() {
         const formData = new FormData();
-        formData.append('action', 'avc_user_consent');
-        formData.append('avc_nonce', window.site_data?.avc_nonce || '');
+        formData.append('action', 'avcf_user_consent');
+        formData.append('avc_nonce', window.avc_site_data?.avc_nonce || '');
 
-        const response = await fetch(window.ajax?.ajaxurl || '/wp-admin/admin-ajax.php', {
+        const response = await fetch(window.avcajax?.ajaxurl || '/wp-admin/admin-ajax.php', {
             method: 'POST',
             body: formData,
         });
@@ -116,10 +116,10 @@ class ConsentFormHandler {
 
     async setConsentStatusOnServer() {
         const formData = new FormData();
-        formData.append('action', 'avc_set_user_consent_status');
-        formData.append('avc_nonce', window.site_data?.avc_nonce || '');
+        formData.append('action', 'avcf_set_user_consent_status');
+        formData.append('avc_nonce', window.avc_site_data?.avc_nonce || '');
 
-        const response = await fetch(window.ajax?.ajaxurl || '/wp-admin/admin-ajax.php', {
+        const response = await fetch(window.avcajax?.ajaxurl || '/wp-admin/admin-ajax.php', {
             method: 'POST',
             body: formData,
             credentials: 'include',

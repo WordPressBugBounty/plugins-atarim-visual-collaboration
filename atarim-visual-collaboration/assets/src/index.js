@@ -11,7 +11,7 @@ const CollaborationSettings = () => {
     const [copied, setCopied] = useState(false);
 
     const saveAllSettings = async () => {
-        const response = await fetch(`${window.avcSettings.ajaxurl}?action=avc_save_settings`, {
+        const response = await fetch(`${window.avcSettings.ajaxurl}?action=avcf_save_settings`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

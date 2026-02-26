@@ -3,7 +3,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class AVC_User_Meta {
+class AVCF_User_Meta {
     public function __construct() {
         // Display checkbox
         add_action('show_user_profile', [$this, 'add_webmaster_checkbox']);
@@ -51,7 +51,7 @@ class AVC_User_Meta {
             return;
         }
 
-        if (isset($_POST['avc_user_type']) && $_POST['avc_user_type'] === 'webmaster') {
+        if (isset($_POST['avc_user_type']) &&  sanitize_text_field(wp_unslash($_POST['avc_user_type'])) === 'webmaster') {
             update_user_meta($user_id, 'avc_user_type', 'webmaster');
         } else {
             delete_user_meta($user_id, 'avc_user_type');
@@ -59,4 +59,4 @@ class AVC_User_Meta {
     }
 }
 
-new AVC_User_Meta();
+new AVCF_User_Meta();

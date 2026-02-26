@@ -19,9 +19,9 @@
 }
 .avc_consent_form_launcher img {
     border-radius: 8px !important;
-    max-height: 35px !important;
+	max-height: 35px !important;
     max-width: 35px !important;
-    height: auto !important;
+	height: auto !important;
     width: 100% !important;
     margin: 0 !important;
     user-select: none !important;
@@ -188,3 +188,4 @@
 .avc_show {
     display: block !important;
 }
+
