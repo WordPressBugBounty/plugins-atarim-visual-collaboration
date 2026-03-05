@@ -267,7 +267,7 @@ class AVCF_Settings {
                                 .then(data => {
                                     if (data.access_token) {
                                         clearInterval(interval);
-                                        window.location.href = redirectUrl;
+                                        window.location.href = redirectUrl + '&workspace_id=' + data.workspace_id;
                                     }
                                 });
                         }, 3000);
