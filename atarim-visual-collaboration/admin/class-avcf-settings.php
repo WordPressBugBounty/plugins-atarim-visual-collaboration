@@ -190,7 +190,8 @@ class AVCF_Settings {
                 'logoUrl' => AVCF_PLUGIN_URL . '/images/logo.svg',
                 'i18n' => [
                     'connect' => __('Connect with Atarim', 'atarim-visual-collaboration'),
-                    'disconnect' => __('Disconnect from Atarim', 'atarim-visual-collaboration'),
+                    'disconnect' => __('Disconnect from Dashboard', 'atarim-visual-collaboration'),
+                    'settings' => __('Project Settings', 'atarim-visual-collaboration'),
                     'connectHeading' => __('Connect this Site to your Atarim Workspace', 'atarim-visual-collaboration'),
                     'connectDescription' => __('Speed up feedback, reduce back & fourth and get AI suggestions right inside your site - No more guesswork or endless revisions.', 'atarim-visual-collaboration'),
                     'connectCta' => sprintf(
@@ -199,17 +200,20 @@ class AVCF_Settings {
                     ),
                     'connected' => __('This website is connected to your dashboard.', 'atarim-visual-collaboration'),
                     'subheader' => sprintf(
-                        __('Manage AI and human feedback, projects, tasks, integrations and your team directly in your <a href="%s" target="_blank">Atarim dashboard</a>', 'atarim-visual-collaboration'),
+                        __('Manage QA, feedback and tasks directly in your <a href="%s" target="_blank">Atarim dashboard</a>', 'atarim-visual-collaboration'),
                         esc_url($app_url)
                     ),
                     'whoCan' => __('Who can collaborate', 'atarim-visual-collaboration'),
-                    'guestMode' => __('Guest mode', 'atarim-visual-collaboration'),
-                    'guestLinkText1' => __('Share this with the guests and clients to get fast feedback - with no WordPress login needed.', 'atarim-visual-collaboration'),
-                    'guestLinkText2' => __('OR add "?collab=true" to any link on the site', 'atarim-visual-collaboration'),
+                    'whoCanTooltip' => __('Only these user roles are going to see the colalboration interface, unless Guest Mode is switched on.', 'atarim-visual-collaboration'),
+                    'howTo' => __('How to collaborate', 'atarim-visual-collaboration'),
+                    'howToTooltip' => __('Click the “Share” button when inside the collaboration interface or click the button below to explore all options.', 'atarim-visual-collaboration'),
+                    'howToText1' => __('<b>Copy and share a quick link</b> with your clients or colleague. OR..', 'atarim-visual-collaboration'),
+                    'howToText2' => __('<b>Add <code>?collab=true</code> to any link</b> on the website. OR..', 'atarim-visual-collaboration'),
+                    'howToText3' => __('<b>Turn on Guest mode to show to all</b>, via "Manage Access" tab.', 'atarim-visual-collaboration'),
+                    'sharingOptions' => __('Explore Sharing Options', 'atarim-visual-collaboration'),
                     'autoLoginAs' => __('1 click login from Atarim as', 'atarim-visual-collaboration'),
+                    'autoLoginAsTooltip' => __('No more sharing passwords within the team. 1 click to login AND take you to any task across your fleet of websites.', 'atarim-visual-collaboration'),
                     'enableAutoLogin' => __('Enable Auto Login', 'atarim-visual-collaboration'),
-                    'copyLink' => __('Copy Link', 'atarim-visual-collaboration'),
-                    'copied' => __('Copied!', 'atarim-visual-collaboration'),
                     'saveButton' => __('Save & Apply', 'atarim-visual-collaboration'),
                     'selectUserPlaceholder' => __('-- Select a user --', 'atarim-visual-collaboration'),
                 ]
@@ -267,7 +271,13 @@ class AVCF_Settings {
                                 .then(data => {
                                     if (data.access_token) {
                                         clearInterval(interval);
-                                        window.location.href = redirectUrl + '&workspace_id=' + data.workspace_id;
+                                        const url = new URL(redirectUrl);
+
+                                        if (data.workspace_id) {
+                                            url.searchParams.append('workspace_id', data.workspace_id);
+                                        }
+                        
+                                        window.location.href = url.toString();
                                     }
                                 });
                         }, 3000);

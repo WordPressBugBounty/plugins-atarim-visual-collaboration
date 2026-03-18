@@ -5,7 +5,7 @@
 }
 .avc_setting_parent {
     font-family: Arial !important;
-    max-width: 400px;
+    max-width: 415px;
     padding-top: 20px;
     font-size: 13px;
     font-weight: 500;
@@ -15,7 +15,60 @@
 }
 .avc-guest-collab-link {
     color: #1D2327;
-    flex: 1;
+}
+ul.avc-guest-collab-list {
+    list-style: outside !important;
+    padding-left: 15px;
+}
+.avc-label-with-tooltip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.avc-tooltip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    margin-left: 5px;
+}
+.avc-tooltip-trigger {
+    width: 14px;
+    height: 14px;
+    border: 1px solid #1D2327;
+    border-radius: 50%;
+    color: #1D2327;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+}
+.avc-tooltip-content {
+    position: absolute;
+    top: calc(100% - 90px);
+    left: 0;
+    min-width: 260px;
+    max-width: 320px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    background: #1D2327;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.5;
+    text-transform: none;
+    white-space: normal;
+    word-break: break-word;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    z-index: 1000;
+    display: none;
+}
+.avc-tooltip:hover .avc-tooltip-content,
+.avc-tooltip:focus-within .avc-tooltip-content {
+    display: block;
 }
 .avc-setting-block {
     margin-bottom: 24px;

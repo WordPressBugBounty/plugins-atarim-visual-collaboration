@@ -104,18 +104,64 @@ const CollaborationSettings = () => {
                 {window.avcSettings.isCollabActive === 'yes' && (
                     <>
                         <div className="avc-setting-block avc-guest-mode">
-                            <label className="components-base-control__label">{window.avcSettings.i18n.guestMode}</label>
+                            <label className="components-base-control__label avc-label-with-tooltip">
+                                <span>{window.avcSettings.i18n.howTo}</span>
+                                <span className="avc-tooltip">
+                                    <button
+                                        type="button"
+                                        className="avc-tooltip-trigger"
+                                        aria-label={window.avcSettings.i18n.howToTooltip}
+                                    >
+                                        ?
+                                    </button>
+                                    <span className="avc-tooltip-content" role="tooltip">
+                                        {window.avcSettings.i18n.howToTooltip}
+                                    </span>
+                                </span>
+                            </label>
                             <div className="avc-guest-link">
-                                <span className="avc-guest-collab-link">{window.avcSettings.i18n.guestLinkText1}</span>
-                                <Button onClick={handleCopy} variant="primary">
-                                    {copied ? window.avcSettings.i18n.copied : window.avcSettings.i18n.copyLink}
+                                <ul className="avc-guest-collab-list">
+                                    <li
+                                        className="avc-guest-collab-link"
+                                        dangerouslySetInnerHTML={{__html: window.avcSettings.i18n.howToText1}}
+                                    />
+                                    <li
+                                        className="avc-guest-collab-link"
+                                        dangerouslySetInnerHTML={{__html: window.avcSettings.i18n.howToText2}}
+                                    />
+                                    <li
+                                        className="avc-guest-collab-link"
+                                        dangerouslySetInnerHTML={{__html: window.avcSettings.i18n.howToText3}}
+                                    />
+                                </ul>
+                                <Button
+                                    onClick={() => {
+                                        document.dispatchEvent(
+                                            new CustomEvent('atarim:open-share')
+                                        );
+                                    }}
+                                    variant="primary">
+                                    {window.avcSettings.i18n.sharingOptions}
                                 </Button>
-                                <span className="avc-guest-collab-link">{window.avcSettings.i18n.guestLinkText2}</span>
                             </div>
                         </div>
 
                         <div className="avc-setting-block avc-who-can-collaborate">
-                            <label className="components-base-control__label">{window.avcSettings.i18n.whoCan}</label>
+                            <label className="components-base-control__label avc-label-with-tooltip">
+                                <span>{window.avcSettings.i18n.whoCan}</span>
+                                <span className="avc-tooltip">
+                                    <button
+                                        type="button"
+                                        className="avc-tooltip-trigger"
+                                        aria-label={window.avcSettings.i18n.whoCanTooltip}
+                                    >
+                                        ?
+                                    </button>
+                                    <span className="avc-tooltip-content" role="tooltip">
+                                        {window.avcSettings.i18n.whoCanTooltip}
+                                    </span>
+                                </span>
+                            </label>
                             <CreatableSelect
                                 isMulti
                                 value={settings.avc_selected_role.map(role => ({ label: role, value: role }))}
@@ -125,7 +171,21 @@ const CollaborationSettings = () => {
                         </div>
 
                         <div className="avc-setting-block avc-auto-login-user">
-                            <label className="components-base-control__label">{window.avcSettings.i18n.autoLoginAs}</label>
+                            <label className="components-base-control__label avc-label-with-tooltip">
+                                <span>{window.avcSettings.i18n.autoLoginAs}</span>
+                                <span className="avc-tooltip">
+                                    <button
+                                        type="button"
+                                        className="avc-tooltip-trigger"
+                                        aria-label={window.avcSettings.i18n.autoLoginAsTooltip}
+                                    >
+                                        ?
+                                    </button>
+                                    <span className="avc-tooltip-content" role="tooltip">
+                                        {window.avcSettings.i18n.autoLoginAsTooltip}
+                                    </span>
+                                </span>
+                            </label>
                             <SelectControl
                                 value={settings.avc_website_developer}
                                 options={[

@@ -65,9 +65,10 @@ class AVCF_Inject_Script {
             $allow_collab = filter_var($_GET['collab'], FILTER_VALIDATE_BOOLEAN);
         }
 
+        $is_setting_screen =  $this->function->avcf_setting_screen();
+
         if (
             ! $allow_collab && (
-                $this->function->avcf_restricted_screen() ||
                 $this->license !== 'valid' ||
                 $this->is_collab_active !== 'yes' ||
                 $this->inisetup !== 'yes' ||
@@ -80,7 +81,7 @@ class AVCF_Inject_Script {
             return;
         }
 
-        echo $this->function->get_collab_js($site_id);
+        echo $this->function->get_collab_js($site_id, $is_setting_screen);
     }
 
     public function enqueue_global_assets() {
@@ -125,7 +126,7 @@ class AVCF_Inject_Script {
         $site_id = $this->function->avcf_get_setting_data('avc_site_id');
 
         if (
-            $this->function->avcf_restricted_screen() ||
+            $this->function->avcf_setting_screen() ||
             $this->license !== 'valid' || 
             $this->is_collab_active !== 'yes' || 
             $this->inisetup !== 'yes' ||

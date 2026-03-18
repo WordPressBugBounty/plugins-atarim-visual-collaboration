@@ -1,10 +1,10 @@
 === Atarim - Visual Feedback, Review & AI Collaboration ===
 Contributors: wpfeedback, pratapdungrani
 Tags: visual feedback, client feedback, project management, design review, AI feedback
-Stable tag: 4.3.4
+Stable tag: 4.3.5
 Requires at least: 5.0
 Requires PHP: 7.4
-Tested up to: 6.9.1
+Tested up to: 6.9.4
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -295,6 +295,10 @@ Atarim holds SOC 2 Type 1 compliance, aligns with GDPR principles, and exclusive
 
 
 == Changelog ==
+
+= 4.3.5 =
+* Added quick access to Project Settings directly within the plugin settings.
+* Integrated Share Modal into the Settings page for easier project sharing and collaboration.
 
 = 4.3.4 =
 * **Optimization** - Sanitized and improved project connectivity.

@@ -17,13 +17,27 @@ const ActivateDeactivateButton = ({ isCollabActive, activationUrl }) => {
     return (
         <div>
             {active ? (
-                <Button
-                    isSecondary
-                    onClick={handleDeactivate}
-                    className="avc-deactivate-project"
-                >
-                    {window.avcSettings.i18n.disconnect}
-                </Button>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                    <Button
+                        isSecondary
+                        onClick={handleDeactivate}
+                        className="avc-deactivate-project"
+                    >
+                        {window.avcSettings.i18n.disconnect}
+                    </Button>
+
+                    <Button
+                        isPrimary
+                        onClick={() => {
+                            document.dispatchEvent(
+                                new CustomEvent('atarim:open-project-settings')
+                            );
+                        }}
+                        className="avc-project-settings"
+                    >
+                        {window.avcSettings.i18n.settings}
+                    </Button>
+                </div>
             ) : (
                 <div className="avc-activate-project">
                     <Button

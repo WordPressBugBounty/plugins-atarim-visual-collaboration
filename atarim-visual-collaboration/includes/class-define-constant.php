@@ -11,12 +11,13 @@ class AVCF_Constants {
     }
 
     public function avcf_define_constant() {
-        define( 'AVCF_VERSION', '4.3.4' );
+        define( 'AVCF_VERSION', '4.3.5' );
         define( 'AVCF_SITE_URL', site_url() );
         define( 'AVCF_HOME_URL', home_url() );
         define( 'AVCF_MAIN_SITE_URL', 'https://atarim.io' );
         define( 'AVCF_APP_SITE_URL', 'https://app.atarim.io' );
         define( 'AVCF_CRM_API', 'https://api.atarim.io/' );
+        define( 'AVCF_SCRIPT_URL', 'https://ij-script.pages.dev/atarim.js' );
         define( 'AVCF_LEARN_SITE_URL', 'https://academy.atarim.io' );
     }
 }

@@ -16,7 +16,7 @@ class AVCF_Functions {
         update_option( $key, $value, false );
     }
 
-    public function avcf_restricted_screen() {
+    public function avcf_setting_screen() {
         if (is_admin()) {
             $wpf_current_screen = get_current_screen();
             if ($wpf_current_screen->id == 'settings_page_atarim-visual-collaboration') {
@@ -247,12 +247,14 @@ class AVCF_Functions {
         return $newUrl;
     }
 
-    public function get_collab_js($site_id) {
+    public function get_collab_js($site_id, $is_setting_screen = false) {
 
+        $headless_attr = $is_setting_screen ? ' data-atarim-mode="headless"' : '';
         return '<script defer type="module"'
-            . ' src="https://ij-script.pages.dev/atarim.js"'
+            . ' src="' . AVCF_SCRIPT_URL . '"'
             . ' data-siteid="' . esc_attr( $site_id ) . '"'
             . ' data-site-type="wordpress"'
+            . $headless_attr
             . '></script>';
     }
 
