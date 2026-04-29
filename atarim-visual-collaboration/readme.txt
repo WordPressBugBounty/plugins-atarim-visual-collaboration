@@ -1,7 +1,7 @@
 === Atarim - Visual Feedback, Review & AI Collaboration ===
 Contributors: wpfeedback, pratapdungrani
 Tags: visual feedback, client feedback, project management, design review, AI feedback
-Stable tag: 4.3.5
+Stable tag: 4.4
 Requires at least: 5.0
 Requires PHP: 7.4
 Tested up to: 6.9.4
@@ -295,6 +295,15 @@ Atarim holds SOC 2 Type 1 compliance, aligns with GDPR principles, and exclusive
 
 
 == Changelog ==
+
+= 4.4 =
+* **DoIt** — Magical Editing on the Live Page (Beta)
+* DoIt lets you update content directly on the live page — no need to open the page builder. Click on a 'do it' button inside task. The change is applied to the page right away.
+* **Supported page builders:**
+    - Block editor (Gutenberg) — edit any block type
+    - Elementor — edit widgets directly
+    - Classic editor — edit standard HTML content
+* If a page is built with another page builder, DoIt stays inactive on it and your content is left untouched.
 
 = 4.3.5 =
 * Added quick access to Project Settings directly within the plugin settings.

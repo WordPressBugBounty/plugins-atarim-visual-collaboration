@@ -29,7 +29,7 @@ class AVCF_Settings {
     }
 
     public function avcf_set_activation_redirect() {
-        add_option('avcf_plugin_activation_redirect', true);
+        add_option('avc_plugin_activation_redirect', true);
     }
 
     public function avcf_redirect_to_settings_page() {
@@ -93,12 +93,14 @@ class AVCF_Settings {
         }
 
         $user_id = $this->function->avcf_get_user_detail('id');
+        $user_email = $this->function->avcf_get_user_detail('email');
         $this->function->avcf_update_settings('avc_license', base64_decode(sanitize_text_field($atarim_response)));
         $avc_site_id = sanitize_text_field(wp_unslash($_GET['site_id']));
         $this->function->avcf_update_settings('avc_site_id', $avc_site_id);
         $this->function->avcf_update_settings('avc_initial_setup_complete', 'yes');
         $this->function->avcf_update_settings('avc_collab_active', 'yes');
         update_user_meta($user_id, 'avc_user_type', 'webmaster', false);
+        $this->function->avcf_update_settings('avc_website_developer', $user_email);
         $this->function->avcf_get_whitelabel();
         wp_safe_redirect(AVCF_HOME_URL);
         exit();

@@ -2,7 +2,7 @@
 /*
  * Plugin Name: Atarim - Visual Feedback, Review & AI Collaboration
  * Description: Make collecting feedback on WordPress sites MUCH faster and easier, with the visual collaboration tool used on over 120,000 websites worldwide.
- * Version: 4.3.5
+ * Version: 4.4
  * Requires at least: 5.0
  * Requires PHP: 7.4
  * Author: Atarim
@@ -24,6 +24,7 @@ define('AVCF_PLUGIN_BASE', plugin_basename(__FILE__));
 require_once(plugin_dir_path(__FILE__) . 'includes/class-define-constant.php');
 require_once(plugin_dir_path(__FILE__) . 'includes/class-functions.php');
 require_once(plugin_dir_path(__FILE__) . 'includes/class-ajax-functions.php');
+require_once(plugin_dir_path(__FILE__) . 'includes/do-it.php');
 
 if(is_admin()) {
     require_once(AVCF_PLUGIN_DIR . 'admin/class-avcf-settings.php');
