@@ -21,6 +21,10 @@ class AVCF_Settings {
         add_action('admin_menu', [$this, 'avcf_add_settings_page']);
         add_action('admin_enqueue_scripts', [$this, 'avcf_admin_assets']);
 
+        // First-run connect overlay, printed at body level so it covers the
+        // whole admin and escapes any transformed ancestor in the content area.
+        add_action('admin_footer', [$this, 'avcf_render_connect_overlay']);
+
         // Activate license
         add_action('init', [$this, 'avcf_license_activation']);
 
@@ -30,6 +34,9 @@ class AVCF_Settings {
 
     public function avcf_set_activation_redirect() {
         add_option('avc_plugin_activation_redirect', true);
+
+        // Enable "Do it" by default on fresh activation only.
+        add_option('avc_enable_doit', '1');
     }
 
     public function avcf_redirect_to_settings_page() {
@@ -97,6 +104,8 @@ class AVCF_Settings {
         $this->function->avcf_update_settings('avc_license', base64_decode(sanitize_text_field($atarim_response)));
         $avc_site_id = sanitize_text_field(wp_unslash($_GET['site_id']));
         $this->function->avcf_update_settings('avc_site_id', $avc_site_id);
+        $avc_secret_token = sanitize_text_field(wp_unslash($_GET['mcp_token']));
+        $this->function->avcf_update_settings('avc_atarim_secret_token', $avc_secret_token);
         $this->function->avcf_update_settings('avc_initial_setup_complete', 'yes');
         $this->function->avcf_update_settings('avc_collab_active', 'yes');
         update_user_meta($user_id, 'avc_user_type', 'webmaster', false);
@@ -129,11 +138,37 @@ class AVCF_Settings {
         echo '<div id="avc-settings-root"></div>'; // React app will render here
     }
 
+    public function avcf_render_connect_overlay() {
+        $screen = get_current_screen();
+        if ( ! $screen || $screen->id !== 'settings_page_atarim-visual-collaboration' ) {
+            return;
+        }
+
+        // First-run only: avc_initial_setup_complete is set to 'yes' at connect
+        // success and survives disconnect, so the overlay shows until the first
+        // successful connection and never again (existing connected sites never
+        // see it).
+        if ( 'yes' === $this->function->avcf_get_setting_data('avc_initial_setup_complete') ) {
+            return;
+        }
+
+        require_once AVCF_PLUGIN_DIR . 'admin/atarim-connect-screen.php';
+        if ( function_exists('atarim_connect_screen_render') ) {
+            atarim_connect_screen_render();
+        }
+    }
+
     public function avcf_admin_assets() {
         $screen = get_current_screen();
         if ($screen->id === 'settings_page_atarim-visual-collaboration') {
             wp_enqueue_style('wp-components', includes_url('css/dist/components/style.min.css'), [], '1.0.0');
             wp_enqueue_style('acv-setting-style', AVCF_PLUGIN_URL . 'assets/css/settings.css', false, AVCF_VERSION);
+
+            // Connect-overlay styles: only load for first-time (never-connected)
+            // users, matching when the overlay itself is rendered.
+            if ('yes' !== $this->function->avcf_get_setting_data('avc_initial_setup_complete')) {
+                wp_enqueue_style('avc-connect-screen-style', AVCF_PLUGIN_URL . 'assets/css/atarim-connect-screen.css', [], AVCF_VERSION);
+            }
             wp_enqueue_script('avc-settings-script', AVCF_PLUGIN_URL . 'assets/build/index.js', [], '1.0.0', true);
 
             wp_register_script('acv-setup-script', AVCF_PLUGIN_URL . 'assets/js/admin.js', false, AVCF_VERSION);
@@ -181,6 +216,7 @@ class AVCF_Settings {
                 'settings' => [
                     'avc_selected_role' => $selected_roles,
                     'avc_website_developer' => $this->function->avcf_get_setting_data('avc_website_developer'),
+                    'avc_enable_doit' => (bool) $this->function->avcf_get_setting_data('avc_enable_doit'),
                 ],
                 'users' => array_map(function ($user) {
                     return [
@@ -218,72 +254,98 @@ class AVCF_Settings {
                     'enableAutoLogin' => __('Enable Auto Login', 'atarim-visual-collaboration'),
                     'saveButton' => __('Save & Apply', 'atarim-visual-collaboration'),
                     'selectUserPlaceholder' => __('-- Select a user --', 'atarim-visual-collaboration'),
+                    'enableDoit' => __('Enable "<b>Do it</b>" via Atarim AI', 'atarim-visual-collaboration'),
+                    'enableDoitTooltip' => __('Click to execute the feedback with 1 click. “Do it” is not visible to clients & guests. We save a backup in case the AI makes mistakes.', 'atarim-visual-collaboration'),
                 ]
             ]);
 
             wp_add_inline_script('avc-settings-script', "
                 document.addEventListener('DOMContentLoaded', function () {
-                    const btn = document.querySelector('.avc-trigger-activate');
-                    if (!btn) return;
-            
-                    btn.innerText = 'Preparing...';
-                    btn.style.pointerEvents = 'none';
-            
+                    const btns = document.querySelectorAll('.avc-trigger-activate');
+                    if (!btns.length) return;
+
+                    // Some buttons (the first-run modal CTA) keep their own styled
+                    // label/icon; only change text on the rest.
+                    function setLabel(el, text) {
+                        if (!el.hasAttribute('data-keep-label')) { el.innerText = text; }
+                    }
+
+                    btns.forEach(function (b) {
+                        setLabel(b, 'Preparing...');
+                        b.style.pointerEvents = 'none';
+                    });
+
                     fetch('{$crm_api_url}wp/auth')
                         .then(res => res.json())
                         .then(data => {
                             const { read_key, write_key } = data;
-            
+
                             if (!read_key || !write_key) {
-                                btn.innerText = 'Connect with Atarim';
-                                btn.style.pointerEvents = 'auto';
+                                btns.forEach(function (b) {
+                                    setLabel(b, 'Connect with Atarim');
+                                    b.style.pointerEvents = 'auto';
+                                });
                                 alert('Failed to prepare activation. Please try again.');
                                 return;
                             }
-            
+
                             const activationUrl = '{$app_url}/fetching/?_from=wp_plugin&from_wp=true&write_key=' + write_key;
-            
-                            btn.href = activationUrl;
-                            btn.innerText = 'Connect with Atarim';
-                            btn.style.pointerEvents = 'auto';
-            
+
+                            btns.forEach(function (b) {
+                                b.href = activationUrl;
+                                setLabel(b, 'Connect with Atarim');
+                                b.style.pointerEvents = 'auto';
+                            });
+
                             // Save read_key globally
                             window.avcReadKey = read_key;
                         })
                         .catch(err => {
                             console.error('Auth fetch failed:', err);
-                            btn.innerText = 'Connect with Atarim';
-                            btn.style.pointerEvents = 'auto';
+                            btns.forEach(function (b) {
+                                setLabel(b, 'Connect with Atarim');
+                                b.style.pointerEvents = 'auto';
+                            });
                             alert('Could not prepare activation.');
                         });
-            
-                    // Attach polling on click
-                    btn.addEventListener('click', function () {
-                        if (!window.avcReadKey) return;
-                        
-                        btn.innerText = 'Authenticating...';
-                        btn.style.pointerEvents = 'none';
-            
-                        const pollUrl = '{$crm_api_url}wp/pollForAccessToken?read_key=' + window.avcReadKey;
-                        const redirectUrl = '{$activationUrl}';
-            
-                        const interval = setInterval(() => {
-                            fetch(pollUrl, { credentials: 'include' })
-                                .then(res => res.json())
-                                .then(data => {
-                                    if (data.access_token) {
-                                        clearInterval(interval);
-                                        const url = new URL(redirectUrl);
 
-                                        if (data.workspace_id) {
-                                            url.searchParams.append('workspace_id', data.workspace_id);
+                    // Attach polling on click (once) to every connect button.
+                    btns.forEach(function (b) {
+                        b.addEventListener('click', function () {
+                            if (!window.avcReadKey) return;
+
+                            // Play the connecting animation in the first-run overlay (if present).
+                            if (window.AtarimConnect) { window.AtarimConnect.setState('connecting'); }
+
+                            btns.forEach(function (x) {
+                                setLabel(x, 'Authenticating...');
+                                x.style.pointerEvents = 'none';
+                            });
+
+                            const pollUrl = '{$crm_api_url}wp/pollForAccessToken?read_key=' + window.avcReadKey;
+                            const redirectUrl = '{$activationUrl}';
+
+                            const interval = setInterval(() => {
+                                fetch(pollUrl, { credentials: 'include' })
+                                    .then(res => res.json())
+                                    .then(data => {
+                                        if (data.access_token) {
+                                            clearInterval(interval);
+                                            const url = new URL(redirectUrl);
+
+                                            if (data.workspace_id) {
+                                                url.searchParams.append('workspace_id', data.workspace_id);
+                                            }
+
+                                            // Show the connected payoff in the overlay, then load
+                                            // the connected settings view so the page reflects it.
+                                            if (window.AtarimConnect) { window.AtarimConnect.setState('connected'); }
+                                            setTimeout(function () { window.location.href = url.toString(); }, 2200);
                                         }
-                        
-                                        window.location.href = url.toString();
-                                    }
-                                });
-                        }, 3000);
-                    }, { once: true }); // Only start polling once
+                                    });
+                            }, 3000);
+                        }, { once: true });
+                    });
                 });
             ", 'after');
         }

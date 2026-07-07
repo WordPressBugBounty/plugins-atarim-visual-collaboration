@@ -1,0 +1,133 @@
+/* Atarim connect screen (first-run overlay) styles.
+ * Backdrop positioning lives inline on #atarim-connect-overlay itself;
+ * this file holds the card, animation, and state styles. Enqueued only
+ * on the settings screen for first-time (never-connected) users. */
+
+/* ------ tokens (lifted from the app theme) ------ */
+/* ink #272D3C · muted #64748B · border #E7E9EF · green #3ED696 · purple #6D5DF3 · WP blue #21759B */
+
+#atarim-connect-overlay,
+#atarim-connect-overlay *,
+#atarim-connect-overlay *::before,
+#atarim-connect-overlay *::after { box-sizing: border-box; }
+
+/* Backdrop positioning is applied inline on the element itself so no
+   stylesheet quirk can drop it. Only the state-toggle helper stays here;
+   !important beats the inline display on inner state wrappers. */
+#atarim-connect-overlay [hidden] { display: none !important; }
+
+/* ------ dismiss (top-right) ------ */
+#atarim-connect-overlay .atc-dismiss {
+	position: absolute; top: 16px; right: 16px;
+	width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+	border: 1px solid #E7E9EF; border-radius: 999px; background: #fff; color: #64748B;
+	cursor: pointer; box-shadow: 0 1px 2px rgba(16,24,40,.05); transition: background .2s, color .2s;
+}
+#atarim-connect-overlay .atc-dismiss:hover { background: #F3F4F6; color: #272D3C; }
+
+#atarim-connect-overlay .atc { width: 100%; max-width: 470px; padding: 32px 32px 28px; display: flex; flex-direction: column; align-items: center; }
+
+/* ------ connection visual ------ */
+#atarim-connect-overlay .atc-visual { position: relative; margin-bottom: 32px; display: flex; align-items: center; justify-content: center; width: 100%; }
+#atarim-connect-overlay .atc-glow { pointer-events: none; position: absolute; inset: -26px -12px; background: radial-gradient(52% 70% at 50% 50%, rgba(109,93,243,.10), transparent 72%); animation: atcGlow 2.7s ease-in-out infinite; }
+
+#atarim-connect-overlay .atc-tile { position: relative; flex-shrink: 0; width: 68px; height: 68px; display: flex; align-items: center; justify-content: center; border: 1px solid #E7E9EF; border-radius: 16px; background: #fff; }
+#atarim-connect-overlay .atc-tile--wp     { box-shadow: 0 6px 18px -8px rgba(33,117,155,.45);  animation: atcTileIn .5s cubic-bezier(.16,1,.3,1) both; }
+#atarim-connect-overlay .atc-tile--atarim { box-shadow: 0 6px 18px -8px rgba(109,93,243,.5);   animation: atcTileIn .5s cubic-bezier(.34,1.56,.64,1) 1s both; }
+
+#atarim-connect-overlay .atc-ping { pointer-events: none; position: absolute; inset: -1px; border-radius: 16px; border: 2px solid; opacity: 0; }
+#atarim-connect-overlay .atc-ping--wp     { border-color: rgba(33,117,155,.35); animation: atcTilePing 2.7s cubic-bezier(.2,.6,.35,1) .3s  infinite; }
+#atarim-connect-overlay .atc-ping--atarim { border-color: rgba(109,93,243,.4);  animation: atcTilePing 2.7s cubic-bezier(.2,.6,.35,1) 2.6s infinite; }
+#atarim-connect-overlay .atc-ping--done   { border-color: rgba(62,214,150,.55); animation: atcPingOnce .9s cubic-bezier(.2,.6,.35,1) .15s 1 both; }
+
+#atarim-connect-overlay .atc-line { position: relative; flex: 1; display: flex; align-items: center; padding: 0 4px; min-height: 68px; animation: atcLineReveal .6s ease-out .45s both; }
+#atarim-connect-overlay .atc-dash { height: 1px; flex: 1; background-image: linear-gradient(to right, #E7E9EF 55%, transparent 0); background-size: 8px 1px; background-repeat: repeat-x; }
+
+#atarim-connect-overlay .atc-badge { margin: 0 4px; flex-shrink: 0; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 999px; background: #fff; box-shadow: 0 0 0 4px #fff; }
+#atarim-connect-overlay .atc-badge--link  { border: 1px solid #E7E9EF; color: #6D5DF3; }
+#atarim-connect-overlay .atc-badge--check { background: #3ED696; color: #272D3C; animation: atcPop .5s cubic-bezier(.34,1.56,.64,1) both; }
+
+/* ------ connecting overlay ------ */
+#atarim-connect-overlay .atc-traffic { pointer-events: none; position: absolute; inset: 0; }
+#atarim-connect-overlay .atc-charge { position: absolute; left: 4px; right: 4px; top: 50%; height: 1px; background-image: linear-gradient(to right, #6D5DF3 55%, transparent 0); background-size: 8px 1px; background-repeat: repeat-x; animation: atcDashPulse 2.7s ease-in-out infinite; }
+#atarim-connect-overlay .atc-streak { position: absolute; top: 50%; width: 44px; height: 2px; border-radius: 999px; transform: translate(-50%,-50%); filter: blur(.5px); }
+#atarim-connect-overlay .atc-streak--r { background: linear-gradient(90deg, transparent, #6D5DF3, transparent); animation: atcStreakR 2.7s cubic-bezier(.45,.05,.55,.95) .05s infinite both; }
+#atarim-connect-overlay .atc-streak--l { background: linear-gradient(90deg, transparent, #3ED696, transparent); animation: atcStreakL 2.7s cubic-bezier(.45,.05,.55,.95) 2s   infinite both; }
+
+#atarim-connect-overlay .atc-fly { position: absolute; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 999px; border: 1px solid #E7E9EF; background: #fff; box-shadow: 0 1px 2px rgba(16,24,40,.06); }
+#atarim-connect-overlay .atc-fly--top    { top: calc(50% - 11px); animation: atcFlowR 5.4s cubic-bezier(.45,.05,.55,.95) infinite both; }
+#atarim-connect-overlay .atc-fly--bottom { top: calc(50% + 11px); animation: atcFlowL 5.4s cubic-bezier(.45,.05,.55,.95) infinite both; }
+#atarim-connect-overlay .atc-fly--claude { background: #D97757; border-color: #D97757; }
+#atarim-connect-overlay .atc-fly--codex  { background: #272D3C; border-color: #272D3C; }
+#atarim-connect-overlay .atc-fly--av { width: 26px; height: 26px; border-radius: 8px; overflow: hidden; }
+#atarim-connect-overlay .atc-fly--av img { display: block; width: 100%; height: 100%; object-fit: cover; }
+#atarim-connect-overlay .atc-fly--av.atc-fly--top    { top: calc(50% - 13px); }
+#atarim-connect-overlay .atc-fly--av.atc-fly--bottom { top: calc(50% + 13px); }
+#atarim-connect-overlay .atc-ic--orange { color: #FF9E33; } #atarim-connect-overlay .atc-ic--pink { color: #E72D68; } #atarim-connect-overlay .atc-ic--ink { color: #272D3C; }
+
+/* ------ Atarim spinner (per README-spinner.md, delays offset +1s after the tile lands) ------ */
+#atarim-connect-overlay .atc-spinner svg { transform: translate(3px,-5px); }
+#atarim-connect-overlay .atc-spinner .mountain  { animation: atcAIn 2.6s cubic-bezier(.45,0,.15,1) 1s both; }
+#atarim-connect-overlay .atc-spinner .ring      { opacity: 0; transform-origin: 25.5px 6.3px; animation: atcRingPing 2.5s cubic-bezier(.2,.6,.35,1) 2.25s infinite; }
+#atarim-connect-overlay .atc-spinner .starIn    { transform-box: fill-box; transform-origin: center; animation: atcStarIn .6s cubic-bezier(.34,1.56,.64,1) 1.55s both; }
+#atarim-connect-overlay .atc-spinner .starPulse { transform-box: fill-box; transform-origin: center; animation: atcStarPulse 2.5s ease-in-out 2.25s infinite; }
+
+/* ------ copy, card, buttons, footer ------ */
+#atarim-connect-overlay .atc-h1   { margin: 0; font-size: 20px; line-height: 1.3; font-weight: 700; text-align: center; }
+#atarim-connect-overlay .atc-desc { margin: 8px 0 0; width: 100%; font-size: 14px; line-height: 1.625; color: #64748B; text-align: center; }
+#atarim-connect-overlay .atc-desc b { color: #272D3C; font-weight: 500; }
+
+#atarim-connect-overlay .atc-site { margin-top: 24px; width: 100%; border: 1px solid #E7E9EF; border-radius: 12px; overflow: hidden; }
+#atarim-connect-overlay .atc-site-row { display: flex; align-items: center; gap: 12px; padding: 10px 12px; }
+#atarim-connect-overlay .atc-site-ic { flex-shrink: 0; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 8px; background: #F3F4F6; color: #272D3C; }
+#atarim-connect-overlay .atc-site-label { margin: 0; font-size: 11px; font-weight: 500; color: #64748B; }
+#atarim-connect-overlay .atc-site-value { margin: 0; font-size: 14px; font-weight: 500; color: #272D3C; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+#atarim-connect-overlay .atc-cta { margin-top: 24px; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+#atarim-connect-overlay .atc-btn { width: 100%; height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 0; border-radius: 8px; background: #3ED696; color: #272D3C; font: 500 14px/1 inherit; font-family: inherit; text-decoration: none; cursor: pointer; box-shadow: 0 1px 2px rgba(16,24,40,.05); transition: filter .3s; }
+#atarim-connect-overlay .atc-btn:hover { filter: brightness(.95); color: #272D3C; }
+#atarim-connect-overlay .atc-btn[disabled] { cursor: wait; opacity: .9; }
+#atarim-connect-overlay .atc-btn--secondary { background: #fff; color: #272D3C; border: 1px solid #E7E9EF; transition: background .3s; }
+#atarim-connect-overlay .atc-btn--secondary:hover { background: #F3F4F6; filter: none; }
+#atarim-connect-overlay .atc-spin { animation: atcSpin .8s linear infinite; }
+
+#atarim-connect-overlay .atc-foot { margin-top: 24px; display: flex; align-items: center; gap: 6px; font-size: 12px; color: #64748B; }
+
+/* ------ keyframes (uniquely named, safe to leave global) ------ */
+@keyframes atcSpin { to { transform: rotate(360deg); } }
+@keyframes atcTileIn { from { opacity: 0; transform: scale(.6); } to { opacity: 1; transform: scale(1); } }
+@keyframes atcLineReveal { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes atcPop { from { opacity: 0; transform: scale(.3); } to { opacity: 1; transform: scale(1); } }
+@keyframes atcGlow { 0%,100% { opacity: .45; } 50% { opacity: 1; } }
+@keyframes atcDashPulse { 0%,100% { opacity: .12; } 50% { opacity: .55; } }
+@keyframes atcTilePing { 0% { opacity: .75; transform: scale(1); } 65%,100% { opacity: 0; transform: scale(1.24); } }
+@keyframes atcPingOnce { 0% { opacity: .8; transform: scale(1); } 100% { opacity: 0; transform: scale(1.28); } }
+@keyframes atcStreakR { 0% { left: 3%; opacity: 0; } 12% { opacity: .9; } 45% { left: 97%; opacity: 0; } 100% { left: 97%; opacity: 0; } }
+@keyframes atcStreakL { 0% { left: 97%; opacity: 0; } 12% { opacity: .9; } 45% { left: 3%; opacity: 0; } 100% { left: 3%; opacity: 0; } }
+@keyframes atcFlowR {
+	0%   { left: 4%;  opacity: 0; transform: translate(-50%,-50%) scale(.55) rotate(-8deg); }
+	7%   { opacity: 1; transform: translate(-50%,-50%) scale(1) rotate(0deg); }
+	22%  { transform: translate(-50%,calc(-50% - 4px)) scale(1); }
+	38%  { opacity: 1; transform: translate(-50%,-50%) scale(1) rotate(0deg); }
+	45%  { left: 96%; opacity: 0; transform: translate(-50%,-50%) scale(.55) rotate(8deg); }
+	100% { left: 96%; opacity: 0; transform: translate(-50%,-50%) scale(.55); }
+}
+@keyframes atcFlowL {
+	0%   { left: 96%; opacity: 0; transform: translate(-50%,-50%) scale(.55) rotate(8deg); }
+	7%   { opacity: 1; transform: translate(-50%,-50%) scale(1) rotate(0deg); }
+	22%  { transform: translate(-50%,calc(-50% + 4px)) scale(1); }
+	38%  { opacity: 1; transform: translate(-50%,-50%) scale(1) rotate(0deg); }
+	45%  { left: 4%;  opacity: 0; transform: translate(-50%,-50%) scale(.55) rotate(-8deg); }
+	100% { left: 4%;  opacity: 0; transform: translate(-50%,-50%) scale(.55); }
+}
+@keyframes atcAIn { from { opacity: 0; transform: translateY(1.8px); } to { opacity: 1; transform: none; } }
+@keyframes atcStarIn { from { opacity: 0; transform: scale(0) rotate(-135deg); } to { opacity: 1; transform: scale(1) rotate(0deg); } }
+@keyframes atcStarPulse { 0%,32%,100% { transform: scale(1); } 12% { transform: scale(1.28); } }
+@keyframes atcRingPing { 0% { opacity: 0; transform: scale(.3); } 12% { opacity: .9; } 55% { opacity: 0; transform: scale(1.55); } 100% { opacity: 0; transform: scale(1.55); } }
+
+@media (prefers-reduced-motion: reduce) {
+	#atarim-connect-overlay .atc-spinner .mountain, #atarim-connect-overlay .atc-spinner .ring,
+	#atarim-connect-overlay .atc-spinner .starIn, #atarim-connect-overlay .atc-spinner .starPulse,
+	#atarim-connect-overlay .atc-fly, #atarim-connect-overlay .atc-streak, #atarim-connect-overlay .atc-charge,
+	#atarim-connect-overlay .atc-ping, #atarim-connect-overlay .atc-glow { animation-duration: 20s; }
+}

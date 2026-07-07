@@ -1,10 +1,10 @@
 === Atarim - Visual Feedback, Review & AI Collaboration ===
 Contributors: wpfeedback, pratapdungrani
 Tags: visual feedback, client feedback, project management, design review, AI feedback
-Stable tag: 4.4
+Stable tag: 5.0
 Requires at least: 5.0
 Requires PHP: 7.4
-Tested up to: 6.9.4
+Tested up to: 7.0
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -189,6 +189,25 @@ Upgrade to unlock advanced collaboration tools that help larger teams work at sc
 * Thrive Architect and more…
 
 
+== 🤖 AI Abilities: What Atarim's AI Can Do On Your Site ==
+Atarim includes a secure action layer (built on the WordPress Abilities API and the Model Context Protocol) that lets your connected Atarim AI teammates read your site and safely make changes - the same actions a trusted admin would take, but driven straight from your tasks and feedback. In total it exposes over 650 individual abilities.
+
+**Requires WordPress 6.9 or later.** The AI abilities are built on the WordPress Abilities API, which is part of WordPress core from version 6.9 onwards. On earlier versions the rest of Atarim (visual feedback, comments, screenshots and collaboration) works exactly as normal - only the AI action layer stays inactive.
+
+This action layer is opt-in. It only runs when **Enable "Do it" via Atarim AI** is turned on in the plugin settings, every request is authenticated with your site's Atarim token, and content-changing actions keep backups where it matters so mistakes can be undone.
+
+Abilities are grouped by area, and each integration only activates when the matching plugin is present - so Atarim adapts to your exact stack:
+
+* **WordPress core** - Create, read, update, delete and duplicate posts, pages and any custom post type; manage media (upload, replace, bulk alt-text), menus and widgets, taxonomies and terms, users and roles, and site settings. Install and manage plugins and themes, edit or duplicate theme files with automatic backups, browse and restore revisions, and make block-level edits in the Gutenberg editor.
+* **WooCommerce** - Manage products, variations and attributes, orders, customers, coupons, shipping zones, tax rates, and store and checkout settings.
+* **Forms** - Read form configurations and entries across WPForms, Gravity Forms, Fluent Forms, Formidable Forms, Forminator, Ninja Forms, Contact Form 7 and Flamingo.
+* **Page builders** - Edit content built with Elementor, Bricks, Divi, WPBakery, Breakdance, Etch and Mosaic.
+* **Custom fields & content modelling** - Work with Advanced Custom Fields (ACF), Meta Box, JetEngine, Pods, ACPT and Admin and Site Enhancements (ASE).
+* **SEO** - Read and update SEO metadata through Yoast SEO, Rank Math and All in One SEO.
+* **Site monitoring** - Surface activity insights from WP Activity Log.
+
+When a page is built with a tool Atarim doesn't yet support, that content is left untouched.
+
 == External Services ==
 
 This plugin integrates with the Atarim collaboration platform to enable real-time visual feedback, commenting, and AI collaboration directly on your website.
@@ -295,6 +314,20 @@ Atarim holds SOC 2 Type 1 compliance, aligns with GDPR principles, and exclusive
 
 
 == Changelog ==
+
+= 5.0 =
+* **The Atarim AI action layer (DoIt) is here** - Atarim now exposes a full, secure set of abilities that let your connected AI teammates take real actions on your site, driven straight from your tasks and feedback. Over 650 abilities span WordPress core, WooCommerce, forms, page builders, custom fields, SEO and more.
+* **Requires WordPress 6.9+** - The AI abilities run on the WordPress Abilities API, available in core from version 6.9. On older versions the rest of the plugin keeps working and the AI layer simply stays inactive.
+* **Enabled by default on new installs** - "Do it" via Atarim AI is switched on automatically the first time you activate the plugin. Updating from an earlier version never changes your existing setting - if you had it off, it stays off.
+* **New settings toggle** - A single **Enable "Do it" via Atarim AI** switch in the plugin settings turns the whole action layer on or off. While it's off, the endpoint stays closed.
+* **Adapts to your stack** - Abilities light up automatically based on the plugins you already run:
+    - Page builders: Elementor, Bricks, Divi, WPBakery, Breakdance, Etch, Mosaic
+    - Forms: WPForms, Gravity Forms, Fluent Forms, Formidable, Forminator, Ninja Forms, Contact Form 7, Flamingo
+    - Custom fields: ACF, Meta Box, JetEngine, Pods, ACPT, ASE
+    - SEO: Yoast, Rank Math, All in One SEO
+    - eCommerce & monitoring: WooCommerce, WP Activity Log
+* **Theme file editing with a safety net** - Edit theme files through the AI layer with automatic, restorable backups.
+* **Built-in diagnostics** - A health-check endpoint lets the Atarim dashboard tell you exactly why the AI layer isn't connecting, on the rare occasion it doesn't.
 
 = 4.4 =
 * **DoIt** — Magical Editing on the Live Page (Beta)

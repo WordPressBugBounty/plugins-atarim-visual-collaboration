@@ -1,0 +1,390 @@
+================================================================================
+ Atarim — WP Activity Log Integration
+ How to fetch activity log data from a connected customer site
+================================================================================
+
+This guide explains how Atarim's backend can pull WP Activity Log statistics
+from a customer site that has the Atarim plugin installed and connected.
+
+Two surfaces are available. Both return the same data. Pick whichever fits
+the calling system.
+
+  - REST API      : straightforward HTTP. Best for the Atarim dashboard
+                    backend and any service that just needs the numbers.
+
+  - MCP abilities : tools exposed over the Model Context Protocol. Best for
+                    AI agents / DoIt flows that already speak MCP.
+
+
+================================================================================
+ PREREQUISITES
+================================================================================
+
+On the customer site:
+
+  - Atarim Visual Collaboration plugin installed and connected to the
+    Atarim app. Connection saves a secret token in WordPress options under
+    the key `avc_atarim_secret_token`. This is the bearer credential for
+    both surfaces.
+
+  - WP Activity Log plugin installed (free or premium). The integration
+    works even if WPAL is not installed — endpoints return `available: false`
+    with zero counts — but the data is only meaningful when it is.
+
+  - For MCP only: WordPress 6.9 or higher (Abilities API). REST works on
+    any WP 5.0+.
+
+On Atarim's side:
+
+  - The site's `avc_atarim_secret_token` value, stored against the customer
+    site record. Send it in the `X-Atarim-Token` header on every request.
+
+  - The site's base URL.
+
+
+================================================================================
+ SURFACE 1 — REST API
+================================================================================
+
+Two endpoints under the existing `atarim/v1` REST namespace.
+
+--------------------------------------------------------------------------------
+ GET /wp-json/atarim/v1/wpal/stats
+--------------------------------------------------------------------------------
+
+Returns yesterday's activity log counts.
+
+Request:
+
+  GET https://customer-site.com/wp-json/atarim/v1/wpal/stats
+  X-Atarim-Token: <site's avc_atarim_secret_token>
+
+Response (200 OK), WPAL installed:
+
+  {
+    "available": true,
+    "edition":   "premium",
+    "window":    "yesterday",
+    "counts": {
+      "total":   147,
+      "logins":  12,
+      "changes": 3
+    }
+  }
+
+Response (200 OK), WPAL not installed:
+
+  {
+    "available": false,
+    "edition":   "none",
+    "window":    "yesterday",
+    "counts": {
+      "total":   0,
+      "logins":  0,
+      "changes": 0
+    }
+  }
+
+Field meanings:
+
+  available   true when WPAL is installed and active on the site.
+  edition     "premium" | "free" | "none".
+  window      Always "yesterday". See WPAL BEHAVIOUR NOTES below.
+  counts.total    Total activity log events recorded yesterday.
+  counts.logins   Login events (WPAL event IDs 1000 and 1005).
+  counts.changes  Plugin and theme change events (IDs 5000-5007, 5030, 5031).
+
+
+--------------------------------------------------------------------------------
+ GET /wp-json/atarim/v1/wpal/links
+--------------------------------------------------------------------------------
+
+Returns drill-down URLs to the activity log viewer, filtered by category.
+This is a premium feature in WPAL. On the free edition the per-category
+links are empty strings and a generic `fallback_url` to the activity log
+viewer is provided so the dashboard can still link out.
+
+Request:
+
+  GET https://customer-site.com/wp-json/atarim/v1/wpal/links
+  X-Atarim-Token: <site's avc_atarim_secret_token>
+
+Response (200 OK), premium edition:
+
+  {
+    "available":    true,
+    "edition":      "premium",
+    "premium":      true,
+    "links": {
+      "total":   "https://customer-site.com/wp-admin/admin.php?page=wsal-auditlog&filter=...",
+      "logins":  "https://customer-site.com/wp-admin/admin.php?page=wsal-auditlog&filter=...",
+      "changes": "https://customer-site.com/wp-admin/admin.php?page=wsal-auditlog&filter=..."
+    },
+    "fallback_url": "https://customer-site.com/wp-admin/admin.php?page=wsal-auditlog"
+  }
+
+Response (200 OK), free edition:
+
+  {
+    "available":    true,
+    "edition":      "free",
+    "premium":      false,
+    "links": {
+      "total":   "",
+      "logins":  "",
+      "changes": ""
+    },
+    "fallback_url": "https://customer-site.com/wp-admin/admin.php?page=wsal-auditlog"
+  }
+
+Dashboard rendering guidance:
+
+  - If `premium` is true, link each count to its corresponding URL in `links`.
+  - If `premium` is false, hide the per-count links and show a single
+    "View activity log" link pointing at `fallback_url`.
+
+
+--------------------------------------------------------------------------------
+ Authentication
+--------------------------------------------------------------------------------
+
+Server-to-server. Send the site's secret token in the `X-Atarim-Token`
+header. No cookies, no WordPress user session, no nonce.
+
+Failure response (401):
+
+  {
+    "code":    "avcf_wpal_invalid_token",
+    "message": "Invalid or missing Atarim authentication token.",
+    "data":    { "status": 401 }
+  }
+
+The token is the same one used for MCP requests (`avc_atarim_secret_token`
+in WordPress options, set during site connection). Treat it as equivalent
+to admin credentials: store encrypted at rest, send only over HTTPS.
+
+
+--------------------------------------------------------------------------------
+ curl example
+--------------------------------------------------------------------------------
+
+  curl -sS \
+    -H "X-Atarim-Token: $ATARIM_SITE_TOKEN" \
+    "https://customer-site.com/wp-json/atarim/v1/wpal/stats"
+
+  curl -sS \
+    -H "X-Atarim-Token: $ATARIM_SITE_TOKEN" \
+    "https://customer-site.com/wp-json/atarim/v1/wpal/links"
+
+
+================================================================================
+ SURFACE 2 — MCP ABILITIES
+================================================================================
+
+Three abilities exposed over the Atarim MCP server on the customer site.
+Same data as the REST endpoints, accessed through MCP tool calls.
+
+MCP server endpoint on each customer site:
+
+  https://customer-site.com/wp-json/atarim/mcp/v1/<server-route>
+
+(The exact route is managed by the MCP Adapter — Atarim's MCP client
+discovers it automatically once authenticated.)
+
+Authentication header is the same: `X-Atarim-Token`.
+
+--------------------------------------------------------------------------------
+ Ability: atarim/wpal-status
+--------------------------------------------------------------------------------
+
+Quick health check. Returns whether WPAL is installed and which edition.
+
+Input:  (none)
+Output:
+  {
+    "available": true|false,
+    "edition":   "premium"|"free"|"none"
+  }
+
+--------------------------------------------------------------------------------
+ Ability: atarim/wpal-yesterday-stats
+--------------------------------------------------------------------------------
+
+Yesterday's counts.
+
+Input:  (none)
+Output:
+  {
+    "available": true,
+    "edition":   "premium",
+    "window":    "yesterday",
+    "counts": {
+      "total":   147,
+      "logins":  12,
+      "changes": 3
+    }
+  }
+
+--------------------------------------------------------------------------------
+ Ability: atarim/wpal-yesterday-links
+--------------------------------------------------------------------------------
+
+Premium drill-down URLs by category. Same shape as the /wpal/links REST
+response.
+
+Input:  (none)
+Output:
+  {
+    "available":    true,
+    "edition":      "premium",
+    "premium":      true,
+    "links": {
+      "total":   "...",
+      "logins":  "...",
+      "changes": "..."
+    },
+    "fallback_url": "..."
+  }
+
+
+--------------------------------------------------------------------------------
+ Permissions
+--------------------------------------------------------------------------------
+
+Each ability declares `current_user_can('manage_options')` as its permission
+callback. The MCP server's server-level token check maps an authenticated
+request to a WordPress admin user via WordPress's `determine_current_user`
+filter, so the capability check passes once the token has authenticated
+the request. Calls without a valid token are rejected at the server level
+before the ability runs.
+
+
+--------------------------------------------------------------------------------
+ Annotations
+--------------------------------------------------------------------------------
+
+All three abilities are declared:
+
+  readonly:    true
+  destructive: false
+  idempotent:  true
+
+Safe to call repeatedly. No side effects on the customer site.
+
+
+================================================================================
+ WPAL BEHAVIOUR NOTES
+================================================================================
+
+A few quirks in WPAL's own behaviour worth knowing about, since they affect
+what the data means.
+
+  "Last 24 hours" actually means yesterday.
+    WPAL's underlying method (`get_last24_records`) zeros today's time to
+    00:00 and queries from `-1 day +1 second` to `-1 second`. So a call at
+    3pm Tuesday returns events from 00:00:00 Monday to 23:59:59 Monday —
+    NOT a rolling 24 hour window. Events from today do not appear until
+    tomorrow. Our integration surfaces this as `window: "yesterday"`
+    rather than overriding the semantics.
+
+  "Logins" = WPAL event IDs 1000 and 1005 only.
+    That is "user logged in" and "user logged out". It does NOT include
+    failed logins (1002), blocked logins (1003), or password resets (1010).
+    If the dashboard labels this category, "logins/logouts" is more
+    accurate than "login activity".
+
+  "Plugin/theme changes" = WPAL event IDs 5000-5007, 5030, 5031.
+    Plugin install, activate, deactivate, uninstall, update; theme install,
+    activate, uninstall, update, file edit. It does NOT include WordPress
+    core updates.
+
+  Premium link helper is gated to Premium WPAL.
+    `get_last24_links()` is only present in the Premium edition. The
+    detector checks via `method_exists`. On free edition sites, request
+    `/wpal/links` if you want — you'll get a valid response with empty
+    per-category strings and a populated `fallback_url`.
+
+
+================================================================================
+ ERROR HANDLING
+================================================================================
+
+  HTTP 401  Invalid or missing X-Atarim-Token header.
+              -> Re-check the token stored against the customer site.
+              -> Confirm the site is still connected. The customer may have
+                 disconnected the Atarim plugin in WP admin.
+
+  HTTP 404  Endpoint not found (`rest_no_route`).
+              -> The Atarim plugin version on the site is older than the
+                 one with WPAL integration. Surface a "needs update" state.
+
+  HTTP 200 with `available: false`
+              -> WPAL is not installed on the customer site. Not an error;
+                 dashboard should hide the WPAL widget or show an upsell.
+
+
+================================================================================
+ INTEGRATION CHECKLIST
+================================================================================
+
+For Atarim backend implementation:
+
+  [ ] Store the customer site's `avc_atarim_secret_token` securely at
+      connection time. Encrypt at rest.
+
+  [ ] On each dashboard load (or via a refresh job), call
+      `GET /wpal/stats` for sites where WPAL widget is enabled.
+
+  [ ] Use the `available` flag to decide whether to render the widget.
+
+  [ ] Call `GET /wpal/links` only when the user clicks a count, or fetch
+      both in parallel if you want everything cached up front.
+
+  [ ] Handle 401 by marking the site connection as broken and prompting
+      a reconnect.
+
+  [ ] For MCP-driven flows (AI agents in DoIt), use `atarim/wpal-status`
+      as a precondition check before calling the stats ability.
+
+For testing:
+
+  [ ] Test against a site with WPAL Premium — verify counts and that
+      `links` come back populated.
+
+  [ ] Test against a site with WPAL Free — verify counts come back and
+      `links` are empty strings with `fallback_url` populated.
+
+  [ ] Test against a site without WPAL — verify `available: false`,
+      zero counts, no crash.
+
+  [ ] Test with an invalid `X-Atarim-Token` — verify 401 response.
+
+  [ ] Test with a valid token on a site that has no Atarim plugin
+      installed — verify 404 (and Atarim backend handles it cleanly).
+
+
+================================================================================
+ REFERENCE
+================================================================================
+
+REST namespace:
+  atarim/v1
+
+REST endpoints added by this integration:
+  GET /wp-json/atarim/v1/wpal/stats
+  GET /wp-json/atarim/v1/wpal/links
+
+MCP abilities added by this integration:
+  atarim/wpal-status
+  atarim/wpal-yesterday-stats
+  atarim/wpal-yesterday-links
+
+Source files in the Atarim plugin:
+  third-party/wp-activity-log/class-avcf-wpal-detector.php
+  third-party/wp-activity-log/class-avcf-wpal-stats.php
+  third-party/wp-activity-log/class-avcf-wpal-rest.php
+  third-party/wp-activity-log/class-avcf-wpal-abilities.php
+
+WPAL plugin reference:
+  https://wordpress.org/plugins/wp-security-audit-log/
+  https://melapress.com/support/kb/wp-activity-log-list-event-ids/

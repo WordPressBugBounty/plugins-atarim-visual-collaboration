@@ -1,0 +1,41 @@
+<?php return array(
+    'root' => array(
+        'name' => '__root__',
+        'pretty_version' => '1.0.0+no-version-set',
+        'version' => '1.0.0.0',
+        'reference' => null,
+        'type' => 'library',
+        'install_path' => __DIR__ . '/../../',
+        'aliases' => array(),
+        'dev' => true,
+    ),
+    'versions' => array(
+        '__root__' => array(
+            'pretty_version' => '1.0.0+no-version-set',
+            'version' => '1.0.0.0',
+            'reference' => null,
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../../',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'automattic/jetpack-autoloader' => array(
+            'pretty_version' => 'v5.0.16',
+            'version' => '5.0.16.0',
+            'reference' => 'd8ae822a35e7431137e860ee60eceedaa745e4d1',
+            'type' => 'composer-plugin',
+            'install_path' => __DIR__ . '/../automattic/jetpack-autoloader',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'wordpress/mcp-adapter' => array(
+            'pretty_version' => 'v0.4.1',
+            'version' => '0.4.1.0',
+            'reference' => '1a0f9ab868e34b4375be42e873f60765e6632505',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../wordpress/mcp-adapter',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+    ),
+);

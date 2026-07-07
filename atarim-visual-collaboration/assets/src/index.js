@@ -199,6 +199,31 @@ const CollaborationSettings = () => {
                             />
                         </div>
 
+                        <div className="avc-setting-block avc-enable-doit">
+                            <label className="avc-label-with-tooltip avc-checkbox-label">
+                                <input
+                                    type="checkbox"
+                                    className="avc-doit-checkbox"
+                                    checked={!!settings.avc_enable_doit}
+                                    onChange={(e) => updateSetting('avc_enable_doit', e.target.checked)}
+                                />
+                                <span dangerouslySetInnerHTML={{ __html: window.avcSettings.i18n.enableDoit }} />
+                                <span className="avc-tooltip">
+                                    <button
+                                        type="button"
+                                        className="avc-tooltip-trigger"
+                                        aria-label={window.avcSettings.i18n.enableDoitTooltip}
+                                        onClick={(e) => e.preventDefault()}
+                                    >
+                                        ?
+                                    </button>
+                                    <span className="avc-tooltip-content" role="tooltip">
+                                        {window.avcSettings.i18n.enableDoitTooltip}
+                                    </span>
+                                </span>
+                            </label>
+                        </div>
+
                         <div className="avc-setting-block">
                             <Button variant="primary" onClick={saveAllSettings}>
                                 {window.avcSettings.i18n.saveButton}

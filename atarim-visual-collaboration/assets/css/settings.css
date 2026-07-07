@@ -154,3 +154,18 @@ ul.avc-guest-collab-list {
 .avc_success_message {
     color: green;
 }
+
+/* Enable "Do It" checkbox row */
+.avc-enable-doit .avc-checkbox-label {
+    cursor: pointer;
+    text-transform: none;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 1.4;
+    letter-spacing: normal;
+}
+.avc-enable-doit .avc-doit-checkbox {
+    margin: 0;
+    flex: 0 0 auto;
+    cursor: pointer;
+}

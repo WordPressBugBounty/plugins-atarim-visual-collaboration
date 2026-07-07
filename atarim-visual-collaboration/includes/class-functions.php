@@ -137,7 +137,7 @@ class AVCF_Functions {
                                         <div class='avc_user_consent_button'>
                                             <img src='" . AVCF_PLUGIN_URL . 'images/loader-2.svg'  . "' class='avc_consent_loader'>
                                             <img src='" . AVCF_PLUGIN_URL . 'images/wordpress-alt.svg'  . "'  class='avc_user_consent_button_img'>
-                                            <span class='avc_user_consent_button_text'>Connect Your WordPress Account</span>
+                                            <span class='avc_user_consent_button_text'>Connect Your Account</span>
                                         </div>
                                         <div class='avc_user_consent_terms'>By clicking this button, you agree to our <a href='https://atarim.io/terms-and-conditions/' target='_blank'>terms & conditions</a></div>
                                     </div>

@@ -36,7 +36,7 @@ function avcf_user_consent() {
     }
 
     $payload =  [
-        'site_id' => $site_id, 
+        'site_id' => $site_id,
         'email' => $email,
         'name' => $fname . ' ' . $lname,
         'source' => 'wordpress',
@@ -84,14 +84,18 @@ function avcf_save_avcf_settings() {
     $function = new AVCF_Functions();
     $data = json_decode(file_get_contents('php://input'), true);
 
-    $allowed_fields = ['avc_selected_role', 'avc_website_developer'];
+    $allowed_fields = ['avc_selected_role', 'avc_website_developer', 'avc_enable_doit'];
 
     foreach ($data as $key => $value) {
         if (! in_array($key, $allowed_fields, true)) {
             $key = sanitize_text_field($key);
             wp_send_json_error(['message' => 'Invalid setting field: ' . esc_html($key)]);
         }
-        
+
+        if ($key === 'avc_enable_doit') {
+            $value = ! empty($value) ? '1' : '0';
+        }
+
         $function->avcf_update_settings($key, $value);
     }
 

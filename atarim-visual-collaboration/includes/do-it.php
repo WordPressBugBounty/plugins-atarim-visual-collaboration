@@ -102,6 +102,14 @@ function atarim_inject_block_identity(string $block_content, array $block): stri
 add_action('rest_api_init', function () {
 
     $permission_callback = function( WP_REST_Request $request ) {
+        if ( empty( get_option( 'avc_enable_doit', false ) ) ) {
+            return new WP_Error(
+                'avc_doit_disabled',
+                __( 'Do It via Atarim AI is disabled for this site. Enable it from the Atarim plugin settings to allow execution.', 'atarim-visual-collaboration' ),
+                [ 'status' => 403 ]
+            );
+        }
+
         $post_id = absint($request->get_param('postId'));
         if ($post_id) return current_user_can('edit_post', $post_id);
         return current_user_can('edit_posts');
@@ -117,6 +125,29 @@ add_action('rest_api_init', function () {
         'methods'  => 'POST',
         'callback' => 'atarim_inline_save_handler',
         'permission_callback' => $permission_callback,
+    ]);
+
+    // ---------------------------------------------------------------------
+    // Core connection probe — NOT a DoIt route. Public and intentionally
+    // ungated: the Atarim app calls it cross-origin and unauthenticated,
+    // before any connection/token exists, to decide "Connect" vs "Install".
+    // It deliberately does NOT use $permission_callback (the avc_enable_doit
+    // gate) above. Lives here only because this file already registers the
+    // atarim/v1 namespace; move to its own home if more core routes appear.
+    // ---------------------------------------------------------------------
+    register_rest_route('atarim/v1', '/status', [
+        'methods'             => 'GET',
+        'permission_callback' => '__return_true',
+        'callback'            => function () {
+            $connected = get_option('avc_collab_active', 'no') === 'yes';
+            return [
+                'installed'    => true,
+                'connected'    => $connected,
+                'version'      => defined('AVCF_VERSION') ? AVCF_VERSION : null,
+                'settings_url' => admin_url('options-general.php?page=atarim-visual-collaboration'),
+                'site_url'     => site_url(),
+            ];
+        },
     ]);
 });
 
