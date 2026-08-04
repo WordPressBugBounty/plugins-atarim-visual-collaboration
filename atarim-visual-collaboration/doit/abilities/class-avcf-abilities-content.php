@@ -597,7 +597,7 @@ class AVCF_Abilities_Content extends AVCF_Abilities_Base {
         // ---- create-content ----
         wp_register_ability( 'atarim/create-content', [
             'label'               => 'Create Content',
-            'description'         => 'Creates a new post, page, or custom post type item. Required: post_type and title. All other fields are optional — WordPress auto-generates the slug from the title if omitted, and status defaults to "draft". The content body accepts plain text, raw HTML, or Gutenberg block markup (see content_format). Use list-post-types to discover available post_type values.',
+            'description'         => 'Creates a new post, page, or custom post type item. Required: post_type and title. All other fields are optional — WordPress auto-generates the slug from the title if omitted, and status defaults to "draft". The content body can be supplied inline (content — plain text, raw HTML, or Gutenberg block markup) or pulled from a URL (content_url); see content_format to control processing. Use list-post-types to discover available post_type values.',
             'category'            => 'atarim',
             'input_schema'        => [
                 'type'       => 'object',
@@ -625,11 +625,15 @@ class AVCF_Abilities_Content extends AVCF_Abilities_Base {
                     ],
                     'content' => [
                         'type'        => 'string',
-                        'description' => 'Post body. Plain text, raw HTML, or Gutenberg block markup. See content_format to control processing.',
+                        'description' => 'Post body as an inline string. Plain text, raw HTML, or Gutenberg block markup. See content_format to control processing. Mutually exclusive with content_url — provide one, not both.',
+                    ],
+                    'content_url' => [
+                        'type'        => 'string',
+                        'description' => 'Alternative to content: a URL to pull the post body from. The response body is fetched verbatim (HTML, PHP source, plain text, or block markup — no sanitisation) and then processed per content_format; use content_format:"raw" to store it byte-for-byte. Must be a publicly reachable http/https URL — requests to private/loopback addresses are rejected. Mutually exclusive with content.',
                     ],
                     'content_format' => [
                         'type'        => 'string',
-                        'description' => 'How to process the content field. "auto" (default): detect block delimiters and pass through if present, otherwise wrap paragraphs as wp:paragraph blocks so the result stays editable in the block editor. "raw": store content exactly as provided, no processing. "blocks": caller asserts content is already valid block markup; pass through with no detection.',
+                        'description' => 'How to process the content (or fetched content_url) body. "auto" (default): detect block delimiters and pass through if present, otherwise wrap paragraphs as wp:paragraph blocks so the result stays editable in the block editor. "raw": store content exactly as provided, no processing (use this for HTML/PHP/other file content that must not be altered). "blocks": caller asserts content is already valid block markup; pass through with no detection.',
                         'enum'        => [ 'auto', 'raw', 'blocks' ],
                         'default'     => 'auto',
                     ],
@@ -756,10 +760,27 @@ class AVCF_Abilities_Content extends AVCF_Abilities_Base {
                     $postarr['post_name'] = sanitize_title( $input['slug'] );
                 }
 
-                // Content body with auto-block processing.
-                if ( isset( $input['content'] ) ) {
+                // Content body — inline (content) or pulled from a URL (content_url).
+                $has_content     = array_key_exists( 'content', $input );
+                $has_content_url = isset( $input['content_url'] ) && trim( (string) $input['content_url'] ) !== '';
+                if ( $has_content && $has_content_url ) {
+                    return [
+                        'success' => false,
+                        'message' => 'Provide either content or content_url, not both.',
+                    ];
+                }
+                if ( $has_content || $has_content_url ) {
                     $format = isset( $input['content_format'] ) ? (string) $input['content_format'] : 'auto';
-                    $postarr['post_content'] = $this->avcf_prepare_content_body( (string) $input['content'], $format );
+                    if ( $has_content_url ) {
+                        list( $fetched_content, $fetch_err ) = $this->avcf_fetch_content_from_url( (string) $input['content_url'] );
+                        if ( $fetch_err !== null ) {
+                            return [ 'success' => false, 'message' => $fetch_err ];
+                        }
+                        $raw_content = $fetched_content;
+                    } else {
+                        $raw_content = (string) $input['content'];
+                    }
+                    $postarr['post_content'] = $this->avcf_prepare_content_body( $raw_content, $format );
                 }
 
                 // Excerpt.
@@ -903,7 +924,7 @@ class AVCF_Abilities_Content extends AVCF_Abilities_Base {
         // ---- update-content ----
         wp_register_ability( 'atarim/update-content', [
             'label'               => 'Update Content',
-            'description'         => 'Updates an existing post, page, or custom post type item. Only the id is required; pass any subset of the other fields to update those. Omitted fields are left unchanged. The content body accepts plain text, raw HTML, or Gutenberg block markup (see content_format).',
+            'description'         => 'Updates an existing post, page, or custom post type item. Only the id is required; pass any subset of the other fields to update those. Omitted fields are left unchanged. The content body can be supplied inline (content — plain text, raw HTML, or Gutenberg block markup) or pulled from a URL (content_url); see content_format.',
             'category'            => 'atarim',
             'input_schema'        => [
                 'type'       => 'object',
@@ -930,11 +951,15 @@ class AVCF_Abilities_Content extends AVCF_Abilities_Base {
                     ],
                     'content' => [
                         'type'        => 'string',
-                        'description' => 'New post body. Plain text, raw HTML, or Gutenberg block markup. See content_format. Pass an empty string to clear the body. Omit to leave unchanged.',
+                        'description' => 'New post body as an inline string. Plain text, raw HTML, or Gutenberg block markup. See content_format. Pass an empty string to clear the body. Omit to leave unchanged. Mutually exclusive with content_url.',
+                    ],
+                    'content_url' => [
+                        'type'        => 'string',
+                        'description' => 'Alternative to content: a URL to pull the new post body from. The response body is fetched verbatim (HTML, PHP source, plain text, or block markup — no sanitisation) and then processed per content_format; use content_format:"raw" to store it byte-for-byte. Must be a publicly reachable http/https URL — requests to private/loopback addresses are rejected. Mutually exclusive with content.',
                     ],
                     'content_format' => [
                         'type'        => 'string',
-                        'description' => 'How to process the content field. "auto" (default), "raw", or "blocks". See create-content for details.',
+                        'description' => 'How to process the content (or fetched content_url) body. "auto" (default), "raw", or "blocks". See create-content for details.',
                         'enum'        => [ 'auto', 'raw', 'blocks' ],
                         'default'     => 'auto',
                     ],
@@ -1071,9 +1096,27 @@ class AVCF_Abilities_Content extends AVCF_Abilities_Base {
                     $updated[] = 'status';
                 }
 
-                if ( array_key_exists( 'content', $input ) ) {
+                // Content body — inline (content) or pulled from a URL (content_url).
+                $has_content     = array_key_exists( 'content', $input );
+                $has_content_url = isset( $input['content_url'] ) && trim( (string) $input['content_url'] ) !== '';
+                if ( $has_content && $has_content_url ) {
+                    return [
+                        'success' => false,
+                        'message' => 'Provide either content or content_url, not both.',
+                    ];
+                }
+                if ( $has_content || $has_content_url ) {
                     $format = isset( $input['content_format'] ) ? (string) $input['content_format'] : 'auto';
-                    $update['post_content'] = $this->avcf_prepare_content_body( (string) $input['content'], $format );
+                    if ( $has_content_url ) {
+                        list( $fetched_content, $fetch_err ) = $this->avcf_fetch_content_from_url( (string) $input['content_url'] );
+                        if ( $fetch_err !== null ) {
+                            return [ 'success' => false, 'message' => $fetch_err ];
+                        }
+                        $raw_content = $fetched_content;
+                    } else {
+                        $raw_content = (string) $input['content'];
+                    }
+                    $update['post_content'] = $this->avcf_prepare_content_body( $raw_content, $format );
                     $updated[] = 'content';
                 }
 

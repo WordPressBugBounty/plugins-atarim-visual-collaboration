@@ -126,6 +126,55 @@ abstract class AVCF_Abilities_Base {
     }
 
     /**
+     * Fetch a remote file's body for use as post content.
+     *
+     * Retrieves the response body verbatim — no sanitisation and no charset
+     * conversion — so the caller receives exactly what the URL served: HTML,
+     * PHP source, plain text, Gutenberg block markup, anything. The returned
+     * string is meant to be handed to avcf_prepare_content_body() with the
+     * caller's chosen content_format (use "raw" to store byte-for-byte).
+     *
+     * Uses wp_safe_remote_get(), which rejects requests to private/loopback
+     * hosts (SSRF guard) on top of wp_http_validate_url().
+     *
+     * Returns an array of two elements:
+     *   [0] string|null  the fetched body, or null on failure
+     *   [1] string|null  error message, or null on success
+     *
+     * @param string $url
+     * @return array{0:?string,1:?string}
+     */
+    protected function avcf_fetch_content_from_url( $url ) {
+        $url = is_string( $url ) ? trim( $url ) : '';
+        if ( $url === '' ) {
+            return [ null, 'content_url must be a non-empty string.' ];
+        }
+
+        if ( ! wp_http_validate_url( $url ) ) {
+            return [ null, sprintf( 'content_url "%s" is not a valid or allowed URL.', $url ) ];
+        }
+
+        $response = wp_safe_remote_get(
+            $url,
+            [
+                'timeout'     => 15,
+                'redirection' => 3,
+            ]
+        );
+
+        if ( is_wp_error( $response ) ) {
+            return [ null, sprintf( 'Failed to fetch content_url: %s', $response->get_error_message() ) ];
+        }
+
+        $code = (int) wp_remote_retrieve_response_code( $response );
+        if ( $code < 200 || $code >= 300 ) {
+            return [ null, sprintf( 'content_url returned HTTP %d.', $code ) ];
+        }
+
+        return [ (string) wp_remote_retrieve_body( $response ), null ];
+    }
+
+    /**
      * Validate that an attachment ID exists and represents an image.
      *
      * Used when setting a featured image via _thumbnail_id meta. WordPress

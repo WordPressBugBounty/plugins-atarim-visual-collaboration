@@ -1,13 +1,13 @@
 <?php
 /*
- * Plugin Name: Atarim - Visual Feedback, Review & AI Collaboration
- * Description: Make collecting feedback on WordPress sites MUCH faster and easier, with the visual collaboration tool used on over 120,000 websites worldwide.
- * Version: 5.0
- * Requires at least: 5.0
+ * Plugin Name: Atarim - AI Agency for WordPress: Edit Pages, Fix Code, Update Plugins, SEO & Client Feedback
+ * Description: Give your AI full access to WordPress. It edits pages, fixes code, updates plugins and runs SEO work, with a backup and your approval first.
+ * Version: 5.1
+ * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: Atarim
  * Author URI: https://atarim.io/
- * License: GPL 3.0 or later
+ * License: GPLv2 or later
  * Text Domain: atarim-visual-collaboration
  * Domain Path: /languages
  */

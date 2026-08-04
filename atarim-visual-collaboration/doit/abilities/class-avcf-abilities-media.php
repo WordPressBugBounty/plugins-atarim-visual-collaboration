@@ -1054,7 +1054,7 @@ class AVCF_Abilities_Media extends AVCF_Abilities_Base {
         // ---- replace-media-file ----
         wp_register_ability( 'atarim/replace-media-file', [
             'label'               => 'Replace Media File',
-            'description'         => 'Replaces the underlying file of an existing attachment, keeping the SAME attachment ID. Useful when the same image needs a higher-resolution version, or a typo in a graphic needs fixing without breaking every URL/embed that references the old image. Preserves the filename by default so existing URLs continue working. MIME type changes (e.g. JPG → PNG) hard-fail unless confirm_mime_change: true. Regenerates intermediate sizes. Note: external CDN caches (Cloudflare, WP Rocket) may serve the old file until purged — not handled by this ability.',
+            'description'         => 'Replaces the underlying file of an existing attachment, keeping the SAME attachment ID. Useful when the same image needs a higher-resolution version, or a typo in a graphic needs fixing without breaking every URL/embed that references the old image. Preserves the filename by default so existing URLs continue working. MIME type changes (e.g. JPG → PNG) hard-fail unless confirm_mime_change: true. Regenerates intermediate sizes. Note: external CDN caches (Cloudflare, WP Rocket) may serve the old file until purged — run atarim/purge-all-caches (or atarim/purge-url-cache for the specific file) afterward.',
             'category'            => 'atarim',
             'input_schema'        => [
                 'type'       => 'object',
@@ -1242,7 +1242,7 @@ class AVCF_Abilities_Media extends AVCF_Abilities_Base {
                     'width'          => $width,
                     'height'         => $height,
                     'message'        => $new_filename === $existing_filename
-                        ? 'File replaced; filename preserved. External CDN caches may serve the old file until purged.'
+                        ? 'File replaced; filename preserved. External CDN caches may serve the old file until purged — run atarim/purge-all-caches.'
                         : sprintf( 'File replaced and renamed from "%s" to "%s". Existing URLs referencing the old filename will break.', $existing_filename, $new_filename ),
                 ];
             },

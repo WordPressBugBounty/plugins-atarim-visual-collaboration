@@ -81,6 +81,7 @@ class AVCF_MCP {
         ( new AVCF_Abilities_Global_Styles() )->register();
         ( new AVCF_Abilities_Patterns() )->register();
         ( new AVCF_Abilities_Block_Navigation() )->register();
+        ( new AVCF_Abilities_Cache() )->register();
 
         // Forms: Gravity Forms (standalone cluster).
         $gravity_detector = new AVCF_Gravity_Detector();

@@ -1,17 +1,4 @@
-<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1080">
-  <defs>
-    <style>
-      .cls-1 {
-        fill: #fff;
-      }
-    </style>
-  </defs>
-  <title>#9304 - New logo request</title>
-  <g>
-    <g>
-      <polygon class="cls-1" points="937.344 785.955 746.1 856.215 851.972 1060.257 1080 1059.991 937.344 785.955"/>
-      <polygon class="cls-1" points="539.938 19.669 0 1059.991 228.152 1059.991 539.873 458.766 652.263 675.369 843.507 605.108 539.938 19.669"/>
-    </g>
-    <polygon class="cls-1" points="227.659 1060.331 373.967 778.521 1055.074 519.371 227.659 1060.331"/>
-  </g>
+<svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M25.04 4.66003L48.08 50.74H33.68L25.04 30.58L16.4 50.74H2L25.04 4.66003Z" fill="white"/>
+<path d="M43.2 3L45.279 8.121L50.4 10.2L45.279 12.279L43.2 17.4L41.121 12.279L36 10.2L41.121 8.121L43.2 3Z" fill="#6D5DF3"/>
 </svg>

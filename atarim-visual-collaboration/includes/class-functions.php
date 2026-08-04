@@ -250,11 +250,13 @@ class AVCF_Functions {
     public function get_collab_js($site_id, $is_setting_screen = false) {
 
         $headless_attr = $is_setting_screen ? ' data-atarim-mode="headless"' : '';
+        $user_type_attr  = ( is_user_logged_in() && $this->avcf_allowed_user_role() ) ? ' data-user-type="loggedin"' : '';
         return '<script defer type="module"'
             . ' src="' . AVCF_SCRIPT_URL . '"'
             . ' data-siteid="' . esc_attr( $site_id ) . '"'
             . ' data-site-type="wordpress"'
             . $headless_attr
+            . $user_type_attr
             . '></script>';
     }
 
