@@ -42,6 +42,21 @@ require_once( AVCF_PLUGIN_DIR . 'third-party/seo/aioseo/class-avcf-aioseo-detect
 // Elementor integration — detector loads eagerly.
 require_once( AVCF_PLUGIN_DIR . 'third-party/page-builder/elementor/class-avcf-elementor-detector.php' );
 
+// ShortPixel image optimizer — detector loads eagerly.
+require_once( AVCF_PLUGIN_DIR . 'third-party/image-optimizer/shortpixel/class-avcf-shortpixel-detector.php' );
+
+// EWWW image optimizer — detector loads eagerly.
+require_once( AVCF_PLUGIN_DIR . 'third-party/image-optimizer/ewww/class-avcf-ewww-detector.php' );
+
+// reSmush.it image optimizer — detector loads eagerly.
+require_once( AVCF_PLUGIN_DIR . 'third-party/image-optimizer/resmushit/class-avcf-resmushit-detector.php' );
+
+// Smush image optimizer — detector loads eagerly.
+require_once( AVCF_PLUGIN_DIR . 'third-party/image-optimizer/smush/class-avcf-smush-detector.php' );
+
+// Optimole (CDN/offload) — detector loads eagerly.
+require_once( AVCF_PLUGIN_DIR . 'third-party/image-optimizer/optimole/class-avcf-optimole-detector.php' );
+
 // Field-framework integrations (Wave 3) — detectors load eagerly.
 require_once( AVCF_PLUGIN_DIR . 'third-party/content-model/metabox/class-avcf-metabox-detector.php' );
 require_once( AVCF_PLUGIN_DIR . 'third-party/content-model/jetengine/class-avcf-jetengine-detector.php' );
@@ -64,6 +79,9 @@ require_once( AVCF_PLUGIN_DIR . 'third-party/forms/forminator/class-avcf-formina
 require_once( AVCF_PLUGIN_DIR . 'third-party/forms/ninja-forms/class-avcf-ninja-detector.php' );
 require_once( AVCF_PLUGIN_DIR . 'third-party/forms/contact-form-7/class-avcf-cf7-detector.php' );
 require_once( AVCF_PLUGIN_DIR . 'third-party/flamingo/class-avcf-flamingo-detector.php' );
+
+// Backup detectors (standalone per-plugin clusters).
+require_once( AVCF_PLUGIN_DIR . 'third-party/backup/jetbackup/class-avcf-jetbackup-detector.php' );
 
 // ---------------------------------------------------------------------------
 // Phase 2: ability classes + MCP bootstrap — only when the Abilities API + MCP
@@ -92,6 +110,8 @@ if ( function_exists('wp_get_abilities') && class_exists('\WP\MCP\Core\McpAdapte
     require_once( AVCF_PLUGIN_DIR . 'doit/abilities/class-avcf-abilities-plugins.php' );
     require_once( AVCF_PLUGIN_DIR . 'doit/abilities/class-avcf-abilities-themes.php' );
     require_once( AVCF_PLUGIN_DIR . 'doit/abilities/class-avcf-abilities-theme-files.php' );
+    require_once( AVCF_PLUGIN_DIR . 'doit/abilities/class-avcf-abilities-readonly.php' );
+    require_once( AVCF_PLUGIN_DIR . 'doit/abilities/class-avcf-abilities-execute-php.php' );
     require_once( AVCF_PLUGIN_DIR . 'doit/abilities/class-avcf-abilities-core.php' );
     require_once( AVCF_PLUGIN_DIR . 'doit/abilities/class-avcf-abilities-taxonomies.php' );
     require_once( AVCF_PLUGIN_DIR . 'doit/abilities/class-avcf-abilities-users.php' );
@@ -160,6 +180,16 @@ if ( function_exists('wp_get_abilities') && class_exists('\WP\MCP\Core\McpAdapte
     require_once( AVCF_PLUGIN_DIR . 'third-party/page-builder/elementor/class-avcf-elementor-helpers.php' );
     require_once( AVCF_PLUGIN_DIR . 'third-party/page-builder/elementor/class-avcf-abilities-elementor.php' );
     require_once( AVCF_PLUGIN_DIR . 'third-party/page-builder/elementor/class-avcf-abilities-elementor-pro.php' );
+    require_once( AVCF_PLUGIN_DIR . 'third-party/image-optimizer/shortpixel/class-avcf-shortpixel-helpers.php' );
+    require_once( AVCF_PLUGIN_DIR . 'third-party/image-optimizer/shortpixel/class-avcf-abilities-shortpixel.php' );
+    require_once( AVCF_PLUGIN_DIR . 'third-party/image-optimizer/ewww/class-avcf-ewww-helpers.php' );
+    require_once( AVCF_PLUGIN_DIR . 'third-party/image-optimizer/ewww/class-avcf-abilities-ewww.php' );
+    require_once( AVCF_PLUGIN_DIR . 'third-party/image-optimizer/resmushit/class-avcf-resmushit-helpers.php' );
+    require_once( AVCF_PLUGIN_DIR . 'third-party/image-optimizer/resmushit/class-avcf-abilities-resmushit.php' );
+    require_once( AVCF_PLUGIN_DIR . 'third-party/image-optimizer/smush/class-avcf-smush-helpers.php' );
+    require_once( AVCF_PLUGIN_DIR . 'third-party/image-optimizer/smush/class-avcf-abilities-smush.php' );
+    require_once( AVCF_PLUGIN_DIR . 'third-party/image-optimizer/optimole/class-avcf-optimole-helpers.php' );
+    require_once( AVCF_PLUGIN_DIR . 'third-party/image-optimizer/optimole/class-avcf-abilities-optimole.php' );
 
     // Field-framework ability classes (Wave 3) — extend AVCF_Abilities_Base, load AFTER the base.
     require_once( AVCF_PLUGIN_DIR . 'third-party/content-model/metabox/class-avcf-metabox-helpers.php' );
@@ -190,6 +220,18 @@ if ( function_exists('wp_get_abilities') && class_exists('\WP\MCP\Core\McpAdapte
     require_once( AVCF_PLUGIN_DIR . 'third-party/page-builder/mosaic/class-avcf-mosaic-helpers.php' );
     require_once( AVCF_PLUGIN_DIR . 'third-party/page-builder/mosaic/class-avcf-abilities-mosaic.php' );
     require_once( AVCF_PLUGIN_DIR . 'third-party/page-builder/mosaic/class-avcf-abilities-mosaic-pro.php' );
+
+    // Backup: JetBackup (standalone cluster). Helpers + per-area ability classes;
+    // all extend AVCF_Abilities_Base and gate on the JetBackup detector.
+    require_once( AVCF_PLUGIN_DIR . 'third-party/backup/jetbackup/class-avcf-jetbackup-helpers.php' );
+    require_once( AVCF_PLUGIN_DIR . 'third-party/backup/jetbackup/class-avcf-abilities-jetbackup-backups.php' );
+    require_once( AVCF_PLUGIN_DIR . 'third-party/backup/jetbackup/class-avcf-abilities-jetbackup-restore.php' );
+    require_once( AVCF_PLUGIN_DIR . 'third-party/backup/jetbackup/class-avcf-abilities-jetbackup-jobs.php' );
+    require_once( AVCF_PLUGIN_DIR . 'third-party/backup/jetbackup/class-avcf-abilities-jetbackup-schedules.php' );
+    require_once( AVCF_PLUGIN_DIR . 'third-party/backup/jetbackup/class-avcf-abilities-jetbackup-destinations.php' );
+    require_once( AVCF_PLUGIN_DIR . 'third-party/backup/jetbackup/class-avcf-abilities-jetbackup-queue.php' );
+    require_once( AVCF_PLUGIN_DIR . 'third-party/backup/jetbackup/class-avcf-abilities-jetbackup-settings.php' );
+    require_once( AVCF_PLUGIN_DIR . 'third-party/backup/jetbackup/class-avcf-abilities-jetbackup-system.php' );
 
     // -----------------------------------------------------------------------
     // MCP bootstrap — orchestrator + hooks. Runs at load time, inside the same

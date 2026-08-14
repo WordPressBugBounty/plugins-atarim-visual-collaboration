@@ -233,25 +233,27 @@ class AVCF_Abilities_Divi extends AVCF_Abilities_Base {
                 $g = $self->guard( $input, true ); if ( isset( $g['err'] ) ) { return $g['err']; }
                 $name = AVCF_Divi_Helpers::normalize_module_name( $input['name'] );
                 $parent = isset( $input['parent_address'] ) ? (string) $input['parent_address'] : '';
-                $node = [ 'name' => $name, 'attrs' => isset( $input['attrs'] ) && is_array( $input['attrs'] ) ? $input['attrs'] : [], 'children' => [] ];
-                $tree = AVCF_Divi_Helpers::read_tree( $g['post_id'] );
+                $attrs  = isset( $input['attrs'] ) && is_array( $input['attrs'] ) ? $input['attrs'] : [];
+                $block  = AVCF_Divi_Helpers::raw_make_block( $name, $attrs, '' );
+                $blocks = AVCF_Divi_Helpers::read_raw( $g['post_id'] );
 
                 // Determine parent name for structural validation.
                 $parent_name = null;
                 if ( $parent !== '' ) {
-                    $pnode = AVCF_Divi_Helpers::tree_get( $tree, $parent );
-                    if ( $pnode === null ) { return [ 'success' => false, 'message' => sprintf( 'parent_address "%s" does not resolve.', $parent ) ]; }
-                    $parent_name = isset( $pnode['name'] ) ? (string) $pnode['name'] : '';
+                    $pblock = AVCF_Divi_Helpers::raw_node_at( $blocks, $parent );
+                    if ( $pblock === null ) { return [ 'success' => false, 'message' => sprintf( 'parent_address "%s" does not resolve.', $parent ) ]; }
+                    $parent_name = isset( $pblock['blockName'] ) ? (string) $pblock['blockName'] : '';
                 }
                 // Validate this single insertion structurally.
+                $node  = AVCF_Divi_Helpers::raw_to_probe( $block );
                 $probe = $parent_name === null ? [ $node ] : [ [ 'name' => $parent_name, 'attrs' => [], 'children' => [ $node ] ] ];
                 $v = AVCF_Divi_Helpers::validate_tree( $probe );
                 if ( ! empty( $v['errors'] ) ) { return [ 'success' => false, 'message' => implode( ' ', $v['errors'] ) ]; }
 
-                $pos = isset( $input['position'] ) ? (int) $input['position'] : PHP_INT_MAX;
-                $new = AVCF_Divi_Helpers::tree_insert( $tree, $parent, $pos, $node );
-                if ( $new === null ) { return [ 'success' => false, 'message' => 'Insert failed (bad parent_address).' ]; }
-                if ( ! AVCF_Divi_Helpers::write_tree( $g['post_id'], $new ) ) { return [ 'success' => false, 'message' => 'Failed to save.' ]; }
+                $pos = isset( $input['position'] ) ? (int) $input['position'] : null;
+                $new = AVCF_Divi_Helpers::raw_insert_at( $blocks, $parent, $pos, [ $block ] );
+                if ( $new === null ) { return [ 'success' => false, 'message' => 'Insert failed: bad parent_address, or the parent has no children yet and its wrapper markup could not be opened safely.' ]; }
+                if ( ! AVCF_Divi_Helpers::write_raw( $g['post_id'], $new ) ) { return [ 'success' => false, 'message' => 'Failed to save.' ]; }
                 return [ 'success' => true, 'warnings' => $v['warnings'], 'message' => sprintf( 'Inserted "%s". Re-read get-content for current addresses.', $name ) ];
             },
             'permission_callback' => function() { return current_user_can( 'edit_posts' ); },
@@ -275,13 +277,14 @@ class AVCF_Abilities_Divi extends AVCF_Abilities_Base {
             'execute_callback' => function( $input = [] ) use ( $self ) {
                 $g = $self->guard( $input, true ); if ( isset( $g['err'] ) ) { return $g['err']; }
                 $address = (string) $input['address'];
-                $tree = AVCF_Divi_Helpers::read_tree( $g['post_id'] );
-                $node = AVCF_Divi_Helpers::tree_get( $tree, $address );
+                $blocks = AVCF_Divi_Helpers::read_raw( $g['post_id'] );
+                $node = AVCF_Divi_Helpers::raw_node_at( $blocks, $address );
                 if ( $node === null ) { return [ 'success' => false, 'message' => sprintf( 'No module at address "%s".', $address ) ]; }
-                if ( isset( $node['_raw'] ) ) { return [ 'success' => false, 'message' => 'That address is a non-Divi passthrough block and cannot be edited here.' ]; }
+                $bname = isset( $node['blockName'] ) && is_string( $node['blockName'] ) ? $node['blockName'] : '';
+                if ( strpos( $bname, 'divi/' ) !== 0 ) { return [ 'success' => false, 'message' => 'That address is a non-Divi passthrough block and cannot be edited here.' ]; }
                 $node['attrs'] = AVCF_Divi_Helpers::deep_merge( isset( $node['attrs'] ) && is_array( $node['attrs'] ) ? $node['attrs'] : [], is_array( $input['attrs'] ) ? $input['attrs'] : [] );
-                $new = AVCF_Divi_Helpers::tree_replace( $tree, $address, $node );
-                if ( $new === null || ! AVCF_Divi_Helpers::write_tree( $g['post_id'], $new ) ) { return [ 'success' => false, 'message' => 'Failed to save.' ]; }
+                $new = AVCF_Divi_Helpers::raw_replace_at( $blocks, $address, $node );
+                if ( $new === null || ! AVCF_Divi_Helpers::write_raw( $g['post_id'], $new ) ) { return [ 'success' => false, 'message' => 'Failed to save.' ]; }
                 return [ 'success' => true, 'message' => sprintf( 'Updated module at "%s".', $address ) ];
             },
             'permission_callback' => function() { return current_user_can( 'edit_posts' ); },
@@ -305,11 +308,11 @@ class AVCF_Abilities_Divi extends AVCF_Abilities_Base {
             'execute_callback' => function( $input = [] ) use ( $self ) {
                 $g = $self->guard( $input, true ); if ( isset( $g['err'] ) ) { return $g['err']; }
                 $address = (string) $input['address'];
-                $tree = AVCF_Divi_Helpers::read_tree( $g['post_id'] );
-                if ( AVCF_Divi_Helpers::tree_get( $tree, $address ) === null ) { return [ 'success' => false, 'message' => sprintf( 'No module at address "%s".', $address ) ]; }
+                $blocks = AVCF_Divi_Helpers::read_raw( $g['post_id'] );
+                if ( AVCF_Divi_Helpers::raw_node_at( $blocks, $address ) === null ) { return [ 'success' => false, 'message' => sprintf( 'No module at address "%s".', $address ) ]; }
                 if ( empty( $input['confirm'] ) ) { return [ 'success' => true, 'removed' => false, 'message' => sprintf( 'Dry run: would remove module at "%s" and its subtree. Re-call with confirm:true.', $address ) ]; }
-                $new = AVCF_Divi_Helpers::tree_remove( $tree, $address );
-                if ( $new === null || ! AVCF_Divi_Helpers::write_tree( $g['post_id'], $new ) ) { return [ 'success' => false, 'message' => 'Failed to remove/save.' ]; }
+                $new = AVCF_Divi_Helpers::raw_remove_at( $blocks, $address );
+                if ( $new === null || ! AVCF_Divi_Helpers::write_raw( $g['post_id'], $new ) ) { return [ 'success' => false, 'message' => 'Failed to remove/save.' ]; }
                 return [ 'success' => true, 'removed' => true, 'message' => sprintf( 'Removed module at "%s".', $address ) ];
             },
             'permission_callback' => function() { return current_user_can( 'edit_posts' ); },
@@ -335,8 +338,8 @@ class AVCF_Abilities_Divi extends AVCF_Abilities_Base {
                 $g = $self->guard( $input, true ); if ( isset( $g['err'] ) ) { return $g['err']; }
                 $from = (string) $input['from_address'];
                 $to   = isset( $input['parent_address'] ) ? (string) $input['parent_address'] : '';
-                $tree = AVCF_Divi_Helpers::read_tree( $g['post_id'] );
-                $node = AVCF_Divi_Helpers::tree_get( $tree, $from );
+                $blocks = AVCF_Divi_Helpers::read_raw( $g['post_id'] );
+                $node = AVCF_Divi_Helpers::raw_node_at( $blocks, $from );
                 if ( $node === null ) { return [ 'success' => false, 'message' => sprintf( 'No module at from_address "%s".', $from ) ]; }
                 // Disallow moving a node into its own subtree.
                 if ( $to === $from || strpos( $to . '/', $from . '/' ) === 0 ) { return [ 'success' => false, 'message' => 'Cannot move a module into itself or its own descendant.' ]; }
@@ -344,20 +347,21 @@ class AVCF_Abilities_Divi extends AVCF_Abilities_Base {
                 // Structural check at destination.
                 $parent_name = null;
                 if ( $to !== '' ) {
-                    $pnode = AVCF_Divi_Helpers::tree_get( $tree, $to );
-                    if ( $pnode === null ) { return [ 'success' => false, 'message' => sprintf( 'parent_address "%s" does not resolve.', $to ) ]; }
-                    $parent_name = isset( $pnode['name'] ) ? (string) $pnode['name'] : '';
+                    $pblock = AVCF_Divi_Helpers::raw_node_at( $blocks, $to );
+                    if ( $pblock === null ) { return [ 'success' => false, 'message' => sprintf( 'parent_address "%s" does not resolve.', $to ) ]; }
+                    $parent_name = isset( $pblock['blockName'] ) ? (string) $pblock['blockName'] : '';
                 }
-                $probe = $parent_name === null ? [ $node ] : [ [ 'name' => $parent_name, 'attrs' => [], 'children' => [ $node ] ] ];
+                $pnode = AVCF_Divi_Helpers::raw_to_probe( $node );
+                $probe = $parent_name === null ? [ $pnode ] : [ [ 'name' => $parent_name, 'attrs' => [], 'children' => [ $pnode ] ] ];
                 $v = AVCF_Divi_Helpers::validate_tree( $probe );
                 if ( ! empty( $v['errors'] ) ) { return [ 'success' => false, 'message' => implode( ' ', $v['errors'] ) ]; }
 
-                $removed = AVCF_Divi_Helpers::tree_remove( $tree, $from );
+                $removed = AVCF_Divi_Helpers::raw_remove_at( $blocks, $from );
                 if ( $removed === null ) { return [ 'success' => false, 'message' => 'Move failed during removal.' ]; }
-                $pos = isset( $input['position'] ) ? (int) $input['position'] : PHP_INT_MAX;
-                $new = AVCF_Divi_Helpers::tree_insert( $removed, $to, $pos, $node );
+                $pos = isset( $input['position'] ) ? (int) $input['position'] : null;
+                $new = AVCF_Divi_Helpers::raw_insert_at( $removed, $to, $pos, [ $node ] );
                 if ( $new === null ) { return [ 'success' => false, 'message' => 'Move failed during insert (destination shifted). Re-read get-content and retry.' ]; }
-                if ( ! AVCF_Divi_Helpers::write_tree( $g['post_id'], $new ) ) { return [ 'success' => false, 'message' => 'Failed to save.' ]; }
+                if ( ! AVCF_Divi_Helpers::write_raw( $g['post_id'], $new ) ) { return [ 'success' => false, 'message' => 'Failed to save.' ]; }
                 return [ 'success' => true, 'message' => 'Module moved. Re-read get-content for current addresses.' ];
             },
             'permission_callback' => function() { return current_user_can( 'edit_posts' ); },

@@ -670,6 +670,11 @@ class AVCF_Abilities_Content extends AVCF_Abilities_Base {
                         'description' => 'Whether pingbacks and trackbacks are allowed. Defaults to the site-wide setting.',
                         'enum'        => [ 'open', 'closed' ],
                     ],
+                    'meta' => [
+                        'type'                 => 'object',
+                        'description'          => 'Optional map of post-meta keys to values, applied atomically at creation so you do not need follow-up write calls. Values are stored slash-safe, so JSON meta such as Elementor\'s _elementor_data round-trips intact. Underscore-prefixed keys (e.g. _elementor_data, _elementor_edit_mode, _elementor_template_type, _wp_page_template) are allowed. For framework fields (ACF / Toolset / Meta Box) that need their own write hooks, use update-post-field after creation instead.',
+                        'additionalProperties' => true,
+                    ],
                 ],
                 'required'             => [ 'post_type', 'title' ],
                 'additionalProperties' => false,
@@ -888,9 +893,33 @@ class AVCF_Abilities_Content extends AVCF_Abilities_Base {
                     set_post_thumbnail( $post_id, $featured_media_id );
                 }
 
+                // Apply an optional meta map atomically at creation. Written via
+                // update_post_meta with wp_slash so values (e.g. the _elementor_data
+                // JSON blob) round-trip intact — update_metadata unslashes internally.
+                $meta_written = [];
+                if ( isset( $input['meta'] ) && ( is_array( $input['meta'] ) || is_object( $input['meta'] ) ) ) {
+                    foreach ( (array) $input['meta'] as $mk => $mv ) {
+                        $mk = (string) $mk;
+                        if ( $mk === '' ) { continue; }
+                        update_post_meta( $post_id, $mk, wp_slash( $mv ) );
+                        $meta_written[] = $mk;
+                    }
+                }
+
                 $post = get_post( $post_id );
 
-                return [
+                // Body write-receipt (see update-content): confirm the stored body
+                // without echoing it. content_verified compares intended vs stored.
+                $stored_body     = (string) $post->post_content;
+                $content_receipt = [
+                    'content_bytes' => strlen( $stored_body ),
+                    'content_sha1'  => sha1( $stored_body ),
+                ];
+                if ( array_key_exists( 'post_content', $postarr ) ) {
+                    $content_receipt['content_verified'] = ( sha1( (string) $postarr['post_content'] ) === sha1( $stored_body ) );
+                }
+
+                return array_merge( [
                     'success'        => true,
                     'id'             => $post_id,
                     'title'          => $post->post_title,
@@ -905,8 +934,10 @@ class AVCF_Abilities_Content extends AVCF_Abilities_Base {
                     'featured_media' => (int) get_post_thumbnail_id( $post_id ),
                     'comment_status' => $post->comment_status,
                     'ping_status'    => $post->ping_status,
-                    'message'        => 'Content created.',
-                ];
+                    'meta_written'   => $meta_written,
+                ], $content_receipt, [
+                    'message'        => empty( $meta_written ) ? 'Content created.' : sprintf( 'Content created; %d meta key(s) set: %s.', count( $meta_written ), implode( ', ', $meta_written ) ),
+                ] );
             },
             'permission_callback' => function() {
                 return current_user_can( 'edit_posts' );
@@ -1256,7 +1287,20 @@ class AVCF_Abilities_Content extends AVCF_Abilities_Base {
 
                 $fresh = get_post( $id );
 
-                return [
+                // Body write-receipt: confirm the stored content without a separate
+                // (potentially very large) read. content_verified compares what we
+                // intended to store against what is actually stored, byte-for-byte.
+                $stored_body     = (string) $fresh->post_content;
+                $content_receipt = [
+                    'content_bytes'   => strlen( $stored_body ),
+                    'content_sha1'    => sha1( $stored_body ),
+                    'content_changed' => ( sha1( (string) $post->post_content ) !== sha1( $stored_body ) ),
+                ];
+                if ( array_key_exists( 'post_content', $update ) ) {
+                    $content_receipt['content_verified'] = ( sha1( (string) $update['post_content'] ) === sha1( $stored_body ) );
+                }
+
+                return array_merge( [
                     'success'        => true,
                     'id'             => $id,
                     'title'          => $fresh->post_title,
@@ -1272,8 +1316,9 @@ class AVCF_Abilities_Content extends AVCF_Abilities_Base {
                     'comment_status' => $fresh->comment_status,
                     'ping_status'    => $fresh->ping_status,
                     'updated'        => $updated,
+                ], $content_receipt, [
                     'message'        => sprintf( 'Updated: %s.', implode( ', ', $updated ) ),
-                ];
+                ] );
             },
             'permission_callback' => function() {
                 return current_user_can( 'edit_posts' );

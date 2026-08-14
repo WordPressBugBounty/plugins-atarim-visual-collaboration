@@ -4,12 +4,15 @@
  *
  * Registers Atarim/* abilities for working with media attachments —
  * listing/searching, reading individual items with full metadata,
- * updating attachment fields, bulk alt-text editing, and safe deletion
- * with in-use detection.
+ * updating attachment fields, bulk alt-text editing, safe deletion with
+ * in-use detection, uploading/replacing files, and core sub-size
+ * regeneration.
  *
- * Image optimization (ShortPixel etc.) is intentionally NOT in this
- * cluster. That belongs in a third-party/{plugin}/ integration module
- * once the stack-resolver pattern is in place.
+ * Third-party image OPTIMIZER integration (ShortPixel / Smush / EWWW /
+ * Imagify, i.e. driving an installed compressor) is intentionally NOT in
+ * this cluster — that belongs in a third-party/{plugin}/ integration
+ * module. Core, plugin-free sub-size regeneration (with an optional
+ * quality re-encode of the derivatives) DOES live here, as regenerate-image.
  *
  * Exposed abilities:
  *   atarim/list-media             Media with filters (mime, missing_alt, attached, search, date range).
@@ -18,10 +21,16 @@
  *   atarim/bulk-update-alt-text   Array of {id, alt_text} tuples with per-id results.
  *   atarim/delete-media           Single attachment delete with in-use safety guard.
  *   atarim/bulk-delete-media      Bulk delete with dry_run default and confirm_in_use guard.
+ *   atarim/upload-media           Sideload a file into the media library.
+ *   atarim/replace-media-file     Replace an attachment's underlying file.
+ *   atarim/replace-media-in-content  Swap one attachment for another across content.
+ *   atarim/regenerate-image       Regenerate sub-sizes (single or batch ≤25), optional quality re-encode of derivatives; original untouched.
  *
- * Note: ability names registered here must also be added to the $tools
- * array in doit/class-avcf-mcp.php::avcf_mcp_setup_server() to be exposed
- * by the MCP server.
+ * Note: abilities are exposed automatically — class-avcf-mcp.php builds the
+ * server tool list dynamically from wp_get_abilities(), including every
+ * ability whose meta has mcp.public = true and mcp.type = 'tool'. No manual
+ * $tools entry is required. (Exposure can still be suppressed via the
+ * avcf_mcp_blocked_abilities blocklist.)
  *
  * @package atarim-visual-collaboration
  */
@@ -1438,6 +1447,137 @@ class AVCF_Abilities_Media extends AVCF_Abilities_Base {
             'meta' => [
                 'mcp' => [ 'public' => true, 'type' => 'tool' ],
                 'annotations' => [ 'readonly' => false, 'destructive' => false, 'idempotent' => false ],
+            ],
+        ] );
+
+        // ---- regenerate-image ----
+        wp_register_ability( 'atarim/regenerate-image', [
+            'label'               => 'Regenerate Image Sub-sizes',
+            'description'         => 'Regenerate the sub-sizes (thumbnails / intermediate sizes) for one or more image attachments using WordPress core. Use after registering new image sizes, switching themes, or to shrink derivative files. Pass attachment_id for one, or attachment_ids for a batch (max 25 per call). Optional quality (1-100) re-encodes the GENERATED sub-sizes at that JPEG/WebP quality for a plugin-free size win; the ORIGINAL master file is never modified. Non-image attachments are skipped with a note. Each image is processed independently (per-image time/memory limits are raised best-effort) so one failure does not abort the rest of the batch, and images already done in a batch are saved even if a later one fails. However, a single very heavy image can still exceed a host hard PHP limit (PHP-FPM / web-server max execution time), which aborts the request — for heavy libraries process singly or use WP-CLI. To optimize an entire large library, work in small batches.',
+            'category'            => 'atarim',
+            'input_schema'        => [
+                'type'       => 'object',
+                'properties' => [
+                    'attachment_id'  => [ 'type' => 'integer', 'minimum' => 1, 'description' => 'A single attachment ID.' ],
+                    'attachment_ids' => [ 'type' => 'array', 'maxItems' => 25, 'items' => [ 'type' => 'integer', 'minimum' => 1 ], 'description' => 'Several attachment IDs (max 25).' ],
+                    'quality'        => [ 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'description' => 'Re-encode the generated sub-sizes at this quality (1-100). The original is not touched. Omit to use the site default.' ],
+                ],
+                'additionalProperties' => false,
+            ],
+            'output_schema'       => [
+                'type'       => 'object',
+                'properties' => [
+                    'success'           => [ 'type' => 'boolean' ],
+                    'regenerated_count' => [ 'type' => 'integer' ],
+                    'results'           => [ 'type' => 'array' ],
+                    'message'           => [ 'type' => 'string' ],
+                ],
+                'required' => [ 'success', 'message' ],
+            ],
+            'execute_callback'    => function( $input = [] ) {
+                // Collect target IDs from either input shape.
+                $ids = [];
+                if ( isset( $input['attachment_id'] ) ) {
+                    $ids[] = (int) $input['attachment_id'];
+                }
+                if ( isset( $input['attachment_ids'] ) && is_array( $input['attachment_ids'] ) ) {
+                    foreach ( $input['attachment_ids'] as $one ) { $ids[] = (int) $one; }
+                }
+                $ids = array_values( array_unique( array_filter( $ids, function( $v ) { return $v > 0; } ) ) );
+                if ( empty( $ids ) ) {
+                    return [ 'success' => false, 'message' => 'Provide attachment_id or attachment_ids.' ];
+                }
+                if ( count( $ids ) > 25 ) {
+                    return [ 'success' => false, 'message' => sprintf( 'Too many IDs (%d); max 25 per call. Split into batches.', count( $ids ) ) ];
+                }
+
+                if ( ! function_exists( 'wp_generate_attachment_metadata' ) ) {
+                    require_once ABSPATH . 'wp-admin/includes/image.php';
+                }
+                if ( ! function_exists( 'wp_generate_attachment_metadata' ) ) {
+                    return [ 'success' => false, 'message' => 'Image metadata functions are unavailable.' ];
+                }
+
+                // Optional quality: applies ONLY to the sub-sizes generated below;
+                // the original master is never re-encoded. Filters are removed after.
+                $quality = isset( $input['quality'] ) ? (int) $input['quality'] : 0;
+                $filter  = null;
+                if ( $quality >= 1 && $quality <= 100 ) {
+                    $filter = function() use ( $quality ) { return $quality; };
+                    add_filter( 'wp_editor_set_quality', $filter, 9999 );
+                    add_filter( 'jpeg_quality', $filter, 9999 );
+                }
+
+                // Image processing is memory-heavy; raise the ceiling (best-effort).
+                wp_raise_memory_limit( 'image' );
+
+                $results = [];
+                $ok      = 0;
+                foreach ( $ids as $id ) {
+                    // Give EACH image its own time budget so a batch does not
+                    // accumulate toward max_execution_time (that accumulation is
+                    // why one heavy image could kill an entire batch). Best-effort:
+                    // the host may disable set_time_limit or enforce a hard
+                    // PHP-FPM / web-server limit, in which case a single very heavy
+                    // image still needs WP-CLI or a raised server limit.
+                    if ( function_exists( 'set_time_limit' ) ) {
+                        @set_time_limit( 0 ); // phpcs:ignore
+                    }
+                    if ( 'attachment' !== get_post_type( $id ) ) {
+                        $results[] = [ 'id' => $id, 'regenerated' => false, 'message' => 'Not an attachment.' ];
+                        continue;
+                    }
+                    if ( ! wp_attachment_is_image( $id ) ) {
+                        $results[] = [ 'id' => $id, 'regenerated' => false, 'message' => 'Not an image attachment; skipped.' ];
+                        continue;
+                    }
+                    $file = get_attached_file( $id );
+                    if ( ! $file || ! file_exists( $file ) ) {
+                        $results[] = [ 'id' => $id, 'regenerated' => false, 'message' => 'Original file missing on disk.' ];
+                        continue;
+                    }
+                    // Per-image try/catch so a catchable fatal (e.g. an image
+                    // library exception) on one image does not abort the whole
+                    // batch. A true max_execution_time timeout is NOT catchable —
+                    // it hard-kills the request — so heavy files may still need
+                    // singly-processing or WP-CLI.
+                    try {
+                        $meta = wp_generate_attachment_metadata( $id, $file );
+                        if ( is_wp_error( $meta ) ) {
+                            $results[] = [ 'id' => $id, 'regenerated' => false, 'message' => 'Regeneration failed: ' . $meta->get_error_message() ];
+                            continue;
+                        }
+                        if ( empty( $meta ) ) {
+                            $results[] = [ 'id' => $id, 'regenerated' => false, 'message' => 'Regeneration produced no metadata (unsupported or unreadable image).' ];
+                            continue;
+                        }
+                        wp_update_attachment_metadata( $id, $meta );
+                        $sizes = ( isset( $meta['sizes'] ) && is_array( $meta['sizes'] ) ) ? array_keys( $meta['sizes'] ) : [];
+                        $ok++;
+                        $results[] = [ 'id' => $id, 'regenerated' => true, 'sizes' => $sizes, 'message' => sprintf( '%d sub-size(s) generated.', count( $sizes ) ) ];
+                    } catch ( \Throwable $e ) {
+                        $results[] = [ 'id' => $id, 'regenerated' => false, 'message' => 'Failed: ' . $e->getMessage() ];
+                    }
+                }
+
+                if ( $filter ) {
+                    remove_filter( 'wp_editor_set_quality', $filter, 9999 );
+                    remove_filter( 'jpeg_quality', $filter, 9999 );
+                }
+
+                return [
+                    'success'           => true,
+                    'regenerated_count' => $ok,
+                    'results'           => $results,
+                    'message'           => sprintf( 'Regenerated %d of %d image(s)%s.', $ok, count( $ids ), ( $quality >= 1 && $quality <= 100 ) ? sprintf( ' at quality %d (original untouched)', $quality ) : '' ),
+                ];
+            },
+            'permission_callback' => function() {
+                return current_user_can( 'upload_files' );
+            },
+            'meta' => [
+                'mcp' => [ 'public' => true, 'type' => 'tool' ],
+                'annotations' => [ 'readonly' => false, 'destructive' => false, 'idempotent' => true ],
             ],
         ] );
     }

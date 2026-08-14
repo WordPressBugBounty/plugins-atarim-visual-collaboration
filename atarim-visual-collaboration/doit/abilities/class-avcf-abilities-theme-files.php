@@ -757,7 +757,7 @@ class AVCF_Abilities_Theme_Files extends AVCF_Abilities_Base {
             'execute_callback'    => function( $input = [] ) {
                 // Blocked when file editing/mods are disabled.
                 if ( ( defined( 'DISALLOW_FILE_EDIT' ) && DISALLOW_FILE_EDIT ) || ( defined( 'DISALLOW_FILE_MODS' ) && DISALLOW_FILE_MODS ) ) {
-                    return [ 'success' => false, 'message' => 'Theme file editing is disabled on this site (DISALLOW_FILE_EDIT).' ];
+                    return [ 'success' => false, 'message' => 'Refused: this site disables theme file editing at the configuration level (DISALLOW_FILE_EDIT or DISALLOW_FILE_MODS is set in wp-config.php). This is a permanent, site-wide setting, so retrying will not help — an administrator would need to change the site configuration to allow it.' ];
                 }
 
                 $resolved = $this->avcf_resolve_theme( isset( $input['theme'] ) ? $input['theme'] : '' );
@@ -843,6 +843,228 @@ class AVCF_Abilities_Theme_Files extends AVCF_Abilities_Base {
                     'destructive' => false,
                     'idempotent'  => false,
                 ],
+            ],
+        ] );
+
+        // ---- create-theme-file ----
+        wp_register_ability( 'atarim/create-theme-file', [
+            'label'               => 'Create Theme File',
+            'description'         => 'Create a NEW editable text file in a theme (php, css, js, html, json, txt, md, po/pot). Fails if the file already exists — use replace-theme-file to overwrite. Missing parent directories are created automatically, so this is also how you make a FOLDER: create a file inside it. For example, path "template-parts/hero.php" creates the template-parts/ folder and the file within it. Restricted to the editable allow-list and realpath-contained to the theme directory; blocked when file editing is disabled (DISALLOW_FILE_EDIT / DISALLOW_FILE_MODS). PHP and JSON content is syntax-checked before writing (a broken file is rejected, not written). Defaults to the active theme; pass theme to target another installed theme (e.g. the parent).',
+            'category'            => 'atarim',
+            'input_schema'        => [
+                'type'       => 'object',
+                'properties' => [
+                    'theme'   => [ 'type' => 'string', 'description' => 'Stylesheet slug. Omit for the active theme.' ],
+                    'path'    => [ 'type' => 'string', 'description' => 'Theme-relative file path to create, e.g. "template-parts/hero.php".' ],
+                    'content' => [ 'type' => 'string', 'description' => 'File contents. Defaults to empty.' ],
+                ],
+                'required'             => [ 'path' ],
+                'additionalProperties' => false,
+            ],
+            'output_schema'       => [
+                'type'       => 'object',
+                'properties' => [
+                    'success' => [ 'type' => 'boolean' ],
+                    'theme'   => [ 'type' => 'string' ],
+                    'path'    => [ 'type' => 'string' ],
+                    'bytes'   => [ 'type' => 'integer' ],
+                    'sha1'    => [ 'type' => 'string' ],
+                    'message' => [ 'type' => 'string' ],
+                ],
+                'required' => [ 'success', 'message' ],
+            ],
+            'execute_callback' => function( $input = [] ) {
+                if ( ( defined( 'DISALLOW_FILE_EDIT' ) && DISALLOW_FILE_EDIT ) || ( defined( 'DISALLOW_FILE_MODS' ) && DISALLOW_FILE_MODS ) ) {
+                    return [ 'success' => false, 'message' => 'Refused: this site disables theme file editing at the configuration level (DISALLOW_FILE_EDIT or DISALLOW_FILE_MODS is set in wp-config.php). This is a permanent, site-wide setting, so retrying will not help — an administrator would need to change the site configuration to allow it.' ];
+                }
+                $resolved = $this->avcf_resolve_theme( isset( $input['theme'] ) ? (string) $input['theme'] : '' );
+                if ( isset( $resolved['error'] ) ) { return [ 'success' => false, 'message' => $resolved['error'] ]; }
+                $stylesheet = $resolved['stylesheet'];
+                $rel = isset( $input['path'] ) ? (string) $input['path'] : '';
+                $loc = $this->avcf_locate_editable( $stylesheet, $rel );
+                if ( isset( $loc['error'] ) ) { return [ 'success' => false, 'theme' => $stylesheet, 'message' => $loc['error'] ]; }
+                $fs = $this->avcf_fs();
+                if ( ! $fs ) { return [ 'success' => false, 'theme' => $stylesheet, 'path' => $loc['rel'], 'message' => 'Filesystem unavailable.' ]; }
+                if ( $fs->exists( $loc['abs'] ) ) {
+                    return [ 'success' => false, 'theme' => $stylesheet, 'path' => $loc['rel'], 'message' => 'File already exists; use replace-theme-file to overwrite it.' ];
+                }
+                $content = isset( $input['content'] ) ? (string) $input['content'] : '';
+                $ext = strtolower( pathinfo( $loc['rel'], PATHINFO_EXTENSION ) );
+                $lint = $this->avcf_lint( $content, $ext );
+                if ( $lint !== null ) { return [ 'success' => false, 'theme' => $stylesheet, 'path' => $loc['rel'], 'message' => 'Rejected, nothing written: ' . $lint ]; }
+                $parent_dir = dirname( $loc['abs'] );
+                if ( ! $fs->is_dir( $parent_dir ) && ! wp_mkdir_p( $parent_dir ) ) {
+                    return [ 'success' => false, 'theme' => $stylesheet, 'path' => $loc['rel'], 'message' => 'Could not create parent directory.' ];
+                }
+                if ( ! $fs->put_contents( $loc['abs'], $content, FS_CHMOD_FILE ) ) {
+                    return [ 'success' => false, 'theme' => $stylesheet, 'path' => $loc['rel'], 'message' => 'Write failed (filesystem permissions).' ];
+                }
+                return [
+                    'success' => true,
+                    'theme'   => $stylesheet,
+                    'path'    => $loc['rel'],
+                    'bytes'   => strlen( $content ),
+                    'sha1'    => sha1( $content ),
+                    'message' => sprintf( 'Created "%s" in theme "%s".', $loc['rel'], $stylesheet ),
+                ];
+            },
+            'permission_callback' => function() { return current_user_can( 'edit_themes' ); },
+            'meta' => [
+                'mcp' => [ 'public' => true, 'type' => 'tool' ],
+                'annotations' => [ 'readonly' => false, 'destructive' => false, 'idempotent' => false ],
+            ],
+        ] );
+
+        // ---- create-child-theme ----
+        wp_register_ability( 'atarim/create-child-theme', [
+            'label'               => 'Create Child Theme',
+            'description'         => 'Scaffold a NEW child theme of an existing parent theme: creates the child directory with a style.css (declaring Template: <parent>) and a functions.php that enqueues the parent stylesheet. Fails if a theme with the same slug already exists. Optionally activates the new child theme. Blocked when file editing is disabled (DISALLOW_FILE_EDIT / DISALLOW_FILE_MODS).',
+            'category'            => 'atarim',
+            'input_schema'        => [
+                'type'       => 'object',
+                'properties' => [
+                    'parent'     => [ 'type' => 'string', 'description' => 'Stylesheet slug of the parent theme.' ],
+                    'slug'       => [ 'type' => 'string', 'description' => 'Directory slug for the new child theme (a-z, 0-9, hyphens/underscores).' ],
+                    'theme_name' => [ 'type' => 'string', 'description' => 'Human-readable Theme Name. Defaults to "<Parent> Child".' ],
+                ],
+                'required'             => [ 'parent', 'slug' ],
+                'additionalProperties' => false,
+            ],
+            'output_schema'       => [
+                'type'       => 'object',
+                'properties' => [
+                    'success'   => [ 'type' => 'boolean' ],
+                    'slug'      => [ 'type' => 'string' ],
+                    'parent'    => [ 'type' => 'string' ],
+                    'files'     => [ 'type' => 'array', 'items' => [ 'type' => 'string' ] ],
+                    'active'    => [ 'type' => 'boolean' ],
+                    'message'   => [ 'type' => 'string' ],
+                ],
+                'required' => [ 'success', 'message' ],
+            ],
+            'execute_callback' => function( $input = [] ) {
+                if ( ( defined( 'DISALLOW_FILE_EDIT' ) && DISALLOW_FILE_EDIT ) || ( defined( 'DISALLOW_FILE_MODS' ) && DISALLOW_FILE_MODS ) ) {
+                    return [ 'success' => false, 'message' => 'Refused: this site disables theme file editing at the configuration level (DISALLOW_FILE_EDIT or DISALLOW_FILE_MODS is set in wp-config.php). This is a permanent, site-wide setting, so retrying will not help — an administrator would need to change the site configuration to allow it.' ];
+                }
+                $parent = sanitize_key( isset( $input['parent'] ) ? (string) $input['parent'] : '' );
+                $slug   = sanitize_key( isset( $input['slug'] ) ? (string) $input['slug'] : '' );
+                if ( $parent === '' || $slug === '' ) { return [ 'success' => false, 'message' => 'parent and slug are required.' ]; }
+                $parent_theme = wp_get_theme( $parent );
+                if ( ! $parent_theme->exists() ) { return [ 'success' => false, 'message' => sprintf( 'Parent theme "%s" is not installed.', $parent ) ]; }
+                if ( wp_get_theme( $slug )->exists() ) { return [ 'success' => false, 'message' => sprintf( 'A theme with slug "%s" already exists.', $slug ) ]; }
+
+                $root      = get_theme_root( $parent );
+                $child_abs = $this->avcf_resolve_within( rtrim( $root, '/' ), $slug );
+                if ( $child_abs === false ) { return [ 'success' => false, 'message' => 'Invalid child slug.' ]; }
+                $fs = $this->avcf_fs();
+                if ( ! $fs ) { return [ 'success' => false, 'message' => 'Filesystem unavailable.' ]; }
+                if ( $fs->exists( $child_abs ) ) { return [ 'success' => false, 'message' => sprintf( 'Directory "%s" already exists.', $slug ) ]; }
+                if ( ! wp_mkdir_p( $child_abs ) ) { return [ 'success' => false, 'message' => 'Could not create child theme directory.' ]; }
+
+                $name = isset( $input['theme_name'] ) && trim( (string) $input['theme_name'] ) !== ''
+                    ? trim( (string) $input['theme_name'] )
+                    : ( $parent_theme->get( 'Name' ) . ' Child' );
+                $name = str_replace( [ "\r", "\n" ], '', $name );
+
+                $style     = "/*\nTheme Name: {$name}\nTemplate: {$parent}\nVersion: 1.0.0\nDescription: Child theme of {$parent}.\n*/\n";
+                $functions = "<?php\n/**\n * {$name} functions.\n */\nadd_action( 'wp_enqueue_scripts', function () {\n\twp_enqueue_style( 'parent-style', get_template_directory_uri() . '/style.css' );\n} );\n";
+
+                $files = [];
+                if ( ! $fs->put_contents( $child_abs . '/style.css', $style, FS_CHMOD_FILE ) ) {
+                    return [ 'success' => false, 'slug' => $slug, 'parent' => $parent, 'message' => 'Failed to write style.css.' ];
+                }
+                $files[] = 'style.css';
+                if ( $fs->put_contents( $child_abs . '/functions.php', $functions, FS_CHMOD_FILE ) ) { $files[] = 'functions.php'; }
+
+                return [
+                    'success' => true,
+                    'slug'    => $slug,
+                    'parent'  => $parent,
+                    'files'   => $files,
+                    'active'  => false,
+                    'message' => sprintf( 'Created child theme "%s" (parent "%s"). It is installed but NOT active yet — to activate it, call the activate-theme ability with theme "%s" (that runs the compatibility checks first).', $slug, $parent, $slug ),
+                ];
+            },
+            'permission_callback' => function() { return current_user_can( 'install_themes' ) || current_user_can( 'edit_themes' ); },
+            'meta' => [
+                'mcp' => [ 'public' => true, 'type' => 'tool' ],
+                'annotations' => [ 'readonly' => false, 'destructive' => false, 'idempotent' => false ],
+            ],
+        ] );
+
+        // ---- create-theme ----
+        wp_register_ability( 'atarim/create-theme', [
+            'label'               => 'Create Theme',
+            'description'         => 'Scaffold a NEW standalone (parent-less) classic theme from scratch: creates the theme directory with a style.css header, a self-contained index.php, and a functions.php. Use create-child-theme instead when you want a child of an existing parent. Fails if a theme with the same slug already exists. Optionally activates the new theme. Blocked when file editing is disabled (DISALLOW_FILE_EDIT / DISALLOW_FILE_MODS).',
+            'category'            => 'atarim',
+            'input_schema'        => [
+                'type'       => 'object',
+                'properties' => [
+                    'slug'        => [ 'type' => 'string', 'description' => 'Directory slug for the new theme (a-z, 0-9, hyphens/underscores).' ],
+                    'theme_name'  => [ 'type' => 'string', 'description' => 'Human-readable Theme Name. Defaults to a title-cased slug.' ],
+                    'description' => [ 'type' => 'string', 'description' => 'Optional description for the style.css header.' ],
+                ],
+                'required'             => [ 'slug' ],
+                'additionalProperties' => false,
+            ],
+            'output_schema'       => [
+                'type'       => 'object',
+                'properties' => [
+                    'success'   => [ 'type' => 'boolean' ],
+                    'slug'      => [ 'type' => 'string' ],
+                    'files'     => [ 'type' => 'array', 'items' => [ 'type' => 'string' ] ],
+                    'active'    => [ 'type' => 'boolean' ],
+                    'message'   => [ 'type' => 'string' ],
+                ],
+                'required' => [ 'success', 'message' ],
+            ],
+            'execute_callback' => function( $input = [] ) {
+                if ( ( defined( 'DISALLOW_FILE_EDIT' ) && DISALLOW_FILE_EDIT ) || ( defined( 'DISALLOW_FILE_MODS' ) && DISALLOW_FILE_MODS ) ) {
+                    return [ 'success' => false, 'message' => 'Refused: this site disables theme file editing at the configuration level (DISALLOW_FILE_EDIT or DISALLOW_FILE_MODS is set in wp-config.php). This is a permanent, site-wide setting, so retrying will not help — an administrator would need to change the site configuration to allow it.' ];
+                }
+                $slug = sanitize_key( isset( $input['slug'] ) ? (string) $input['slug'] : '' );
+                if ( $slug === '' ) { return [ 'success' => false, 'message' => 'slug is required.' ]; }
+                if ( wp_get_theme( $slug )->exists() ) { return [ 'success' => false, 'message' => sprintf( 'A theme with slug "%s" already exists.', $slug ) ]; }
+
+                $root      = get_theme_root();
+                $theme_abs = $this->avcf_resolve_within( rtrim( $root, '/' ), $slug );
+                if ( $theme_abs === false ) { return [ 'success' => false, 'message' => 'Invalid theme slug.' ]; }
+                $fs = $this->avcf_fs();
+                if ( ! $fs ) { return [ 'success' => false, 'message' => 'Filesystem unavailable.' ]; }
+                if ( $fs->exists( $theme_abs ) ) { return [ 'success' => false, 'message' => sprintf( 'Directory "%s" already exists.', $slug ) ]; }
+                if ( ! wp_mkdir_p( $theme_abs ) ) { return [ 'success' => false, 'message' => 'Could not create theme directory.' ]; }
+
+                $name = isset( $input['theme_name'] ) && trim( (string) $input['theme_name'] ) !== ''
+                    ? trim( (string) $input['theme_name'] )
+                    : ucwords( str_replace( [ '-', '_' ], ' ', $slug ) );
+                $name = str_replace( [ "\r", "\n" ], '', $name );
+                $desc = isset( $input['description'] ) ? str_replace( [ "\r", "\n" ], ' ', trim( (string) $input['description'] ) ) : '';
+                if ( $desc === '' ) { $desc = sprintf( '%s theme.', $name ); }
+
+                $style     = "/*\nTheme Name: {$name}\nVersion: 1.0.0\nDescription: {$desc}\n*/\n";
+                $functions = "<?php\n/**\n * {$name} functions.\n */\nadd_action( 'after_setup_theme', function () {\n\tadd_theme_support( 'title-tag' );\n\tadd_theme_support( 'post-thumbnails' );\n} );\nadd_action( 'wp_enqueue_scripts', function () {\n\twp_enqueue_style( '" . $slug . "-style', get_stylesheet_uri() );\n} );\n";
+                $index     = "<?php\n/**\n * Main index template.\n */\n?>\n<!DOCTYPE html>\n<html <?php language_attributes(); ?>>\n<head>\n<meta charset=\"<?php bloginfo( 'charset' ); ?>\">\n<?php wp_head(); ?>\n</head>\n<body <?php body_class(); ?>>\n<?php\nif ( have_posts() ) {\n\twhile ( have_posts() ) {\n\t\tthe_post();\n\t\tthe_title( '<h1>', '</h1>' );\n\t\tthe_content();\n\t}\n}\nwp_footer();\n?>\n</body>\n</html>\n";
+
+                $files = [];
+                if ( ! $fs->put_contents( $theme_abs . '/style.css', $style, FS_CHMOD_FILE ) ) {
+                    return [ 'success' => false, 'slug' => $slug, 'message' => 'Failed to write style.css.' ];
+                }
+                $files[] = 'style.css';
+                if ( $fs->put_contents( $theme_abs . '/index.php', $index, FS_CHMOD_FILE ) ) { $files[] = 'index.php'; }
+                if ( $fs->put_contents( $theme_abs . '/functions.php', $functions, FS_CHMOD_FILE ) ) { $files[] = 'functions.php'; }
+
+                return [
+                    'success' => true,
+                    'slug'    => $slug,
+                    'files'   => $files,
+                    'active'  => false,
+                    'message' => sprintf( 'Created theme "%s". It is installed but NOT active yet — to activate it, call the activate-theme ability with theme "%s" (that runs the compatibility checks first).', $slug, $slug ),
+                ];
+            },
+            'permission_callback' => function() { return current_user_can( 'install_themes' ) || current_user_can( 'edit_themes' ); },
+            'meta' => [
+                'mcp' => [ 'public' => true, 'type' => 'tool' ],
+                'annotations' => [ 'readonly' => false, 'destructive' => false, 'idempotent' => false ],
             ],
         ] );
     }

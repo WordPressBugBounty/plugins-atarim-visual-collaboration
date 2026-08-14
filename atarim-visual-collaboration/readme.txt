@@ -1,10 +1,10 @@
 === Atarim - AI Agency for WordPress: Edit Pages, Fix Code, Update Plugins, SEO & Client Feedback ===
 Contributors: wpfeedback, pratapdungrani
 Tags: ai, agency, client feedback, automation, seo
-Stable tag: 5.1
+Stable tag: 5.1.1
 Requires at least: 6.0
 Requires PHP: 7.4
-Tested up to: 7.0
+Tested up to: 7.0.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -299,6 +299,12 @@ A free account includes one site and 200 AI credits. The paid plan is $67 a mont
 10. A workflow template. When a page review finishes, open a task for every critical issue and post it to Slack. You see the trigger, the actions and the credit cost before it runs.
 
 == Changelog ==
+
+= 5.1.1 =
+* **Back up and restore through JetBackup** - Using JetBackup, a connected AI can take a fresh backup before it starts editing, watch it finish, and restore a snapshot if a change needs undoing.
+* **Run a PHP snippet on the site** - For the times a fix needs code rather than a content change, a snippet can be run on the site and its output handed straight back. Administrator only, refused on sites that have file editing switched off, and every run is logged.
+* **Push attachments straight into the media library** - Images and files left on a task in Atarim can be sent to the site's media library from the dashboard, instead of downloading them and uploading them again by hand.
+* **Image optimization through the plugin already on the site** - Compress a single image or run a bulk pass using whichever optimizer is installed (ShortPixel, EWWW, Smush, reSmush.it, Imagify, Optimole), and check how far a bulk run has got.
 
 = 5.1 =
 * **Full site editing over MCP** - Filled the remaining gaps in the editing flow, so a connected AI can take a page or template change from start to finish without running into a missing ability.

@@ -30,6 +30,9 @@ use WP\MCP\Infrastructure\Observability\NullMcpObservabilityHandler;
 
 class AVCF_MCP {
 
+    /** JSON-RPC code the MCP adapter returns for an unknown tool name. */
+    const TOOL_NOT_FOUND = -32003;
+
     private $function;
     private $auth;
 
@@ -46,6 +49,9 @@ class AVCF_MCP {
 
         // Gate the whole MCP endpoint behind the "Enable Do It" setting.
         add_filter( 'rest_pre_dispatch', [ $this, 'avcf_mcp_gate_when_disabled' ], 5, 3 );
+
+        // Point unknown-tool errors at tools/list instead of leaving a dead end.
+        add_filter( 'rest_post_dispatch', [ $this, 'avcf_mcp_redirect_unknown_tool' ], 10, 3 );
 
         // Setup Atarim MCP server during adapter init.
         add_action( 'mcp_adapter_init', [ $this, 'avcf_mcp_setup_server' ] );
@@ -82,6 +88,8 @@ class AVCF_MCP {
         ( new AVCF_Abilities_Patterns() )->register();
         ( new AVCF_Abilities_Block_Navigation() )->register();
         ( new AVCF_Abilities_Cache() )->register();
+        ( new AVCF_Abilities_ReadOnly() )->register();
+        ( new AVCF_Abilities_ExecutePHP() )->register();
 
         // Forms: Gravity Forms (standalone cluster).
         $gravity_detector = new AVCF_Gravity_Detector();
@@ -182,6 +190,31 @@ class AVCF_MCP {
             ( new AVCF_Abilities_Elementor_Pro() )->register();
         }
 
+        $shortpixel_detector = new AVCF_ShortPixel_Detector();
+        if ( $shortpixel_detector->avcf_shortpixel_is_available() ) {
+            ( new AVCF_Abilities_ShortPixel() )->register();
+        }
+
+        $ewww_detector = new AVCF_EWWW_Detector();
+        if ( $ewww_detector->avcf_ewww_is_available() ) {
+            ( new AVCF_Abilities_EWWW() )->register();
+        }
+
+        $resmushit_detector = new AVCF_ReSmushit_Detector();
+        if ( $resmushit_detector->avcf_resmushit_is_available() ) {
+            ( new AVCF_Abilities_ReSmushit() )->register();
+        }
+
+        $smush_detector = new AVCF_Smush_Detector();
+        if ( $smush_detector->avcf_smush_is_available() ) {
+            ( new AVCF_Abilities_Smush() )->register();
+        }
+
+        $optimole_detector = new AVCF_Optimole_Detector();
+        if ( $optimole_detector->avcf_optimole_is_available() ) {
+            ( new AVCF_Abilities_Optimole() )->register();
+        }
+
         // Third-party: Meta Box.
         $metabox_detector = new AVCF_MetaBox_Detector();
         if ( $metabox_detector->avcf_mb_is_available() ) {
@@ -252,6 +285,21 @@ class AVCF_MCP {
         if ( $mosaic_detector->avcf_mosaic_is_available() ) {
             ( new AVCF_Abilities_Mosaic() )->register();
             ( new AVCF_Abilities_Mosaic_Pro() )->register();
+        }
+
+        // Third-party: JetBackup (backup cluster). Native jetbackup/* abilities
+        // are blocklisted (see AVCF_JetBackup_Detector::filter_blocklist) so only
+        // our unified atarim/jetbackup-* surface is exposed.
+        $jetbackup_detector = new AVCF_JetBackup_Detector();
+        if ( $jetbackup_detector->avcf_jetbackup_is_available() ) {
+            ( new AVCF_Abilities_JetBackup_Backups() )->register();
+            ( new AVCF_Abilities_JetBackup_Restore() )->register();
+            ( new AVCF_Abilities_JetBackup_Jobs() )->register();
+            ( new AVCF_Abilities_JetBackup_Schedules() )->register();
+            ( new AVCF_Abilities_JetBackup_Destinations() )->register();
+            ( new AVCF_Abilities_JetBackup_Queue() )->register();
+            ( new AVCF_Abilities_JetBackup_Settings() )->register();
+            ( new AVCF_Abilities_JetBackup_System() )->register();
         }
     }
 
@@ -376,6 +424,10 @@ class AVCF_MCP {
 
         // Allow site owner to block specific abilities via Atarim dashboard
         $blocked = (array) $this->function->avcf_get_setting_data( 'avcf_mcp_blocked_abilities', [] );
+        // Allow integrations (e.g. the JetBackup cluster) to contribute blocked
+        // names conditionally, without persisting them to the stored setting.
+        $blocked = (array) apply_filters( 'avcf_mcp_blocked_abilities', $blocked );
+
         $allowed = array_values( array_filter(
             $tools,
             function( $name ) use ( $blocked ) {
@@ -410,6 +462,75 @@ class AVCF_MCP {
                 return hash_equals( $stored_token, $incoming_token );
             }
         );
+    }
+
+    /**
+     * Replace the adapter's bare "Tool not found: X" with an instruction to
+     * re-read the tool list.
+     *
+     * The adapter answers an unknown tool name with a JSON-RPC -32003 and
+     * nothing else, so a caller that guessed a name has no route back and
+     * commonly guesses again, or reports the invented name upstream as though
+     * it were real.
+     *
+     * We deliberately do NOT suggest alternatives. tools/list is the
+     * authoritative set and already reflects which plugins are active on this
+     * site; anything we computed here would be an approximation of it, and a
+     * wrong suggestion is worse than none because it invites a call to an
+     * unrelated tool.
+     *
+     * @param mixed            $response Dispatch result.
+     * @param WP_REST_Server   $server   REST server instance.
+     * @param WP_REST_Request  $request  Current request.
+     * @return mixed
+     */
+    public function avcf_mcp_redirect_unknown_tool( $response, $server, $request ) {
+        if ( ! is_object( $request ) || ! method_exists( $request, 'get_route' ) ) {
+            return $response;
+        }
+        if ( strpos( (string) $request->get_route(), '/atarim/mcp' ) === false ) {
+            return $response;
+        }
+        if ( ! is_object( $response ) || ! method_exists( $response, 'get_data' ) || ! method_exists( $response, 'set_data' ) ) {
+            return $response;
+        }
+
+        $data = $response->get_data();
+        if ( ! is_array( $data ) || $data === [] ) {
+            return $response;
+        }
+
+        // A JSON-RPC batch comes back as a list of responses.
+        if ( isset( $data[0] ) && is_array( $data[0] ) ) {
+            $changed = false;
+            foreach ( $data as $i => $entry ) {
+                $new = $this->avcf_mcp_rewrite_not_found( $entry );
+                if ( null !== $new ) { $data[ $i ] = $new; $changed = true; }
+            }
+            if ( $changed ) { $response->set_data( $data ); }
+            return $response;
+        }
+
+        $new = $this->avcf_mcp_rewrite_not_found( $data );
+        if ( null !== $new ) { $response->set_data( $new ); }
+        return $response;
+    }
+
+    /** Returns the rewritten entry, or null if it isn't a tool-not-found error. */
+    private function avcf_mcp_rewrite_not_found( $entry ) {
+        if ( ! is_array( $entry ) || ! isset( $entry['error']['code'] ) ) {
+            return null;
+        }
+        if ( (int) $entry['error']['code'] !== self::TOOL_NOT_FOUND ) {
+            return null;
+        }
+
+        $entry['error']['message'] = __(
+            'No tool or ability with that name exists on this site. Call tools/list to get the current list, and use only a name that appears in it exactly. Which tools exist depends on which plugins are active on this site, so a tool that exists elsewhere may not exist here. If nothing in the list does what you need, that capability is unavailable here: report that and stop, rather than trying another name.',
+            'atarim-visual-collaboration'
+        );
+
+        return $entry;
     }
 
     /**

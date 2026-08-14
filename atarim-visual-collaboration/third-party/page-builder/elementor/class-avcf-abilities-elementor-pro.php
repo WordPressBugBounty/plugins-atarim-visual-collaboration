@@ -46,6 +46,7 @@ class AVCF_Abilities_Elementor_Pro extends AVCF_Abilities_Base {
         $this->register_element_style();
         $this->register_atomic_widget();
         $this->register_validate_widget();
+        $this->register_get_atomic_schema();
     }
 
     /* ----------------------------- shared ------------------------------ */
@@ -307,13 +308,13 @@ class AVCF_Abilities_Elementor_Pro extends AVCF_Abilities_Base {
         $std_out = [ 'type' => 'object', 'properties' => [ 'success' => [ 'type' => 'boolean' ], 'message' => [ 'type' => 'string' ] ], 'required' => [ 'success', 'message' ] ];
 
         foreach ( [
-            [ 'atarim/elementor-create-v3-color', 'Create v3 Global Color', 'custom_colors', 'create', array_merge( $color_props, [] ), [ 'title', 'color' ] ],
-            [ 'atarim/elementor-edit-v3-color', 'Edit v3 Global Color', 'custom_colors', 'edit', array_merge( [ 'id' => [ 'type' => 'string' ] ], $color_props ), [ 'id' ] ],
-            [ 'atarim/elementor-delete-v3-color', 'Delete v3 Global Color', 'custom_colors', 'delete', [ 'id' => [ 'type' => 'string' ], 'confirm' => [ 'type' => 'boolean', 'default' => false ] ], [ 'id' ] ],
-            [ 'atarim/elementor-create-v3-typography', 'Create v3 Global Typography', 'custom_typography', 'create', array_merge( $typo_props, [] ), [ 'title' ] ],
-            [ 'atarim/elementor-edit-v3-typography', 'Edit v3 Global Typography', 'custom_typography', 'edit', array_merge( [ 'id' => [ 'type' => 'string' ] ], $typo_props ), [ 'id' ] ],
-            [ 'atarim/elementor-delete-v3-typography', 'Delete v3 Global Typography', 'custom_typography', 'delete', [ 'id' => [ 'type' => 'string' ], 'confirm' => [ 'type' => 'boolean', 'default' => false ] ], [ 'id' ] ],
-        ] as $def ) {
+                      [ 'atarim/elementor-create-v3-color', 'Create v3 Global Color', 'custom_colors', 'create', array_merge( $color_props, [] ), [ 'title', 'color' ] ],
+                      [ 'atarim/elementor-edit-v3-color', 'Edit v3 Global Color', 'custom_colors', 'edit', array_merge( [ 'id' => [ 'type' => 'string' ] ], $color_props ), [ 'id' ] ],
+                      [ 'atarim/elementor-delete-v3-color', 'Delete v3 Global Color', 'custom_colors', 'delete', [ 'id' => [ 'type' => 'string' ], 'confirm' => [ 'type' => 'boolean', 'default' => false ] ], [ 'id' ] ],
+                      [ 'atarim/elementor-create-v3-typography', 'Create v3 Global Typography', 'custom_typography', 'create', array_merge( $typo_props, [] ), [ 'title' ] ],
+                      [ 'atarim/elementor-edit-v3-typography', 'Edit v3 Global Typography', 'custom_typography', 'edit', array_merge( [ 'id' => [ 'type' => 'string' ] ], $typo_props ), [ 'id' ] ],
+                      [ 'atarim/elementor-delete-v3-typography', 'Delete v3 Global Typography', 'custom_typography', 'delete', [ 'id' => [ 'type' => 'string' ], 'confirm' => [ 'type' => 'boolean', 'default' => false ] ], [ 'id' ] ],
+                  ] as $def ) {
             list( $name, $label, $key, $op, $props, $required ) = $def;
             wp_register_ability( $name, [
                 'label' => $label, 'category' => 'atarim',
@@ -684,37 +685,194 @@ class AVCF_Abilities_Elementor_Pro extends AVCF_Abilities_Base {
     private function register_atomic_widget() {
         $self = $this;
         wp_register_ability( 'atarim/elementor-create-atomic-widget', [
-            'label' => 'Create Elementor Atomic Widget', 'category' => 'atarim',
-            'description' => 'EXPERIMENTAL. Insert an Elementor v4 atomic widget (e.g. "e-heading", "e-paragraph", "e-button") into a post. Atomic widgets are written via a RAW save because Elementor\'s Document::save() strips them. settings uses the atomic prop shape ({"$$type":...,"value":...}); pass them as you would see them in elementor-get-content. Validate output on a live Elementor build.',
+            'label' => 'Create Elementor Atomic Element', 'category' => 'atarim',
+            'description' => 'EXPERIMENTAL (Elementor v4). Insert an atomic element into a post: either an atomic WIDGET (e.g. "e-heading", "e-paragraph", "e-button", "e-image") or an atomic CONTAINER (e.g. "e-div-block", "e-flexbox", "e-grid") that can hold children — pass the type in widget_type and it is resolved automatically (widgets get elType "widget"+widgetType; containers get their own elType). Written via a RAW save because Document::save() strips atomic elements. settings/styles use the atomic prop shape; read shapes with elementor-get-atomic-schema (or mirror elementor-get-content). parent_id nests under an element; omit for top level. Validate on a live v4 build.',
             'input_schema' => [ 'type' => 'object', 'properties' => [
-                'post_id' => [ 'type' => 'integer', 'minimum' => 1 ], 'widget_type' => [ 'type' => 'string', 'description' => 'Atomic widget type, e.g. "e-heading".' ], 'parent_id' => [ 'type' => 'string' ], 'index' => [ 'type' => 'integer', 'minimum' => 0 ], 'settings' => [ 'type' => 'object' ], 'styles' => [ 'type' => 'object' ],
+                'post_id' => [ 'type' => 'integer', 'minimum' => 1 ], 'widget_type' => [ 'type' => 'string', 'description' => 'Atomic type: a widget ("e-heading", "e-button", ...) or a container ("e-div-block", "e-flexbox", "e-grid").' ], 'parent_id' => [ 'type' => 'string' ], 'index' => [ 'type' => 'integer', 'minimum' => 0 ], 'settings' => [ 'type' => 'object' ], 'styles' => [ 'type' => 'object' ],
             ], 'required' => [ 'post_id', 'widget_type' ], 'additionalProperties' => false ],
             'output_schema'=> [ 'type' => 'object', 'properties' => [ 'success' => [ 'type' => 'boolean' ], 'element_id' => [ 'type' => 'string' ], 'message' => [ 'type' => 'string' ] ], 'required' => [ 'success', 'message' ] ],
             'execute_callback' => function( $input = [] ) use ( $self ) {
                 $post_id = (int) $input['post_id'];
                 if ( $post_id <= 0 || ! get_post( $post_id ) ) { return [ 'success' => false, 'message' => 'A valid post_id is required.' ]; }
                 if ( ! $self->post_can( $post_id ) ) { return [ 'success' => false, 'message' => 'No permission to edit this post.' ]; }
-                $node = [
-                    'id'         => $self->gen_id(),
-                    'elType'     => 'widget',
-                    'widgetType' => (string) $input['widget_type'],
-                    'settings'   => isset( $input['settings'] ) && is_array( $input['settings'] ) ? $input['settings'] : (object) [],
-                    'styles'     => isset( $input['styles'] ) && is_array( $input['styles'] ) ? $input['styles'] : (object) [],
-                    'elements'   => [],
-                    'editor_settings' => [],
-                    'version'    => '0.0',
-                ];
+                $type = (string) $input['widget_type'];
+
+                // Resolve widget vs container element. Atomic widgets live in
+                // widgets_manager (elType "widget" + widgetType); atomic containers
+                // (div-block/flexbox/grid) live in elements_manager with their own
+                // elType (e-div-block/...). Unresolved types default to widget.
+                $p          = class_exists( '\Elementor\Plugin' ) ? \Elementor\Plugin::$instance : null;
+                $wm         = ( $p && isset( $p->widgets_manager ) ) ? $p->widgets_manager : null;
+                $em         = ( $p && isset( $p->elements_manager ) ) ? $p->elements_manager : null;
+                $as_widget  = is_object( $wm ) && method_exists( $wm, 'get_widget_types' ) && is_object( $wm->get_widget_types( $type ) );
+                $as_element = ! $as_widget && is_object( $em ) && method_exists( $em, 'get_element_types' ) && is_object( $em->get_element_types( $type ) );
+
+                $node = [ 'id' => $self->gen_id() ];
+                if ( $as_element ) {
+                    $node['elType'] = $type; // e.g. e-div-block / e-flexbox / e-grid
+                } else {
+                    $node['elType']     = 'widget';
+                    $node['widgetType'] = $type;
+                }
+                $node['settings']        = isset( $input['settings'] ) && is_array( $input['settings'] ) ? $input['settings'] : (object) [];
+                $node['styles']          = isset( $input['styles'] ) && is_array( $input['styles'] ) ? $input['styles'] : (object) [];
+                $node['elements']        = [];
+                $node['editor_settings'] = [];
+                $node['version']         = '0.0';
                 $tree = AVCF_Elementor_Helpers::read_tree( $post_id );
                 $index = isset( $input['index'] ) ? (int) $input['index'] : null;
                 list( $tree, $inserted ) = AVCF_Elementor_Helpers::insert( $tree, isset( $input['parent_id'] ) ? (string) $input['parent_id'] : null, $node, $index );
                 if ( ! $inserted ) { return [ 'success' => false, 'message' => sprintf( 'parent_id "%s" not found.', isset( $input['parent_id'] ) ? $input['parent_id'] : '' ) ]; }
                 // Force a raw write — Document::save() strips atomic widgets.
                 if ( ! AVCF_Elementor_Helpers::write_tree( $post_id, $tree, true ) ) { return [ 'success' => false, 'message' => 'Failed to save (raw).' ]; }
-                return [ 'success' => true, 'element_id' => $node['id'], 'message' => sprintf( 'Inserted atomic widget "%s" (raw write).', $node['widgetType'] ) ];
+                $message = sprintf( 'Inserted atomic %s "%s" (raw write).', $as_element ? 'container' : 'widget', $type );
+                $out = [ 'success' => true, 'element_id' => $node['id'] ];
+
+                // Tier-2 validation (non-blocking): flag settings keys the atomic
+                // type does not define, so a silently-ignored prop is visible.
+                $settings_in = isset( $input['settings'] ) && is_array( $input['settings'] ) ? $input['settings'] : [];
+                if ( ! empty( $settings_in ) ) {
+                    $valid = AVCF_Elementor_Helpers::valid_setting_keys( $type );
+                    if ( 'unknown' !== $valid['mode'] && ! empty( $valid['keys'] ) ) {
+                        $unknown = array_values( array_filter(
+                            array_diff( array_keys( $settings_in ), $valid['keys'] ),
+                            function( $k ) { return '__dynamic__' !== $k; }
+                        ) );
+                        if ( ! empty( $unknown ) ) {
+                            $out['unknown_settings'] = $unknown;
+                            $message .= sprintf( ' WARNING: %d settings key(s) are not defined by "%s" and are likely ignored: %s. Check names with elementor-get-atomic-schema.', count( $unknown ), $type, implode( ', ', $unknown ) );
+                        }
+                    }
+                }
+                $out['message'] = $message;
+                return $out;
             },
             'permission_callback' => function() { return current_user_can( 'edit_posts' ); },
             'meta' => $this->write_meta( false ),
         ] );
+    }
+
+    /* -------------------- get-atomic-schema (1) ------------------------ */
+
+    private function register_get_atomic_schema() {
+        $self = $this;
+        wp_register_ability( 'atarim/elementor-get-atomic-schema', [
+            'label' => 'Get Elementor Atomic Element Shape', 'category' => 'atarim',
+            'description' => 'EXPERIMENTAL (Elementor v4). Get the prop schema of atomic elements. Omit widget_type to LIST all atomic types (widgets like "e-heading", "e-button", "e-image" and container elements like "e-div-block", "e-flexbox", "e-grid"). Pass widget_type to get its REAL prop schema (each prop kind, key, default and settings) read from Elementor atomic props-schema API. If a type cannot be resolved via the API, pass a post_id that contains it and the OBSERVED shape (prop keys + a sample settings/styles to mirror) is returned instead. For classic v3 widgets use get-widget-schema.',
+            'input_schema' => [ 'type' => 'object', 'properties' => [
+                'widget_type' => [ 'type' => 'string', 'description' => 'Atomic type, e.g. "e-heading" / "e-div-block". Omit to list all atomic types.' ],
+                'post_id'     => [ 'type' => 'integer', 'minimum' => 1, 'description' => 'Optional: a post containing the type, used only for the observed-shape fallback.' ],
+            ], 'additionalProperties' => false ],
+            'output_schema'=> [ 'type' => 'object', 'properties' => [
+                'success' => [ 'type' => 'boolean' ],
+                'post_id' => [ 'type' => 'integer' ],
+                'types'   => [ 'type' => 'array' ],
+                'message' => [ 'type' => 'string' ],
+            ], 'required' => [ 'success', 'message' ] ],
+            'execute_callback' => function( $input = [] ) use ( $self ) {
+                if ( ! class_exists( '\Elementor\Plugin' ) ) { return [ 'success' => false, 'message' => 'Elementor is not active.' ]; }
+                $p  = \Elementor\Plugin::$instance;
+                $wm = isset( $p->widgets_manager ) ? $p->widgets_manager : null;
+                $em = isset( $p->elements_manager ) ? $p->elements_manager : null;
+                $type    = isset( $input['widget_type'] ) ? (string) $input['widget_type'] : '';
+                $post_id = isset( $input['post_id'] ) ? (int) $input['post_id'] : 0;
+
+                // No type -> list all atomic types (those exposing get_props_schema) from both managers.
+                if ( $type === '' ) {
+                    $list = [];
+                    if ( is_object( $wm ) && method_exists( $wm, 'get_widget_types' ) ) {
+                        foreach ( (array) $wm->get_widget_types() as $key => $w ) {
+                            if ( is_object( $w ) && method_exists( $w, 'get_props_schema' ) ) {
+                                $list[] = [ 'type' => method_exists( $w, 'get_name' ) ? $w->get_name() : (string) $key, 'title' => method_exists( $w, 'get_title' ) ? $w->get_title() : (string) $key, 'category' => 'widget' ];
+                            }
+                        }
+                    }
+                    if ( is_object( $em ) && method_exists( $em, 'get_element_types' ) ) {
+                        foreach ( (array) $em->get_element_types() as $key => $e ) {
+                            if ( is_object( $e ) && method_exists( $e, 'get_props_schema' ) ) {
+                                $list[] = [ 'type' => method_exists( $e, 'get_name' ) ? $e->get_name() : (string) $key, 'title' => method_exists( $e, 'get_title' ) ? $e->get_title() : (string) $key, 'category' => 'element' ];
+                            }
+                        }
+                    }
+                    return [ 'success' => true, 'types' => $list, 'message' => sprintf( '%d atomic type(s) available.', count( $list ) ) ];
+                }
+
+                // Type given -> resolve via widgets_manager, then elements_manager.
+                $obj = null; $category = '';
+                if ( is_object( $wm ) && method_exists( $wm, 'get_widget_types' ) ) {
+                    $w = $wm->get_widget_types( $type );
+                    if ( is_object( $w ) ) { $obj = $w; $category = 'widget'; }
+                }
+                if ( ! $obj && is_object( $em ) && method_exists( $em, 'get_element_types' ) ) {
+                    $e = $em->get_element_types( $type );
+                    if ( is_object( $e ) ) { $obj = $e; $category = 'element'; }
+                }
+
+                // Real props schema: Prop_Type objects -> full JSON definitions via jsonSerialize().
+                if ( $obj && method_exists( $obj, 'get_props_schema' ) ) {
+                    try {
+                        $class  = get_class( $obj );
+                        $schema = $class::get_props_schema();
+                        $props  = json_decode( wp_json_encode( $schema ), true );
+                    } catch ( \Throwable $ex ) {
+                        $props = null;
+                    }
+                    if ( is_array( $props ) ) {
+                        return [ 'success' => true, 'widget_type' => $type, 'category' => $category, 'source' => 'schema', 'prop_names' => array_keys( $props ), 'props' => $props, 'message' => sprintf( 'Prop schema for atomic %s "%s" (%d props).', $category, $type, count( $props ) ) ];
+                    }
+                }
+
+                // Fallback: observed shape from a post that uses the type.
+                if ( $post_id > 0 && get_post( $post_id ) && $self->post_can( $post_id ) ) {
+                    $tree = AVCF_Elementor_Helpers::read_tree( $post_id );
+                    $acc  = [];
+                    $self->collect_atomic_shapes( $tree, $type, $acc );
+                    if ( ! empty( $acc ) ) {
+                        $info = reset( $acc );
+                        $sp   = [];
+                        foreach ( $info['settings_keys'] as $k => $t ) { $sp[] = [ 'key' => $k, 'type' => $t ]; }
+                        return [ 'success' => true, 'widget_type' => $type, 'source' => 'observed', 'settings_props' => $sp, 'sample_settings' => $info['sample_settings'], 'sample_styles' => $info['sample_styles'], 'message' => sprintf( 'Observed shape for "%s" from post %d (props-schema API did not resolve this type).', $type, $post_id ) ];
+                    }
+                }
+
+                return [ 'success' => false, 'message' => sprintf( 'Atomic type "%s" was not found via the props-schema API. If it is valid, pass a post_id that contains it to derive its observed shape.', $type ) ];
+            },
+            'permission_callback' => function() { return current_user_can( 'edit_posts' ); },
+            'meta' => $this->ro_meta(),
+        ] );
+    }
+
+    /**
+     * Recursively collect the observed shape of atomic (e-*) elements in a tree.
+     * Accumulates per widgetType: count, the union of settings keys -> atomic
+     * "$$type" (or php type), and one sample settings + styles object.
+     */
+    private function collect_atomic_shapes( $elements, $filter, &$acc ) {
+        foreach ( (array) $elements as $el ) {
+            if ( ! is_array( $el ) ) { continue; }
+            $wtype     = isset( $el['widgetType'] ) ? (string) $el['widgetType'] : '';
+            $is_atomic = ( $wtype !== '' && strpos( $wtype, 'e-' ) === 0 ) || ( isset( $el['styles'] ) && ! empty( $el['styles'] ) );
+            if ( $is_atomic && ( $filter === '' || $wtype === $filter ) ) {
+                if ( ! isset( $acc[ $wtype ] ) ) {
+                    $acc[ $wtype ] = [ 'count' => 0, 'settings_keys' => [], 'sample_settings' => null, 'sample_styles' => null ];
+                }
+                $acc[ $wtype ]['count']++;
+                $settings = ( isset( $el['settings'] ) && is_array( $el['settings'] ) ) ? $el['settings'] : [];
+                foreach ( $settings as $k => $v ) {
+                    $t = ( is_array( $v ) && isset( $v['$$type'] ) ) ? (string) $v['$$type'] : gettype( $v );
+                    $acc[ $wtype ]['settings_keys'][ (string) $k ] = $t;
+                }
+                if ( $acc[ $wtype ]['sample_settings'] === null && ! empty( $settings ) ) {
+                    $acc[ $wtype ]['sample_settings'] = $settings;
+                }
+                if ( $acc[ $wtype ]['sample_styles'] === null && isset( $el['styles'] ) && ! empty( $el['styles'] ) ) {
+                    $acc[ $wtype ]['sample_styles'] = $el['styles'];
+                }
+            }
+            if ( ! empty( $el['elements'] ) ) {
+                $this->collect_atomic_shapes( $el['elements'], $filter, $acc );
+            }
+        }
     }
 
     /* ----------------------- validate-widget (1) ----------------------- */
@@ -722,26 +880,42 @@ class AVCF_Abilities_Elementor_Pro extends AVCF_Abilities_Base {
     private function register_validate_widget() {
         $self = $this;
         wp_register_ability( 'atarim/elementor-validate-widget', [
-            'label' => 'Validate Elementor Widget Settings', 'category' => 'atarim',
-            'description' => 'Check a settings object against a widget\'s controls: reports unknown setting keys (not in the widget\'s control list) and the list of valid control names. Use before add-element / edit-element to catch typos.',
+            'label' => 'Validate Elementor Element Settings', 'category' => 'atarim',
+            'description' => 'Check a settings object against a type\'s valid keys and report unknown ones. Works for both classic v3 widgets (validated against their controls) and Elementor v4 atomic widgets/containers (validated against the props schema). Accepts a widget type (e.g. "heading", "e-heading") or an atomic container type ("e-div-block"). Returns mode (v3|atomic), the unknown keys, and the full valid_keys list. Use before add-element / edit-element / create-atomic-widget to catch typos.',
             'input_schema' => [ 'type' => 'object', 'properties' => [ 'widget' => [ 'type' => 'string' ], 'settings' => [ 'type' => 'object' ] ], 'required' => [ 'widget', 'settings' ], 'additionalProperties' => false ],
-            'output_schema'=> [ 'type' => 'object', 'properties' => [ 'success' => [ 'type' => 'boolean' ], 'valid' => [ 'type' => 'boolean' ], 'unknown_keys' => [ 'type' => 'array' ], 'message' => [ 'type' => 'string' ] ], 'required' => [ 'success', 'message' ] ],
+            'output_schema'=> [ 'type' => 'object', 'properties' => [ 'success' => [ 'type' => 'boolean' ], 'mode' => [ 'type' => 'string' ], 'valid' => [ 'type' => 'boolean' ], 'unknown_keys' => [ 'type' => 'array' ], 'valid_keys' => [ 'type' => 'array' ], 'message' => [ 'type' => 'string' ] ], 'required' => [ 'success', 'message' ] ],
             'execute_callback' => function( $input = [] ) {
-                $p = \Elementor\Plugin::$instance;
+                if ( ! class_exists( '\Elementor\Plugin' ) ) { return [ 'success' => false, 'message' => 'Elementor is not active.' ]; }
+                $p  = \Elementor\Plugin::$instance;
                 $wm = isset( $p->widgets_manager ) ? $p->widgets_manager : null;
-                if ( ! is_object( $wm ) ) { return [ 'success' => false, 'message' => 'Widgets manager unavailable.' ]; }
+                $em = isset( $p->elements_manager ) ? $p->elements_manager : null;
                 $name = (string) $input['widget'];
                 $settings = isset( $input['settings'] ) && is_array( $input['settings'] ) ? $input['settings'] : [];
                 try {
-                    $widget = $wm->get_widget_types( $name );
-                    if ( ! $widget ) { return [ 'success' => false, 'message' => sprintf( 'Widget "%s" not found.', $name ) ]; }
-                    $controls = method_exists( $widget, 'get_controls' ) ? (array) $widget->get_controls() : [];
-                    $valid_keys = array_keys( $controls );
+                    // Resolve as a widget first, then as an atomic container element.
+                    $obj = ( is_object( $wm ) && method_exists( $wm, 'get_widget_types' ) ) ? $wm->get_widget_types( $name ) : null;
+                    if ( ! is_object( $obj ) && is_object( $em ) && method_exists( $em, 'get_element_types' ) ) {
+                        $obj = $em->get_element_types( $name );
+                    }
+                    if ( ! is_object( $obj ) ) { return [ 'success' => false, 'message' => sprintf( 'Type "%s" not found (not a registered widget or element).', $name ) ]; }
+
+                    // Atomic (v4) elements expose get_props_schema(); classic (v3) use get_controls().
+                    if ( method_exists( $obj, 'get_props_schema' ) ) {
+                        $mode = 'atomic';
+                        $class  = get_class( $obj );
+                        $schema = $class::get_props_schema();
+                        $valid_keys = is_array( $schema ) ? array_keys( $schema ) : [];
+                    } else {
+                        $mode = 'v3';
+                        $controls = method_exists( $obj, 'get_controls' ) ? (array) $obj->get_controls() : [];
+                        $valid_keys = array_keys( $controls );
+                    }
+
                     $unknown = [];
                     foreach ( array_keys( $settings ) as $k ) {
                         if ( $k !== '__dynamic__' && ! in_array( $k, $valid_keys, true ) ) { $unknown[] = $k; }
                     }
-                    return [ 'success' => true, 'valid' => empty( $unknown ), 'unknown_keys' => $unknown, 'message' => empty( $unknown ) ? 'All settings keys are valid controls.' : sprintf( '%d unknown key(s).', count( $unknown ) ) ];
+                    return [ 'success' => true, 'mode' => $mode, 'valid' => empty( $unknown ), 'unknown_keys' => $unknown, 'valid_keys' => $valid_keys, 'message' => empty( $unknown ) ? sprintf( 'All settings keys are valid (%s).', $mode ) : sprintf( '%d unknown key(s) for %s type "%s".', count( $unknown ), $mode, $name ) ];
                 } catch ( \Throwable $e ) {
                     return [ 'success' => false, 'message' => 'Validation failed: ' . $e->getMessage() ];
                 }

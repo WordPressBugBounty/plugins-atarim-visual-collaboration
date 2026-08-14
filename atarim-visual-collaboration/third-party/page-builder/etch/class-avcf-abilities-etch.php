@@ -170,16 +170,18 @@ class AVCF_Abilities_Etch extends AVCF_Abilities_Base {
             'output_schema'=> $this->std_out(),
             'execute_callback' => function( $input = [] ) use ( $self ) {
                 $g = $self->guard( $input, true ); if ( isset( $g['err'] ) ) { return $g['err']; }
-                $tree = AVCF_Etch_Helpers::read_tree( $g['post_id'] );
+                $blocks = AVCF_Etch_Helpers::read_raw( $g['post_id'] );
                 $parent = isset( $input['parent_address'] ) ? (string) $input['parent_address'] : '';
-                if ( $parent !== '' && AVCF_Etch_Helpers::node_at( $tree, $parent ) === null ) { return [ 'success' => false, 'message' => sprintf( 'parent_address "%s" does not resolve.', $parent ) ]; }
-                $node = [ 'block' => (string) $input['block'] ];
-                if ( isset( $input['attrs'] ) && is_array( $input['attrs'] ) ) { $node['attrs'] = $input['attrs']; }
-                if ( isset( $input['html'] ) ) { $node['html'] = (string) $input['html']; }
+                if ( $parent !== '' && AVCF_Etch_Helpers::raw_node_at( $blocks, $parent ) === null ) { return [ 'success' => false, 'message' => sprintf( 'parent_address "%s" does not resolve.', $parent ) ]; }
+                $node = AVCF_Etch_Helpers::raw_make_block(
+                    (string) $input['block'],
+                    isset( $input['attrs'] ) && is_array( $input['attrs'] ) ? $input['attrs'] : [],
+                    isset( $input['html'] ) ? (string) $input['html'] : ''
+                );
                 $pos = isset( $input['position'] ) ? (int) $input['position'] : null;
-                $new = AVCF_Etch_Helpers::insert_at( $tree, $parent, $pos, $node );
-                if ( $new === null ) { return [ 'success' => false, 'message' => 'Insert failed (bad parent_address).' ]; }
-                if ( ! AVCF_Etch_Helpers::write_tree( $g['post_id'], $new ) ) { return [ 'success' => false, 'message' => 'Failed to save.' ]; }
+                $new = AVCF_Etch_Helpers::raw_insert_at( $blocks, $parent, $pos, [ $node ] );
+                if ( $new === null ) { return [ 'success' => false, 'message' => 'Insert failed: bad parent_address, or the parent has no children yet and its wrapper markup could not be opened safely.' ]; }
+                if ( ! AVCF_Etch_Helpers::write_raw( $g['post_id'], $new ) ) { return [ 'success' => false, 'message' => 'Failed to save.' ]; }
                 return [ 'success' => true, 'message' => sprintf( 'Inserted "%s". Re-read get-content for current addresses.', $input['block'] ) ];
             },
             'permission_callback' => function() { return current_user_can( 'edit_posts' ); },
@@ -206,17 +208,20 @@ class AVCF_Abilities_Etch extends AVCF_Abilities_Base {
                 $g = $self->guard( $input, true ); if ( isset( $g['err'] ) ) { return $g['err']; }
                 if ( ! isset( $input['attrs'] ) && ! isset( $input['html'] ) && ! isset( $input['block'] ) ) { return [ 'success' => false, 'message' => 'Provide attrs, html, and/or block.' ]; }
                 $address = (string) $input['address'];
-                $tree = AVCF_Etch_Helpers::read_tree( $g['post_id'] );
-                $node = AVCF_Etch_Helpers::node_at( $tree, $address );
+                $blocks = AVCF_Etch_Helpers::read_raw( $g['post_id'] );
+                $node = AVCF_Etch_Helpers::raw_node_at( $blocks, $address );
                 if ( $node === null ) { return [ 'success' => false, 'message' => sprintf( 'No node at address "%s".', $address ) ]; }
-                if ( isset( $input['block'] ) ) { $node['block'] = (string) $input['block']; }
+                if ( isset( $input['block'] ) ) { $node['blockName'] = (string) $input['block']; }
                 if ( isset( $input['attrs'] ) && is_array( $input['attrs'] ) ) {
                     $cur = isset( $node['attrs'] ) && is_array( $node['attrs'] ) ? $node['attrs'] : [];
                     $node['attrs'] = array_merge( $cur, $input['attrs'] );
                 }
-                if ( isset( $input['html'] ) ) { $node['html'] = (string) $input['html']; }
-                $new = AVCF_Etch_Helpers::replace_at( $tree, $address, $node );
-                if ( $new === null || ! AVCF_Etch_Helpers::write_tree( $g['post_id'], $new ) ) { return [ 'success' => false, 'message' => 'Failed to save.' ]; }
+                if ( isset( $input['html'] ) ) {
+                    $node = AVCF_Etch_Helpers::raw_set_html( $node, (string) $input['html'] );
+                    if ( $node === null ) { return [ 'success' => false, 'message' => 'This node has child nodes; replacing its html would drop them and their wrapper markup. Edit the children individually, or delete and re-insert.' ]; }
+                }
+                $new = AVCF_Etch_Helpers::raw_replace_at( $blocks, $address, $node );
+                if ( $new === null || ! AVCF_Etch_Helpers::write_raw( $g['post_id'], $new ) ) { return [ 'success' => false, 'message' => 'Failed to save.' ]; }
                 return [ 'success' => true, 'message' => sprintf( 'Updated node at "%s".', $address ) ];
             },
             'permission_callback' => function() { return current_user_can( 'edit_posts' ); },
@@ -236,11 +241,11 @@ class AVCF_Abilities_Etch extends AVCF_Abilities_Base {
             'execute_callback' => function( $input = [] ) use ( $self ) {
                 $g = $self->guard( $input, true ); if ( isset( $g['err'] ) ) { return $g['err']; }
                 $address = (string) $input['address'];
-                $tree = AVCF_Etch_Helpers::read_tree( $g['post_id'] );
-                if ( AVCF_Etch_Helpers::node_at( $tree, $address ) === null ) { return [ 'success' => false, 'message' => sprintf( 'No node at address "%s".', $address ) ]; }
+                $blocks = AVCF_Etch_Helpers::read_raw( $g['post_id'] );
+                if ( AVCF_Etch_Helpers::raw_node_at( $blocks, $address ) === null ) { return [ 'success' => false, 'message' => sprintf( 'No node at address "%s".', $address ) ]; }
                 if ( empty( $input['confirm'] ) ) { return [ 'success' => true, 'removed' => false, 'message' => sprintf( 'Dry run: would remove node at "%s" and its subtree. Re-call with confirm:true.', $address ) ]; }
-                $new = AVCF_Etch_Helpers::remove_at( $tree, $address );
-                if ( $new === null || ! AVCF_Etch_Helpers::write_tree( $g['post_id'], $new ) ) { return [ 'success' => false, 'message' => 'Failed to remove/save.' ]; }
+                $new = AVCF_Etch_Helpers::raw_remove_at( $blocks, $address );
+                if ( $new === null || ! AVCF_Etch_Helpers::write_raw( $g['post_id'], $new ) ) { return [ 'success' => false, 'message' => 'Failed to remove/save.' ]; }
                 return [ 'success' => true, 'removed' => true, 'message' => sprintf( 'Removed node at "%s".', $address ) ];
             },
             'permission_callback' => function() { return current_user_can( 'edit_posts' ); },
@@ -267,16 +272,16 @@ class AVCF_Abilities_Etch extends AVCF_Abilities_Base {
                 $from = (string) $input['from_address'];
                 $to   = isset( $input['parent_address'] ) ? (string) $input['parent_address'] : '';
                 if ( $to === $from || strpos( $to . '/', $from . '/' ) === 0 ) { return [ 'success' => false, 'message' => 'Cannot move a node into itself or its own descendant.' ]; }
-                $tree = AVCF_Etch_Helpers::read_tree( $g['post_id'] );
-                $node = AVCF_Etch_Helpers::node_at( $tree, $from );
+                $blocks = AVCF_Etch_Helpers::read_raw( $g['post_id'] );
+                $node = AVCF_Etch_Helpers::raw_node_at( $blocks, $from );
                 if ( $node === null ) { return [ 'success' => false, 'message' => sprintf( 'No node at from_address "%s".', $from ) ]; }
-                if ( $to !== '' && AVCF_Etch_Helpers::node_at( $tree, $to ) === null ) { return [ 'success' => false, 'message' => sprintf( 'parent_address "%s" does not resolve.', $to ) ]; }
-                $removed = AVCF_Etch_Helpers::remove_at( $tree, $from );
+                if ( $to !== '' && AVCF_Etch_Helpers::raw_node_at( $blocks, $to ) === null ) { return [ 'success' => false, 'message' => sprintf( 'parent_address "%s" does not resolve.', $to ) ]; }
+                $removed = AVCF_Etch_Helpers::raw_remove_at( $blocks, $from );
                 if ( $removed === null ) { return [ 'success' => false, 'message' => 'Move failed during removal.' ]; }
                 $pos = isset( $input['position'] ) ? (int) $input['position'] : null;
-                $new = AVCF_Etch_Helpers::insert_at( $removed, $to, $pos, $node );
+                $new = AVCF_Etch_Helpers::raw_insert_at( $removed, $to, $pos, [ $node ] );
                 if ( $new === null ) { return [ 'success' => false, 'message' => 'Move failed during insert (destination shifted). Re-read get-content and retry.' ]; }
-                if ( ! AVCF_Etch_Helpers::write_tree( $g['post_id'], $new ) ) { return [ 'success' => false, 'message' => 'Failed to save.' ]; }
+                if ( ! AVCF_Etch_Helpers::write_raw( $g['post_id'], $new ) ) { return [ 'success' => false, 'message' => 'Failed to save.' ]; }
                 return [ 'success' => true, 'message' => 'Node moved. Re-read get-content for current addresses.' ];
             },
             'permission_callback' => function() { return current_user_can( 'edit_posts' ); },

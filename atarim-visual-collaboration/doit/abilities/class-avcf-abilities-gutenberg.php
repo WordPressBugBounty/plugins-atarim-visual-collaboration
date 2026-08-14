@@ -36,21 +36,57 @@ class AVCF_Gutenberg_Helpers {
 
     public static function content_hash( $content ) { return sha1( (string) $content ); }
 
-    /* ---------------------------- round-trip --------------------------- */
+    /* ---------------------------- round-trip ---------------------------
+     *
+     * Read and write are deliberately ASYMMETRIC. Do not "tidy" this into a
+     * symmetric tree<->markup round-trip; that is the bug this replaced.
+     *
+     *   READ   parse_tree() projects the raw parse_blocks() array into a lean
+     *          nested view for the model. It is LOSSY BY DESIGN: it drops the
+     *          literal HTML chunks that live between a container's children
+     *          (the <ul class="wp-block-list"> around list items, the
+     *          <div class="wp-block-group"> around a group's children, ...)
+     *          and the whitespace nodes between siblings. It must NEVER be
+     *          serialized back into post_content.
+     *
+     *   WRITE  apply_operations() mutates the raw parse_blocks() array in
+     *          place and hands it straight to serialize_blocks(). Nothing is
+     *          translated, so nothing is lost. Same shape as do-it.php.
+     *
+     * Paths are chains of RAW parse_blocks indices, so a path taken off the
+     * read view addresses the same block in the raw array. The read view skips
+     * whitespace nodes, which means published paths are NOT contiguous
+     * (0, 2, 4, ...). Never renumber them.
+     *
+     * A block's innerContent is the interleave that serialize_block() walks:
+     * every string is emitted literally, every null consumes the next entry of
+     * innerBlocks. Adding or removing a child WITHOUT keeping the null count in
+     * step silently drops or duplicates content -- see splice_children() and
+     * unsplice_child(), which are the only two places allowed to touch it.
+     */
+
+    public static function parse_raw( $content ) {
+        return parse_blocks( (string) $content );
+    }
+
+    public static function serialize_raw( $blocks ) {
+        return serialize_blocks( (array) $blocks );
+    }
 
     public static function parse_tree( $content ) {
         return self::blocks_to_tree( parse_blocks( (string) $content ) );
     }
 
+    /** Read-only projection. Each node carries its raw index so paths stay truthful. */
     private static function blocks_to_tree( $blocks ) {
         $tree = [];
-        foreach ( (array) $blocks as $block ) {
+        foreach ( (array) $blocks as $i => $block ) {
             $name = isset( $block['blockName'] ) && is_string( $block['blockName'] ) ? $block['blockName'] : '';
             $inner_blocks = isset( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ? $block['innerBlocks'] : [];
             $inner_html = isset( $block['innerHTML'] ) && is_string( $block['innerHTML'] ) ? $block['innerHTML'] : '';
             if ( $name === '' && trim( $inner_html ) === '' ) { continue; } // whitespace between blocks
             $attrs = isset( $block['attrs'] ) && is_array( $block['attrs'] ) ? $block['attrs'] : [];
-            $node = [ 'block' => $name ];
+            $node = [ 'index' => (int) $i, 'block' => $name ];
             $id = self::extract_id( $attrs );
             if ( $id !== '' ) { $node['id'] = $id; }
             if ( $attrs !== [] ) { $node['attrs'] = $attrs; }
@@ -59,32 +95,6 @@ class AVCF_Gutenberg_Helpers {
             $tree[] = $node;
         }
         return $tree;
-    }
-
-    public static function serialize_tree( $tree ) {
-        return serialize_blocks( self::tree_to_blocks( $tree ) );
-    }
-
-    private static function tree_to_blocks( $tree ) {
-        $blocks = [];
-        foreach ( (array) $tree as $node ) {
-            if ( ! is_array( $node ) ) { continue; }
-            $name = isset( $node['block'] ) ? (string) $node['block'] : '';
-            $attrs = isset( $node['attrs'] ) && is_array( $node['attrs'] ) ? $node['attrs'] : [];
-            $children = isset( $node['children'] ) && is_array( $node['children'] ) ? $node['children'] : [];
-            $html = isset( $node['html'] ) ? (string) $node['html'] : '';
-            if ( $name === '' ) {
-                $blocks[] = [ 'blockName' => null, 'attrs' => [], 'innerBlocks' => [], 'innerHTML' => $html, 'innerContent' => [ $html ] ];
-                continue;
-            }
-            if ( $children ) {
-                $inner = self::tree_to_blocks( $children );
-                $blocks[] = [ 'blockName' => $name, 'attrs' => $attrs, 'innerBlocks' => $inner, 'innerHTML' => '', 'innerContent' => $inner ? array_fill( 0, count( $inner ), null ) : [] ];
-            } else {
-                $blocks[] = [ 'blockName' => $name, 'attrs' => $attrs, 'innerBlocks' => [], 'innerHTML' => $html, 'innerContent' => $html !== '' ? [ $html ] : [] ];
-            }
-        }
-        return $blocks;
     }
 
     public static function extract_id( $attrs ) {
@@ -138,6 +148,28 @@ class AVCF_Gutenberg_Helpers {
         return 'structural';
     }
 
+    /**
+     * Valid attribute keys for a block type: the block's declared attributes plus
+     * a conservative allowlist of universal / block-supports attributes WordPress
+     * permits broadly (className, style, align, colour/typography supports, ...).
+     * Returns null when validation is not meaningful (unknown block, or a block
+     * that declares no attributes) so callers SKIP validation rather than warn on
+     * everything. Advisory only — never used to block a write.
+     *
+     * @param string $name Block name, e.g. "core/paragraph".
+     * @return array|null
+     */
+    public static function block_attr_keys( $name ) {
+        if ( ! class_exists( '\WP_Block_Type_Registry' ) ) { return null; }
+        $reg  = \WP_Block_Type_Registry::get_instance();
+        $type = $reg ? $reg->get_registered( $name ) : null;
+        if ( null === $type ) { return null; }
+        $declared = ( isset( $type->attributes ) && is_array( $type->attributes ) ) ? array_keys( $type->attributes ) : [];
+        if ( empty( $declared ) ) { return null; } // nothing to validate against
+        $universal = [ 'className', 'anchor', 'lock', 'metadata', 'align', 'style', 'backgroundColor', 'textColor', 'gradient', 'fontSize', 'fontFamily', 'layout', 'borderColor' ];
+        return array_values( array_unique( array_merge( $declared, $universal ) ) );
+    }
+
     public static function list_block_types( $search = '' ) {
         $out = [];
         if ( ! class_exists( '\WP_Block_Type_Registry' ) ) { return $out; }
@@ -174,25 +206,29 @@ class AVCF_Gutenberg_Helpers {
         return $parts;
     }
 
-    public static function node_at( $tree, $address ) {
+    /** Walk a raw parse_blocks() array by index-path. Returns the raw block or null. */
+    public static function raw_node_at( $blocks, $address ) {
         $parts = self::address_parts( $address );
         if ( $parts === null ) { return null; }
-        $nodes = $tree; $found = null;
+        $nodes = (array) $blocks; $found = null;
         foreach ( $parts as $i ) {
             if ( ! array_key_exists( $i, $nodes ) ) { return null; }
             $found = $nodes[ $i ];
-            $nodes = isset( $found['children'] ) && is_array( $found['children'] ) ? $found['children'] : [];
+            $nodes = isset( $found['innerBlocks'] ) && is_array( $found['innerBlocks'] ) ? $found['innerBlocks'] : [];
         }
         return $found;
     }
 
-    /** Find a node by its avcBlockId. Returns ['node'=>, 'path'=>] or null. */
-    public static function find_by_id( $tree, $id, $prefix = '' ) {
-        foreach ( $tree as $i => $node ) {
+    /** Find a raw block by its avcBlockId. Returns ['block'=>, 'path'=>] or null. */
+    public static function raw_find_by_id( $blocks, $id, $prefix = '' ) {
+        $id = (string) $id;
+        if ( $id === '' ) { return null; }
+        foreach ( (array) $blocks as $i => $block ) {
             $path = $prefix === '' ? (string) $i : $prefix . '/' . $i;
-            if ( isset( $node['id'] ) && (string) $node['id'] === (string) $id ) { return [ 'node' => $node, 'path' => $path ]; }
-            if ( isset( $node['children'] ) && is_array( $node['children'] ) ) {
-                $hit = self::find_by_id( $node['children'], $id, $path );
+            $attrs = isset( $block['attrs'] ) && is_array( $block['attrs'] ) ? $block['attrs'] : [];
+            if ( self::extract_id( $attrs ) === $id ) { return [ 'block' => $block, 'path' => $path ]; }
+            if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
+                $hit = self::raw_find_by_id( $block['innerBlocks'], $id, $path );
                 if ( $hit !== null ) { return $hit; }
             }
         }
@@ -204,7 +240,8 @@ class AVCF_Gutenberg_Helpers {
     /** Lean nested read model. include_attrs adds attrs/html; depth caps recursion. */
     public static function tree_view( $tree, $include_attrs = false, $max_depth = 64, $prefix = '', $depth = 1 ) {
         $out = [];
-        foreach ( $tree as $i => $node ) {
+        foreach ( $tree as $node ) {
+            $i = isset( $node['index'] ) ? (int) $node['index'] : 0;
             $path = $prefix === '' ? (string) $i : $prefix . '/' . $i;
             $children = isset( $node['children'] ) && is_array( $node['children'] ) ? $node['children'] : [];
             $row = [
@@ -235,15 +272,21 @@ class AVCF_Gutenberg_Helpers {
         return $n;
     }
 
-    public static function full_node( $node, $path ) {
+    /** Detail view of one RAW block. `markup` is exact and safe to hand back to update.markup. */
+    public static function raw_full_node( $block, $path ) {
+        $name  = isset( $block['blockName'] ) && is_string( $block['blockName'] ) ? $block['blockName'] : '';
+        $attrs = isset( $block['attrs'] ) && is_array( $block['attrs'] ) ? $block['attrs'] : [];
+        $inner = isset( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ? $block['innerBlocks'] : [];
+        $id    = self::extract_id( $attrs );
         return [
             'path' => $path,
-            'id' => isset( $node['id'] ) ? (string) $node['id'] : null,
-            'block' => isset( $node['block'] ) ? (string) $node['block'] : '',
-            'attrs' => isset( $node['attrs'] ) ? $node['attrs'] : [],
-            'html' => isset( $node['html'] ) ? (string) $node['html'] : '',
-            'children' => isset( $node['children'] ) && is_array( $node['children'] ) ? self::tree_view( $node['children'], false, 64, $path, 1 ) : [],
-            'editability' => self::editability( isset( $node['block'] ) ? (string) $node['block'] : '' ),
+            'id' => $id !== '' ? $id : null,
+            'block' => $name,
+            'attrs' => $attrs,
+            'html' => isset( $block['innerHTML'] ) ? (string) $block['innerHTML'] : '',
+            'children' => $inner ? self::tree_view( self::blocks_to_tree( $inner ), false, 64, $path, 1 ) : [],
+            'markup' => serialize_block( $block ),
+            'editability' => self::editability( $name ),
         ];
     }
 
@@ -256,89 +299,191 @@ class AVCF_Gutenberg_Helpers {
         return [ implode( '/', $parts ), $index ];
     }
 
-    public static function update_children( $tree, $parent_address, $op ) {
+    /*
+     * The document root is not a block, so it has no innerContent. Wrapping it in
+     * a synthetic parent lets every address -- root included -- go through the same
+     * child-splice code, and the synthetic innerContent (all placeholders, no
+     * literals) is discarded on unwrap. Only innerBlocks survives.
+     */
+    private static function wrap_root( $blocks ) {
+        $blocks = array_values( (array) $blocks );
+        return [ 'blockName' => null, 'attrs' => [], 'innerBlocks' => $blocks, 'innerHTML' => '', 'innerContent' => array_fill( 0, count( $blocks ), null ) ];
+    }
+    private static function unwrap_root( $root ) {
+        return ( is_array( $root ) && isset( $root['innerBlocks'] ) && is_array( $root['innerBlocks'] ) ) ? array_values( $root['innerBlocks'] ) : [];
+    }
+
+    /** Run $fn on the block at $parts (relative to $block). $fn( array $block ): array|null. */
+    private static function raw_apply_at( $block, $parts, $fn ) {
+        if ( $parts === [] ) { return call_user_func( $fn, $block ); }
+        $i = array_shift( $parts );
+        $inner = isset( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ? $block['innerBlocks'] : [];
+        if ( ! array_key_exists( $i, $inner ) ) { return null; }
+        $updated = self::raw_apply_at( $inner[ $i ], $parts, $fn );
+        if ( $updated === null ) { return null; }
+        $inner[ $i ] = $updated;
+        $block['innerBlocks'] = $inner;
+        return $block;
+    }
+
+    /** Offsets in innerContent that stand in for an inner block, in order. */
+    private static function placeholder_offsets( $inner_content ) {
+        $pos = [];
+        foreach ( (array) $inner_content as $i => $chunk ) { if ( ! is_string( $chunk ) ) { $pos[] = $i; } }
+        return $pos;
+    }
+
+    /**
+     * A container with no children yet has no placeholder to insert against, and its
+     * wrapper is one opaque literal ("<div class=\"wp-block-group\"></div>"). Split it
+     * just before its final closing tag so children land INSIDE the wrapper.
+     * Returns a new innerContent with exactly one placeholder, or null if the wrapper
+     * can't be opened safely -- in which case the caller refuses rather than guesses.
+     */
+    private static function open_empty_container( $inner_content ) {
+        $joined = '';
+        foreach ( (array) $inner_content as $chunk ) { if ( is_string( $chunk ) ) { $joined .= $chunk; } }
+        if ( $joined === '' ) { return [ null ]; }
+        if ( trim( $joined ) === '' ) { return [ $joined, null ]; }
+        if ( ! preg_match( '~</[A-Za-z][A-Za-z0-9:-]*>\s*$~', $joined, $m, PREG_OFFSET_CAPTURE ) ) { return null; }
+        $at = (int) $m[0][1];
+        return [ substr( $joined, 0, $at ), null, substr( $joined, $at ) ];
+    }
+
+    /** Insert raw blocks into $parent's children at $k, keeping innerContent in step. */
+    private static function splice_children( $parent, $k, $new ) {
+        $new = array_values( (array) $new );
+        if ( $new === [] ) { return $parent; }
+        $inner = isset( $parent['innerBlocks'] ) && is_array( $parent['innerBlocks'] ) ? $parent['innerBlocks'] : [];
+        $ic    = isset( $parent['innerContent'] ) && is_array( $parent['innerContent'] ) ? array_values( $parent['innerContent'] ) : [];
+        $k     = max( 0, min( (int) $k, count( $inner ) ) );
+        $slots = self::placeholder_offsets( $ic );
+
+        if ( $slots === [] ) {
+            $opened = self::open_empty_container( $ic );
+            if ( $opened === null ) { return null; }
+            $ic  = $opened;
+            $at  = self::placeholder_offsets( $ic );
+            $at  = $at[0];
+            array_splice( $ic, $at, 1 ); // drop the vacant placeholder; real ones go in below
+        } else {
+            $at = ( $k < count( $slots ) ) ? $slots[ $k ] : ( $slots[ count( $slots ) - 1 ] + 1 );
+        }
+
+        array_splice( $inner, $k, 0, $new );
+        array_splice( $ic, $at, 0, array_fill( 0, count( $new ), null ) );
+        $parent['innerBlocks']  = $inner;
+        $parent['innerContent'] = $ic;
+        return $parent;
+    }
+
+    /** Remove $parent's child at $k, keeping innerContent in step. */
+    private static function unsplice_child( $parent, $k ) {
+        $inner = isset( $parent['innerBlocks'] ) && is_array( $parent['innerBlocks'] ) ? $parent['innerBlocks'] : [];
+        $ic    = isset( $parent['innerContent'] ) && is_array( $parent['innerContent'] ) ? array_values( $parent['innerContent'] ) : [];
+        if ( ! array_key_exists( $k, $inner ) ) { return null; }
+        $slots = self::placeholder_offsets( $ic );
+        array_splice( $inner, $k, 1 );
+        if ( isset( $slots[ $k ] ) ) { array_splice( $ic, $slots[ $k ], 1 ); }
+        $parent['innerBlocks']  = $inner;
+        $parent['innerContent'] = $ic;
+        return $parent;
+    }
+
+    public static function raw_replace_at( $blocks, $address, $new_block ) {
+        list( $parent, $index ) = self::split_address( $address );
+        if ( $index === null ) { return null; }
+        $parts = self::address_parts( $parent );
+        if ( $parts === null ) { return null; }
+        $root = self::raw_apply_at( self::wrap_root( $blocks ), $parts, function( $p ) use ( $index, $new_block ) {
+            $inner = isset( $p['innerBlocks'] ) && is_array( $p['innerBlocks'] ) ? $p['innerBlocks'] : [];
+            if ( ! array_key_exists( $index, $inner ) ) { return null; }
+            $inner[ $index ] = $new_block;   // placeholder count unchanged, innerContent untouched
+            $p['innerBlocks'] = $inner;
+            return $p;
+        } );
+        return $root === null ? null : self::unwrap_root( $root );
+    }
+
+    public static function raw_remove_at( $blocks, $address ) {
+        list( $parent, $index ) = self::split_address( $address );
+        if ( $index === null ) { return null; }
+        $parts = self::address_parts( $parent );
+        if ( $parts === null ) { return null; }
+        $root = self::raw_apply_at( self::wrap_root( $blocks ), $parts, function( $p ) use ( $index ) {
+            return self::unsplice_child( $p, $index );
+        } );
+        return $root === null ? null : self::unwrap_root( $root );
+    }
+
+    /** $new_blocks is a list of raw blocks. position null = append. */
+    public static function raw_insert_at( $blocks, $parent_address, $position, $new_blocks ) {
         $parts = self::address_parts( $parent_address );
         if ( $parts === null ) { return null; }
-        if ( $parts === [] ) { return call_user_func( $op, $tree ); }
-        return self::descend( $tree, $parts, $op );
-    }
-    private static function descend( $nodes, $parts, $op ) {
-        $i = array_shift( $parts );
-        if ( ! array_key_exists( $i, $nodes ) ) { return null; }
-        $children = isset( $nodes[ $i ]['children'] ) && is_array( $nodes[ $i ]['children'] ) ? $nodes[ $i ]['children'] : [];
-        $updated = empty( $parts ) ? call_user_func( $op, $children ) : self::descend( $children, $parts, $op );
-        if ( $updated === null ) { return null; }
-        $nodes[ $i ]['children'] = $updated;
-        return $nodes;
+        $root = self::raw_apply_at( self::wrap_root( $blocks ), $parts, function( $p ) use ( $position, $new_blocks ) {
+            $n = isset( $p['innerBlocks'] ) && is_array( $p['innerBlocks'] ) ? count( $p['innerBlocks'] ) : 0;
+            return self::splice_children( $p, $position === null ? $n : (int) $position, $new_blocks );
+        } );
+        return $root === null ? null : self::unwrap_root( $root );
     }
 
-    public static function replace_at( $tree, $address, $node ) {
-        list( $parent, $index ) = self::split_address( $address );
-        if ( $index === null ) { return null; }
-        return self::update_children( $tree, $parent, function( $children ) use ( $index, $node ) {
-            if ( ! array_key_exists( $index, $children ) ) { return null; }
-            $children[ $index ] = $node;
-            return $children;
-        } );
-    }
-    public static function remove_at( $tree, $address ) {
-        list( $parent, $index ) = self::split_address( $address );
-        if ( $index === null ) { return null; }
-        return self::update_children( $tree, $parent, function( $children ) use ( $index ) {
-            if ( ! array_key_exists( $index, $children ) ) { return null; }
-            array_splice( $children, $index, 1 );
-            return $children;
-        } );
-    }
-    /** $nodes is a list of nodes. position null = append. */
-    public static function insert_at( $tree, $parent_address, $position, $nodes ) {
-        return self::update_children( $tree, $parent_address, function( $children ) use ( $position, $nodes ) {
-            $pos = $position === null ? count( $children ) : max( 0, min( (int) $position, count( $children ) ) );
-            array_splice( $children, $pos, 0, $nodes );
-            return $children;
-        } );
-    }
-
-    /** Stamp avcBlockId on every named block lacking one (recursive). */
-    public static function stamp_ids( $tree ) {
+    /** Stamp avcBlockId on every named block lacking one (recursive, raw blocks). */
+    public static function raw_stamp_ids( $blocks ) {
         $out = [];
-        foreach ( $tree as $node ) {
-            if ( isset( $node['block'] ) && $node['block'] !== '' ) {
-                $attrs = isset( $node['attrs'] ) && is_array( $node['attrs'] ) ? $node['attrs'] : [];
-                if ( self::extract_id( $attrs ) === '' ) {
-                    $id = self::uuid();
-                    $node['attrs'] = self::set_id( $attrs, $id );
-                    $node['id'] = $id;
-                }
+        foreach ( (array) $blocks as $b ) {
+            if ( ! empty( $b['blockName'] ) ) {
+                $attrs = isset( $b['attrs'] ) && is_array( $b['attrs'] ) ? $b['attrs'] : [];
+                if ( self::extract_id( $attrs ) === '' ) { $b['attrs'] = self::set_id( $attrs, self::uuid() ); }
             }
-            if ( isset( $node['children'] ) && is_array( $node['children'] ) ) { $node['children'] = self::stamp_ids( $node['children'] ); }
-            $out[] = $node;
+            if ( ! empty( $b['innerBlocks'] ) && is_array( $b['innerBlocks'] ) ) { $b['innerBlocks'] = self::raw_stamp_ids( $b['innerBlocks'] ); }
+            $out[] = $b;
         }
         return $out;
     }
 
-    /** Deep-clone a node, reassigning fresh avcBlockIds where present. */
-    public static function clone_node( $node, $reassign_ids = true ) {
-        if ( $reassign_ids && isset( $node['block'] ) && $node['block'] !== '' ) {
-            $attrs = isset( $node['attrs'] ) && is_array( $node['attrs'] ) ? $node['attrs'] : [];
-            if ( self::extract_id( $attrs ) !== '' ) {
-                $id = self::uuid();
-                $node['attrs'] = self::set_id( $attrs, $id );
-                $node['id'] = $id;
-            }
+    /** Deep-copy a raw block, reassigning fresh avcBlockIds where present. */
+    public static function raw_clone( $block, $reassign_ids = true ) {
+        if ( $reassign_ids && ! empty( $block['blockName'] ) ) {
+            $attrs = isset( $block['attrs'] ) && is_array( $block['attrs'] ) ? $block['attrs'] : [];
+            if ( self::extract_id( $attrs ) !== '' ) { $block['attrs'] = self::set_id( $attrs, self::uuid() ); }
         }
-        if ( isset( $node['children'] ) && is_array( $node['children'] ) ) {
+        if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
             $kids = [];
-            foreach ( $node['children'] as $c ) { $kids[] = self::clone_node( $c, $reassign_ids ); }
-            $node['children'] = $kids;
+            foreach ( $block['innerBlocks'] as $c ) { $kids[] = self::raw_clone( $c, $reassign_ids ); }
+            $block['innerBlocks'] = $kids;
         }
-        return $node;
+        return $block;
     }
 
     /* ----------------------- markdown / markup bridge ------------------ */
 
-    public static function markup_to_nodes( $markup ) { return self::parse_tree( (string) $markup ); }
-    public static function markdown_to_nodes( $md ) { return self::parse_tree( self::markdown_to_markup( $md ) ); }
+    /** Parsed markup as RAW blocks, with leading/trailing whitespace nodes trimmed. */
+    public static function markup_to_blocks( $markup ) { return self::trim_edge_whitespace( parse_blocks( (string) $markup ) ); }
+    public static function markdown_to_blocks( $md ) { return self::markup_to_blocks( self::markdown_to_markup( $md ) ); }
+
+    private static function trim_edge_whitespace( $blocks ) {
+        $blocks = array_values( (array) $blocks );
+        while ( $blocks && self::is_whitespace_block( $blocks[0] ) ) { array_shift( $blocks ); }
+        while ( $blocks && self::is_whitespace_block( $blocks[ count( $blocks ) - 1 ] ) ) { array_pop( $blocks ); }
+        return $blocks;
+    }
+    private static function is_whitespace_block( $b ) {
+        return empty( $b['blockName'] ) && trim( isset( $b['innerHTML'] ) ? (string) $b['innerHTML'] : '' ) === '';
+    }
+
+    /**
+     * Build one raw block from the `block` channel ({block, attrs, html}).
+     * Deliberately leaf-only: a container's wrapper markup cannot be inferred from a
+     * name, and guessing it is what stripped the wrappers in the first place. Callers
+     * with children should use the markup channel.
+     */
+    public static function block_to_raw( $b ) {
+        $name = isset( $b['block'] ) ? (string) $b['block'] : '';
+        if ( $name === '' ) { return null; }
+        $attrs = isset( $b['attrs'] ) && is_array( $b['attrs'] ) ? $b['attrs'] : [];
+        $html  = isset( $b['html'] ) ? (string) $b['html'] : '';
+        return [ 'blockName' => $name, 'attrs' => $attrs, 'innerBlocks' => [], 'innerHTML' => $html, 'innerContent' => $html !== '' ? [ $html ] : [] ];
+    }
 
     /** Convert a curated subset of Markdown to canonical core-block markup. */
     public static function markdown_to_markup( $md ) {
@@ -456,7 +601,7 @@ class AVCF_Abilities_Gutenberg extends AVCF_Abilities_Base {
         $self = $this;
         wp_register_ability( 'atarim/gutenberg-read-page', [
             'label' => 'Read Gutenberg Page', 'category' => 'atarim',
-            'description' => 'Parse a post/page\'s Gutenberg blocks into a lean nested tree. Each node: path (index-path "0/1/2"), id (the stable avcBlockId, or null if not yet stamped), block (block name), child_count, and children. Pass include_attrs:true for each block\'s attrs + inner html. Returns content_hash — pass it to apply-operations as the stale-edit guard. block_based=false / classic=true means the post is classic HTML (no blocks) and edits would be lossy.',
+            'description' => 'Parse a post/page\'s Gutenberg blocks into a lean nested tree. Each node: path (index-path "0/1/2"), id (the stable avcBlockId, or null if not yet stamped), block (block name), child_count, and children. IMPORTANT: path is each block\'s real position in the post, not its position in this list. The list omits the whitespace between blocks, so paths are usually NOT contiguous — a page of three blocks typically reads 0, 2, 4. Copy paths verbatim into apply-operations; never renumber, count, or infer them. Pass include_attrs:true for each block\'s attrs + inner html. Returns content_hash — pass it to apply-operations as the stale-edit guard. block_based=false / classic=true means the post is classic HTML (no blocks) and edits would be lossy.',
             'input_schema' => [ 'type' => 'object', 'properties' => [
                 'post_id'       => [ 'type' => 'integer', 'minimum' => 1, 'description' => 'Post/page id (also accepts "post").' ],
                 'include_attrs' => [ 'type' => 'boolean', 'default' => false ],
@@ -493,7 +638,7 @@ class AVCF_Abilities_Gutenberg extends AVCF_Abilities_Base {
         $self = $this;
         wp_register_ability( 'atarim/gutenberg-read-block', [
             'label' => 'Read Gutenberg Block', 'category' => 'atarim',
-            'description' => 'Return one block in full — block name, attrs, inner html, child summary, its path, its avcBlockId, and its editability class (attr = dynamic/attrs-safe, bridge = curated static/markdown-regenerable, structural = move/delete only or raw markup). Target by path OR block_id (avcBlockId).',
+            'description' => 'Return one block in full — block name, attrs, its own inner html (for a container this is its wrapper markup, e.g. the <ul class="wp-block-list"> around list items), child summary, markup (the block\'s exact serialized markup, safe to hand straight back to update.markup), its path, its avcBlockId, and its editability class (attr = dynamic/attrs-safe, bridge = curated static/markdown-regenerable, structural = move/delete only or raw markup). Target by path OR block_id (avcBlockId).',
             'input_schema' => [ 'type' => 'object', 'properties' => [
                 'post_id'  => [ 'type' => 'integer', 'minimum' => 1 ],
                 'path'     => [ 'type' => 'string', 'description' => 'Index-path "0/1/2".' ],
@@ -503,18 +648,18 @@ class AVCF_Abilities_Gutenberg extends AVCF_Abilities_Base {
             'execute_callback' => function( $input = [] ) use ( $self ) {
                 $g = $self->guard( $input ); if ( isset( $g['err'] ) ) { return $g['err']; }
                 $post = get_post( $g['post_id'] );
-                $tree = AVCF_Gutenberg_Helpers::parse_tree( $post->post_content );
+                $blocks = AVCF_Gutenberg_Helpers::parse_raw( $post->post_content );
                 $has_path = isset( $input['path'] ) && $input['path'] !== '';
                 $has_id = isset( $input['block_id'] ) && $input['block_id'] !== '';
                 if ( ! $has_path && ! $has_id ) { return [ 'success' => false, 'message' => 'Provide path or block_id.' ]; }
                 if ( $has_id ) {
-                    $hit = AVCF_Gutenberg_Helpers::find_by_id( $tree, (string) $input['block_id'] );
+                    $hit = AVCF_Gutenberg_Helpers::raw_find_by_id( $blocks, (string) $input['block_id'] );
                     if ( $hit === null ) { return [ 'success' => false, 'message' => 'No block with that avcBlockId.' ]; }
-                    return [ 'success' => true, 'block' => AVCF_Gutenberg_Helpers::full_node( $hit['node'], $hit['path'] ), 'message' => 'OK.' ];
+                    return [ 'success' => true, 'block' => AVCF_Gutenberg_Helpers::raw_full_node( $hit['block'], $hit['path'] ), 'message' => 'OK.' ];
                 }
-                $node = AVCF_Gutenberg_Helpers::node_at( $tree, (string) $input['path'] );
-                if ( $node === null ) { return [ 'success' => false, 'message' => sprintf( 'No block at path "%s".', $input['path'] ) ]; }
-                return [ 'success' => true, 'block' => AVCF_Gutenberg_Helpers::full_node( $node, (string) $input['path'] ), 'message' => 'OK.' ];
+                $block = AVCF_Gutenberg_Helpers::raw_node_at( $blocks, (string) $input['path'] );
+                if ( $block === null ) { return [ 'success' => false, 'message' => sprintf( 'No block at path "%s".', $input['path'] ) ]; }
+                return [ 'success' => true, 'block' => AVCF_Gutenberg_Helpers::raw_full_node( $block, (string) $input['path'] ), 'message' => 'OK.' ];
             },
             'permission_callback' => function() { return current_user_can( 'edit_posts' ); },
             'meta' => $this->ro_meta(),
@@ -560,6 +705,8 @@ class AVCF_Abilities_Gutenberg extends AVCF_Abilities_Base {
                 . 'update (markdown/markup regen a single block, or merge/replace attrs, or set html), '
                 . 'move (target -> parent [prefer id] + index; cannot move into its own subtree), '
                 . 'swap (exchange two non-nested blocks a/b), delete (target), duplicate (target -> clone after it with fresh ids). '
+                . 'Paths come from read-page and are real block positions, so they are usually not contiguous — pass them through unchanged and never renumber them. Any index-path is valid only against the snapshot you read; once an op inserts or deletes, later paths in the same batch shift, so prefer avcBlockId for anything after the first op. '
+                . 'To create a container (group, columns, list, quote, buttons) use the markup channel with its full markup including the wrapper element; the block channel is leaf-only, because a wrapper cannot be inferred from a block name. '
                 . 'Set stamp_ids:true to assign avcBlockIds to all blocks afterward. Static-block edits should use the markdown/markup channels (regenerates valid markup); raw attr edits on non-dynamic blocks can desync innerHTML and trip Gutenberg block validation. Classic (non-block) posts are refused unless force:true.',
             'input_schema' => [ 'type' => 'object', 'properties' => [
                 'post_id'      => [ 'type' => 'integer', 'minimum' => 1 ],
@@ -596,164 +743,202 @@ class AVCF_Abilities_Gutenberg extends AVCF_Abilities_Base {
         $ops = isset( $input['operations'] ) && is_array( $input['operations'] ) ? $input['operations'] : [];
         if ( $ops === [] ) { return [ 'success' => false, 'message' => 'No operations provided.' ]; }
 
-        $tree = AVCF_Gutenberg_Helpers::parse_tree( $content );
-        $applied = 0; $new_ids = [];
+        $blocks = AVCF_Gutenberg_Helpers::parse_raw( $content );
+        $applied = 0; $new_ids = []; $warnings = [];
         foreach ( $ops as $idx => $op ) {
-            $res = $this->apply_one( $tree, is_array( $op ) ? $op : [] );
+            $res = $this->apply_one( $blocks, is_array( $op ) ? $op : [] );
             if ( isset( $res['err'] ) ) {
                 return [ 'success' => false, 'message' => sprintf( 'Operation %d (%s) failed: %s — nothing was written.', (int) $idx, ( is_array( $op ) && isset( $op['op'] ) ) ? (string) $op['op'] : '?', $res['err'] ) ];
             }
-            $tree = $res['tree'];
+            $blocks = $res['blocks'];
             if ( isset( $res['new_id'] ) ) { $new_ids[] = $res['new_id']; }
+            if ( isset( $res['warn'] ) ) { $warnings[] = array_merge( [ 'op_index' => (int) $idx ], $res['warn'] ); }
             $applied++;
         }
-        if ( ! empty( $input['stamp_ids'] ) ) { $tree = AVCF_Gutenberg_Helpers::stamp_ids( $tree ); }
+        if ( ! empty( $input['stamp_ids'] ) ) { $blocks = AVCF_Gutenberg_Helpers::raw_stamp_ids( $blocks ); }
 
-        $markup = AVCF_Gutenberg_Helpers::serialize_tree( $tree );
+        $markup = AVCF_Gutenberg_Helpers::serialize_raw( $blocks );
         $r = wp_update_post( [ 'ID' => $post_id, 'post_content' => $markup ], true );
         if ( is_wp_error( $r ) ) { return [ 'success' => false, 'message' => $r->get_error_message() ]; }
-        return [ 'success' => true, 'applied' => $applied, 'content_hash' => AVCF_Gutenberg_Helpers::content_hash( $markup ), 'new_ids' => $new_ids, 'message' => sprintf( '%d operation(s) applied.', $applied ) ];
+        $result = [ 'success' => true, 'applied' => $applied, 'content_hash' => AVCF_Gutenberg_Helpers::content_hash( $markup ), 'new_ids' => $new_ids ];
+        $message = sprintf( '%d operation(s) applied.', $applied );
+        if ( ! empty( $warnings ) ) {
+            $result['warnings'] = $warnings;
+            $bits = [];
+            foreach ( $warnings as $w ) { $bits[] = sprintf( 'op %d (%s): %s', $w['op_index'], $w['block'], implode( ', ', $w['unknown_attrs'] ) ); }
+            $message .= ' WARNING: some attributes are not defined by their block type and are likely ignored — ' . implode( '; ', $bits ) . '. Check names with gutenberg-list-block-types / the block\'s registered attributes.';
+        }
+        $result['message'] = $message;
+        return $result;
     }
 
-    private function apply_one( $tree, $op ) {
+    private function apply_one( $blocks, $op ) {
         $type = isset( $op['op'] ) ? (string) $op['op'] : '';
         switch ( $type ) {
-            case 'insert':    return $this->op_insert( $tree, $op );
-            case 'update':    return $this->op_update( $tree, $op );
-            case 'move':      return $this->op_move( $tree, $op );
-            case 'swap':      return $this->op_swap( $tree, $op );
-            case 'delete':    return $this->op_delete( $tree, $op );
-            case 'duplicate': return $this->op_duplicate( $tree, $op );
+            case 'insert':    return $this->op_insert( $blocks, $op );
+            case 'update':    return $this->op_update( $blocks, $op );
+            case 'move':      return $this->op_move( $blocks, $op );
+            case 'swap':      return $this->op_swap( $blocks, $op );
+            case 'delete':    return $this->op_delete( $blocks, $op );
+            case 'duplicate': return $this->op_duplicate( $blocks, $op );
             default:          return [ 'err' => 'unknown op "' . $type . '"' ];
         }
     }
 
     /** '' / 'root' -> '' (root). id resolved first, then path. null = not found. */
-    private function resolve_to_path( $tree, $ref ) {
+    private function resolve_to_path( $blocks, $ref ) {
         $ref = (string) $ref;
         if ( $ref === '' || $ref === 'root' ) { return ''; }
-        $hit = AVCF_Gutenberg_Helpers::find_by_id( $tree, $ref );
+        $hit = AVCF_Gutenberg_Helpers::raw_find_by_id( $blocks, $ref );
         if ( $hit !== null ) { return $hit['path']; }
-        if ( AVCF_Gutenberg_Helpers::node_at( $tree, $ref ) !== null ) { return $ref; }
+        if ( AVCF_Gutenberg_Helpers::raw_node_at( $blocks, $ref ) !== null ) { return $ref; }
         return null;
     }
 
-    private function nodes_from_op( $op ) {
-        if ( isset( $op['markdown'] ) && $op['markdown'] !== '' ) { return [ 'nodes' => AVCF_Gutenberg_Helpers::markdown_to_nodes( (string) $op['markdown'] ) ]; }
-        if ( isset( $op['markup'] ) && $op['markup'] !== '' ) { return [ 'nodes' => AVCF_Gutenberg_Helpers::markup_to_nodes( (string) $op['markup'] ) ]; }
+    private function blocks_from_op( $op ) {
+        if ( isset( $op['markdown'] ) && $op['markdown'] !== '' ) { return [ 'blocks' => AVCF_Gutenberg_Helpers::markdown_to_blocks( (string) $op['markdown'] ) ]; }
+        if ( isset( $op['markup'] ) && $op['markup'] !== '' ) { return [ 'blocks' => AVCF_Gutenberg_Helpers::markup_to_blocks( (string) $op['markup'] ) ]; }
         if ( isset( $op['block'] ) && is_array( $op['block'] ) ) {
-            $b = $op['block'];
-            $name = isset( $b['block'] ) ? (string) $b['block'] : '';
-            if ( $name === '' ) { return [ 'err' => 'block.block (name) is required' ]; }
-            $node = [ 'block' => $name ];
-            if ( isset( $b['attrs'] ) && is_array( $b['attrs'] ) ) { $node['attrs'] = $b['attrs']; }
-            if ( isset( $b['html'] ) ) { $node['html'] = (string) $b['html']; }
-            if ( isset( $b['children'] ) && is_array( $b['children'] ) ) { $node['children'] = $b['children']; }
-            return [ 'nodes' => [ $node ] ];
+            if ( isset( $op['block']['children'] ) && $op['block']['children'] !== [] ) {
+                return [ 'err' => 'block.children is not supported — a container\'s wrapper markup cannot be inferred from its name. Use the markup channel with the full block markup (e.g. <!-- wp:group --><div class="wp-block-group">…</div><!-- /wp:group -->), or markdown.' ];
+            }
+            $raw = AVCF_Gutenberg_Helpers::block_to_raw( $op['block'] );
+            if ( $raw === null ) { return [ 'err' => 'block.block (name) is required' ]; }
+            return [ 'blocks' => [ $raw ] ];
         }
         return [ 'err' => 'insert needs markdown, markup, or block' ];
     }
 
-    private function op_insert( $tree, $op ) {
-        $nodes = $this->nodes_from_op( $op );
-        if ( isset( $nodes['err'] ) ) { return $nodes; }
-        if ( $nodes['nodes'] === [] ) { return [ 'err' => 'nothing to insert (empty content)' ]; }
-        $parent_path = $this->resolve_to_path( $tree, isset( $op['parent'] ) ? (string) $op['parent'] : '' );
+    private function op_insert( $blocks, $op ) {
+        $src = $this->blocks_from_op( $op );
+        if ( isset( $src['err'] ) ) { return $src; }
+        if ( $src['blocks'] === [] ) { return [ 'err' => 'nothing to insert (empty content)' ]; }
+        $parent_path = $this->resolve_to_path( $blocks, isset( $op['parent'] ) ? (string) $op['parent'] : '' );
         if ( $parent_path === null ) { return [ 'err' => 'parent not found: ' . ( isset( $op['parent'] ) ? $op['parent'] : '' ) ]; }
         $index = isset( $op['index'] ) ? (int) $op['index'] : null;
-        $new = AVCF_Gutenberg_Helpers::insert_at( $tree, $parent_path, $index, $nodes['nodes'] );
-        return $new === null ? [ 'err' => 'insert failed' ] : [ 'tree' => $new ];
+        $new = AVCF_Gutenberg_Helpers::raw_insert_at( $blocks, $parent_path, $index, $src['blocks'] );
+        if ( $new === null ) { return [ 'err' => 'insert failed — the parent has no children yet and its wrapper markup could not be opened safely. Replace the whole container with update.markup instead.' ]; }
+        return [ 'blocks' => $new ];
     }
 
-    private function op_update( $tree, $op ) {
-        $path = $this->resolve_to_path( $tree, isset( $op['target'] ) ? (string) $op['target'] : '' );
+    private function op_update( $blocks, $op ) {
+        $path = $this->resolve_to_path( $blocks, isset( $op['target'] ) ? (string) $op['target'] : '' );
         if ( $path === null || $path === '' ) { return [ 'err' => 'target not found' ]; }
-        $node = AVCF_Gutenberg_Helpers::node_at( $tree, $path );
-        if ( $node === null ) { return [ 'err' => 'target not found' ]; }
+        $block = AVCF_Gutenberg_Helpers::raw_node_at( $blocks, $path );
+        if ( $block === null ) { return [ 'err' => 'target not found' ]; }
+        $cur_attrs = isset( $block['attrs'] ) && is_array( $block['attrs'] ) ? $block['attrs'] : [];
+        $cur_id    = AVCF_Gutenberg_Helpers::extract_id( $cur_attrs );
 
         if ( isset( $op['markup'] ) && $op['markup'] !== '' ) {
-            $nodes = AVCF_Gutenberg_Helpers::markup_to_nodes( (string) $op['markup'] );
-            if ( count( $nodes ) !== 1 ) { return [ 'err' => 'update markup must produce exactly one block' ]; }
-            $new = AVCF_Gutenberg_Helpers::replace_at( $tree, $path, $nodes[0] );
-            return $new === null ? [ 'err' => 'update failed' ] : [ 'tree' => $new ];
+            $parsed = AVCF_Gutenberg_Helpers::markup_to_blocks( (string) $op['markup'] );
+            if ( count( $parsed ) !== 1 ) { return [ 'err' => 'update markup must produce exactly one block' ]; }
+            $new = AVCF_Gutenberg_Helpers::raw_replace_at( $blocks, $path, $parsed[0] );
+            return $new === null ? [ 'err' => 'update failed' ] : [ 'blocks' => $new ];
         }
         if ( isset( $op['markdown'] ) && $op['markdown'] !== '' ) {
-            $nodes = AVCF_Gutenberg_Helpers::markdown_to_nodes( (string) $op['markdown'] );
-            if ( count( $nodes ) !== 1 ) { return [ 'err' => 'update markdown must produce exactly one block' ]; }
-            $repl = $nodes[0];
-            if ( isset( $node['id'] ) ) {
-                $repl['attrs'] = AVCF_Gutenberg_Helpers::set_id( isset( $repl['attrs'] ) ? $repl['attrs'] : [], $node['id'] );
-                $repl['id'] = $node['id'];
+            $parsed = AVCF_Gutenberg_Helpers::markdown_to_blocks( (string) $op['markdown'] );
+            if ( count( $parsed ) !== 1 ) { return [ 'err' => 'update markdown must produce exactly one block' ]; }
+            $repl = $parsed[0];
+            if ( $cur_id !== '' ) {
+                $repl['attrs'] = AVCF_Gutenberg_Helpers::set_id( isset( $repl['attrs'] ) && is_array( $repl['attrs'] ) ? $repl['attrs'] : [], $cur_id );
             }
-            $new = AVCF_Gutenberg_Helpers::replace_at( $tree, $path, $repl );
-            return $new === null ? [ 'err' => 'update failed' ] : [ 'tree' => $new ];
+            $new = AVCF_Gutenberg_Helpers::raw_replace_at( $blocks, $path, $repl );
+            return $new === null ? [ 'err' => 'update failed' ] : [ 'blocks' => $new ];
         }
         if ( isset( $op['attrs'] ) && is_array( $op['attrs'] ) ) {
-            $cur = isset( $node['attrs'] ) && is_array( $node['attrs'] ) ? $node['attrs'] : [];
-            $node['attrs'] = ! empty( $op['replace_attrs'] ) ? $op['attrs'] : array_merge( $cur, $op['attrs'] );
-            $new = AVCF_Gutenberg_Helpers::replace_at( $tree, $path, $node );
-            return $new === null ? [ 'err' => 'update failed' ] : [ 'tree' => $new ];
+            $block['attrs'] = ! empty( $op['replace_attrs'] ) ? $op['attrs'] : array_merge( $cur_attrs, $op['attrs'] );
+            $new = AVCF_Gutenberg_Helpers::raw_replace_at( $blocks, $path, $block );
+            if ( $new === null ) { return [ 'err' => 'update failed' ]; }
+            $res   = [ 'blocks' => $new ];
+            // Tier-2 validation (non-blocking): flag attrs the block type does not
+            // define so a silently-ignored attribute is visible in the receipt.
+            $bname = isset( $block['blockName'] ) ? (string) $block['blockName'] : '';
+            $valid = AVCF_Gutenberg_Helpers::block_attr_keys( $bname );
+            if ( is_array( $valid ) ) {
+                $unknown = array_values( array_filter(
+                    array_keys( $op['attrs'] ),
+                    function( $k ) use ( $valid ) { return ! in_array( $k, $valid, true ); }
+                ) );
+                if ( ! empty( $unknown ) ) {
+                    $res['warn'] = [ 'block' => $bname, 'unknown_attrs' => $unknown ];
+                }
+            }
+            return $res;
         }
         if ( isset( $op['html'] ) ) {
-            $node['html'] = (string) $op['html'];
-            unset( $node['children'] );
-            $new = AVCF_Gutenberg_Helpers::replace_at( $tree, $path, $node );
-            return $new === null ? [ 'err' => 'update failed' ] : [ 'tree' => $new ];
+            $kids = isset( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ? count( $block['innerBlocks'] ) : 0;
+            if ( $kids > 0 ) {
+                return [ 'err' => sprintf( 'target has %d inner block(s); setting html would drop them and their wrapper markup. Use markup to replace the whole block, or edit the children individually.', $kids ) ];
+            }
+            $html = (string) $op['html'];
+            $block['innerHTML']    = $html;
+            $block['innerContent'] = $html !== '' ? [ $html ] : [];
+            $new = AVCF_Gutenberg_Helpers::raw_replace_at( $blocks, $path, $block );
+            return $new === null ? [ 'err' => 'update failed' ] : [ 'blocks' => $new ];
         }
         return [ 'err' => 'update needs markdown, markup, attrs, or html' ];
     }
 
-    private function op_move( $tree, $op ) {
-        $from = $this->resolve_to_path( $tree, isset( $op['target'] ) ? (string) $op['target'] : '' );
+    private function op_move( $blocks, $op ) {
+        $from = $this->resolve_to_path( $blocks, isset( $op['target'] ) ? (string) $op['target'] : '' );
         if ( $from === null || $from === '' ) { return [ 'err' => 'target not found' ]; }
-        $node = AVCF_Gutenberg_Helpers::node_at( $tree, $from );
-        if ( $node === null ) { return [ 'err' => 'target not found' ]; }
+        $block = AVCF_Gutenberg_Helpers::raw_node_at( $blocks, $from );
+        if ( $block === null ) { return [ 'err' => 'target not found' ]; }
         $parent_ref = isset( $op['parent'] ) ? (string) $op['parent'] : '';
-        $to = $this->resolve_to_path( $tree, $parent_ref );
+        $to = $this->resolve_to_path( $blocks, $parent_ref );
         if ( $to === null ) { return [ 'err' => 'parent not found: ' . $parent_ref ]; }
         if ( $to === $from || strpos( $to . '/', $from . '/' ) === 0 ) { return [ 'err' => 'cannot move a block into itself or its descendant' ]; }
-        $removed = AVCF_Gutenberg_Helpers::remove_at( $tree, $from );
+        $removed = AVCF_Gutenberg_Helpers::raw_remove_at( $blocks, $from );
         if ( $removed === null ) { return [ 'err' => 'move: removal failed' ]; }
         $to2 = ( $parent_ref === '' || $parent_ref === 'root' ) ? '' : $this->resolve_to_path( $removed, $parent_ref );
         if ( $to2 === null ) { return [ 'err' => 'move: parent shifted after removal — target it by avcBlockId' ]; }
         $index = isset( $op['index'] ) ? (int) $op['index'] : null;
-        $new = AVCF_Gutenberg_Helpers::insert_at( $removed, $to2, $index, [ $node ] );
-        return $new === null ? [ 'err' => 'move: insert failed' ] : [ 'tree' => $new ];
+        $new = AVCF_Gutenberg_Helpers::raw_insert_at( $removed, $to2, $index, [ $block ] );
+        return $new === null ? [ 'err' => 'move: insert failed' ] : [ 'blocks' => $new ];
     }
 
-    private function op_swap( $tree, $op ) {
-        $pa = $this->resolve_to_path( $tree, isset( $op['a'] ) ? (string) $op['a'] : '' );
-        $pb = $this->resolve_to_path( $tree, isset( $op['b'] ) ? (string) $op['b'] : '' );
+    private function op_swap( $blocks, $op ) {
+        $pa = $this->resolve_to_path( $blocks, isset( $op['a'] ) ? (string) $op['a'] : '' );
+        $pb = $this->resolve_to_path( $blocks, isset( $op['b'] ) ? (string) $op['b'] : '' );
         if ( $pa === null || $pa === '' || $pb === null || $pb === '' ) { return [ 'err' => 'swap needs valid a and b' ]; }
         if ( $pa === $pb ) { return [ 'err' => 'swap a and b are the same block' ]; }
         if ( strpos( $pa . '/', $pb . '/' ) === 0 || strpos( $pb . '/', $pa . '/' ) === 0 ) { return [ 'err' => 'cannot swap nested blocks' ]; }
-        $na = AVCF_Gutenberg_Helpers::node_at( $tree, $pa );
-        $nb = AVCF_Gutenberg_Helpers::node_at( $tree, $pb );
-        if ( $na === null || $nb === null ) { return [ 'err' => 'swap target not found' ]; }
-        $t = AVCF_Gutenberg_Helpers::replace_at( $tree, $pa, $nb );
+        $ba = AVCF_Gutenberg_Helpers::raw_node_at( $blocks, $pa );
+        $bb = AVCF_Gutenberg_Helpers::raw_node_at( $blocks, $pb );
+        if ( $ba === null || $bb === null ) { return [ 'err' => 'swap target not found' ]; }
+        $t = AVCF_Gutenberg_Helpers::raw_replace_at( $blocks, $pa, $bb );
         if ( $t === null ) { return [ 'err' => 'swap failed' ]; }
-        $t = AVCF_Gutenberg_Helpers::replace_at( $t, $pb, $na );
-        return $t === null ? [ 'err' => 'swap failed' ] : [ 'tree' => $t ];
+        $t = AVCF_Gutenberg_Helpers::raw_replace_at( $t, $pb, $ba );
+        return $t === null ? [ 'err' => 'swap failed' ] : [ 'blocks' => $t ];
     }
 
-    private function op_delete( $tree, $op ) {
-        $path = $this->resolve_to_path( $tree, isset( $op['target'] ) ? (string) $op['target'] : '' );
+    private function op_delete( $blocks, $op ) {
+        $path = $this->resolve_to_path( $blocks, isset( $op['target'] ) ? (string) $op['target'] : '' );
         if ( $path === null || $path === '' ) { return [ 'err' => 'target not found' ]; }
-        $new = AVCF_Gutenberg_Helpers::remove_at( $tree, $path );
-        return $new === null ? [ 'err' => 'delete failed' ] : [ 'tree' => $new ];
+        $new = AVCF_Gutenberg_Helpers::raw_remove_at( $blocks, $path );
+        return $new === null ? [ 'err' => 'delete failed' ] : [ 'blocks' => $new ];
     }
 
-    private function op_duplicate( $tree, $op ) {
-        $path = $this->resolve_to_path( $tree, isset( $op['target'] ) ? (string) $op['target'] : '' );
+    private function op_duplicate( $blocks, $op ) {
+        $path = $this->resolve_to_path( $blocks, isset( $op['target'] ) ? (string) $op['target'] : '' );
         if ( $path === null || $path === '' ) { return [ 'err' => 'target not found' ]; }
-        $node = AVCF_Gutenberg_Helpers::node_at( $tree, $path );
-        if ( $node === null ) { return [ 'err' => 'target not found' ]; }
-        $clone = AVCF_Gutenberg_Helpers::clone_node( $node, true );
+        $block = AVCF_Gutenberg_Helpers::raw_node_at( $blocks, $path );
+        if ( $block === null ) { return [ 'err' => 'target not found' ]; }
+        $clone = AVCF_Gutenberg_Helpers::raw_clone( $block, true );
+        $new_id = '';
+        if ( ! empty( $clone['blockName'] ) ) {
+            $cattrs = isset( $clone['attrs'] ) && is_array( $clone['attrs'] ) ? $clone['attrs'] : [];
+            $new_id = AVCF_Gutenberg_Helpers::extract_id( $cattrs );
+            if ( $new_id === '' ) {
+                $new_id = AVCF_Gutenberg_Helpers::uuid();
+                $clone['attrs'] = AVCF_Gutenberg_Helpers::set_id( $cattrs, $new_id );
+            }
+        }
         list( $parent, $index ) = AVCF_Gutenberg_Helpers::split_address( $path );
         $pos = $index === null ? null : ( (int) $index + 1 );
-        $new = AVCF_Gutenberg_Helpers::insert_at( $tree, $parent, $pos, [ $clone ] );
+        $new = AVCF_Gutenberg_Helpers::raw_insert_at( $blocks, $parent, $pos, [ $clone ] );
         if ( $new === null ) { return [ 'err' => 'duplicate failed' ]; }
-        return isset( $clone['id'] ) ? [ 'tree' => $new, 'new_id' => $clone['id'] ] : [ 'tree' => $new ];
+        return $new_id !== '' ? [ 'blocks' => $new, 'new_id' => $new_id ] : [ 'blocks' => $new ];
     }
 
 }

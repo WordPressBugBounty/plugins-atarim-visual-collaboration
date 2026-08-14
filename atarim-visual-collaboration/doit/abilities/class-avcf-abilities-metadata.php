@@ -59,7 +59,34 @@ class AVCF_Abilities_Metadata extends AVCF_Abilities_Base {
         'WPLANG'                 => 'Use atarim/update-general-settings (validates locale).',
         'cron'                   => 'Use wp_schedule_event / wp_unschedule_event APIs instead.',
         'permalink_structure'    => 'Use atarim/update-permalink-settings (flushes rewrite rules).',
+        'default_role'           => 'Privilege-escalation vector: the role assigned to new users. Change roles through a deliberate, reviewed workflow, not a generic option write.',
+        'users_can_register'     => 'Security-sensitive: open registration combined with default_role is a takeover vector. Change via general settings deliberately.',
+        'mailserver_url'         => 'Email-interception vector; not writable through the generic option tool.',
+        'mailserver_login'       => 'Email-interception vector; not writable through the generic option tool.',
+        'mailserver_pass'        => 'Email-interception vector; not writable through the generic option tool.',
+        'mailserver_port'        => 'Email-interception vector; not writable through the generic option tool.',
     ];
+
+    /**
+     * Reason a raw option write is blocked, or null if allowed. Covers the static
+     * infrastructure/security blocklist above plus the prefix-dependent
+     * "{$prefix}user_roles" role-to-capability map, which cannot be a static key
+     * because the table prefix varies per site. Editing user_roles can grant
+     * administrator capabilities, so it is a privilege-escalation vector.
+     *
+     * @param string $name Option name.
+     * @return string|null
+     */
+    private function avcf_blocked_option_reason( $name ) {
+        global $wpdb;
+        if ( isset( $this->option_blocklist[ $name ] ) ) {
+            return $this->option_blocklist[ $name ];
+        }
+        if ( isset( $wpdb ) && is_object( $wpdb ) && $name === $wpdb->prefix . 'user_roles' ) {
+            return 'This is the role-to-capability map; editing it can grant administrator capabilities. Manage roles through a dedicated, reviewed workflow.';
+        }
+        return null;
+    }
 
     public function register() {
 
@@ -282,6 +309,39 @@ class AVCF_Abilities_Metadata extends AVCF_Abilities_Base {
 
                 $value = $input['value'];
 
+                // Guard: _elementor_data holds a JSON STRING (an array of elements).
+                // A malformed or non-JSON write silently corrupts the whole page
+                // (Elementor fails to parse it), so validate before writing. For
+                // structured edits prefer elementor-edit-element / -apply-operations,
+                // which patch the tree without hand-writing raw JSON.
+                if ( '_elementor_data' === $field ) {
+                    if ( ! is_string( $value ) ) {
+                        return [
+                            'success' => false,
+                            'post_id' => $post_id,
+                            'field'   => $field,
+                            'message' => '_elementor_data must be written as a JSON string, not a structured/array value. Pass the JSON as a string, or use elementor-edit-element / elementor-apply-operations for targeted structured edits.',
+                        ];
+                    }
+                    $decoded = json_decode( $value, true );
+                    if ( null === $decoded && JSON_ERROR_NONE !== json_last_error() ) {
+                        return [
+                            'success' => false,
+                            'post_id' => $post_id,
+                            'field'   => $field,
+                            'message' => sprintf( 'Refused: the value for _elementor_data is not valid JSON (%s). Writing malformed JSON would corrupt the Elementor page. Fix the JSON, or use elementor-edit-element / elementor-apply-operations for targeted edits.', json_last_error_msg() ),
+                        ];
+                    }
+                    if ( ! is_array( $decoded ) ) {
+                        return [
+                            'success' => false,
+                            'post_id' => $post_id,
+                            'field'   => $field,
+                            'message' => 'Refused: _elementor_data must be a JSON array of Elementor elements. The provided JSON does not decode to an array.',
+                        ];
+                    }
+                }
+
                 // Determine backend: caller-provided type, or auto-detect.
                 $type_source = 'auto';
                 if ( isset( $input['type'] ) && in_array( $input['type'], [ 'acf', 'toolset', 'meta_box', 'raw' ], true ) ) {
@@ -290,6 +350,10 @@ class AVCF_Abilities_Metadata extends AVCF_Abilities_Base {
                 } else {
                     $type = $this->avcf_detect_meta_type( $post_id, $field, $value );
                 }
+
+                // Capture the prior stored value so we can report whether the write
+                // actually changed anything (a "success" that is really a no-op).
+                $before_value = $this->avcf_read_field_value( $post_id, $field, $type, 'raw' );
 
                 $write_result = $this->avcf_write_field_value( $post_id, $field, $value, $type );
                 if ( $write_result['error'] !== null ) {
@@ -306,6 +370,27 @@ class AVCF_Abilities_Metadata extends AVCF_Abilities_Base {
                 // Read back to confirm — uses raw format so AI sees ground truth.
                 $confirmed_value = $this->avcf_read_field_value( $post_id, $field, $type, 'raw' );
 
+                // Write receipt: compare requested vs stored vs prior so a silent
+                // no-op or a coerced value is visible instead of a bare success.
+                $req_json     = wp_json_encode( $value );
+                $stored_json  = wp_json_encode( $confirmed_value );
+                $before_json  = wp_json_encode( $before_value );
+                $changed      = ( $stored_json !== $before_json );
+                if ( $stored_json === $req_json ) {
+                    $status = 'applied';
+                } elseif ( $stored_json === $before_json ) {
+                    $status = 'ignored'; // stored value did not change — the write had no effect
+                } else {
+                    $status = 'coerced'; // backend stored a transformed value (see new_value)
+                }
+
+                $message = sprintf( 'Field "%s" updated on post %d via %s backend (%s).', $field, $post_id, $type, $type_source === 'caller' ? 'caller-specified' : 'auto-detected' );
+                if ( 'ignored' === $status ) {
+                    $message = sprintf( 'WARNING: field "%s" on post %d was NOT changed — the stored value is unchanged after the write (possible silent no-op). Backend: %s (%s).', $field, $post_id, $type, $type_source === 'caller' ? 'caller-specified' : 'auto-detected' );
+                } elseif ( 'coerced' === $status ) {
+                    $message = sprintf( 'NOTE: field "%s" on post %d was stored with a transformed value (see new_value), which differs from the value sent. Backend: %s (%s).', $field, $post_id, $type, $type_source === 'caller' ? 'caller-specified' : 'auto-detected' );
+                }
+
                 return [
                     'success'     => true,
                     'post_id'     => $post_id,
@@ -313,7 +398,9 @@ class AVCF_Abilities_Metadata extends AVCF_Abilities_Base {
                     'type'        => $type,
                     'type_source' => $type_source,
                     'new_value'   => $confirmed_value,
-                    'message'     => sprintf( 'Field "%s" updated on post %d via %s backend (%s).', $field, $post_id, $type, $type_source === 'caller' ? 'caller-specified' : 'auto-detected' ),
+                    'changed'     => $changed,
+                    'status'      => $status,
+                    'message'     => $message,
                 ];
             },
             'permission_callback' => function() {
@@ -783,11 +870,12 @@ class AVCF_Abilities_Metadata extends AVCF_Abilities_Base {
                     return [ 'success' => false, 'option_name' => $name, 'message' => 'value is required.' ];
                 }
 
-                if ( isset( $this->option_blocklist[ $name ] ) ) {
+                $blocked_reason = $this->avcf_blocked_option_reason( $name );
+                if ( null !== $blocked_reason ) {
                     return [
                         'success'     => false,
                         'option_name' => $name,
-                        'message'     => sprintf( 'Option "%s" is blocked for direct write. %s', $name, $this->option_blocklist[ $name ] ),
+                        'message'     => sprintf( 'Option "%s" is blocked for direct write. %s', $name, $blocked_reason ),
                     ];
                 }
 
@@ -1182,13 +1270,13 @@ class AVCF_Abilities_Metadata extends AVCF_Abilities_Base {
                     return [ 'ok' => true, 'error' => null ];
                 }
                 // Fallback: raw write but warn the AI that Meta Box hooks didn't fire.
-                update_post_meta( $post_id, $key, $value );
+                update_post_meta( $post_id, $key, wp_slash( $value ) );
                 return [ 'ok' => true, 'error' => null ];
 
             case 'toolset':
             case 'raw':
             default:
-                update_post_meta( $post_id, $key, $value );
+                update_post_meta( $post_id, $key, wp_slash( $value ) );
                 return [ 'ok' => true, 'error' => null ];
         }
     }

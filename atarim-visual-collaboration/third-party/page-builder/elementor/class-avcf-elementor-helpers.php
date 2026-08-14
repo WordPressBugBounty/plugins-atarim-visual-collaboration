@@ -67,6 +67,75 @@ class AVCF_Elementor_Helpers {
      * @param array $elements
      * @return bool
      */
+    /**
+     * Whether an element tree contains any Elementor v4 atomic element. Atomic
+     * elements (widgetType "e-*", or a node carrying a non-empty "styles" object)
+     * must be written raw — Document::save() silently strips them.
+     *
+     * @param array $elements
+     * @return bool
+     */
+    /**
+     * Resolve the valid top-level setting/prop keys for an Elementor element type.
+     * Returns [ 'mode' => 'atomic'|'v3'|'unknown', 'keys' => string[] ]. Atomic
+     * (v4) elements expose get_props_schema(); classic (v3) widgets use
+     * get_controls(). Used to flag settings keys the element does not define
+     * (silently dropped writes) WITHOUT blocking the write. 'unknown' means the
+     * type could not be resolved, so callers should skip validation rather than
+     * warn on everything.
+     *
+     * @param string $type widgetType (e.g. "heading", "e-heading") or elType (e.g. "e-div-block").
+     * @return array
+     */
+    public static function valid_setting_keys( $type ) {
+        $out = [ 'mode' => 'unknown', 'keys' => [] ];
+        $type = (string) $type;
+        if ( $type === '' || ! class_exists( '\Elementor\Plugin' ) ) {
+            return $out;
+        }
+        $p  = \Elementor\Plugin::$instance;
+        $wm = isset( $p->widgets_manager ) ? $p->widgets_manager : null;
+        $em = isset( $p->elements_manager ) ? $p->elements_manager : null;
+
+        $obj = ( is_object( $wm ) && method_exists( $wm, 'get_widget_types' ) ) ? $wm->get_widget_types( $type ) : null;
+        if ( ! is_object( $obj ) && is_object( $em ) && method_exists( $em, 'get_element_types' ) ) {
+            $obj = $em->get_element_types( $type );
+        }
+        if ( ! is_object( $obj ) ) {
+            return $out;
+        }
+        try {
+            if ( method_exists( $obj, 'get_props_schema' ) ) {
+                $class  = get_class( $obj );
+                $schema = $class::get_props_schema();
+                $out    = [ 'mode' => 'atomic', 'keys' => is_array( $schema ) ? array_keys( $schema ) : [] ];
+            } elseif ( method_exists( $obj, 'get_controls' ) ) {
+                $out = [ 'mode' => 'v3', 'keys' => array_keys( (array) $obj->get_controls() ) ];
+            }
+        } catch ( \Throwable $e ) {
+            return [ 'mode' => 'unknown', 'keys' => [] ];
+        }
+        return $out;
+    }
+
+    public static function tree_has_atomic( $elements ) {
+        foreach ( (array) $elements as $el ) {
+            if ( ! is_array( $el ) ) {
+                continue;
+            }
+            if ( isset( $el['widgetType'] ) && is_string( $el['widgetType'] ) && strpos( $el['widgetType'], 'e-' ) === 0 ) {
+                return true;
+            }
+            if ( isset( $el['styles'] ) && ! empty( $el['styles'] ) ) {
+                return true;
+            }
+            if ( ! empty( $el['elements'] ) && self::tree_has_atomic( $el['elements'] ) ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static function write_tree( $post_id, $elements, $force_raw = false ) {
         $template_type = get_post_meta( $post_id, '_elementor_template_type', true );
         if ( $template_type === '' ) {
@@ -74,8 +143,10 @@ class AVCF_Elementor_Helpers {
         }
 
         // Atomic-widget trees must bypass Document::save() (it silently strips
-        // atomic elements); callers pass $force_raw to write directly.
-        if ( $force_raw ) {
+        // atomic elements). Callers may pass $force_raw explicitly; we ALSO
+        // auto-detect atomic elements so a normal edit/move/delete write can't
+        // accidentally route through Document::save() and destroy them.
+        if ( $force_raw || self::tree_has_atomic( $elements ) ) {
             return self::write_tree_raw( $post_id, $elements, $template_type );
         }
 
@@ -132,6 +203,69 @@ class AVCF_Elementor_Helpers {
             $files_manager->clear_cache();
         }
         delete_post_meta( $post_id, '_elementor_css' );
+        // Also clear the per-post element render cache and page assets. Clearing
+        // only the CSS leaves stale element HTML being served after an edit —
+        // the front end then shows the old markup even though the write landed.
+        delete_post_meta( $post_id, '_elementor_element_cache' );
+        delete_post_meta( $post_id, '_elementor_page_assets' );
+    }
+
+    /**
+     * Force-regenerate a single post's Elementor CSS now, so a verification read
+     * reflects the edit without waiting for the next front-end view. Returns true
+     * if regeneration ran.
+     */
+    /**
+     * Force-regenerate a post's Elementor CSS and REPORT what was produced, so a
+     * caller can validate it (e.g. detect CSS that came out empty or truncated —
+     * the "styles drop past section N / fall back to kit defaults" failure). Does
+     * a real delete + rebuild (writes now, not lazily).
+     *
+     * Returns [ regenerated(bool), css_bytes, css_sha1, css_status('file'|'inline'
+     * |'empty'), css_empty(bool), content(string) ] on success, or
+     * [ regenerated => false, reason ] on failure.
+     *
+     * @param int $post_id
+     * @return array
+     */
+    public static function regenerate_post_css( $post_id ) {
+        if ( ! class_exists( '\Elementor\Core\Files\CSS\Post' ) ) {
+            return [ 'regenerated' => false, 'reason' => 'Elementor CSS class is unavailable.' ];
+        }
+        try {
+            $css = new \Elementor\Core\Files\CSS\Post( (int) $post_id );
+            $css->delete(); // drop the stale file + meta
+            $css->update(); // rebuild and write now
+            $content = method_exists( $css, 'get_content' ) ? (string) $css->get_content() : '';
+            $status  = method_exists( $css, 'get_meta' ) ? (string) $css->get_meta( 'status' ) : '';
+            return [
+                'regenerated' => true,
+                'css_bytes'   => strlen( $content ),
+                'css_sha1'    => sha1( $content ),
+                'css_status'  => $status,
+                'css_empty'   => ( '' === trim( $content ) ),
+                'content'     => $content,
+            ];
+        } catch ( \Throwable $e ) {
+            return [ 'regenerated' => false, 'reason' => $e->getMessage() ];
+        }
+    }
+
+    /**
+     * Clear ALL Elementor generated CSS/files site-wide (regenerates lazily on
+     * next view). Returns true if the files manager was reachable.
+     */
+    public static function purge_all_css() {
+        if ( ! class_exists( '\Elementor\Plugin' ) ) {
+            return false;
+        }
+        $plugin = \Elementor\Plugin::$instance;
+        $files_manager = isset( $plugin->files_manager ) ? $plugin->files_manager : null;
+        if ( is_object( $files_manager ) && method_exists( $files_manager, 'clear_cache' ) ) {
+            $files_manager->clear_cache();
+            return true;
+        }
+        return false;
     }
 
     /**

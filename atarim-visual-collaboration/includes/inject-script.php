@@ -180,6 +180,7 @@ class AVCF_Inject_Script {
                 wp_clear_auth_cookie();
                 wp_set_current_user($user->ID);
                 wp_set_auth_cookie($user->ID);
+                $this->avcf_make_auth_cookies_embeddable();
             }
         }
 
@@ -189,6 +190,42 @@ class AVCF_Inject_Script {
         // Redirect safely (same-host only).
         wp_safe_redirect(esc_url_raw($newurl), 302);
         exit;
+    }
+
+    /**
+     * Re-send the auth cookies WordPress just emitted with attributes that
+     * survive inside a cross-site iframe: the Atarim stage embeds the site
+     * on the app's origin, and WordPress emits its cookies without SameSite,
+     * which browsers treat as Lax and drop on embedded requests. Partitioned
+     * keeps them accepted once third-party cookies are fully phased out.
+     */
+    private function avcf_make_auth_cookies_embeddable() {
+        if (headers_sent()) {
+            return;
+        }
+
+        $cookies = array();
+        foreach (headers_list() as $header) {
+            if (stripos($header, 'Set-Cookie:') !== 0) {
+                continue;
+            }
+            $cookies[] = trim(substr($header, strlen('Set-Cookie:')));
+        }
+        if (empty($cookies)) {
+            return;
+        }
+
+        header_remove('Set-Cookie');
+        foreach ($cookies as $cookie) {
+            if (preg_match('/^wordpress_/i', $cookie)) {
+                $cookie = preg_replace('/;\s*samesite=[^;]*/i', '', $cookie);
+                if (! preg_match('/;\s*secure(;|$)/i', $cookie)) {
+                    $cookie .= '; Secure';
+                }
+                $cookie .= '; SameSite=None; Partitioned';
+            }
+            header('Set-Cookie: ' . $cookie, false);
+        }
     }
 
     public function avcf_accept_invitation() {

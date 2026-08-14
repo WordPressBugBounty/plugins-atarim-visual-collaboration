@@ -714,6 +714,8 @@ class AVCF_Abilities_Themes extends AVCF_Abilities_Base {
                     'success'    => [ 'type' => 'boolean' ],
                     'stylesheet' => [ 'type' => 'string' ],
                     'css'        => [ 'type' => 'string' ],
+                    'sha1'       => [ 'type' => 'string' ],
+                    'bytes'      => [ 'type' => 'integer' ],
                     'message'    => [ 'type' => 'string' ],
                 ],
                 'required' => [ 'success', 'message' ],
@@ -733,7 +735,9 @@ class AVCF_Abilities_Themes extends AVCF_Abilities_Base {
                     'success'    => true,
                     'stylesheet' => $stylesheet,
                     'css'        => $css,
-                    'message'    => ( '' === $css ) ? 'No Additional CSS is set for this theme.' : 'OK.',
+                    'sha1'       => sha1( $css ),
+                    'bytes'      => strlen( $css ),
+                    'message'    => ( '' === $css ) ? 'No Additional CSS is set for this theme.' : sprintf( 'OK. Pass this sha1 as expected_sha1 to set-additional-css for a safe replace. (%d bytes)', strlen( $css ) ),
                 ];
             },
             'permission_callback' => function() {
@@ -772,6 +776,10 @@ class AVCF_Abilities_Themes extends AVCF_Abilities_Base {
                         'enum'        => [ 'replace', 'append' ],
                         'default'     => 'replace',
                     ],
+                    'expected_sha1' => [
+                        'type'        => 'string',
+                        'description' => 'Optional optimistic-concurrency guard. If given, the write proceeds only when the CURRENT Additional CSS has this sha1 (get it from get-additional-css). If it does not match, the write is refused with the current sha1 so you can re-read and retry — preventing a blind replace from clobbering a change made since you read. Omit to force the write.',
+                    ],
                 ],
                 'required'             => [ 'css' ],
                 'additionalProperties' => false,
@@ -779,10 +787,16 @@ class AVCF_Abilities_Themes extends AVCF_Abilities_Base {
             'output_schema'       => [
                 'type'       => 'object',
                 'properties' => [
-                    'success'    => [ 'type' => 'boolean' ],
-                    'stylesheet' => [ 'type' => 'string' ],
-                    'css'        => [ 'type' => 'string' ],
-                    'message'    => [ 'type' => 'string' ],
+                    'success'      => [ 'type' => 'boolean' ],
+                    'conflict'     => [ 'type' => 'boolean' ],
+                    'stylesheet'   => [ 'type' => 'string' ],
+                    'mode'         => [ 'type' => 'string' ],
+                    'changed'      => [ 'type' => 'boolean' ],
+                    'before_sha1'  => [ 'type' => 'string' ],
+                    'stored_sha1'  => [ 'type' => 'string' ],
+                    'stored_bytes' => [ 'type' => 'integer' ],
+                    'current_sha1' => [ 'type' => 'string' ],
+                    'message'      => [ 'type' => 'string' ],
                 ],
                 'required' => [ 'success', 'message' ],
             ],
@@ -804,11 +818,29 @@ class AVCF_Abilities_Themes extends AVCF_Abilities_Base {
                     $mode = 'replace';
                 }
 
+                // Current stored CSS (raw) for the concurrency guard and change reporting.
+                $existing_raw = (string) wp_get_custom_css( $stylesheet );
+                $before_sha1  = sha1( $existing_raw );
+
+                // Optimistic-concurrency guard: only proceed if the current CSS is
+                // what the caller expected. Stops a blind replace from silently
+                // clobbering a change made since the caller last read the value.
+                if ( isset( $input['expected_sha1'] ) && '' !== (string) $input['expected_sha1'] ) {
+                    if ( $before_sha1 !== (string) $input['expected_sha1'] ) {
+                        return [
+                            'success'      => false,
+                            'conflict'     => true,
+                            'stylesheet'   => $stylesheet,
+                            'current_sha1' => $before_sha1,
+                            'message'      => 'Conflict: the current Additional CSS does not match expected_sha1 (it changed since you read it). Re-read it with get-additional-css and retry with the new sha1, or omit expected_sha1 to force the write.',
+                        ];
+                    }
+                }
+
                 $css = $this->avcf_normalize_css( (string) $input['css'] );
 
                 if ( 'append' === $mode ) {
-                    $existing = (string) wp_get_custom_css( $stylesheet );
-                    $css      = ( '' !== trim( $existing ) ) ? rtrim( $existing ) . "\n\n" . $css : $css;
+                    $css = ( '' !== trim( $existing_raw ) ) ? rtrim( $existing_raw ) . "\n\n" . $css : $css;
                 }
 
                 $result = wp_update_custom_css_post( $css, [ 'stylesheet' => $stylesheet ] );
@@ -817,11 +849,19 @@ class AVCF_Abilities_Themes extends AVCF_Abilities_Base {
                     return [ 'success' => false, 'message' => 'Update failed: ' . $result->get_error_message() ];
                 }
 
+                // Receipt from the re-read stored value (no full-CSS echo).
+                $stored      = (string) wp_get_custom_css( $stylesheet );
+                $stored_sha1 = sha1( $stored );
+
                 return [
-                    'success'    => true,
-                    'stylesheet' => $stylesheet,
-                    'css'        => $css,
-                    'message'    => sprintf( 'Additional CSS %s for theme "%s".', ( 'append' === $mode ? 'appended' : 'updated' ), $stylesheet ),
+                    'success'      => true,
+                    'stylesheet'   => $stylesheet,
+                    'mode'         => $mode,
+                    'changed'      => ( $before_sha1 !== $stored_sha1 ),
+                    'before_sha1'  => $before_sha1,
+                    'stored_sha1'  => $stored_sha1,
+                    'stored_bytes' => strlen( $stored ),
+                    'message'      => sprintf( 'Additional CSS %s for theme "%s" (%d bytes). Use stored_sha1 as expected_sha1 for your next safe replace.', ( 'append' === $mode ? 'appended' : 'updated' ), $stylesheet, strlen( $stored ) ),
                 ];
             },
             'permission_callback' => function() {
@@ -857,6 +897,16 @@ class AVCF_Abilities_Themes extends AVCF_Abilities_Base {
         // Normalise line endings.
         $css = str_replace( [ "\r\n", "\r" ], "\n", $css );
 
+        // Protect CSS comment blocks (/* ... */) before any HTML-tag munging:
+        // their contents may legitimately contain "<...>" (e.g. documentation or
+        // selector examples), which the tag-strip below would otherwise destroy.
+        $avcf_css_comments = [];
+        $css = preg_replace_callback( '#/\*.*?\*/#s', function( $m ) use ( &$avcf_css_comments ) {
+            $token = '%%AVCF_CSSCOMMENT_' . count( $avcf_css_comments ) . '%%';
+            $avcf_css_comments[] = $m[0];
+            return $token;
+        }, $css );
+
         // Remove HTML comments, including Gutenberg block delimiters (<!-- wp:... -->).
         $css = preg_replace( '/<!--.*?-->/s', '', $css );
 
@@ -880,6 +930,15 @@ class AVCF_Abilities_Themes extends AVCF_Abilities_Base {
 
         // Collapse 3+ newlines to a single blank line, then trim.
         $css = preg_replace( "/\n{3,}/", "\n\n", $css );
+
+        // Restore protected CSS comment blocks verbatim.
+        if ( $avcf_css_comments ) {
+            $tokens = [];
+            foreach ( array_keys( $avcf_css_comments ) as $i ) {
+                $tokens[] = '%%AVCF_CSSCOMMENT_' . $i . '%%';
+            }
+            $css = str_replace( $tokens, $avcf_css_comments, $css );
+        }
 
         return trim( $css );
     }

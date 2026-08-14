@@ -11,7 +11,7 @@ class AVCF_Constants {
     }
 
     public function avcf_define_constant() {
-        define( 'AVCF_VERSION', '5.1' );
+        define( 'AVCF_VERSION', '5.1.1' );
         define( 'AVCF_SITE_URL', site_url() );
         define( 'AVCF_HOME_URL', home_url() );
         define( 'AVCF_MAIN_SITE_URL', 'https://atarim.io' );
