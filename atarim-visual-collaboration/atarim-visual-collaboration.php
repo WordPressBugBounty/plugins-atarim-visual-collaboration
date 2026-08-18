@@ -2,7 +2,7 @@
 /*
  * Plugin Name: Atarim - AI Agency for WordPress: Edit Pages, Fix Code, Update Plugins, SEO & Client Feedback
  * Description: Give your AI full access to WordPress. It edits pages, fixes code, updates plugins and runs SEO work, with a backup and your approval first.
- * Version: 5.1.1
+ * Version: 5.1.2
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: Atarim

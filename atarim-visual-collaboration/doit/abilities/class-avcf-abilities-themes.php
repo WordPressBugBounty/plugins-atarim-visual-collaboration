@@ -871,7 +871,7 @@ class AVCF_Abilities_Themes extends AVCF_Abilities_Base {
                 'mcp' => [ 'public' => true, 'type' => 'tool' ],
                 'annotations' => [
                     'readonly'    => false,
-                    'destructive' => false,
+                    'destructive' => true,
                     'idempotent'  => true,
                 ],
             ],

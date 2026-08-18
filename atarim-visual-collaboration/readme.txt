@@ -1,7 +1,7 @@
 === Atarim - AI Agency for WordPress: Edit Pages, Fix Code, Update Plugins, SEO & Client Feedback ===
 Contributors: wpfeedback, pratapdungrani
 Tags: ai, agency, client feedback, automation, seo
-Stable tag: 5.1.1
+Stable tag: 5.1.2
 Requires at least: 6.0
 Requires PHP: 7.4
 Tested up to: 7.0.3
@@ -299,6 +299,10 @@ A free account includes one site and 200 AI credits. The paid plan is $67 a mont
 10. A workflow template. When a page review finishes, open a task for every critical issue and post it to Slack. You see the trigger, the actions and the credit cost before it runs.
 
 == Changelog ==
+
+= 5.1.2 =
+* **Security fix (arbitrary file deletion)** - Hardened the media-replace ability so it only ever operates on files inside the uploads directory, and blocked traversal/absolute values and other WordPress-managed attachment meta from being written through the generic field abilities. Fixes an authenticated (author and above) arbitrary file deletion issue reachable through the DoIt abilities.
+* **Security hardening (MCP surface)** - The AI action layer is now reachable only through Atarim's own token-authenticated MCP server; the adapter's ungated default server is no longer registered.
 
 = 5.1.1 =
 * **Back up and restore through JetBackup** - Using JetBackup, a connected AI can take a fresh backup before it starts editing, watch it finish, and restore a snapshot if a change needs undoing.

@@ -1135,12 +1135,22 @@ class AVCF_Abilities_Media extends AVCF_Abilities_Base {
                 }
 
                 $existing_path     = (string) get_attached_file( $id );
-                $existing_filename = basename( $existing_path );
                 $existing_mime     = (string) $att->post_mime_type;
 
                 if ( $existing_path === '' || ! file_exists( $existing_path ) ) {
                     return [ 'success' => false, 'message' => sprintf( 'Attachment %d has no file on disk to replace.', $id ) ];
                 }
+
+                // Security: get_attached_file() resolves the caller-writable
+                // _wp_attached_file meta. Require the resolved path to be inside the
+                // uploads directory before any unlink/copy below, otherwise a poisoned
+                // meta value (traversal or absolute path) would delete/overwrite an
+                // arbitrary file on the server. See avcf_resolve_within_uploads().
+                $existing_path = $this->avcf_resolve_within_uploads( $existing_path );
+                if ( false === $existing_path ) {
+                    return [ 'success' => false, 'message' => sprintf( 'Attachment %d resolves to a file outside the uploads directory; refusing to modify it.', $id ) ];
+                }
+                $existing_filename = basename( $existing_path );
 
                 $fetched = $this->avcf_fetch_media_source( $source, $input );
                 if ( isset( $fetched['error'] ) ) {
@@ -1198,11 +1208,20 @@ class AVCF_Abilities_Media extends AVCF_Abilities_Base {
                 $old_meta = wp_get_attachment_metadata( $id );
                 if ( is_array( $old_meta ) && ! empty( $old_meta['sizes'] ) ) {
                     foreach ( $old_meta['sizes'] as $size_meta ) {
-                        if ( ! empty( $size_meta['file'] ) ) {
-                            $size_path = trailingslashit( $dir ) . $size_meta['file'];
-                            if ( file_exists( $size_path ) ) {
-                                @unlink( $size_path );
-                            }
+                        if ( empty( $size_meta['file'] ) ) {
+                            continue;
+                        }
+                        // Intermediate-size files are always plain filenames in the same
+                        // directory as the original. Strip any path component so a poisoned
+                        // metadata 'file' value can't traverse out of $dir, and re-confirm
+                        // containment before unlinking.
+                        $size_file = basename( (string) $size_meta['file'] );
+                        if ( '' === $size_file ) {
+                            continue;
+                        }
+                        $size_path = trailingslashit( $dir ) . $size_file;
+                        if ( file_exists( $size_path ) && false !== $this->avcf_resolve_within_uploads( $size_path ) ) {
+                            @unlink( $size_path );
                         }
                     }
                 }
@@ -1776,5 +1795,49 @@ class AVCF_Abilities_Media extends AVCF_Abilities_Base {
             }
         }
         return '';
+    }
+
+    /**
+     * Canonicalize a filesystem path and require it to live inside the WordPress
+     * uploads directory.
+     *
+     * Several abilities locate a file to delete/overwrite via get_attached_file(),
+     * which trusts the attachment's _wp_attached_file meta. That meta is
+     * caller-writable (e.g. through atarim/update-post-field), so a traversal
+     * ("../../wp-config.php") or absolute value would make those disk operations
+     * escape the uploads directory — enabling arbitrary file deletion and, from
+     * there, remote code execution. Resolving the real path and confirming
+     * containment before any unlink/copy closes that hole regardless of how the
+     * meta was poisoned.
+     *
+     * @param string $path Filesystem path (typically from get_attached_file()).
+     * @return string|false Canonical path if it exists and is inside uploads, else false.
+     */
+    private function avcf_resolve_within_uploads( $path ) {
+        $path = (string) $path;
+        if ( '' === $path || strpos( $path, "\0" ) !== false ) {
+            return false;
+        }
+
+        $uploads = wp_upload_dir();
+        if ( empty( $uploads['basedir'] ) ) {
+            return false;
+        }
+
+        $basedir_real = realpath( $uploads['basedir'] );
+        $real         = realpath( $path );
+        if ( false === $basedir_real || false === $real ) {
+            return false;
+        }
+
+        // Compare with a trailing separator on both sides so that a sibling
+        // directory sharing a name prefix (e.g. ".../uploads-evil/") can't pass.
+        $basedir_cmp = rtrim( $basedir_real, '/\\' ) . DIRECTORY_SEPARATOR;
+        $real_cmp    = $real . DIRECTORY_SEPARATOR;
+        if ( 0 !== strpos( $real_cmp, $basedir_cmp ) ) {
+            return false;
+        }
+
+        return $real;
     }
 }

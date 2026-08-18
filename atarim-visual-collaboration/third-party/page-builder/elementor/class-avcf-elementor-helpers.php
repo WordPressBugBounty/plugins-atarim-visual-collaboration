@@ -395,7 +395,7 @@ class AVCF_Elementor_Helpers {
      * @param int   $max_depth
      * @return array
      */
-    public static function summarize( $elements, $max_depth = 6, $depth = 0 ) {
+    public static function summarize( $elements, $max_depth = 6, $depth = 0, &$truncated = false ) {
         $out = [];
         foreach ( (array) $elements as $el ) {
             if ( ! is_array( $el ) ) {
@@ -410,11 +410,38 @@ class AVCF_Elementor_Helpers {
             }
             $children = ( ! empty( $el['elements'] ) && is_array( $el['elements'] ) ) ? $el['elements'] : [];
             $node['child_count'] = count( $children );
-            if ( $children && $depth < $max_depth ) {
-                $node['elements'] = self::summarize( $children, $max_depth, $depth + 1 );
+            if ( $children ) {
+                if ( $depth < $max_depth ) {
+                    $node['elements'] = self::summarize( $children, $max_depth, $depth + 1, $truncated );
+                } else {
+                    // Children exist but are beyond max_depth — flag the cut so a
+                    // caller doing read -> recompose -> write knows this branch is
+                    // NOT round-trippable from the summary.
+                    $node['truncated'] = true;
+                    $truncated = true;
+                }
             }
             $out[] = $node;
         }
         return $out;
+    }
+
+    /**
+     * Recursively count every node in an elements tree (sections, columns,
+     * containers, widgets). Used as a write-back receipt to detect elements
+     * dropped on save.
+     */
+    public static function count_nodes( $elements ) {
+        $n = 0;
+        foreach ( (array) $elements as $el ) {
+            if ( ! is_array( $el ) ) {
+                continue;
+            }
+            $n++;
+            if ( ! empty( $el['elements'] ) && is_array( $el['elements'] ) ) {
+                $n += self::count_nodes( $el['elements'] );
+            }
+        }
+        return $n;
     }
 }

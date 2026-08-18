@@ -309,6 +309,19 @@ class AVCF_Abilities_Metadata extends AVCF_Abilities_Base {
 
                 $value = $input['value'];
 
+                // Security guard: refuse traversal/absolute values on path-bearing
+                // internal meta (e.g. _wp_attached_file) that downstream abilities
+                // resolve to a filesystem path for deletion/overwrite.
+                $unsafe_meta = $this->avcf_reject_unsafe_meta_write( $field, $value );
+                if ( null !== $unsafe_meta ) {
+                    return [
+                        'success' => false,
+                        'post_id' => $post_id,
+                        'field'   => $field,
+                        'message' => $unsafe_meta,
+                    ];
+                }
+
                 // Guard: _elementor_data holds a JSON STRING (an array of elements).
                 // A malformed or non-JSON write silently corrupts the whole page
                 // (Elementor fails to parse it), so validate before writing. For
@@ -572,6 +585,13 @@ class AVCF_Abilities_Metadata extends AVCF_Abilities_Base {
                         continue;
                     }
 
+                    $unsafe_meta = $this->avcf_reject_unsafe_meta_write( $field, $val );
+                    if ( null !== $unsafe_meta ) {
+                        $results[] = [ 'post_id' => $pid, 'success' => false, 'type' => 'unknown', 'message' => $unsafe_meta ];
+                        $failed++;
+                        continue;
+                    }
+
                     $type = $forced_type !== null ? $forced_type : $this->avcf_detect_meta_type( $pid, $field, $val );
                     $write = $this->avcf_write_field_value( $pid, $field, $val, $type );
                     if ( $write['error'] !== null ) {
@@ -608,6 +628,7 @@ class AVCF_Abilities_Metadata extends AVCF_Abilities_Base {
         wp_register_ability( 'atarim/get-option-field', [
             'label'               => 'Get Option Field',
             'description'         => 'Reads one or more framework field values stored on an options/settings page (NOT on a post). This is the options-page counterpart to get-post-field. Currently routes to ACF, whose option values live in wp_options under the special "option" store rather than as post meta. Pass option_ref to target a specific ACF options page that uses a custom post_id; omit it for the default "option" store. Each result carries a "type" hint (currently always "acf"). For a raw wp_options key (not a framework field) use get-option instead.',
+            'category'            => 'atarim',
             'input_schema'        => [
                 'type'       => 'object',
                 'properties' => [
@@ -656,6 +677,7 @@ class AVCF_Abilities_Metadata extends AVCF_Abilities_Base {
         wp_register_ability( 'atarim/update-option-field', [
             'label'               => 'Update Option Field',
             'description'         => 'Writes a single framework field value on an options/settings page (NOT a post) — the options-page counterpart to update-post-field. Routes through the framework\'s API so hooks and formatting stay intact. Currently supports type "acf" (writes via update_field() against the ACF "option" store); Meta Box settings pages, Pods, and ACPT option pages are planned and will report a clear unsupported message until wired. Pass option_ref for an ACF options page registered with a custom post_id; omit for the default "option" store. To set a raw wp_options key use update-option instead.',
+            'category'            => 'atarim',
             'input_schema'        => [
                 'type'       => 'object',
                 'properties' => [
@@ -704,6 +726,7 @@ class AVCF_Abilities_Metadata extends AVCF_Abilities_Base {
         wp_register_ability( 'atarim/bulk-update-option-field', [
             'label'               => 'Bulk Update Option Field',
             'description'         => 'Writes several framework fields on a single options/settings page in one call. items is [{field, value}, ...]; option_ref and type are shared across all items (default "option" / "acf"). Per-item success is tracked — partial failures surface in results. Max 200 items.',
+            'category'            => 'atarim',
             'input_schema'        => [
                 'type'       => 'object',
                 'properties' => [
@@ -1306,5 +1329,65 @@ class AVCF_Abilities_Metadata extends AVCF_Abilities_Base {
             default:
                 return [ 'ok' => false, 'error' => sprintf( 'Option/settings backend "%s" is not wired yet (only "acf" is supported this round; Meta Box settings pages, Pods, and ACPT option pages are planned).', $type ) ];
         }
+    }
+
+    /**
+     * Reject writes to security-sensitive internal meta keys.
+     *
+     * Two tiers:
+     *
+     * 1. Serialized attachment structures WordPress manages itself
+     *    (_wp_attachment_metadata, _wp_attachment_backup_sizes). Their file /
+     *    sizes[].file / backup entries drive on-disk path building and deletion in
+     *    core (wp_delete_attachment, the image editor's restore) and in other
+     *    abilities. Hand-writing them through a generic string field writer has no
+     *    legitimate use and can corrupt them or point file ops at attacker-chosen
+     *    paths, so they are refused outright.
+     *
+     * 2. _wp_attached_file — the attachment's uploads-relative path, resolved by
+     *    get_attached_file() for deletion/overwrite (e.g. atarim/replace-media-file).
+     *    A traversal ("../") or absolute value here escapes the uploads directory
+     *    (arbitrary file deletion, RCE via wp-config.php). Core only ever stores a
+     *    clean relative path, so anything else is refused. This is the write-source
+     *    guard complementing the containment check in the media abilities.
+     *
+     * @param string $field The meta key being written.
+     * @param mixed  $value The value to be written.
+     * @return string|null Error message if the write must be rejected, otherwise null.
+     */
+    private function avcf_reject_unsafe_meta_write( $field, $value ) {
+        // Tier 1: WordPress-managed attachment structures — never writable here.
+        $reserved_structures = [
+            '_wp_attachment_metadata',     // file + sizes[].file drive path building / deletion
+            '_wp_attachment_backup_sizes', // backup files unlinked on image-editor restore
+        ];
+        if ( in_array( $field, $reserved_structures, true ) ) {
+            return sprintf(
+                'Refused: "%s" is WordPress-managed attachment metadata and cannot be written through this ability. Use the dedicated media abilities (e.g. atarim/replace-media-file) instead.',
+                $field
+            );
+        }
+
+        // Tier 2: _wp_attached_file — allow only a clean uploads-relative path.
+        if ( '_wp_attached_file' === $field ) {
+            if ( ! is_string( $value ) ) {
+                return 'Refused: _wp_attached_file must be a plain uploads-relative path string.';
+            }
+
+            $normalized = str_replace( '\\', '/', $value );
+
+            if (
+                '' === $value
+                || strpos( $value, "\0" ) !== false                              // null byte
+                || strpos( $normalized, '../' ) !== false                        // parent traversal
+                || '/' === substr( $normalized, 0, 1 )                           // absolute (unix)
+                || preg_match( '#^[a-zA-Z]:/#', $normalized )                    // absolute (windows drive)
+                || preg_match( '#^[a-zA-Z][a-zA-Z0-9+.\-]*://#', $normalized )   // stream wrapper / URL
+            ) {
+                return 'Refused: _wp_attached_file must be a relative path inside the uploads directory (no "..", absolute paths, or stream wrappers). This guards against file operations that resolve outside uploads.';
+            }
+        }
+
+        return null;
     }
 }

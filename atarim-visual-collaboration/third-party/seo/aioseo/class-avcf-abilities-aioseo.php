@@ -57,6 +57,25 @@ class AVCF_Abilities_AIOSEO extends AVCF_Abilities_Base {
         return [ 'mcp' => [ 'public' => true, 'type' => 'tool' ], 'annotations' => [ 'readonly' => false, 'destructive' => (bool) $destructive, 'idempotent' => false ] ];
     }
 
+    /**
+     * AIOSEO's Post model hands its JSON columns back already decoded, and as a
+     * stdClass rather than an array — read_focus has always handled all three
+     * shapes. build_keyphrases only handled the string, so an object fell
+     * through to an empty array and wiped `additional` and the score/analysis
+     * it was meant to preserve. Normalise once, here.
+     *
+     * @return array
+     */
+    private function normalise_keyphrases( $keyphrases ) {
+        if ( is_string( $keyphrases ) ) {
+            $keyphrases = '' !== $keyphrases ? json_decode( $keyphrases, true ) : null;
+        } elseif ( is_object( $keyphrases ) ) {
+            $keyphrases = json_decode( wp_json_encode( $keyphrases ), true );
+        }
+
+        return is_array( $keyphrases ) ? $keyphrases : [];
+    }
+
     /** Read the focus keyphrase out of AIOSEO's keyphrases JSON. */
     private function read_focus( $keyphrases ) {
         if ( is_string( $keyphrases ) ) {
@@ -71,8 +90,26 @@ class AVCF_Abilities_AIOSEO extends AVCF_Abilities_Base {
         return '';
     }
 
-    private function build_keyphrases( $kw ) {
-        return wp_json_encode( [ 'focus' => [ 'keyphrase' => (string) $kw, 'score' => 0, 'analysis' => [] ], 'additional' => [] ] );
+    /**
+     * Preserve whatever AIOSEO already computed. Rewriting score/analysis to
+     * zero on every focus-keyphrase write left the AIOSEO panel worse than
+     * before the AI touched it; only the keyphrase itself should change, and
+     * only its own score/analysis reset when the keyphrase actually differs.
+     */
+    private function build_keyphrases( $kw, $existing = null ) {
+        $decoded = $this->normalise_keyphrases( $existing );
+
+        $focus = isset( $decoded['focus'] ) && is_array( $decoded['focus'] ) ? $decoded['focus'] : [];
+        $unchanged = isset( $focus['keyphrase'] ) && (string) $focus['keyphrase'] === (string) $kw;
+
+        $focus['keyphrase'] = (string) $kw;
+        $focus['score']     = $unchanged && isset( $focus['score'] ) ? $focus['score'] : 0;
+        $focus['analysis']  = $unchanged && isset( $focus['analysis'] ) ? $focus['analysis'] : [];
+
+        return wp_json_encode( [
+            'focus'      => $focus,
+            'additional' => isset( $decoded['additional'] ) && is_array( $decoded['additional'] ) ? $decoded['additional'] : [],
+        ] );
     }
 
     private function read_post_model( $model ) {
@@ -182,7 +219,10 @@ class AVCF_Abilities_AIOSEO extends AVCF_Abilities_Base {
                         }
                     }
                     if ( array_key_exists( 'focus_keyphrase', $input ) ) {
-                        $model->keyphrases = $self->build_keyphrases( $input['focus_keyphrase'] );
+                        $model->keyphrases = $self->build_keyphrases(
+                            $input['focus_keyphrase'],
+                            isset( $model->keyphrases ) ? $model->keyphrases : null
+                        );
                     }
                     if ( isset( $input['robots'] ) && is_array( $input['robots'] ) ) {
                         if ( array_key_exists( 'index', $input['robots'] ) ) {

@@ -299,14 +299,15 @@ class AVCF_Abilities_Elementor extends AVCF_Abilities_Base {
         $self = $this;
         wp_register_ability( 'atarim/elementor-get-content', [
             'label'        => 'Get Elementor Content',
-            'description'  => 'Read a post\'s Elementor structure. By default returns a depth-limited structural tree (each node: id, elType, widgetType, child_count) — ideal for locating the element id you want to edit. Pass element_id to get that one element\'s full data (including settings) and its subtree. Pass include_settings:true to get the whole tree with settings (can be large).',
+            'description'  => 'Read a post\'s Elementor structure. By default returns a depth-limited structural SUMMARY (each node: id, elType, widgetType, child_count) with NO settings and truncated past depth 6 — ideal for locating the element id you want to edit, but NOT round-trippable (it omits links, text and all widget config, and cuts deep branches). For migration or any read -> recompose -> write, pass include_settings:true (whole tree with settings) or read individual elements by element_id; otherwise you WILL lose settings (e.g. image links) and deep widgets. The summary response sets settings_omitted:true and truncated:true so you can tell it is lossy; use depth to raise the summary depth limit.',
             'category'     => 'atarim',
             'input_schema' => [ 'type' => 'object', 'properties' => [
                 'post_id'          => [ 'type' => 'integer', 'minimum' => 1 ],
                 'element_id'       => [ 'type' => 'string', 'description' => 'Return the full data for just this element (and its subtree).' ],
-                'include_settings' => [ 'type' => 'boolean', 'description' => 'Return the entire raw tree with settings. Defaults to false (structural summary).', 'default' => false ],
+                'include_settings' => [ 'type' => 'boolean', 'description' => 'Return the entire raw tree with settings (round-trippable). Defaults to false (lossy structural summary).', 'default' => false ],
+                'depth'            => [ 'type' => 'integer', 'minimum' => 1, 'description' => 'Max depth for the structural summary (default 6). Ignored when include_settings or element_id is used.' ],
             ], 'required' => [ 'post_id' ], 'additionalProperties' => false ],
-            'output_schema'=> [ 'type' => 'object', 'properties' => [ 'success' => [ 'type' => 'boolean' ], 'post_id' => [ 'type' => 'integer' ], 'tree' => [ 'type' => 'array' ], 'element' => [ 'type' => 'object' ], 'message' => [ 'type' => 'string' ] ], 'required' => [ 'success', 'message' ] ],
+            'output_schema'=> [ 'type' => 'object', 'properties' => [ 'success' => [ 'type' => 'boolean' ], 'post_id' => [ 'type' => 'integer' ], 'tree' => [ 'type' => 'array' ], 'element' => [ 'type' => 'object' ], 'settings_omitted' => [ 'type' => 'boolean' ], 'truncated' => [ 'type' => 'boolean' ], 'max_depth' => [ 'type' => 'integer' ], 'message' => [ 'type' => 'string' ] ], 'required' => [ 'success', 'message' ] ],
             'execute_callback' => function( $input = [] ) use ( $self ) {
                 $post_id = isset( $input['post_id'] ) ? (int) $input['post_id'] : 0;
                 $err = $self->require_elementor_post( $post_id );
@@ -320,9 +321,22 @@ class AVCF_Abilities_Elementor extends AVCF_Abilities_Base {
                     return [ 'success' => true, 'post_id' => $post_id, 'element' => $el, 'message' => 'OK.' ];
                 }
                 if ( ! empty( $input['include_settings'] ) ) {
-                    return [ 'success' => true, 'post_id' => $post_id, 'tree' => $tree, 'message' => 'OK (full tree).' ];
+                    return [ 'success' => true, 'post_id' => $post_id, 'tree' => $tree, 'settings_omitted' => false, 'truncated' => false, 'message' => 'OK (full tree with settings — round-trippable).' ];
                 }
-                return [ 'success' => true, 'post_id' => $post_id, 'tree' => AVCF_Elementor_Helpers::summarize( $tree ), 'message' => 'OK (structural summary).' ];
+                $depth     = isset( $input['depth'] ) ? max( 1, (int) $input['depth'] ) : 6;
+                $truncated = false;
+                $summary   = AVCF_Elementor_Helpers::summarize( $tree, $depth, 0, $truncated );
+                return [
+                    'success'          => true,
+                    'post_id'          => $post_id,
+                    'tree'             => $summary,
+                    'settings_omitted' => true,
+                    'truncated'        => $truncated,
+                    'max_depth'        => $depth,
+                    'message'          => $truncated
+                        ? sprintf( 'Structural summary only — settings omitted and tree truncated at depth %d. This is LOSSY: for migration or read->recompose->write use include_settings:true (or read by element_id).', $depth )
+                        : 'Structural summary only — settings omitted (links, text and widget config are not included). For migration or read->recompose->write use include_settings:true (or read by element_id).',
+                ];
             },
             'permission_callback' => function() { return current_user_can( 'edit_posts' ); },
             'meta' => $this->ro_meta(),
@@ -639,7 +653,7 @@ class AVCF_Abilities_Elementor extends AVCF_Abilities_Base {
                 'post_id'  => [ 'type' => 'integer', 'minimum' => 1 ],
                 'elements' => [ 'type' => 'array', 'description' => 'Full element tree to store.' ],
             ], 'required' => [ 'post_id', 'elements' ], 'additionalProperties' => false ],
-            'output_schema'=> [ 'type' => 'object', 'properties' => [ 'success' => [ 'type' => 'boolean' ], 'message' => [ 'type' => 'string' ] ], 'required' => [ 'success', 'message' ] ],
+            'output_schema'=> [ 'type' => 'object', 'properties' => [ 'success' => [ 'type' => 'boolean' ], 'post_id' => [ 'type' => 'integer' ], 'nodes_written' => [ 'type' => 'integer' ], 'nodes_saved' => [ 'type' => 'integer' ], 'verified' => [ 'type' => 'boolean' ], 'content_hash' => [ 'type' => 'string' ], 'message' => [ 'type' => 'string' ] ], 'required' => [ 'success', 'message' ] ],
             'execute_callback' => function( $input = [] ) use ( $self ) {
                 $post_id = isset( $input['post_id'] ) ? (int) $input['post_id'] : 0;
                 if ( $post_id <= 0 || ! get_post( $post_id ) ) { return [ 'success' => false, 'message' => 'A valid post_id is required.' ]; }
@@ -651,7 +665,26 @@ class AVCF_Abilities_Elementor extends AVCF_Abilities_Base {
                 if ( ! AVCF_Elementor_Helpers::write_tree( $post_id, $tree ) ) {
                     return [ 'success' => false, 'message' => 'Failed to save the Elementor tree.' ];
                 }
-                return [ 'success' => true, 'message' => sprintf( 'Replaced Elementor content on post %d.', $post_id ) ];
+                // Read-back receipt: re-read what was stored and compare node counts,
+                // so a lossy save (e.g. elements dropped) is detectable instead of
+                // reported as a bare success — matching the plugin's other write clusters.
+                $saved        = AVCF_Elementor_Helpers::read_tree( $post_id );
+                $nodes_written = AVCF_Elementor_Helpers::count_nodes( $tree );
+                $nodes_saved   = AVCF_Elementor_Helpers::count_nodes( $saved );
+                $raw           = get_post_meta( $post_id, '_elementor_data', true );
+                $content_hash  = sha1( is_string( $raw ) ? $raw : (string) wp_json_encode( $raw ) );
+                $verified      = ( $nodes_saved === $nodes_written );
+                return [
+                    'success'       => true,
+                    'post_id'       => $post_id,
+                    'nodes_written' => $nodes_written,
+                    'nodes_saved'   => $nodes_saved,
+                    'verified'      => $verified,
+                    'content_hash'  => $content_hash,
+                    'message'       => $verified
+                        ? sprintf( 'Replaced Elementor content on post %d (%d nodes, verified against read-back).', $post_id, $nodes_saved )
+                        : sprintf( 'Replaced Elementor content on post %d, but the saved node count (%d) differs from what was sent (%d) — elements may have been dropped on save (e.g. atomic stripping). Re-read with include_settings:true to check.', $post_id, $nodes_saved, $nodes_written ),
+                ];
             },
             'permission_callback' => function() { return current_user_can( 'edit_posts' ); },
             'meta' => $this->write_meta( true ),

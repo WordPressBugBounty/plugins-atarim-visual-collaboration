@@ -44,6 +44,16 @@ class AVCF_MCP {
     }
 
     private function init_hooks() {
+        // Security: suppress the MCP Adapter's auto-registered "default server"
+        // (/wp-json/mcp/mcp-adapter-default-server). It exposes every public
+        // ability through execute-ability with NO transport permission callback,
+        // so HttpTransport::check_permission falls back to current_user_can('read')
+        // — i.e. any logged-in user, bypassing the Atarim token gate entirely.
+        // Atarim registers its own token-authenticated server, so the default
+        // server is pure attack surface. Registered here (constructed before
+        // McpAdapter::instance() in the cluster loader) so it applies in time.
+        add_filter( 'mcp_adapter_create_default_server', '__return_false' );
+
         // Authenticate MCP requests by mapping Atarim token to a WordPress user.
         add_filter( 'determine_current_user', [ $this, 'avcf_mcp_authenticate_request' ], 20 );
 
@@ -308,6 +318,24 @@ class AVCF_MCP {
      * This satisfies the MCP Adapter's is_user_logged_in() requirement.
      */
     /**
+     * Whether a REST route/URI targets one of the MCP endpoints we protect.
+     *
+     * Covers the Atarim server (/atarim/mcp) and the MCP Adapter's default server
+     * (/mcp/mcp-adapter-default-server). The default server is disabled in
+     * init_hooks(); matching it here as well means the DoIt gate and token mapping
+     * still apply if it is ever re-enabled (e.g. by another consumer of the bundled
+     * adapter), rather than silently reopening an ungated surface.
+     *
+     * @param string $route_or_uri REST route or request URI.
+     * @return bool
+     */
+    private function avcf_is_protected_mcp_route( $route_or_uri ) {
+        $route_or_uri = (string) $route_or_uri;
+        return ( false !== strpos( $route_or_uri, '/atarim/mcp' ) )
+            || ( false !== strpos( $route_or_uri, '/mcp/mcp-adapter-default-server' ) );
+    }
+
+    /**
      * Short-circuit the Atarim MCP endpoint when "Do It" is disabled.
      *
      * Returns a clear notice for every request to /atarim/mcp (list and call)
@@ -326,7 +354,7 @@ class AVCF_MCP {
         }
 
         $route = is_object( $request ) && method_exists( $request, 'get_route' ) ? (string) $request->get_route() : '';
-        if ( strpos( $route, '/atarim/mcp' ) === false ) {
+        if ( ! $this->avcf_is_protected_mcp_route( $route ) ) {
             return $result;
         }
 
@@ -348,7 +376,7 @@ class AVCF_MCP {
         }
 
         $request_uri = sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) );
-        if ( strpos( $request_uri, '/atarim/mcp' ) === false ) {
+        if ( ! $this->avcf_is_protected_mcp_route( $request_uri ) ) {
             return $user_id;
         }
 

@@ -164,7 +164,7 @@ class AVCF_Abilities_Content extends AVCF_Abilities_Base {
                     ],
                     'status' => [
                         'type'        => [ 'string', 'array' ],
-                        'description' => 'Filter by post status. Single value or array. Omit for all non-trashed.',
+                        'description' => 'Filter by post status. Single value or array. Omit for all non-trashed. Accepted values: publish, draft, pending, private, future, trash.',
                         'enum'        => [ 'publish', 'draft', 'pending', 'private', 'future', 'trash' ],
                     ],
                     'author' => [
@@ -431,12 +431,24 @@ class AVCF_Abilities_Content extends AVCF_Abilities_Base {
                     $items[] = $item;
                 }
 
+                $total     = (int) $query->found_posts;
+                $has_more  = $limit > 0 && ( $offset + count( $items ) ) < $total;
+
                 return [
-                    'total'     => (int) $query->found_posts,
+                    'total'     => $total,
                     'returned'  => count( $items ),
                     'offset'    => $offset,
+                    'has_more'  => $has_more,
                     'post_type' => $post_type,
                     'items'     => $items,
+                    'truncated_notice' => $has_more
+                        ? sprintf(
+                            'Showing %d of %d. Increase limit or page with offset=%d before concluding anything about the full set.',
+                            count( $items ),
+                            $total,
+                            $offset + count( $items )
+                        )
+                        : null,
                 ];
             },
             'permission_callback' => function() {
@@ -604,8 +616,8 @@ class AVCF_Abilities_Content extends AVCF_Abilities_Base {
                 'properties' => [
                     'post_type' => [
                         'type'        => 'string',
-                        'description' => 'Post type slug (e.g. "post", "page", or a custom slug).',
-                        'minLength'   => 1,
+                        'description' => 'Post type slug (e.g. "post", "page", or a custom slug). Defaults to "post" — mirrors list-content, so a call that omits it, or sends it empty, is no longer rejected by the schema validator before this plugin can explain why.',
+                        'default'     => 'post',
                     ],
                     'title' => [
                         'type'        => 'string',
@@ -676,7 +688,7 @@ class AVCF_Abilities_Content extends AVCF_Abilities_Base {
                         'additionalProperties' => true,
                     ],
                 ],
-                'required'             => [ 'post_type', 'title' ],
+                'required'             => [ 'title' ],
                 'additionalProperties' => false,
             ],
             'output_schema'       => [
@@ -701,7 +713,11 @@ class AVCF_Abilities_Content extends AVCF_Abilities_Base {
                 'required' => [ 'success', 'message' ],
             ],
             'execute_callback'    => function( $input = [] ) {
-                $post_type = isset( $input['post_type'] ) ? sanitize_key( $input['post_type'] ) : '';
+                // Default here too: the framework validator runs before this
+                // callback, so relying on the schema default alone would still
+                // reject a call the plugin is happy to handle.
+                $requested_post_type = isset( $input['post_type'] ) ? sanitize_key( (string) $input['post_type'] ) : '';
+                $post_type           = '' !== $requested_post_type ? $requested_post_type : 'post';
                 $title     = isset( $input['title'] ) ? sanitize_text_field( $input['title'] ) : '';
 
                 if ( empty( $post_type ) || empty( $title ) ) {
@@ -1953,7 +1969,7 @@ class AVCF_Abilities_Content extends AVCF_Abilities_Base {
                 'mcp' => [ 'public' => true, 'type' => 'tool' ],
                 'annotations' => [
                     'readonly'    => false,
-                    'destructive' => false,
+                    'destructive' => true,
                     'idempotent'  => true,
                 ],
             ],

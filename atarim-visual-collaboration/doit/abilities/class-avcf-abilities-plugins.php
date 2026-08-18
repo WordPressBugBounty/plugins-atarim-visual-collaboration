@@ -445,6 +445,8 @@ class AVCF_Abilities_Plugins extends AVCF_Abilities_Base {
                     'plugin_file'     => [ 'type' => 'string' ],
                     'previous_version' => [ 'type' => 'string' ],
                     'new_version'     => [ 'type' => 'string' ],
+                    'was_active'      => [ 'type' => 'boolean', 'description' => 'Whether the plugin was active before the update.' ],
+                    'is_active'       => [ 'type' => 'boolean', 'description' => 'Whether the plugin is active after the update. If was_active is true and this is false, the plugin was left switched off.' ],
                     'message'         => [ 'type' => 'string' ],
                 ],
                 'required' => [ 'success', 'plugin_file', 'message' ],
@@ -482,6 +484,12 @@ class AVCF_Abilities_Plugins extends AVCF_Abilities_Base {
                 }
 
                 $current_version = isset( $all_plugins[ $plugin_file ]['Version'] ) ? $all_plugins[ $plugin_file ]['Version'] : '';
+
+                // WordPress can leave a plugin deactivated after an upgrade. Record the
+                // state up front so it can be restored below, rather than reporting
+                // success while the site quietly loses the plugin.
+                $was_active         = is_plugin_active( $plugin_file );
+                $was_network_active = is_multisite() && is_plugin_active_for_network( $plugin_file );
 
                 // Force a fresh update check so we don't act on stale transient data.
                 // wp_update_plugins() makes a remote call to api.wordpress.org for free plugins
@@ -527,6 +535,13 @@ class AVCF_Abilities_Plugins extends AVCF_Abilities_Base {
                 // update was registered there.
                 $result = $upgrader->upgrade( $plugin_file );
 
+                // Restore the pre-upgrade activation state before reporting back.
+                $reactivation_failed = false;
+                if ( $was_active && ! is_wp_error( $result ) && $result !== false && ! is_plugin_active( $plugin_file ) ) {
+                    $activation = activate_plugin( $plugin_file, '', $was_network_active, true );
+                    $reactivation_failed = is_wp_error( $activation );
+                }
+
                 if ( is_wp_error( $result ) ) {
                     return [
                         'success'          => false,
@@ -557,12 +572,23 @@ class AVCF_Abilities_Plugins extends AVCF_Abilities_Base {
                     ? $all_plugins_after[ $plugin_file ]['Version']
                     : $new_version;
 
+                $is_active_after = is_plugin_active( $plugin_file );
+
                 return [
                     'success'          => true,
                     'plugin_file'      => $plugin_file,
                     'previous_version' => $current_version,
                     'new_version'      => $installed_version,
-                    'message'          => sprintf( 'Plugin updated from %s to %s.', $current_version, $installed_version ),
+                    'was_active'       => $was_active,
+                    'is_active'        => $is_active_after,
+                    'message'          => $was_active && ! $is_active_after
+                        ? sprintf(
+                            'Plugin updated from %s to %s, but it was left DEACTIVATED and could not be reactivated automatically%s. Reactivate it before relying on the site.',
+                            $current_version,
+                            $installed_version,
+                            $reactivation_failed ? '' : ' (state unexpectedly changed)'
+                        )
+                        : sprintf( 'Plugin updated from %s to %s.', $current_version, $installed_version ),
                 ];
             },
             'permission_callback' => function() {
@@ -572,7 +598,7 @@ class AVCF_Abilities_Plugins extends AVCF_Abilities_Base {
                 'mcp' => [ 'public' => true, 'type' => 'tool' ],
                 'annotations' => [
                     'readonly'    => false,
-                    'destructive' => false,
+                    'destructive' => true,
                     'idempotent'  => false,
                 ],
             ],
@@ -665,7 +691,7 @@ class AVCF_Abilities_Plugins extends AVCF_Abilities_Base {
                 'mcp' => [ 'public' => true, 'type' => 'tool' ],
                 'annotations' => [
                     'readonly'    => false,
-                    'destructive' => false,
+                    'destructive' => true,
                     'idempotent'  => true,
                 ],
             ],
