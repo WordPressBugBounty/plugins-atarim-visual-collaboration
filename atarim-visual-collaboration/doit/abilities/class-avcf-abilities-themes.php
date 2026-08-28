@@ -87,6 +87,11 @@ class AVCF_Abilities_Themes extends AVCF_Abilities_Base {
                 $status_filter = isset( $input['status'] ) ? $input['status'] : 'all';
                 $all_themes    = wp_get_themes();
                 $active_slug   = get_stylesheet();
+
+                // See atarim/list-plugins: a stale transient reports every theme as
+                // up to date, so refresh before reading.
+                wp_update_themes();
+
                 $updates       = get_site_transient( 'update_themes' );
                 $update_list   = ( $updates && ! empty( $updates->response ) ) ? $updates->response : [];
 
@@ -558,7 +563,7 @@ class AVCF_Abilities_Themes extends AVCF_Abilities_Base {
                 'mcp' => [ 'public' => true, 'type' => 'tool' ],
                 'annotations' => [
                     'readonly'    => false,
-                    'destructive' => false,
+                    'destructive' => true,
                     'idempotent'  => false,
                 ],
             ],

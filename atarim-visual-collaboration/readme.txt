@@ -1,10 +1,10 @@
 === Atarim - AI Agency for WordPress: Edit Pages, Fix Code, Update Plugins, SEO & Client Feedback ===
 Contributors: wpfeedback, pratapdungrani
 Tags: ai, agency, client feedback, automation, seo
-Stable tag: 5.1.2
+Stable tag: 5.1.3
 Requires at least: 6.0
 Requires PHP: 7.4
-Tested up to: 7.0.3
+Tested up to: 7.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -299,6 +299,12 @@ A free account includes one site and 200 AI credits. The paid plan is $67 a mont
 10. A workflow template. When a page review finishes, open a task for every critical issue and post it to Slack. You see the trigger, the actions and the credit cost before it runs.
 
 == Changelog ==
+
+= 5.1.3 =
+* **Do It: more page builders, and undo** - The AI action layer can now target and edit Beaver Builder and SiteOrigin layouts alongside Gutenberg and Elementor, with more reliable block handling, and content changes can be rolled back through built-in undo.
+* **Run WP-CLI commands** - For large or long-running jobs no other ability covers - bulk search-and-replace, database export, media regeneration - the AI can run WP-CLI commands, in the background where needed. Administrator only, and every run is logged.
+* **Arm a restore point before risky changes** - Before editing, a files and/or database restore point can be armed and its readiness tracked, so a change can be undone if it goes wrong - including driving the JetBackup queue on sites where the host cron doesn't, and restoring a snapshot by name.
+* **Plugin updates keep plugins active** - Updating a plugin through the dashboard now leaves it active, matching WordPress's own update behaviour, so scheduled update runs no longer switch plugins off.
 
 = 5.1.2 =
 * **Security fix (arbitrary file deletion)** - Hardened the media-replace ability so it only ever operates on files inside the uploads directory, and blocked traversal/absolute values and other WordPress-managed attachment meta from being written through the generic field abilities. Fixes an authenticated (author and above) arbitrary file deletion issue reachable through the DoIt abilities.

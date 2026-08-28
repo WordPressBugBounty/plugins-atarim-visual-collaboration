@@ -39,15 +39,47 @@ class AVCF_Inject_Script {
     }
 
     public function load_collaboration_script() {
-        if (isset($_GET['site_id']) && ! empty($_GET['site_id'])) {
+        $decision = $this->collab_script_decision();
+
+        if (! $decision['load']) {
             return;
+        }
+
+        echo $this->function->get_collab_js($decision['site_id'], $this->function->avcf_setting_screen());
+    }
+
+    /**
+     * Whether the collaboration script will be emitted for this request, and under
+     * which site id.
+     *
+     * Split out of load_collaboration_script so other features can ask the question
+     * BEFORE wp_head runs. The block-identity markers exist purely for this script
+     * to read, so when it is not loading there is no consumer and the work of
+     * stamping attributes onto every rendered block is pure waste.
+     *
+     * Memoised: the answer cannot change within a request, and avcf_is_site_public
+     * may hit a transient (or, on a miss, the API).
+     *
+     * @return array{load:bool, site_id:string}
+     */
+    public function collab_script_decision() {
+        static $decision = null;
+
+        if ($decision !== null) {
+            return $decision;
+        }
+
+        $decision = ['load' => false, 'site_id' => ''];
+
+        if (isset($_GET['site_id']) && ! empty($_GET['site_id'])) {
+            return $decision;
         }
 
         $site_id = $this->function->avcf_get_setting_data('avc_site_id');
         if (isset($_GET['activation_callback']) && ! empty($_GET['activation_callback'])) {
             $site_id = '';
         }
-        
+
         $user_id = $this->function->avcf_get_user_detail('id');
         if (is_wp_error($user_id)) {
             $user_id = 0;
@@ -65,8 +97,6 @@ class AVCF_Inject_Script {
             $allow_collab = filter_var($_GET['collab'], FILTER_VALIDATE_BOOLEAN);
         }
 
-        $is_setting_screen =  $this->function->avcf_setting_screen();
-
         if (
             ! $allow_collab && (
                 $this->license !== 'valid' ||
@@ -78,10 +108,12 @@ class AVCF_Inject_Script {
                 $site_id == ''
             )
         ) {
-            return;
+            return $decision;
         }
 
-        echo $this->function->get_collab_js($site_id, $is_setting_screen);
+        $decision = ['load' => true, 'site_id' => $site_id];
+
+        return $decision;
     }
 
     public function enqueue_global_assets() {
@@ -276,4 +308,22 @@ class AVCF_Inject_Script {
     }
 }
 
-new AVCF_Inject_Script();
+$GLOBALS['avcf_inject_script'] = new AVCF_Inject_Script();
+
+/**
+ * Will the Atarim collaboration script be emitted for this request?
+ *
+ * The Do It block-identity markers are only ever read by that script, so this is
+ * the correct consumer test for whether emitting them is worth anything.
+ */
+function atarim_collab_script_will_load() {
+    $injector = $GLOBALS['avcf_inject_script'] ?? null;
+
+    if (! $injector instanceof AVCF_Inject_Script) {
+        return false;
+    }
+
+    $decision = $injector->collab_script_decision();
+
+    return ! empty($decision['load']);
+}

@@ -100,6 +100,7 @@ class AVCF_MCP {
         ( new AVCF_Abilities_Cache() )->register();
         ( new AVCF_Abilities_ReadOnly() )->register();
         ( new AVCF_Abilities_ExecutePHP() )->register();
+        ( new AVCF_Abilities_WP_CLI() )->register();
 
         // Forms: Gravity Forms (standalone cluster).
         $gravity_detector = new AVCF_Gravity_Detector();
@@ -310,6 +311,7 @@ class AVCF_MCP {
             ( new AVCF_Abilities_JetBackup_Queue() )->register();
             ( new AVCF_Abilities_JetBackup_Settings() )->register();
             ( new AVCF_Abilities_JetBackup_System() )->register();
+            ( new AVCF_Abilities_JetBackup_Restore_Point() )->register();
         }
     }
 

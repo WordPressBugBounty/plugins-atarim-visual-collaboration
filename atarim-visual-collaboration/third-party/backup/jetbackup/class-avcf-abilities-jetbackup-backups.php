@@ -65,6 +65,7 @@ class AVCF_Abilities_JetBackup_Backups extends AVCF_Abilities_Base {
                 'message' => [ 'type' => 'string' ],
                 'data'    => [ 'type' => 'object' ],
                 'queue_item_id' => [ 'type' => 'integer', 'description' => 'For actions that start a task (e.g. run-backup): the queue item id of the task just started — poll jetbackup-get-queue-item with this to track it.' ],
+                'job_id'        => [ 'type' => 'integer', 'description' => 'For actions that start a task: the id of the job that was run, as returned by JetBackup when the task was queued.' ],
             ],
             'required'   => [ 'success', 'message' ],
         ];
@@ -133,14 +134,14 @@ class AVCF_Abilities_JetBackup_Backups extends AVCF_Abilities_Base {
         wp_register_ability( 'atarim/jetbackup-run-backup', [
             'label'       => 'Run JetBackup Backup',
             'category'    => 'atarim',
-            'description' => 'Queue a backup for a backup job ("Run now"). id is the backup-job id (see jetbackup-list-backup-jobs). Returns queue_item_id (the id of the backup task just started) — poll jetbackup-get-queue-item with it for progress; when it completes, that item\'s data includes snapshot_name (the snapshot produced), which you can pass to jetbackup-restore-backup.',
+            'description' => 'Queue a backup for a backup job ("Run now"). id is the backup-job id (see jetbackup-list-backup-jobs). Returns queue_item_id (the queued backup task) — poll jetbackup-get-queue-item with it for progress; when it completes, that item\'s data includes snapshot_name (the snapshot produced), which you can pass to jetbackup-restore-backup. job_id carries the backup job this ran. If polling queue_item_id reports an invalid id, find the task with jetbackup-list-queue-items instead.',
             'input_schema'  => $this->id_schema( 'Backup job id to run.' ),
             'output_schema' => $this->out_schema(),
             'execute_callback' => function( $input = [] ) {
                 $input = (array) $input;
                 if ( empty( $input['id'] ) ) { return $this->missing_id( 'backup job id to run' ); }
                 $result = AVCF_JetBackup_Helpers::invoke( 'AddToQueue', AVCF_JetBackup_Helpers::id_payload( $input, [ AVCF_JetBackup_Helpers::TYPE_FIELD => AVCF_JetBackup_Helpers::QUEUE_BACKUP ] ) );
-                return AVCF_JetBackup_Helpers::surface_queue_id( $result );
+                return AVCF_JetBackup_Helpers::surface_queue_id( $result, AVCF_JetBackup_Helpers::QUEUE_BACKUP );
             },
             'permission_callback' => function() use ( $self ) { return $self->can(); },
             'meta' => $this->write_meta( false ),

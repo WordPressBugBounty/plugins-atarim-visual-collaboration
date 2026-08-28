@@ -108,9 +108,31 @@ class AVCF_JetBackup_Helpers {
             // JetBackup's AjaxException messages are the same user-facing validation
             // strings its own UI shows (e.g. "No backup job id was provided"), so
             // surfacing them helps the caller correct the request.
+            //
+            // Some of those messages are printf templates whose arguments live on
+            // the exception's getData() rather than in the message itself, e.g.
+            // AjaxException( 'Failed adding to queue. Error: %s', [ 'Already in queue' ] ).
+            // getMessage() alone would surface a bare "%s", dropping the reason, so
+            // interpolate the data into the template when both are present. Guarded
+            // so a placeholder/argument mismatch can never fatal: only attempt it
+            // when there is data and a placeholder, and fall back to the raw message.
+            $message = (string) $e->getMessage();
+            if ( '' !== $message && method_exists( $e, 'getData' ) ) {
+                $args = $e->getData();
+                if ( is_array( $args ) && ! empty( $args ) && false !== strpos( $message, '%' ) ) {
+                    try {
+                        $interpolated = vsprintf( $message, $args );
+                        if ( is_string( $interpolated ) && '' !== $interpolated ) {
+                            $message = $interpolated;
+                        }
+                    } catch ( \Throwable $ignore ) {
+                        // Template/argument mismatch — keep the raw message.
+                    }
+                }
+            }
             return [
                 'success' => false,
-                'message' => $e->getMessage() ? $e->getMessage() : 'JetBackup action failed.',
+                'message' => '' !== $message ? $message : 'JetBackup action failed.',
                 'data'    => [],
             ];
         }
@@ -175,18 +197,63 @@ class AVCF_JetBackup_Helpers {
     }
 
     /**
-     * Lift the created queue item's id to a top-level queue_item_id so callers
-     * that start a task (e.g. run-backup) get an unmissable handle to poll with,
-     * instead of having to dig JetBackup's internal _id out of the raw data.
+     * Lift the created task's id to the top level so callers that start a task
+     * (e.g. run-backup) get an unmissable handle instead of digging JetBackup's
+     * internal _id out of the raw data.
+     *
+     * AddToQueue answers with the JOB id, not the id of the queue item it just
+     * created, so polling get-queue-item with it returns "Invalid queue item id
+     * provided". The job id is still useful, so it keeps its own field, and
+     * queue_item_id is resolved from the queue itself when $queue_type is given.
      */
-    public static function surface_queue_id( array $result ) {
-        if ( ! empty( $result['success'] ) && ! empty( $result['data'] ) && is_array( $result['data'] ) ) {
-            $qid = $result['data'][ self::ID_FIELD ] ?? ( $result['data']['id'] ?? null );
-            if ( null !== $qid && '' !== $qid ) {
-                $result['queue_item_id'] = is_numeric( $qid ) ? (int) $qid : $qid;
+    public static function surface_queue_id( array $result, $queue_type = null ) {
+        if ( empty( $result['success'] ) || empty( $result['data'] ) || ! is_array( $result['data'] ) ) {
+            return $result;
+        }
+
+        $jid = $result['data'][ self::ID_FIELD ] ?? ( $result['data']['id'] ?? null );
+
+        if ( null === $jid || '' === $jid ) {
+            return $result;
+        }
+
+        $jid = is_numeric( $jid ) ? (int) $jid : $jid;
+
+        $result['job_id']        = $jid;
+        $result['queue_item_id'] = ( null === $queue_type )
+            ? $jid
+            : ( self::latest_queue_item_id( $queue_type ) ?? $jid );
+
+        return $result;
+    }
+
+    /**
+     * Newest queue item of the given type, used to name the item AddToQueue just
+     * created. Returns null when the queue cannot be read, in which case the
+     * caller keeps the job id and list-queue-items remains the way through.
+     */
+    private static function latest_queue_item_id( $queue_type ) {
+        $res = self::invoke( 'ListQueueItems', [ self::KEY_SKIP => 0, self::KEY_LIMIT => self::LIMIT_DEFAULT ] );
+
+        if ( empty( $res['success'] ) || empty( $res['data'] ) ) {
+            return null;
+        }
+
+        $newest = null;
+
+        foreach ( self::extract_snapshot_list( $res['data'] ) as $item ) {
+            if ( ! is_array( $item ) || (int) ( $item[ self::TYPE_FIELD ] ?? 0 ) !== (int) $queue_type ) {
+                continue;
+            }
+
+            $id = $item[ self::ID_FIELD ] ?? ( $item['id'] ?? null );
+
+            if ( is_numeric( $id ) && ( null === $newest || (int) $id > $newest ) ) {
+                $newest = (int) $id;
             }
         }
-        return $result;
+
+        return $newest;
     }
 
     /**
@@ -242,5 +309,53 @@ class AVCF_JetBackup_Helpers {
             $skip += $limit;
         }
         return null;
+    }
+
+    /**
+     * Call an Atarim restore-point endpoint with this site's Atarim token.
+     *
+     * @param string $path   Path under AVCF_CRM_API, e.g. 'v1/jetbackup/restore-point'.
+     * @param string $method 'GET' or 'POST'.
+     * @param array  $body   Body for POST.
+     * @return array {success:bool, message:string, data:array}
+     */
+    public static function atarim_call( $path, $method = 'GET', $body = [] ) {
+        $functions = new AVCF_Functions();
+        $token     = $functions->avcf_get_setting_data( 'avc_atarim_secret_token' );
+
+        if ( empty( $token ) ) {
+            return [ 'success' => false, 'message' => 'This site is not connected to Atarim, so restore points cannot be tracked. Reconnect the site in the Atarim plugin settings.', 'data' => [] ];
+        }
+
+        $response = $functions->avcf_make_api_call(
+            rtrim( AVCF_CRM_API, '/' ) . '/' . ltrim( $path, '/' ),
+            $body,
+            '',
+            $token,
+            $method
+        );
+
+        $code = isset( $response['status_code'] ) ? (int) $response['status_code'] : 0;
+
+        if ( $code === 401 ) {
+            return [ 'success' => false, 'message' => 'Atarim rejected this site\'s token. Reconnect the site in the Atarim plugin settings.', 'data' => [] ];
+        }
+
+        // avcf_make_api_call() only returns a decoded body on a 200; anything
+        // else arrives under 'error', so the endpoint's own message would be
+        // lost if we only ever read 'data'.
+        $payload = isset( $response['data'] ) && is_array( $response['data'] )
+            ? $response['data']
+            : ( isset( $response['error'] ) && is_array( $response['error'] ) ? $response['error'] : [] );
+
+        if ( empty( $payload ) ) {
+            return [ 'success' => false, 'message' => 'Atarim returned an unreadable response (HTTP ' . $code . ').', 'data' => [] ];
+        }
+
+        return [
+            'success' => ! empty( $payload['success'] ),
+            'message' => isset( $payload['message'] ) ? (string) $payload['message'] : '',
+            'data'    => isset( $payload['data'] ) && is_array( $payload['data'] ) ? $payload['data'] : [],
+        ];
     }
 }

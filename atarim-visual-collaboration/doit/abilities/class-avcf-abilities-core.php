@@ -97,6 +97,10 @@ class AVCF_Abilities_Core extends AVCF_Abilities_Base {
                     require_once ABSPATH . 'wp-admin/includes/update.php';
                 }
 
+                // Without this the cached result reports "Core is up to date" into a
+                // client-facing document on any site with a cold update cache.
+                wp_version_check();
+
                 $core_updates    = get_core_updates();
                 $latest_version  = $wp_version;
                 $update_available = false;

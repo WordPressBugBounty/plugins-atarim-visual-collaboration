@@ -112,6 +112,7 @@ if ( function_exists('wp_get_abilities') && class_exists('\WP\MCP\Core\McpAdapte
     require_once( AVCF_PLUGIN_DIR . 'doit/abilities/class-avcf-abilities-theme-files.php' );
     require_once( AVCF_PLUGIN_DIR . 'doit/abilities/class-avcf-abilities-readonly.php' );
     require_once( AVCF_PLUGIN_DIR . 'doit/abilities/class-avcf-abilities-execute-php.php' );
+    require_once( AVCF_PLUGIN_DIR . 'doit/abilities/class-avcf-abilities-wp-cli.php' );
     require_once( AVCF_PLUGIN_DIR . 'doit/abilities/class-avcf-abilities-core.php' );
     require_once( AVCF_PLUGIN_DIR . 'doit/abilities/class-avcf-abilities-taxonomies.php' );
     require_once( AVCF_PLUGIN_DIR . 'doit/abilities/class-avcf-abilities-users.php' );
@@ -232,6 +233,7 @@ if ( function_exists('wp_get_abilities') && class_exists('\WP\MCP\Core\McpAdapte
     require_once( AVCF_PLUGIN_DIR . 'third-party/backup/jetbackup/class-avcf-abilities-jetbackup-queue.php' );
     require_once( AVCF_PLUGIN_DIR . 'third-party/backup/jetbackup/class-avcf-abilities-jetbackup-settings.php' );
     require_once( AVCF_PLUGIN_DIR . 'third-party/backup/jetbackup/class-avcf-abilities-jetbackup-system.php' );
+    require_once( AVCF_PLUGIN_DIR . 'third-party/backup/jetbackup/class-avcf-abilities-jetbackup-restore-point.php' );
 
     // -----------------------------------------------------------------------
     // MCP bootstrap — orchestrator + hooks. Runs at load time, inside the same

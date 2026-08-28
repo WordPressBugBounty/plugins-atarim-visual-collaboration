@@ -95,6 +95,12 @@ class AVCF_Abilities_JetBackup_Restore extends AVCF_Abilities_Base {
 
     private function register_restore_backup() {
         $self = $this;
+        $output_schema = $this->out_schema();
+        $output_schema['properties']['queue_item_id'] = [
+            'type' => 'integer',
+            'description' => 'The queue item id of the restore just started — poll jetbackup-get-queue-item with this to track progress and read restore_url once available.',
+        ];
+
         wp_register_ability( 'atarim/jetbackup-restore-backup', [
             'label'       => 'Restore JetBackup Backup',
             'category'    => 'atarim',
@@ -112,10 +118,15 @@ class AVCF_Abilities_JetBackup_Restore extends AVCF_Abilities_Base {
                     'mixed_sites'      => [ 'type' => 'boolean', 'description' => 'Multisite: allow mixed-site restore.' ],
                     'confirm'          => [ 'type' => 'boolean', 'description' => 'Must be true to proceed with the restore.' ],
                 ],
-                'required'             => [ 'id' ],
+                // Deliberately no 'required': this ability takes id OR snapshot_name,
+                // as its description says and its callback implements. Naming id here
+                // made the framework refuse a snapshot_name-only call before the
+                // callback could resolve it, which is how every caller that follows
+                // the documentation was rejected. The callback already answers the
+                // neither-supplied case, and more usefully than the schema does.
                 'additionalProperties' => false,
             ],
-            'output_schema' => $this->out_schema(),
+            'output_schema' => $output_schema,
             'execute_callback' => function( $input = [] ) use ( $self ) {
                 $input = (array) $input;
                 $snapshot_id = ! empty( $input['id'] ) ? (int) $input['id'] : 0;
@@ -137,8 +148,9 @@ class AVCF_Abilities_JetBackup_Restore extends AVCF_Abilities_Base {
                 $opts  = isset( $input['restore_options'] ) ? (int) $input['restore_options'] : $self->compute_restore_options( $files, $db );
 
                 $payload = [
-                    AVCF_JetBackup_Helpers::ID_FIELD => $snapshot_id,
-                    'restoreOptions'                 => $opts,
+                    AVCF_JetBackup_Helpers::ID_FIELD   => $snapshot_id,
+                    AVCF_JetBackup_Helpers::TYPE_FIELD => AVCF_JetBackup_Helpers::QUEUE_RESTORE,
+                    'restoreOptions'                   => $opts,
                 ];
 
                 if ( in_array( $files, [ 'include', 'exclude' ], true ) && ! empty( $input['folders'] ) ) {
@@ -151,7 +163,10 @@ class AVCF_Abilities_JetBackup_Restore extends AVCF_Abilities_Base {
                     $payload['mixedSites'] = filter_var( $input['mixed_sites'], FILTER_VALIDATE_BOOLEAN );
                 }
 
-                return AVCF_JetBackup_Helpers::invoke( 'AddToQueue', $payload );
+                return AVCF_JetBackup_Helpers::surface_queue_id(
+                    AVCF_JetBackup_Helpers::invoke( 'AddToQueue', $payload ),
+                    AVCF_JetBackup_Helpers::QUEUE_RESTORE
+                );
             },
             'permission_callback' => function() use ( $self ) { return $self->can(); },
             'meta' => $this->write_meta( true ),

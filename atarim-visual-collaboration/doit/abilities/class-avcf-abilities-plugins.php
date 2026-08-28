@@ -89,6 +89,12 @@ class AVCF_Abilities_Plugins extends AVCF_Abilities_Base {
 
                 $status_filter = isset( $input['status'] ) ? $input['status'] : 'all';
                 $all_plugins   = get_plugins();
+
+                // A cold or emptied transient truthfully reports "no update available"
+                // for every plugin, and an update run clears it via Plugin_Upgrader,
+                // so the listing has to refresh before it reads.
+                wp_update_plugins();
+
                 $updates       = get_site_transient( 'update_plugins' );
                 $update_list   = ( $updates && ! empty( $updates->response ) ) ? $updates->response : [];
 
@@ -530,15 +536,26 @@ class AVCF_Abilities_Plugins extends AVCF_Abilities_Base {
                 $skin     = new \WP_Ajax_Upgrader_Skin();
                 $upgrader = new \Plugin_Upgrader( $skin );
 
-                // Plugin_Upgrader::upgrade() pulls the download URL from the update_plugins
-                // transient — works identically for free and paid plugins as long as the
-                // update was registered there.
-                $result = $upgrader->upgrade( $plugin_file );
+                // Use bulk_upgrade() (with a single-item list) rather than the
+                // single-plugin upgrade(). In bulk mode WordPress upgrades under
+                // maintenance mode and SKIPS deactivate_plugin_before_upgrade, so an
+                // active plugin is NOT deactivated during the swap — matching WP's
+                // own Updates screen / auto-updater. This avoids the "updated but
+                // switched off" problem at the source instead of undoing it after.
+                // Works identically for free and paid plugins as long as the update
+                // is registered in the update_plugins transient.
+                $results = $upgrader->bulk_upgrade( [ $plugin_file ] );
+                // bulk_upgrade() returns a map keyed by plugin file (per-plugin
+                // result); false/WP_Error/empty for that key means the upgrade did
+                // not succeed.
+                $result = ( is_array( $results ) && array_key_exists( $plugin_file, $results ) ) ? $results[ $plugin_file ] : false;
 
-                // Restore the pre-upgrade activation state before reporting back.
+                // Belt-and-suspenders: bulk mode should not deactivate, but if the
+                // plugin was active and somehow came back off after a successful
+                // upgrade, restore its pre-upgrade activation state before reporting.
                 $reactivation_failed = false;
-                if ( $was_active && ! is_wp_error( $result ) && $result !== false && ! is_plugin_active( $plugin_file ) ) {
-                    $activation = activate_plugin( $plugin_file, '', $was_network_active, true );
+                if ( $was_active && ! is_wp_error( $result ) && ! empty( $result ) && ! is_plugin_active( $plugin_file ) ) {
+                    $activation          = activate_plugin( $plugin_file, '', $was_network_active, true );
                     $reactivation_failed = is_wp_error( $activation );
                 }
 
@@ -552,7 +569,7 @@ class AVCF_Abilities_Plugins extends AVCF_Abilities_Base {
                     ];
                 }
 
-                if ( $result === false ) {
+                if ( empty( $result ) ) {
                     $skin_errors = $skin->get_errors();
                     $err_msg     = is_wp_error( $skin_errors ) && $skin_errors->has_errors()
                         ? $skin_errors->get_error_message()
