@@ -468,8 +468,9 @@ class AVCF_Abilities_Elementor extends AVCF_Abilities_Base {
                 if ( ! $inserted ) {
                     return [ 'success' => false, 'message' => sprintf( 'parent_id "%s" not found.', isset( $input['parent_id'] ) ? $input['parent_id'] : '' ) ];
                 }
-                if ( ! AVCF_Elementor_Helpers::write_tree( $post_id, $tree ) ) {
-                    return [ 'success' => false, 'message' => 'Failed to save the Elementor tree.' ];
+                $write_errors = null;
+                if ( ! AVCF_Elementor_Helpers::write_tree( $post_id, $tree, false, $write_errors ) ) {
+                    return [ 'success' => false, 'message' => AVCF_Elementor_Helpers::write_error_message( $write_errors, 'Failed to save the Elementor tree.' ) ];
                 }
                 return [ 'success' => true, 'element_id' => $node['id'], 'message' => sprintf( 'Added %s element.', $elType === 'widget' ? $node['widgetType'] : $elType ) ];
             },
@@ -522,8 +523,9 @@ class AVCF_Abilities_Elementor extends AVCF_Abilities_Base {
                 if ( ! $found ) {
                     return [ 'success' => false, 'message' => sprintf( 'Element "%s" not found.', $element_id ) ];
                 }
-                if ( ! AVCF_Elementor_Helpers::write_tree( $post_id, $tree ) ) {
-                    return [ 'success' => false, 'message' => 'Failed to save the Elementor tree.' ];
+                $write_errors = null;
+                if ( ! AVCF_Elementor_Helpers::write_tree( $post_id, $tree, false, $write_errors ) ) {
+                    return [ 'success' => false, 'message' => AVCF_Elementor_Helpers::write_error_message( $write_errors, 'Failed to save the Elementor tree.' ) ];
                 }
                 $updated = [];
                 if ( ! empty( $settings_patch ) ) { $updated[] = 'settings'; }
@@ -590,8 +592,9 @@ class AVCF_Abilities_Elementor extends AVCF_Abilities_Base {
                 if ( ! $inserted ) {
                     return [ 'success' => false, 'message' => sprintf( 'new_parent_id "%s" not found (element was not moved).', $new_parent ) ];
                 }
-                if ( ! AVCF_Elementor_Helpers::write_tree( $post_id, $tree ) ) {
-                    return [ 'success' => false, 'message' => 'Failed to save the Elementor tree.' ];
+                $write_errors = null;
+                if ( ! AVCF_Elementor_Helpers::write_tree( $post_id, $tree, false, $write_errors ) ) {
+                    return [ 'success' => false, 'message' => AVCF_Elementor_Helpers::write_error_message( $write_errors, 'Failed to save the Elementor tree.' ) ];
                 }
                 return [ 'success' => true, 'message' => sprintf( 'Moved element "%s".', $element_id ) ];
             },
@@ -631,8 +634,9 @@ class AVCF_Abilities_Elementor extends AVCF_Abilities_Base {
                 if ( $removed === null ) {
                     return [ 'success' => false, 'message' => sprintf( 'Element "%s" not found.', $element_id ) ];
                 }
-                if ( ! AVCF_Elementor_Helpers::write_tree( $post_id, $tree ) ) {
-                    return [ 'success' => false, 'message' => 'Failed to save the Elementor tree.' ];
+                $write_errors = null;
+                if ( ! AVCF_Elementor_Helpers::write_tree( $post_id, $tree, false, $write_errors ) ) {
+                    return [ 'success' => false, 'message' => AVCF_Elementor_Helpers::write_error_message( $write_errors, 'Failed to save the Elementor tree.' ) ];
                 }
                 return [ 'success' => true, 'deleted' => true, 'message' => sprintf( 'Deleted element "%s".', $element_id ) ];
             },
@@ -662,8 +666,9 @@ class AVCF_Abilities_Elementor extends AVCF_Abilities_Base {
                     return [ 'success' => false, 'message' => 'elements must be an array.' ];
                 }
                 $tree = $self->ensure_ids( $input['elements'] );
-                if ( ! AVCF_Elementor_Helpers::write_tree( $post_id, $tree ) ) {
-                    return [ 'success' => false, 'message' => 'Failed to save the Elementor tree.' ];
+                $write_errors = null;
+                if ( ! AVCF_Elementor_Helpers::write_tree( $post_id, $tree, false, $write_errors ) ) {
+                    return [ 'success' => false, 'message' => AVCF_Elementor_Helpers::write_error_message( $write_errors, 'Failed to save the Elementor tree.' ) ];
                 }
                 // Read-back receipt: re-read what was stored and compare node counts,
                 // so a lossy save (e.g. elements dropped) is detectable instead of

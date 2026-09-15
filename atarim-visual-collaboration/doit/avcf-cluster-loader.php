@@ -125,6 +125,7 @@ if ( function_exists('wp_get_abilities') && class_exists('\WP\MCP\Core\McpAdapte
     require_once( AVCF_PLUGIN_DIR . 'doit/abilities/class-avcf-abilities-patterns.php' );
     require_once( AVCF_PLUGIN_DIR . 'doit/abilities/class-avcf-abilities-block-navigation.php' );
     require_once( AVCF_PLUGIN_DIR . 'doit/abilities/class-avcf-abilities-cache.php' );
+    require_once( AVCF_PLUGIN_DIR . 'doit/abilities/class-avcf-abilities-batch.php' );
 
     // Forms cluster — unified surface over WPForms / Gravity / Forminator /
     // Ninja / Fluent / Formidable / CF7. Load order matters: interface →

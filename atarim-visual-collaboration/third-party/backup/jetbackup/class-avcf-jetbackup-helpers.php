@@ -358,4 +358,50 @@ class AVCF_JetBackup_Helpers {
             'data'    => isset( $payload['data'] ) && is_array( $payload['data'] ) ? $payload['data'] : [],
         ];
     }
+
+    /**
+     * Release every snapshot this site has locked.
+     *
+     * Each round locks the snapshot behind its restore point so retention cannot
+     * remove it mid-round, and nothing released the previous round's - so locked
+     * snapshots accumulated until the account quota was exhausted and no backup
+     * could run at all.
+     *
+     * LockSnapshot TOGGLES rather than sets, so calling it on an unlocked
+     * snapshot would lock it. Only snapshots reporting locked are touched.
+     *
+     * A snapshot already marked for deletion is refused by JetBackup and skipped
+     * rather than treated as an error - it is on its way out regardless.
+     *
+     * @return array Ids of the snapshots released.
+     */
+    public static function unlock_all_snapshots() {
+        $listed = self::invoke( 'ListBackups', self::paginate( [ 'limit' => 100 ] ) );
+
+        if ( empty( $listed['success'] ) ) {
+            return [];
+        }
+
+        $unlocked = [];
+
+        foreach ( self::extract_snapshot_list( isset( $listed['data'] ) ? $listed['data'] : [] ) as $snapshot ) {
+            if ( ! is_array( $snapshot ) || empty( $snapshot['locked'] ) ) {
+                continue;
+            }
+
+            $id = isset( $snapshot[ self::ID_FIELD ] ) ? (int) $snapshot[ self::ID_FIELD ] : 0;
+
+            if ( $id <= 0 ) {
+                continue;
+            }
+
+            $toggled = self::invoke( 'LockSnapshot', [ self::ID_FIELD => $id ] );
+
+            if ( ! empty( $toggled['success'] ) ) {
+                $unlocked[] = $id;
+            }
+        }
+
+        return $unlocked;
+    }
 }

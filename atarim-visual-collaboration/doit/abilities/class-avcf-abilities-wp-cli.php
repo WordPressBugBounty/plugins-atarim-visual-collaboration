@@ -193,6 +193,12 @@ class AVCF_Abilities_WP_CLI {
 		$stderr   = '';
 		$deadline = time() + $timeout;
 		$timed_out = false;
+		// PHP reports a terminated child's real exit code only on the FIRST
+		// proc_get_status() that sees running === false; after that the status has
+		// been reaped and both later calls and proc_close() return -1. Capture it
+		// on the call that breaks the loop, or every completed command reports -1
+		// and success is therefore always false.
+		$exit_code = -1;
 		do {
 			$status = proc_get_status( $process );
 			if ( isset( $pipes[1] ) && is_resource( $pipes[1] ) ) {
@@ -202,6 +208,7 @@ class AVCF_Abilities_WP_CLI {
 				$stderr .= stream_get_contents( $pipes[2] );
 			}
 			if ( ! $status['running'] ) {
+				$exit_code = isset( $status['exitcode'] ) ? (int) $status['exitcode'] : -1;
 				break;
 			}
 			if ( time() >= $deadline ) {
@@ -217,7 +224,8 @@ class AVCF_Abilities_WP_CLI {
 				fclose( $pipes[ $i ] );
 			}
 		}
-		$exit_code = proc_close( $process );
+		// Still closed to release the handle; its return value is -1 by now.
+		proc_close( $process );
 
 		if ( $timed_out ) {
 			return [

@@ -214,7 +214,8 @@ class AVCF_Abilities_Elementor_Pro extends AVCF_Abilities_Base {
                     return $node;
                 }, $found );
                 if ( ! $found ) { return [ 'success' => false, 'message' => sprintf( 'Element "%s" not found.', $eid ) ]; }
-                if ( ! AVCF_Elementor_Helpers::write_tree( $post_id, $tree ) ) { return [ 'success' => false, 'message' => 'Failed to save.' ]; }
+                $write_errors = null;
+                if ( ! AVCF_Elementor_Helpers::write_tree( $post_id, $tree, false, $write_errors ) ) { return [ 'success' => false, 'message' => AVCF_Elementor_Helpers::write_error_message( $write_errors, 'Failed to save.' ) ]; }
                 return [ 'success' => true, 'message' => ! empty( $input['remove'] ) ? 'Class removed from element.' : 'Class applied to element.' ];
             },
             'permission_callback' => function() use ( $self ) { return current_user_can( 'edit_posts' ); },
@@ -551,7 +552,8 @@ class AVCF_Abilities_Elementor_Pro extends AVCF_Abilities_Base {
                     return $node;
                 }, $found );
                 if ( ! $found ) { return [ 'success' => false, 'message' => sprintf( 'Element "%s" not found.', $eid ) ]; }
-                if ( ! AVCF_Elementor_Helpers::write_tree( $post_id, $tree ) ) { return [ 'success' => false, 'message' => 'Failed to save.' ]; }
+                $write_errors = null;
+                if ( ! AVCF_Elementor_Helpers::write_tree( $post_id, $tree, false, $write_errors ) ) { return [ 'success' => false, 'message' => AVCF_Elementor_Helpers::write_error_message( $write_errors, 'Failed to save.' ) ]; }
                 return [ 'success' => true, 'message' => sprintf( 'Bound dynamic tag "%s" to setting "%s".', $tag, $setting ) ];
             },
             'permission_callback' => function() { return current_user_can( 'edit_posts' ); },
@@ -613,7 +615,8 @@ class AVCF_Abilities_Elementor_Pro extends AVCF_Abilities_Base {
                     return $node;
                 }, $found );
                 if ( ! $found ) { return [ 'success' => false, 'message' => sprintf( 'Element "%s" not found.', $eid ) ]; }
-                if ( ! AVCF_Elementor_Helpers::write_tree( $post_id, $tree ) ) { return [ 'success' => false, 'message' => 'Failed to save.' ]; }
+                $write_errors = null;
+                if ( ! AVCF_Elementor_Helpers::write_tree( $post_id, $tree, false, $write_errors ) ) { return [ 'success' => false, 'message' => AVCF_Elementor_Helpers::write_error_message( $write_errors, 'Failed to save.' ) ]; }
                 return [ 'success' => true, 'interaction_id' => $iid, 'message' => 'Interaction added.' ];
             },
             'permission_callback' => function() { return current_user_can( 'edit_posts' ); },
@@ -642,7 +645,8 @@ class AVCF_Abilities_Elementor_Pro extends AVCF_Abilities_Base {
                     return $node;
                 }, $found );
                 if ( ! $found ) { return [ 'success' => false, 'message' => sprintf( 'Element "%s" not found.', $eid ) ]; }
-                if ( ! AVCF_Elementor_Helpers::write_tree( $post_id, $tree ) ) { return [ 'success' => false, 'message' => 'Failed to save.' ]; }
+                $write_errors = null;
+                if ( ! AVCF_Elementor_Helpers::write_tree( $post_id, $tree, false, $write_errors ) ) { return [ 'success' => false, 'message' => AVCF_Elementor_Helpers::write_error_message( $write_errors, 'Failed to save.' ) ]; }
                 return [ 'success' => true, 'message' => 'Interaction removed (if it existed).' ];
             },
             'permission_callback' => function() { return current_user_can( 'edit_posts' ); },
@@ -672,7 +676,8 @@ class AVCF_Abilities_Elementor_Pro extends AVCF_Abilities_Base {
                     if ( isset( $node['styles'] ) ) { $node['styles'] = []; }
                     return $node;
                 }, $found );
-                if ( ! AVCF_Elementor_Helpers::write_tree( $post_id, $tree ) ) { return [ 'success' => false, 'message' => 'Failed to save.' ]; }
+                $write_errors = null;
+                if ( ! AVCF_Elementor_Helpers::write_tree( $post_id, $tree, false, $write_errors ) ) { return [ 'success' => false, 'message' => AVCF_Elementor_Helpers::write_error_message( $write_errors, 'Failed to save.' ) ]; }
                 return [ 'success' => true, 'cleared' => true, 'message' => sprintf( 'Cleared local styles on "%s".', $eid ) ];
             },
             'permission_callback' => function() { return current_user_can( 'edit_posts' ); },
@@ -724,7 +729,8 @@ class AVCF_Abilities_Elementor_Pro extends AVCF_Abilities_Base {
                 list( $tree, $inserted ) = AVCF_Elementor_Helpers::insert( $tree, isset( $input['parent_id'] ) ? (string) $input['parent_id'] : null, $node, $index );
                 if ( ! $inserted ) { return [ 'success' => false, 'message' => sprintf( 'parent_id "%s" not found.', isset( $input['parent_id'] ) ? $input['parent_id'] : '' ) ]; }
                 // Force a raw write — Document::save() strips atomic widgets.
-                if ( ! AVCF_Elementor_Helpers::write_tree( $post_id, $tree, true ) ) { return [ 'success' => false, 'message' => 'Failed to save (raw).' ]; }
+                $write_errors = null;
+                if ( ! AVCF_Elementor_Helpers::write_tree( $post_id, $tree, true, $write_errors ) ) { return [ 'success' => false, 'message' => AVCF_Elementor_Helpers::write_error_message( $write_errors, 'Failed to save (raw).' ) ]; }
                 $message = sprintf( 'Inserted atomic %s "%s" (raw write).', $as_element ? 'container' : 'widget', $type );
                 $out = [ 'success' => true, 'element_id' => $node['id'] ];
 

@@ -239,7 +239,10 @@ class AVCF_Abilities_JetBackup_Backups extends AVCF_Abilities_Base {
             'execute_callback' => function( $input = [] ) {
                 $input = (array) $input;
                 if ( empty( $input['id'] ) ) { return $this->missing_id( 'backup snapshot id' ); }
-                return AVCF_JetBackup_Helpers::invoke( 'AddToQueue', AVCF_JetBackup_Helpers::id_payload( $input, [ AVCF_JetBackup_Helpers::TYPE_FIELD => AVCF_JetBackup_Helpers::QUEUE_DOWNLOAD ] ) );
+                return AVCF_JetBackup_Helpers::surface_queue_id(
+                    AVCF_JetBackup_Helpers::invoke( 'AddToQueue', AVCF_JetBackup_Helpers::id_payload( $input, [ AVCF_JetBackup_Helpers::TYPE_FIELD => AVCF_JetBackup_Helpers::QUEUE_DOWNLOAD ] ) ),
+                    AVCF_JetBackup_Helpers::QUEUE_DOWNLOAD
+                );
             },
             'permission_callback' => function() use ( $self ) { return $self->can(); },
             'meta' => $this->write_meta( false ),
@@ -259,7 +262,10 @@ class AVCF_Abilities_JetBackup_Backups extends AVCF_Abilities_Base {
             'execute_callback' => function( $input = [] ) {
                 $input = (array) $input;
                 if ( empty( $input['id'] ) ) { return $this->missing_id( 'backup snapshot id' ); }
-                return AVCF_JetBackup_Helpers::invoke( 'AddToQueue', AVCF_JetBackup_Helpers::id_payload( $input, [ AVCF_JetBackup_Helpers::TYPE_FIELD => AVCF_JetBackup_Helpers::QUEUE_DOWNLOAD_LOG ] ) );
+                return AVCF_JetBackup_Helpers::surface_queue_id(
+                    AVCF_JetBackup_Helpers::invoke( 'AddToQueue', AVCF_JetBackup_Helpers::id_payload( $input, [ AVCF_JetBackup_Helpers::TYPE_FIELD => AVCF_JetBackup_Helpers::QUEUE_DOWNLOAD_LOG ] ) ),
+                    AVCF_JetBackup_Helpers::QUEUE_DOWNLOAD_LOG
+                );
             },
             'permission_callback' => function() use ( $self ) { return $self->can(); },
             'meta' => $this->write_meta( false ),
@@ -288,7 +294,10 @@ class AVCF_Abilities_JetBackup_Backups extends AVCF_Abilities_Base {
                 $input = (array) $input;
                 if ( empty( $input['id'] ) ) { return $this->missing_id( 'backup snapshot id to export' ); }
                 $panel = isset( $input['panel_type'] ) ? (int) $input['panel_type'] : 0;
-                return AVCF_JetBackup_Helpers::invoke( 'AddToQueue', AVCF_JetBackup_Helpers::id_payload( $input, [ AVCF_JetBackup_Helpers::TYPE_FIELD => AVCF_JetBackup_Helpers::QUEUE_EXPORT, 'panel_type' => $panel ] ) );
+                return AVCF_JetBackup_Helpers::surface_queue_id(
+                    AVCF_JetBackup_Helpers::invoke( 'AddToQueue', AVCF_JetBackup_Helpers::id_payload( $input, [ AVCF_JetBackup_Helpers::TYPE_FIELD => AVCF_JetBackup_Helpers::QUEUE_EXPORT, 'panel_type' => $panel ] ) ),
+                    AVCF_JetBackup_Helpers::QUEUE_EXPORT
+                );
             },
             'permission_callback' => function() use ( $self ) { return $self->can(); },
             'meta' => $this->write_meta( false ),
@@ -308,7 +317,10 @@ class AVCF_Abilities_JetBackup_Backups extends AVCF_Abilities_Base {
             'execute_callback' => function( $input = [] ) {
                 $input = (array) $input;
                 if ( empty( $input['id'] ) ) { return $this->missing_id( 'backup snapshot id' ); }
-                return AVCF_JetBackup_Helpers::invoke( 'AddToQueue', AVCF_JetBackup_Helpers::id_payload( $input, [ AVCF_JetBackup_Helpers::TYPE_FIELD => AVCF_JetBackup_Helpers::QUEUE_EXTRACT ] ) );
+                return AVCF_JetBackup_Helpers::surface_queue_id(
+                    AVCF_JetBackup_Helpers::invoke( 'AddToQueue', AVCF_JetBackup_Helpers::id_payload( $input, [ AVCF_JetBackup_Helpers::TYPE_FIELD => AVCF_JetBackup_Helpers::QUEUE_EXTRACT ] ) ),
+                    AVCF_JetBackup_Helpers::QUEUE_EXTRACT
+                );
             },
             'permission_callback' => function() use ( $self ) { return $self->can(); },
             'meta' => $this->write_meta( false ),
@@ -328,7 +340,10 @@ class AVCF_Abilities_JetBackup_Backups extends AVCF_Abilities_Base {
             'execute_callback' => function( $input = [] ) {
                 $input = (array) $input;
                 if ( empty( $input['id'] ) ) { return $this->missing_id( 'destination id to reindex' ); }
-                return AVCF_JetBackup_Helpers::invoke( 'AddToQueue', AVCF_JetBackup_Helpers::id_payload( $input, [ AVCF_JetBackup_Helpers::TYPE_FIELD => AVCF_JetBackup_Helpers::QUEUE_REINDEX ] ) );
+                return AVCF_JetBackup_Helpers::surface_queue_id(
+                    AVCF_JetBackup_Helpers::invoke( 'AddToQueue', AVCF_JetBackup_Helpers::id_payload( $input, [ AVCF_JetBackup_Helpers::TYPE_FIELD => AVCF_JetBackup_Helpers::QUEUE_REINDEX ] ) ),
+                    AVCF_JetBackup_Helpers::QUEUE_REINDEX
+                );
             },
             'permission_callback' => function() use ( $self ) { return $self->can(); },
             'meta' => $this->write_meta( false ),

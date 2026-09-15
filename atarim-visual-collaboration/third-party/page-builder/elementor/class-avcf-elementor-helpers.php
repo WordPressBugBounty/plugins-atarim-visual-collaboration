@@ -136,7 +136,136 @@ class AVCF_Elementor_Helpers {
         return false;
     }
 
-    public static function write_tree( $post_id, $elements, $force_raw = false ) {
+    /**
+     * Validate atomic-element setting VALUES against Elementor's own props schema.
+     *
+     * Returns a list of offending elements — [ { id, widgetType, keys[] } ] — or an
+     * empty array when everything validates OR when the Elementor atomic API is not
+     * available (in which case we never block). Only PROVIDED setting values are
+     * checked (not schema defaults), using each prop type's own public validate(),
+     * so this reproduces exactly the check Elementor runs at save without importing
+     * its parser or re-deriving enums.
+     */
+    public static function atomic_settings_errors( $elements ) {
+        $errors = [];
+        if ( ! class_exists( '\Elementor\Plugin' ) ) {
+            return $errors;
+        }
+        self::collect_atomic_settings_errors( (array) $elements, $errors );
+        return $errors;
+    }
+
+    private static function collect_atomic_settings_errors( $elements, &$errors ) {
+        foreach ( (array) $elements as $el ) {
+            if ( ! is_array( $el ) ) {
+                continue;
+            }
+            $type = ( isset( $el['widgetType'] ) && is_string( $el['widgetType'] ) ) ? $el['widgetType'] : '';
+            // Only atomic (v4) elements carry a props schema to validate against;
+            // they are the widgets whose widgetType begins "e-".
+            if ( $type !== '' && strpos( $type, 'e-' ) === 0 && isset( $el['settings'] ) && is_array( $el['settings'] ) ) {
+                $bad = self::atomic_element_bad_keys( $type, $el['settings'] );
+                if ( ! empty( $bad ) ) {
+                    $errors[] = [
+                        'id'         => isset( $el['id'] ) ? (string) $el['id'] : '',
+                        'widgetType' => $type,
+                        'keys'       => $bad,
+                    ];
+                }
+            }
+            if ( ! empty( $el['elements'] ) && is_array( $el['elements'] ) ) {
+                self::collect_atomic_settings_errors( $el['elements'], $errors );
+            }
+        }
+    }
+
+    /**
+     * Return the list of PROVIDED setting keys on one atomic element whose value
+     * fails Elementor's own prop-type validation. Empty when all valid, or when the
+     * type / schema cannot be resolved (nothing to validate against).
+     */
+    private static function atomic_element_bad_keys( $type, $settings ) {
+        $bad = [];
+        try {
+            $p  = \Elementor\Plugin::$instance;
+            $wm = isset( $p->widgets_manager ) ? $p->widgets_manager : null;
+            $em = isset( $p->elements_manager ) ? $p->elements_manager : null;
+
+            $obj = ( is_object( $wm ) && method_exists( $wm, 'get_widget_types' ) ) ? $wm->get_widget_types( $type ) : null;
+            if ( ! is_object( $obj ) && is_object( $em ) && method_exists( $em, 'get_element_types' ) ) {
+                $obj = $em->get_element_types( $type );
+            }
+            if ( ! is_object( $obj ) || ! method_exists( $obj, 'get_props_schema' ) ) {
+                return $bad;
+            }
+
+            $class  = get_class( $obj );
+            $schema = $class::get_props_schema();
+            if ( ! is_array( $schema ) || empty( $schema ) ) {
+                return $bad;
+            }
+
+            foreach ( (array) $settings as $key => $value ) {
+                if ( ! isset( $schema[ $key ] ) ) {
+                    // Unknown key: a key-shape concern handled separately by
+                    // valid_setting_keys, not a value-validity one. Skip here.
+                    continue;
+                }
+                $prop = $schema[ $key ];
+                if ( is_object( $prop ) && method_exists( $prop, 'validate' ) && ! $prop->validate( $value ) ) {
+                    $bad[] = (string) $key;
+                }
+            }
+        } catch ( \Throwable $e ) {
+            // Validation must never itself break a write.
+            return [];
+        }
+        return $bad;
+    }
+
+    /**
+     * Human-readable message for a write blocked by atomic_settings_errors(),
+     * naming each offending element and its bad setting keys. Falls back to the
+     * generic save-failure text when there are no validation errors (i.e. the
+     * write failed for another reason).
+     */
+    public static function write_error_message( $errors, $fallback = 'Failed to save the Elementor tree.' ) {
+        if ( empty( $errors ) || ! is_array( $errors ) ) {
+            return $fallback;
+        }
+        $parts = [];
+        foreach ( $errors as $e ) {
+            if ( ! is_array( $e ) ) {
+                continue;
+            }
+            $id   = isset( $e['id'] ) ? (string) $e['id'] : '';
+            $type = isset( $e['widgetType'] ) ? (string) $e['widgetType'] : 'element';
+            $keys = ( isset( $e['keys'] ) && is_array( $e['keys'] ) ) ? implode( ', ', $e['keys'] ) : '';
+            $parts[] = $type . ( $id !== '' ? ' #' . $id : '' ) . ( $keys !== '' ? ' (' . $keys . ')' : '' );
+        }
+        if ( empty( $parts ) ) {
+            return $fallback;
+        }
+        return 'Rejected before save: invalid Elementor setting value(s) that would abort a later editor Publish — '
+            . implode( '; ', $parts )
+            . '. Set these to values the element\'s schema allows and retry.';
+    }
+
+    public static function write_tree( $post_id, $elements, $force_raw = false, &$errors = null ) {
+        // Validate atomic (v4) setting VALUES against Elementor's own props schema
+        // BEFORE persisting. Atomic writes bypass Document::save() (it strips atomic
+        // widgets), so without this an out-of-enum value — e.g. an e-heading tag of
+        // "span" when the schema permits only h1-h6 — persists silently and renders
+        // fine, then aborts the ENTIRE document save the next time a human presses
+        // Publish ("Settings validation failed ... invalid_value"). Reject at write
+        // time instead, naming the offending element and key, so it is fixable now
+        // rather than an invisible landmine later. No-ops when the Elementor atomic
+        // API is unavailable, so it can never block an otherwise-valid write.
+        $errors = self::atomic_settings_errors( $elements );
+        if ( ! empty( $errors ) ) {
+            return false;
+        }
+
         $template_type = get_post_meta( $post_id, '_elementor_template_type', true );
         if ( $template_type === '' ) {
             $template_type = 'wp-page';

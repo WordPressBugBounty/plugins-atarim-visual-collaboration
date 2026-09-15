@@ -10,8 +10,12 @@
  * AVCF_Abilities_Base. To add a new category:
  *   1. Create doit/abilities/class-avcf-abilities-{name}.php
  *   2. require_once it in the main plugin file
- *   3. Instantiate + register() it in avcf_mcp_register_abilities() below
- *   4. Add the ability names to the $tools array in avcf_mcp_setup_server()
+ *   3. Register it in avcf_mcp_register_abilities() below via
+ *      avcf_register_cluster( 'cluster-slug', new AVCF_Abilities_{Name}() ),
+ *      reusing an existing slug when the category belongs with one
+ *
+ * Exposure follows registration, and the cluster slug is what a caller names in
+ * the X-Atarim-MCP-Clusters header to list that category on its own.
  *
  * Third-party plugin integrations follow the same pattern but live under
  * third-party/{plugin}/ alongside their detector and data-layer classes.
@@ -33,8 +37,70 @@ class AVCF_MCP {
     /** JSON-RPC code the MCP adapter returns for an unknown tool name. */
     const TOOL_NOT_FOUND = -32003;
 
+    /**
+     * Request header naming the tool clusters the caller wants listed.
+     *
+     * Comma-separated cluster slugs, e.g. "content,elementor". Absent or
+     * unrecognised, the whole tool surface is exposed as before. See
+     * avcf_mcp_requested_clusters().
+     */
+    const CLUSTER_HEADER = 'HTTP_X_ATARIM_MCP_CLUSTERS';
+
+    /**
+     * Request header choosing between short and full tool descriptions.
+     *
+     * "full" restores the untruncated description in tools/list; anything else
+     * (including absence) gets the first sentence. See avcf_mcp_shape_tool().
+     */
+    const DETAIL_HEADER = 'HTTP_X_ATARIM_MCP_DETAIL';
+
+    /** Longest short description we emit before falling back to a hard cut. */
+    const SHORT_DESCRIPTION_CAP = 200;
+
     private $function;
     private $auth;
+
+    /**
+     * Ability name => cluster slug, filled in as each category registers.
+     *
+     * Built by avcf_register_cluster() rather than declared per ability: the
+     * cluster a tool belongs to is already expressed by which class registers
+     * it, so recording it at that moment keeps ~770 registrations free of a
+     * field that would have to be kept in sync by hand.
+     *
+     * @var array<string,string>
+     */
+    private $cluster_map = [];
+
+    /**
+     * Ability name => first-sentence description, built during server setup.
+     *
+     * @var array<string,string>
+     */
+    private $short_descriptions = [];
+
+    /**
+     * Cluster slug => exposed tool count for the whole surface, for the
+     * listing metadata.
+     *
+     * @var array<string,int>
+     */
+    private $cluster_counts = [];
+
+    /**
+     * Cluster slugs the current request asked for, echoed back in the listing
+     * metadata so a caller can see whether its filter was understood.
+     *
+     * @var string[]
+     */
+    private $requested_clusters = [];
+
+    /**
+     * Lazily built lookup of the maps above, keyed by MCP tool name.
+     *
+     * @var array|null
+     */
+    private $folded_index = null;
 
     public function __construct() {
         $this->function = new AVCF_Functions();
@@ -63,6 +129,9 @@ class AVCF_MCP {
         // Point unknown-tool errors at tools/list instead of leaving a dead end.
         add_filter( 'rest_post_dispatch', [ $this, 'avcf_mcp_redirect_unknown_tool' ], 10, 3 );
 
+        // Trim the tools/list payload before it goes out.
+        add_filter( 'rest_post_dispatch', [ $this, 'avcf_mcp_shape_tools_list' ], 10, 3 );
+
         // Setup Atarim MCP server during adapter init.
         add_action( 'mcp_adapter_init', [ $this, 'avcf_mcp_setup_server' ] );
 
@@ -81,221 +150,222 @@ class AVCF_MCP {
      */
     public function avcf_mcp_register_abilities() {
         // Core WordPress abilities — always available.
-        ( new AVCF_Abilities_Content() )->register();
-        ( new AVCF_Abilities_Gutenberg() )->register();
-        ( new AVCF_Abilities_Plugins() )->register();
-        ( new AVCF_Abilities_Themes() )->register();
-        ( new AVCF_Abilities_Theme_Files() )->register();
-        ( new AVCF_Abilities_Core() )->register();
-        ( new AVCF_Abilities_Taxonomies() )->register();
-        ( new AVCF_Abilities_Users() )->register();
-        ( new AVCF_Abilities_Settings() )->register();
-        ( new AVCF_Abilities_Media() )->register();
-        ( new AVCF_Abilities_Metadata() )->register();
-        ( new AVCF_Abilities_Navigation() )->register();
-        ( new AVCF_Abilities_Templates() )->register();
-        ( new AVCF_Abilities_Global_Styles() )->register();
-        ( new AVCF_Abilities_Patterns() )->register();
-        ( new AVCF_Abilities_Block_Navigation() )->register();
-        ( new AVCF_Abilities_Cache() )->register();
-        ( new AVCF_Abilities_ReadOnly() )->register();
-        ( new AVCF_Abilities_ExecutePHP() )->register();
-        ( new AVCF_Abilities_WP_CLI() )->register();
+        $this->avcf_register_cluster( 'content', new AVCF_Abilities_Content() );
+        $this->avcf_register_cluster( 'content', new AVCF_Abilities_Gutenberg() );
+        $this->avcf_register_cluster( 'plugins', new AVCF_Abilities_Plugins() );
+        $this->avcf_register_cluster( 'themes', new AVCF_Abilities_Themes() );
+        $this->avcf_register_cluster( 'themes', new AVCF_Abilities_Theme_Files() );
+        $this->avcf_register_cluster( 'site', new AVCF_Abilities_Core() );
+        $this->avcf_register_cluster( 'taxonomies', new AVCF_Abilities_Taxonomies() );
+        $this->avcf_register_cluster( 'users', new AVCF_Abilities_Users() );
+        $this->avcf_register_cluster( 'site', new AVCF_Abilities_Settings() );
+        $this->avcf_register_cluster( 'media', new AVCF_Abilities_Media() );
+        $this->avcf_register_cluster( 'metadata', new AVCF_Abilities_Metadata() );
+        $this->avcf_register_cluster( 'design', new AVCF_Abilities_Navigation() );
+        $this->avcf_register_cluster( 'design', new AVCF_Abilities_Templates() );
+        $this->avcf_register_cluster( 'design', new AVCF_Abilities_Global_Styles() );
+        $this->avcf_register_cluster( 'content', new AVCF_Abilities_Patterns() );
+        $this->avcf_register_cluster( 'design', new AVCF_Abilities_Block_Navigation() );
+        $this->avcf_register_cluster( 'site', new AVCF_Abilities_Cache() );
+        $this->avcf_register_cluster( 'diagnostics', new AVCF_Abilities_ReadOnly() );
+        $this->avcf_register_cluster( 'advanced', new AVCF_Abilities_Batch() );
+        $this->avcf_register_cluster( 'advanced', new AVCF_Abilities_ExecutePHP() );
+        $this->avcf_register_cluster( 'advanced', new AVCF_Abilities_WP_CLI() );
 
         // Forms: Gravity Forms (standalone cluster).
         $gravity_detector = new AVCF_Gravity_Detector();
         if ( $gravity_detector->avcf_gravity_is_available() ) {
-            ( new AVCF_Abilities_Gravity() )->register();
-            ( new AVCF_Abilities_Gravity_Pro() )->register();
+            $this->avcf_register_cluster( 'gravity-forms', new AVCF_Abilities_Gravity() );
+            $this->avcf_register_cluster( 'gravity-forms', new AVCF_Abilities_Gravity_Pro() );
         }
 
         // Forms: WPForms (standalone cluster).
         $wpforms_detector = new AVCF_WPForms_Detector();
         if ( $wpforms_detector->avcf_wpforms_is_available() ) {
-            ( new AVCF_Abilities_WPForms() )->register();
-            ( new AVCF_Abilities_WPForms_Pro() )->register();
+            $this->avcf_register_cluster( 'wpforms', new AVCF_Abilities_WPForms() );
+            $this->avcf_register_cluster( 'wpforms', new AVCF_Abilities_WPForms_Pro() );
         }
 
         // Forms: Fluent Forms (standalone cluster).
         $fluent_detector = new AVCF_Fluent_Detector();
         if ( $fluent_detector->avcf_fluent_is_available() ) {
-            ( new AVCF_Abilities_Fluent() )->register();
-            ( new AVCF_Abilities_Fluent_Pro() )->register();
+            $this->avcf_register_cluster( 'fluent-forms', new AVCF_Abilities_Fluent() );
+            $this->avcf_register_cluster( 'fluent-forms', new AVCF_Abilities_Fluent_Pro() );
         }
 
         // Forms: Formidable Forms (standalone cluster).
         $formidable_detector = new AVCF_Formidable_Detector();
         if ( $formidable_detector->avcf_formidable_is_available() ) {
-            ( new AVCF_Abilities_Formidable() )->register();
-            ( new AVCF_Abilities_Formidable_Pro() )->register();
+            $this->avcf_register_cluster( 'formidable', new AVCF_Abilities_Formidable() );
+            $this->avcf_register_cluster( 'formidable', new AVCF_Abilities_Formidable_Pro() );
         }
 
         // Forms: Forminator (standalone cluster).
         $forminator_detector = new AVCF_Forminator_Detector();
         if ( $forminator_detector->avcf_forminator_is_available() ) {
-            ( new AVCF_Abilities_Forminator() )->register();
-            ( new AVCF_Abilities_Forminator_Pro() )->register();
+            $this->avcf_register_cluster( 'forminator', new AVCF_Abilities_Forminator() );
+            $this->avcf_register_cluster( 'forminator', new AVCF_Abilities_Forminator_Pro() );
         }
 
         // Forms: Ninja Forms (standalone cluster).
         $ninja_detector = new AVCF_Ninja_Detector();
         if ( $ninja_detector->avcf_ninja_is_available() ) {
-            ( new AVCF_Abilities_Ninja() )->register();
-            ( new AVCF_Abilities_Ninja_Pro() )->register();
+            $this->avcf_register_cluster( 'ninja-forms', new AVCF_Abilities_Ninja() );
+            $this->avcf_register_cluster( 'ninja-forms', new AVCF_Abilities_Ninja_Pro() );
         }
 
         // Forms: Contact Form 7 (standalone cluster, config-only).
         $cf7_detector = new AVCF_CF7_Detector();
         if ( $cf7_detector->avcf_cf7_is_available() ) {
-            ( new AVCF_Abilities_CF7() )->register();
-            ( new AVCF_Abilities_CF7_Pro() )->register();
+            $this->avcf_register_cluster( 'contact-form-7', new AVCF_Abilities_CF7() );
+            $this->avcf_register_cluster( 'contact-form-7', new AVCF_Abilities_CF7_Pro() );
         }
 
         // Flamingo (standalone top-level cluster — CF7's companion entry store).
         $flamingo_detector = new AVCF_Flamingo_Detector();
         if ( $flamingo_detector->avcf_flamingo_is_available() ) {
-            ( new AVCF_Abilities_Flamingo() )->register();
-            ( new AVCF_Abilities_Flamingo_Pro() )->register();
+            $this->avcf_register_cluster( 'flamingo', new AVCF_Abilities_Flamingo() );
+            $this->avcf_register_cluster( 'flamingo', new AVCF_Abilities_Flamingo_Pro() );
         }
 
         // Third-party: WooCommerce.
         $wc_detector = new AVCF_WC_Detector();
         if ( $wc_detector->avcf_wc_is_available() ) {
-            ( new AVCF_Abilities_WooCommerce() )->register();
+            $this->avcf_register_cluster( 'woocommerce', new AVCF_Abilities_WooCommerce() );
         }
 
         // Third-party: WP Activity Log.
         $wpal_detector = new AVCF_WPAL_Detector();
         if ( $wpal_detector->avcf_wpal_is_available() ) {
-            ( new AVCF_Abilities_WPAL() )->register();
+            $this->avcf_register_cluster( 'activity-log', new AVCF_Abilities_WPAL() );
         }
 
         // Third-party: Advanced Custom Fields.
         $acf_detector = new AVCF_ACF_Detector();
         if ( $acf_detector->avcf_acf_is_available() ) {
-            ( new AVCF_Abilities_ACF() )->register();
+            $this->avcf_register_cluster( 'acf', new AVCF_Abilities_ACF() );
         }
 
         // Third-party: Yoast SEO.
         $yoast_detector = new AVCF_Yoast_Detector();
         if ( $yoast_detector->avcf_yoast_is_available() ) {
-            ( new AVCF_Abilities_Yoast() )->register();
+            $this->avcf_register_cluster( 'yoast', new AVCF_Abilities_Yoast() );
         }
 
         // Third-party: Rank Math.
         $rankmath_detector = new AVCF_RankMath_Detector();
         if ( $rankmath_detector->avcf_rankmath_is_available() ) {
-            ( new AVCF_Abilities_RankMath() )->register();
+            $this->avcf_register_cluster( 'rank-math', new AVCF_Abilities_RankMath() );
         }
 
         // Third-party: All in One SEO.
         $aioseo_detector = new AVCF_AIOSEO_Detector();
         if ( $aioseo_detector->avcf_aioseo_is_available() ) {
-            ( new AVCF_Abilities_AIOSEO() )->register();
+            $this->avcf_register_cluster( 'aioseo', new AVCF_Abilities_AIOSEO() );
         }
 
         // Third-party: Elementor.
         $elementor_detector = new AVCF_Elementor_Detector();
         if ( $elementor_detector->avcf_elementor_is_available() ) {
-            ( new AVCF_Abilities_Elementor() )->register();
-            ( new AVCF_Abilities_Elementor_Pro() )->register();
+            $this->avcf_register_cluster( 'elementor', new AVCF_Abilities_Elementor() );
+            $this->avcf_register_cluster( 'elementor', new AVCF_Abilities_Elementor_Pro() );
         }
 
         $shortpixel_detector = new AVCF_ShortPixel_Detector();
         if ( $shortpixel_detector->avcf_shortpixel_is_available() ) {
-            ( new AVCF_Abilities_ShortPixel() )->register();
+            $this->avcf_register_cluster( 'shortpixel', new AVCF_Abilities_ShortPixel() );
         }
 
         $ewww_detector = new AVCF_EWWW_Detector();
         if ( $ewww_detector->avcf_ewww_is_available() ) {
-            ( new AVCF_Abilities_EWWW() )->register();
+            $this->avcf_register_cluster( 'ewww', new AVCF_Abilities_EWWW() );
         }
 
         $resmushit_detector = new AVCF_ReSmushit_Detector();
         if ( $resmushit_detector->avcf_resmushit_is_available() ) {
-            ( new AVCF_Abilities_ReSmushit() )->register();
+            $this->avcf_register_cluster( 'resmushit', new AVCF_Abilities_ReSmushit() );
         }
 
         $smush_detector = new AVCF_Smush_Detector();
         if ( $smush_detector->avcf_smush_is_available() ) {
-            ( new AVCF_Abilities_Smush() )->register();
+            $this->avcf_register_cluster( 'smush', new AVCF_Abilities_Smush() );
         }
 
         $optimole_detector = new AVCF_Optimole_Detector();
         if ( $optimole_detector->avcf_optimole_is_available() ) {
-            ( new AVCF_Abilities_Optimole() )->register();
+            $this->avcf_register_cluster( 'optimole', new AVCF_Abilities_Optimole() );
         }
 
         // Third-party: Meta Box.
         $metabox_detector = new AVCF_MetaBox_Detector();
         if ( $metabox_detector->avcf_mb_is_available() ) {
-            ( new AVCF_Abilities_MetaBox() )->register();
+            $this->avcf_register_cluster( 'meta-box', new AVCF_Abilities_MetaBox() );
         }
 
         // Third-party: JetEngine.
         $jetengine_detector = new AVCF_JetEngine_Detector();
         if ( $jetengine_detector->avcf_je_is_available() ) {
-            ( new AVCF_Abilities_JetEngine() )->register();
+            $this->avcf_register_cluster( 'jetengine', new AVCF_Abilities_JetEngine() );
         }
 
         // Third-party: Pods.
         $pods_detector = new AVCF_Pods_Detector();
         if ( $pods_detector->avcf_pods_is_available() ) {
-            ( new AVCF_Abilities_Pods() )->register();
+            $this->avcf_register_cluster( 'pods', new AVCF_Abilities_Pods() );
         }
 
         // Third-party: ACPT.
         $acpt_detector = new AVCF_ACPT_Detector();
         if ( $acpt_detector->avcf_acpt_is_available() ) {
-            ( new AVCF_Abilities_ACPT() )->register();
+            $this->avcf_register_cluster( 'acpt', new AVCF_Abilities_ACPT() );
         }
 
         // Third-party: ASE.
         $ase_detector = new AVCF_ASE_Detector();
         if ( $ase_detector->avcf_ase_is_available() ) {
-            ( new AVCF_Abilities_ASE() )->register();
+            $this->avcf_register_cluster( 'ase', new AVCF_Abilities_ASE() );
         }
 
         // Third-party: Bricks (Wave 4 builder).
         $bricks_detector = new AVCF_Bricks_Detector();
         if ( $bricks_detector->avcf_bricks_is_available() ) {
-            ( new AVCF_Abilities_Bricks() )->register();
-            ( new AVCF_Abilities_Bricks_Pro() )->register();
+            $this->avcf_register_cluster( 'bricks', new AVCF_Abilities_Bricks() );
+            $this->avcf_register_cluster( 'bricks', new AVCF_Abilities_Bricks_Pro() );
         }
 
         // Third-party: Divi (Wave 4 builder).
         $divi_detector = new AVCF_Divi_Detector();
         if ( $divi_detector->avcf_divi_is_available() ) {
-            ( new AVCF_Abilities_Divi() )->register();
-            ( new AVCF_Abilities_Divi_Pro() )->register();
+            $this->avcf_register_cluster( 'divi', new AVCF_Abilities_Divi() );
+            $this->avcf_register_cluster( 'divi', new AVCF_Abilities_Divi_Pro() );
         }
 
         // Third-party: WPBakery (Wave 4 builder).
         $wpbakery_detector = new AVCF_WPBakery_Detector();
         if ( $wpbakery_detector->avcf_wpbakery_is_available() ) {
-            ( new AVCF_Abilities_WPBakery() )->register();
-            ( new AVCF_Abilities_WPBakery_Pro() )->register();
+            $this->avcf_register_cluster( 'wpbakery', new AVCF_Abilities_WPBakery() );
+            $this->avcf_register_cluster( 'wpbakery', new AVCF_Abilities_WPBakery_Pro() );
         }
 
         // Third-party: Breakdance (Wave 4 builder).
         $breakdance_detector = new AVCF_Breakdance_Detector();
         if ( $breakdance_detector->avcf_breakdance_is_available() ) {
-            ( new AVCF_Abilities_Breakdance() )->register();
-            ( new AVCF_Abilities_Breakdance_Pro() )->register();
+            $this->avcf_register_cluster( 'breakdance', new AVCF_Abilities_Breakdance() );
+            $this->avcf_register_cluster( 'breakdance', new AVCF_Abilities_Breakdance_Pro() );
         }
 
         // Third-party: Etch (Wave 4 builder).
         $etch_detector = new AVCF_Etch_Detector();
         if ( $etch_detector->avcf_etch_is_available() ) {
-            ( new AVCF_Abilities_Etch() )->register();
-            ( new AVCF_Abilities_Etch_Pro() )->register();
+            $this->avcf_register_cluster( 'etch', new AVCF_Abilities_Etch() );
+            $this->avcf_register_cluster( 'etch', new AVCF_Abilities_Etch_Pro() );
         }
 
         // Third-party: Mosaic (Wave 4 builder).
         $mosaic_detector = new AVCF_Mosaic_Detector();
         if ( $mosaic_detector->avcf_mosaic_is_available() ) {
-            ( new AVCF_Abilities_Mosaic() )->register();
-            ( new AVCF_Abilities_Mosaic_Pro() )->register();
+            $this->avcf_register_cluster( 'mosaic', new AVCF_Abilities_Mosaic() );
+            $this->avcf_register_cluster( 'mosaic', new AVCF_Abilities_Mosaic_Pro() );
         }
 
         // Third-party: JetBackup (backup cluster). Native jetbackup/* abilities
@@ -303,16 +373,200 @@ class AVCF_MCP {
         // our unified atarim/jetbackup-* surface is exposed.
         $jetbackup_detector = new AVCF_JetBackup_Detector();
         if ( $jetbackup_detector->avcf_jetbackup_is_available() ) {
-            ( new AVCF_Abilities_JetBackup_Backups() )->register();
-            ( new AVCF_Abilities_JetBackup_Restore() )->register();
-            ( new AVCF_Abilities_JetBackup_Jobs() )->register();
-            ( new AVCF_Abilities_JetBackup_Schedules() )->register();
-            ( new AVCF_Abilities_JetBackup_Destinations() )->register();
-            ( new AVCF_Abilities_JetBackup_Queue() )->register();
-            ( new AVCF_Abilities_JetBackup_Settings() )->register();
-            ( new AVCF_Abilities_JetBackup_System() )->register();
-            ( new AVCF_Abilities_JetBackup_Restore_Point() )->register();
+            $this->avcf_register_cluster( 'jetbackup', new AVCF_Abilities_JetBackup_Backups() );
+            $this->avcf_register_cluster( 'jetbackup', new AVCF_Abilities_JetBackup_Restore() );
+            $this->avcf_register_cluster( 'jetbackup', new AVCF_Abilities_JetBackup_Jobs() );
+            $this->avcf_register_cluster( 'jetbackup', new AVCF_Abilities_JetBackup_Schedules() );
+            $this->avcf_register_cluster( 'jetbackup', new AVCF_Abilities_JetBackup_Destinations() );
+            $this->avcf_register_cluster( 'jetbackup', new AVCF_Abilities_JetBackup_Queue() );
+            $this->avcf_register_cluster( 'jetbackup', new AVCF_Abilities_JetBackup_Settings() );
+            $this->avcf_register_cluster( 'jetbackup', new AVCF_Abilities_JetBackup_System() );
+            $this->avcf_register_cluster( 'jetbackup', new AVCF_Abilities_JetBackup_Restore_Point() );
         }
+    }
+
+    /**
+     * Register one ability category, recording which cluster its abilities join.
+     *
+     * The Abilities API has no "which class registered this" hook, so cluster
+     * membership is taken from the difference register() makes to the registry.
+     * Reading the registry mid-init is safe: WP_Abilities_Registry assigns its
+     * singleton before firing wp_abilities_api_init, so wp_get_abilities() here
+     * returns what has been registered so far instead of re-entering the hook.
+     *
+     * @param string             $cluster   Cluster slug the caller can ask for.
+     * @param AVCF_Abilities_Base $abilities Category to register.
+     */
+    private function avcf_register_cluster( $cluster, $abilities ) {
+        $before = $this->avcf_registered_ability_names();
+
+        $abilities->register();
+
+        foreach ( array_diff( $this->avcf_registered_ability_names(), $before ) as $name ) {
+            $this->cluster_map[ $name ] = $cluster;
+        }
+    }
+
+    /** Every ability name registered so far, in registration order. */
+    private function avcf_registered_ability_names() {
+        if ( ! function_exists( 'wp_get_abilities' ) ) {
+            return [];
+        }
+
+        $names = [];
+        foreach ( wp_get_abilities() as $key => $ability ) {
+            if ( is_object( $ability ) && method_exists( $ability, 'get_name' ) ) {
+                $names[] = $ability->get_name();
+            } elseif ( is_string( $key ) ) {
+                $names[] = $key;
+            }
+        }
+
+        return $names;
+    }
+
+    /**
+     * MCP tool names are the ability name with "/" folded to "-", so anything
+     * keyed by ability name has to be looked up through the same fold.
+     *
+     * @param string $ability_name
+     * @return string
+     */
+    private function avcf_fold_tool_name( $ability_name ) {
+        return str_replace( '/', '-', trim( (string) $ability_name ) );
+    }
+
+    /**
+     * Cluster slugs the caller asked for, from the X-Atarim-MCP-Clusters header.
+     *
+     * @return string[] Lower-cased slugs; empty when the caller wants everything.
+     */
+    private function avcf_mcp_requested_clusters() {
+        if ( empty( $_SERVER[ self::CLUSTER_HEADER ] ) ) {
+            return [];
+        }
+
+        $raw   = sanitize_text_field( wp_unslash( $_SERVER[ self::CLUSTER_HEADER ] ) );
+        $slugs = array_filter( array_map( 'trim', explode( ',', strtolower( $raw ) ) ) );
+
+        return array_values( array_unique( $slugs ) );
+    }
+
+    /** Whether the caller asked for untruncated descriptions in tools/list. */
+    private function avcf_mcp_wants_full_descriptions() {
+        if ( empty( $_SERVER[ self::DETAIL_HEADER ] ) ) {
+            return false;
+        }
+
+        return 'full' === strtolower( sanitize_text_field( wp_unslash( $_SERVER[ self::DETAIL_HEADER ] ) ) );
+    }
+
+    /**
+     * First sentence of a description, for the listing.
+     *
+     * Descriptions are written to be read at call time — they carry parameter
+     * notes, provider caveats and "use X instead" pointers that a caller
+     * choosing between tools does not need. The opening sentence is what says
+     * which tool this is; the rest is available with X-Atarim-MCP-Detail: full.
+     *
+     * An ability can override the derived text with a short_description in its
+     * mcp meta when the first sentence is a poor summary.
+     *
+     * @param string $description
+     * @return string
+     */
+    private function avcf_mcp_short_description( $description ) {
+        $description = trim( (string) $description );
+        if ( '' === $description ) {
+            return '';
+        }
+
+        // Shortest prefix ending in sentence punctuation that is followed by
+        // whitespace, skipping abbreviations that end in a period and are followed by
+        // one. "1.5 " never matched, since a digit is not whitespace, but "e.g. "
+        // did, leaving summaries like "Browse files/folders (e.g." on the wire.
+        //
+        // Two rules rather than one blacklist. The first is by shape: a dot
+        // preceded by a single letter that is itself preceded by a dot, which
+        // is the tail of "e.g.", "i.e." or "U.S." — a run of letter-dot pairs.
+        // It does NOT cover a lone initial ("J. Smith"), because a single
+        // letter before a dot is also how many ordinary sentences end.
+        //
+        // The second is a blacklist, and every entry is \b-anchored: unanchored
+        // `(?<!eg)` suppressed the split after ANY word ending in those two
+        // letters, so "Deletes a movie. Second sentence" produced no split at
+        // all. `no`/`No` were dropped from it — unlike the others they are
+        // ordinary English words, and "Set public to yes or no. Second
+        // sentence" is far more likely in ability copy than "No." as an
+        // abbreviation.
+        $abbreviations = '(?<!\b[A-Za-z]\.[A-Za-z])'
+            . '(?<!\betc)(?<!\bvs)(?<!\bcf)(?<!\beg)(?<!\bie)(?<!\bal)'
+            . '(?<!\bDr)(?<!\bMr)(?<!\bMs)(?<!\bMrs)(?<!\bFig)(?<!\bapprox)';
+        if ( preg_match( '/^.*?' . $abbreviations . '[.!?](?=\s)/su', $description, $match ) ) {
+            $first = trim( $match[0] );
+            if ( mb_strlen( $first ) <= self::SHORT_DESCRIPTION_CAP ) {
+                return $first;
+            }
+        }
+
+        if ( mb_strlen( $description ) <= self::SHORT_DESCRIPTION_CAP ) {
+            return $description;
+        }
+
+        $cut   = mb_substr( $description, 0, self::SHORT_DESCRIPTION_CAP );
+        $space = mb_strrpos( $cut, ' ' );
+        if ( false !== $space ) {
+            $cut = mb_substr( $cut, 0, $space );
+        }
+
+        return rtrim( $cut, " ,;:" ) . '…';
+    }
+
+    /**
+     * One line naming the clusters on this site, appended to the server
+     * description — which the adapter returns as `instructions` from
+     * initialize, a call every client already makes before it lists tools.
+     * Discovering the clusters therefore costs no extra round trip.
+     *
+     * @param string[] $tool_names Ability names exposed before cluster filtering.
+     * @return string
+     */
+    private function avcf_mcp_cluster_catalogue( array $tool_names ) {
+        $counts = $this->avcf_mcp_cluster_counts( $tool_names );
+        if ( empty( $counts ) ) {
+            return '';
+        }
+
+        $parts = [];
+        foreach ( $counts as $slug => $count ) {
+            $parts[] = $slug . ' (' . $count . ')';
+        }
+
+        return sprintf(
+            ' Tools are grouped into clusters. Send the header "X-Atarim-MCP-Clusters: slug,slug" with tools/list to list only those clusters, and "X-Atarim-MCP-Detail: full" for untruncated tool descriptions. Clusters on this site: %s.',
+            implode( ', ', $parts )
+        );
+    }
+
+    /**
+     * Cluster slug => number of exposed tools, ordered by size.
+     *
+     * @param string[] $tool_names Ability names.
+     * @return array<string,int>
+     */
+    private function avcf_mcp_cluster_counts( array $tool_names ) {
+        $counts = [];
+        foreach ( $tool_names as $name ) {
+            if ( ! isset( $this->cluster_map[ $name ] ) ) {
+                continue;
+            }
+            $slug            = $this->cluster_map[ $name ];
+            $counts[ $slug ] = isset( $counts[ $slug ] ) ? $counts[ $slug ] + 1 : 1;
+        }
+
+        arsort( $counts );
+
+        return $counts;
     }
 
     /**
@@ -411,6 +665,10 @@ class AVCF_MCP {
      * per-ability whitelist to maintain. The site owner selectively hides
      * abilities (yours or third-party) via the avcf_mcp_blocked_abilities
      * setting, without touching ability code.
+     *
+     * A caller can narrow that surface for one request with the
+     * X-Atarim-MCP-Clusters header; the clusters available are advertised in
+     * the server description, which the adapter returns as `instructions`.
      */
     public function avcf_mcp_setup_server( $adapter ) {
         // Expose adapter meta-tools plus EVERY registered MCP-public tool
@@ -446,7 +704,19 @@ class AVCF_MCP {
                 if ( $mcp_type !== 'tool' ) {
                     continue;
                 }
-                $tools[] = $ability->get_name();
+
+                $name    = $ability->get_name();
+                $tools[] = $name;
+
+                // Collected here, where the ability object is already in hand,
+                // and applied to the listing in avcf_mcp_shape_tools_list().
+                $short = isset( $meta['mcp']['short_description'] ) ? (string) $meta['mcp']['short_description'] : '';
+                if ( '' === $short && method_exists( $ability, 'get_description' ) ) {
+                    $short = $this->avcf_mcp_short_description( $ability->get_description() );
+                }
+                if ( '' !== $short ) {
+                    $this->short_descriptions[ $name ] = $short;
+                }
             }
         }
 
@@ -465,12 +735,54 @@ class AVCF_MCP {
             }
         ) );
 
+        // The catalogue advertises the whole surface, not the filtered one, so a
+        // caller that narrowed too far can always see what else it could ask for.
+        $this->cluster_counts = $this->avcf_mcp_cluster_counts( $allowed );
+        $description          = 'Atarim AI action layer.' . $this->avcf_mcp_cluster_catalogue( $allowed );
+
+        // Cluster filter. A site can expose 700+ tools; listing only the
+        // clusters the caller named is what keeps that surface affordable.
+        // Note this narrows tools/call for the same request too — harmless
+        // because the header rides on tools/list alone, and safer than a
+        // listing that disagrees with what the server will actually run.
+        $requested = $this->avcf_mcp_requested_clusters();
+        if ( ! empty( $requested ) ) {
+            $selected = array_values( array_filter(
+                $allowed,
+                function( $name ) use ( $requested ) {
+                    return isset( $this->cluster_map[ $name ] )
+                        && in_array( $this->cluster_map[ $name ], $requested, true );
+                }
+            ) );
+
+            // Every requested slug unknown (a typo, or a cluster whose plugin is
+            // not active here) would otherwise hand back an empty tool list and
+            // no way forward. Fall back to the full surface instead; the
+            // catalogue in the response metadata shows what does exist.
+            if ( ! empty( $selected ) ) {
+                $allowed = $selected;
+            }
+        }
+
+        // atarim/batch belongs to no one cluster: it is how a caller avoids
+        // repeating any of the others once per item. Narrowing to a cluster
+        // would hide it at exactly the moment it is needed — a caller that has
+        // just found get-post-seo is about to call it forty times — so it rides
+        // along with every listing, provided this site actually exposes it.
+        if ( in_array( 'atarim/batch', $tools, true )
+            && ! in_array( 'atarim/batch', $blocked, true )
+            && ! in_array( 'atarim/batch', $allowed, true ) ) {
+            $allowed[] = 'atarim/batch';
+        }
+
+        $this->requested_clusters = $requested;
+
         $adapter->create_server(
             'atarim-mcp-server',
             'atarim',
             'mcp',
             'Atarim MCP Server',
-            'Atarim AI action layer',
+            $description,
             'v1.0.0',
             [ HttpTransport::class ],
             ErrorLogMcpErrorHandler::class,
@@ -492,6 +804,156 @@ class AVCF_MCP {
                 return hash_equals( $stored_token, $incoming_token );
             }
         );
+    }
+
+    /**
+     * Trim the tools/list payload on its way out.
+     *
+     * Two thirds of a full listing is detail the caller cannot use at the
+     * moment it is choosing a tool:
+     *
+     *   - outputSchema, which describes a result the caller will read in full
+     *     anyway. Dropping it here is presentation only: the adapter decides
+     *     result wrapping from the ability's registered schema, which is
+     *     untouched, and the schema is still there for a caller that asks a
+     *     tool to run.
+     *   - the body of each description, past the sentence that says which tool
+     *     this is. X-Atarim-MCP-Detail: full brings it back.
+     *
+     * Annotations are deliberately left alone — the read-only and destructive
+     * hints are what Atarim's approval gate reads to decide whether a call
+     * needs a human first.
+     *
+     * @param mixed           $response Dispatch result.
+     * @param WP_REST_Server  $server   REST server instance.
+     * @param WP_REST_Request $request  Current request.
+     * @return mixed
+     */
+    public function avcf_mcp_shape_tools_list( $response, $server, $request ) {
+        if ( ! is_object( $request ) || ! method_exists( $request, 'get_route' ) ) {
+            return $response;
+        }
+        if ( ! $this->avcf_is_protected_mcp_route( $request->get_route() ) ) {
+            return $response;
+        }
+        if ( ! is_object( $response ) || ! method_exists( $response, 'get_data' ) || ! method_exists( $response, 'set_data' ) ) {
+            return $response;
+        }
+
+        $data = $response->get_data();
+        if ( ! is_array( $data ) || $data === [] ) {
+            return $response;
+        }
+
+        $full = $this->avcf_mcp_wants_full_descriptions();
+
+        // A JSON-RPC batch comes back as a list of responses.
+        if ( isset( $data[0] ) && is_array( $data[0] ) ) {
+            $changed = false;
+            foreach ( $data as $i => $entry ) {
+                $new = $this->avcf_mcp_shape_listing( $entry, $full );
+                if ( null !== $new ) { $data[ $i ] = $new; $changed = true; }
+            }
+            if ( $changed ) { $response->set_data( $data ); }
+            return $response;
+        }
+
+        $new = $this->avcf_mcp_shape_listing( $data, $full );
+        if ( null !== $new ) { $response->set_data( $new ); }
+
+        return $response;
+    }
+
+    /**
+     * Returns the rewritten entry, or null if it is not a tools/list result.
+     *
+     * @param mixed $entry JSON-RPC response entry.
+     * @param bool  $full  Whether to keep full descriptions.
+     * @return array|null
+     */
+    private function avcf_mcp_shape_listing( $entry, $full ) {
+        if ( ! is_array( $entry ) || ! isset( $entry['result'] ) ) {
+            return null;
+        }
+
+        // JsonRpcResponseBuilder casts every result to an object so an empty one
+        // still serialises as {}, so this is an stdClass in practice.
+        $result    = $entry['result'];
+        $is_object = is_object( $result );
+        $data      = $is_object ? get_object_vars( $result ) : $result;
+
+        if ( ! is_array( $data ) || ! isset( $data['tools'] ) || ! is_array( $data['tools'] ) ) {
+            return null;
+        }
+
+        foreach ( $data['tools'] as $i => $tool ) {
+            $data['tools'][ $i ] = $this->avcf_mcp_shape_tool( $tool, $full );
+        }
+
+        // Travels with the listing so a caller that narrowed to one cluster can
+        // still see the rest of the surface without a second call.
+        $metadata = isset( $data['_metadata'] ) && is_array( $data['_metadata'] ) ? $data['_metadata'] : [];
+
+        $metadata['clusters']           = (object) $this->cluster_counts;
+        $metadata['clusters_requested'] = $this->requested_clusters;
+
+        $data['_metadata'] = $metadata;
+        $entry['result']   = $is_object ? (object) $data : $data;
+
+        return $entry;
+    }
+
+    /**
+     * The cluster and short-description maps re-keyed by MCP tool name, built
+     * once per request rather than scanned per listed tool.
+     *
+     * @return array{descriptions:array<string,string>,clusters:array<string,string>}
+     */
+    private function avcf_mcp_folded_index() {
+        if ( null !== $this->folded_index ) {
+            return $this->folded_index;
+        }
+
+        $index = [ 'descriptions' => [], 'clusters' => [] ];
+
+        foreach ( $this->short_descriptions as $ability_name => $short ) {
+            $index['descriptions'][ $this->avcf_fold_tool_name( $ability_name ) ] = $short;
+        }
+        foreach ( $this->cluster_map as $ability_name => $slug ) {
+            $index['clusters'][ $this->avcf_fold_tool_name( $ability_name ) ] = $slug;
+        }
+
+        $this->folded_index = $index;
+
+        return $index;
+    }
+
+    /**
+     * @param mixed $tool One entry of result.tools.
+     * @param bool  $full Whether to keep the full description.
+     * @return mixed
+     */
+    private function avcf_mcp_shape_tool( $tool, $full ) {
+        if ( ! is_array( $tool ) || ! isset( $tool['name'] ) ) {
+            return $tool;
+        }
+
+        unset( $tool['outputSchema'] );
+
+        // Tool names arrive folded ("atarim-list-content"); our maps are keyed
+        // by ability name ("atarim/list-content").
+        $folded = $this->avcf_mcp_folded_index();
+        $name   = $tool['name'];
+
+        if ( ! $full && isset( $folded['descriptions'][ $name ] ) ) {
+            $tool['description'] = $folded['descriptions'][ $name ];
+        }
+
+        if ( isset( $folded['clusters'][ $name ] ) ) {
+            $tool['cluster'] = $folded['clusters'][ $name ];
+        }
+
+        return $tool;
     }
 
     /**

@@ -278,9 +278,9 @@ class AVCF_Settings {
                     fetch('{$crm_api_url}wp/auth')
                         .then(res => res.json())
                         .then(data => {
-                            const { read_key, write_key } = data;
+                            const { read_key, write_key, state } = data;
 
-                            if (!read_key || !write_key) {
+                            if (!read_key || !write_key || !state) {
                                 btns.forEach(function (b) {
                                     setLabel(b, 'Connect with Atarim');
                                     b.style.pointerEvents = 'auto';
@@ -289,7 +289,7 @@ class AVCF_Settings {
                                 return;
                             }
 
-                            const activationUrl = '{$app_url}/fetching/?_from=wp_plugin&from_wp=true&write_key=' + write_key;
+                            const activationUrl = '{$app_url}/fetching/?_from=wp_plugin&from_wp=true&write_key=' + encodeURIComponent(write_key) + '&state=' + encodeURIComponent(state);
 
                             btns.forEach(function (b) {
                                 b.href = activationUrl;

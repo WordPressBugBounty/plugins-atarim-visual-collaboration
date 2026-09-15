@@ -85,14 +85,15 @@ class AVCF_Abilities_JetBackup_Restore_Point extends AVCF_Abilities_Base {
         wp_register_ability( 'atarim/jetbackup-arm-restore-point', [
             'label'       => 'Arm JetBackup Restore Point',
             'category'    => 'atarim',
-            'description' => 'Prepare a restore point so the work you are about to do can be rolled back. This does NOT change the site — it stages a recovery link and stops. Call jetbackup-get-restore-point first: if a usable point already covers what you are about to change, do not arm another. Set backup_type to what a rollback must be able to recover: full (files and database), files, or database. Narrow it with include_paths, or carve out with exclude_paths / exclude_tables. CRITICAL: JetBackup holds only ONE restore point per site, so arming a new one destroys the existing one. Never replace a broader point with a narrower one — if the site already has a full point and you only need files, keep it and proceed. Arming database over a full point silently throws away the file safety net. Runs asynchronously and returns straight away with status "in_progress"; the point is not usable until it reads "ready", so poll jetbackup-get-restore-point if you need to confirm before changing anything. If the site\'s newest backup is under 24 hours old it is reused, otherwise a fresh backup runs first and this takes longer.',
+            'description' => 'Prepare a restore point so the work you are about to do can be rolled back. This does NOT change the site — it stages a recovery link and stops. Call jetbackup-get-restore-point first: if a usable point already covers what you are about to change, do not arm another. Set backup_type to what a rollback must be able to recover: full (files and database), files, or database. Narrow it with include_paths, or carve out with exclude_paths / exclude_tables. CRITICAL: JetBackup holds only ONE restore point per site, so arming a new one destroys the existing one. Never replace a broader point with a narrower one — if the site already has a full point and you only need files, keep it and proceed. Arming database over a full point silently throws away the file safety net. Unlocks any snapshot this site already has locked before arming (unlock_previous, default true), so only the current restore point is protected from retention and older snapshots can be reclaimed. Runs asynchronously and returns straight away with status "in_progress"; the point is not usable until it reads "ready", so poll jetbackup-get-restore-point if you need to confirm before changing anything. If the site\'s newest backup is under 24 hours old it is reused, otherwise a fresh backup runs first and this takes longer.',
             'input_schema'  => [
                 'type'                 => 'object',
                 'properties'           => [
-                    'backup_type'    => [ 'type' => 'string', 'enum' => [ 'full', 'files', 'database' ], 'description' => 'What a rollback must be able to recover.' ],
-                    'include_paths'  => [ 'type' => 'array', 'items' => [ 'type' => 'string' ], 'description' => 'Restrict a files restore to these home-directory paths. Anything outside them is not covered.' ],
-                    'exclude_paths'  => [ 'type' => 'array', 'items' => [ 'type' => 'string' ], 'description' => 'Carve these paths out of a files restore. Edits inside an excluded path are NOT covered by the resulting restore point.' ],
-                    'exclude_tables' => [ 'type' => 'array', 'items' => [ 'type' => 'string' ], 'description' => 'Carve these database tables out of the restore.' ],
+                    'backup_type'     => [ 'type' => 'string', 'enum' => [ 'full', 'files', 'database' ], 'description' => 'What a rollback must be able to recover.' ],
+                    'include_paths'   => [ 'type' => 'array', 'items' => [ 'type' => 'string' ], 'description' => 'Restrict a files restore to these home-directory paths. Anything outside them is not covered.' ],
+                    'exclude_paths'   => [ 'type' => 'array', 'items' => [ 'type' => 'string' ], 'description' => 'Carve these paths out of a files restore. Edits inside an excluded path are NOT covered by the resulting restore point.' ],
+                    'exclude_tables'  => [ 'type' => 'array', 'items' => [ 'type' => 'string' ], 'description' => 'Carve these database tables out of the restore.' ],
+                    'unlock_previous' => [ 'type' => 'boolean', 'default' => true, 'description' => 'Release any snapshot this site already has locked before arming, so only the new restore point is protected from retention and older ones can be reclaimed. Leave true unless you deliberately want to keep an older snapshot locked.' ],
                 ],
                 'required'             => [ 'backup_type' ],
                 'additionalProperties' => false,
@@ -105,6 +106,14 @@ class AVCF_Abilities_JetBackup_Restore_Point extends AVCF_Abilities_Base {
                     return [ 'success' => false, 'message' => 'Missing backup_type. Use full, files, or database.', 'data' => [] ];
                 }
 
+                // Released BEFORE arming, not after: locking the new point first
+                // would leave two locked snapshots if the arm then failed.
+                $unlocked = [];
+
+                if ( ! array_key_exists( 'unlock_previous', $input ) || filter_var( $input['unlock_previous'], FILTER_VALIDATE_BOOLEAN ) ) {
+                    $unlocked = AVCF_JetBackup_Helpers::unlock_all_snapshots();
+                }
+
                 $body = [ 'backup_type' => strtolower( (string) $input['backup_type'] ) ];
 
                 foreach ( [ 'include_paths', 'exclude_paths', 'exclude_tables' ] as $key ) {
@@ -113,7 +122,17 @@ class AVCF_Abilities_JetBackup_Restore_Point extends AVCF_Abilities_Base {
                     }
                 }
 
-                return AVCF_JetBackup_Helpers::atarim_call( AVCF_Abilities_JetBackup_Restore_Point::ENDPOINT, 'POST', $body );
+                $result = AVCF_JetBackup_Helpers::atarim_call( AVCF_Abilities_JetBackup_Restore_Point::ENDPOINT, 'POST', $body );
+
+                if ( $unlocked ) {
+                    if ( ! isset( $result['data'] ) || ! is_array( $result['data'] ) ) {
+                        $result['data'] = [];
+                    }
+                    $result['data']['unlocked_snapshots'] = $unlocked;
+                    $result['message'] = trim( (string) $result['message'] . ' Released ' . count( $unlocked ) . ' previously locked snapshot(s) so retention can reclaim them.' );
+                }
+
+                return $result;
             },
             'permission_callback' => function() use ( $self ) { return $self->can(); },
             'meta' => [ 'mcp' => [ 'public' => true, 'type' => 'tool' ], 'annotations' => [ 'readonly' => false, 'destructive' => false, 'idempotent' => false ] ],

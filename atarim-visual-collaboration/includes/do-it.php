@@ -532,10 +532,22 @@ add_action('rest_api_init', function () {
         'methods'             => 'GET',
         'permission_callback' => '__return_true',
         'callback'            => function () {
+            // Two different questions, and they were being answered by one flag.
+            //   connected -> collaboration is switched ON right now.
+            //   bound     -> this site belongs to an Atarim dashboard at all.
+            // avcf_deactivate_collab() sets avc_collab_active to 'no' while
+            // leaving avc_site_id and avc_license in place, so a site bound to
+            // someone else's dashboard with collaboration merely toggled off
+            // reported connected:false — and the app then offered a handshake
+            // that the settings page will not perform.
             $connected = get_option('avc_collab_active', 'no') === 'yes';
+            $bound     = get_option('avc_license', '') === 'valid'
+                && get_option('avc_site_id', '') !== '';
+
             return [
                 'installed'    => true,
                 'connected'    => $connected,
+                'bound'        => $bound,
                 'version'      => defined('AVCF_VERSION') ? AVCF_VERSION : null,
                 'settings_url' => admin_url('options-general.php?page=atarim-visual-collaboration'),
                 'site_url'     => site_url(),

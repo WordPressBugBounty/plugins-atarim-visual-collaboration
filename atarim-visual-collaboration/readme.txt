@@ -1,7 +1,7 @@
 === Atarim - AI Agency for WordPress: Edit Pages, Fix Code, Update Plugins, SEO & Client Feedback ===
 Contributors: wpfeedback, pratapdungrani
 Tags: ai, agency, client feedback, automation, seo
-Stable tag: 5.1.3
+Stable tag: 5.1.4
 Requires at least: 6.0
 Requires PHP: 7.4
 Tested up to: 7.1
@@ -299,6 +299,12 @@ A free account includes one site and 200 AI credits. The paid plan is $67 a mont
 10. A workflow template. When a page review finishes, open a task for every critical issue and post it to Slack. You see the trigger, the actions and the credit cost before it runs.
 
 == Changelog ==
+
+= 5.1.4 =
+* **Faster, leaner AI actions** - The AI can now batch many operations into a single request - for example updating alt text on every image, or applying the same change across a page - instead of one round trip each. It can also request only the tool categories it needs, and large reads are trimmed and capped, cutting the time and overhead of bulk work.
+* **Restore points no longer fill your backup storage** - Arming a restore point now releases the previously locked snapshot, so retention can reclaim old backups and only the current restore point stays protected - preventing the backup quota from filling up over repeated rounds.
+* **Invalid Elementor settings are caught before they break the editor** - When the AI creates or edits Elementor (v4) elements, setting values are validated against Elementor's own rules before saving. An invalid value - for example a heading tag outside h1-h6 - is rejected up front, instead of saving silently and then aborting the whole page the next time someone clicks Publish.
+* **Clearer messages when a change can't be applied** - Write and backup failures now report the actual reason - the specific Elementor element and setting that was rejected, or the real JetBackup error - instead of a generic failure.
 
 = 5.1.3 =
 * **Do It: more page builders, and undo** - The AI action layer can now target and edit Beaver Builder and SiteOrigin layouts alongside Gutenberg and Elementor, with more reliable block handling, and content changes can be rolled back through built-in undo.
