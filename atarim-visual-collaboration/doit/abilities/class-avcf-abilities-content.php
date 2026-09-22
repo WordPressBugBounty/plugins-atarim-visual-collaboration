@@ -895,7 +895,7 @@ class AVCF_Abilities_Content extends AVCF_Abilities_Base {
                     $postarr['ping_status'] = $ps;
                 }
 
-                $post_id = wp_insert_post( $postarr, true );
+                $post_id = wp_insert_post( wp_slash( $postarr ), true );
 
                 if ( is_wp_error( $post_id ) ) {
                     return [
@@ -935,8 +935,11 @@ class AVCF_Abilities_Content extends AVCF_Abilities_Base {
                     $content_receipt['content_verified'] = ( sha1( (string) $postarr['post_content'] ) === sha1( $stored_body ) );
                 }
 
+                $content_ok  = ! array_key_exists( 'content_verified', $content_receipt ) || $content_receipt['content_verified'];
+                $created_msg = empty( $meta_written ) ? 'Content created.' : sprintf( 'Content created; %d meta key(s) set: %s.', count( $meta_written ), implode( ', ', $meta_written ) );
+
                 return array_merge( [
-                    'success'        => true,
+                    'success'        => $content_ok,
                     'id'             => $post_id,
                     'title'          => $post->post_title,
                     'slug'           => $post->post_name,
@@ -952,7 +955,7 @@ class AVCF_Abilities_Content extends AVCF_Abilities_Base {
                     'ping_status'    => $post->ping_status,
                     'meta_written'   => $meta_written,
                 ], $content_receipt, [
-                    'message'        => empty( $meta_written ) ? 'Content created.' : sprintf( 'Content created; %d meta key(s) set: %s.', count( $meta_written ), implode( ', ', $meta_written ) ),
+                    'message'        => $content_ok ? $created_msg : $created_msg . ' Warning: stored content does not match what was sent (content_verified: false) - it may have been altered by sanitisation on save.',
                 ] );
             },
             'permission_callback' => function() {
@@ -1283,7 +1286,7 @@ class AVCF_Abilities_Content extends AVCF_Abilities_Base {
 
                 // Only call wp_update_post if there's something in the post table to update.
                 if ( count( $update ) > 1 ) {
-                    $result = wp_update_post( $update, true );
+                    $result = wp_update_post( wp_slash( $update ), true );
                     if ( is_wp_error( $result ) ) {
                         return [
                             'success' => false,
@@ -1316,8 +1319,10 @@ class AVCF_Abilities_Content extends AVCF_Abilities_Base {
                     $content_receipt['content_verified'] = ( sha1( (string) $update['post_content'] ) === sha1( $stored_body ) );
                 }
 
+                $content_ok = ! array_key_exists( 'content_verified', $content_receipt ) || $content_receipt['content_verified'];
+
                 return array_merge( [
-                    'success'        => true,
+                    'success'        => $content_ok,
                     'id'             => $id,
                     'title'          => $fresh->post_title,
                     'slug'           => $fresh->post_name,
@@ -1333,7 +1338,9 @@ class AVCF_Abilities_Content extends AVCF_Abilities_Base {
                     'ping_status'    => $fresh->ping_status,
                     'updated'        => $updated,
                 ], $content_receipt, [
-                    'message'        => sprintf( 'Updated: %s.', implode( ', ', $updated ) ),
+                    'message'        => $content_ok
+                        ? sprintf( 'Updated: %s.', implode( ', ', $updated ) )
+                        : sprintf( 'Updated: %s, but the stored content does not match what was sent (content_verified: false) - it may have been altered by sanitisation on save.', implode( ', ', $updated ) ),
                 ] );
             },
             'permission_callback' => function() {
@@ -1538,7 +1545,7 @@ class AVCF_Abilities_Content extends AVCF_Abilities_Base {
                         case 'ping_status':    $update['ping_status']    = $normalized_value; break;
                     }
 
-                    $result = wp_update_post( $update, true );
+                    $result = wp_update_post( wp_slash( $update ), true );
                     if ( is_wp_error( $result ) ) {
                         $results[] = [ 'id' => $id, 'success' => false, 'message' => $result->get_error_message() ];
                         $failed++;

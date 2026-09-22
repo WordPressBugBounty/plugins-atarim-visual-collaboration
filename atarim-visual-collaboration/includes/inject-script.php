@@ -20,6 +20,8 @@ class AVCF_Inject_Script {
     }
 
     private function init_hooks() {
+        add_action('admin_head', [$this, 'avcf_force_browse_mode_in_admin'], 1);
+
         // Load collaboration script
         add_action('wp_head', [$this, 'load_collaboration_script'], 11);
         add_action('admin_head', [$this, 'load_collaboration_script'], 11);
@@ -35,7 +37,17 @@ class AVCF_Inject_Script {
 
         // Auto login
         add_action('init', array($this, 'avcf_autologin'));
+        add_action('wp_ajax_nopriv_avcf_autologin', array($this, 'avcf_autologin_ajax'));
+        add_action('wp_ajax_avcf_autologin', array($this, 'avcf_autologin_ajax'));
         //add_action('init', array($this, 'avcf_accept_invitation'));
+    }
+
+    public function avcf_force_browse_mode_in_admin() {
+        ?>
+        <script>
+            try { localStorage.setItem('atarim-browse-mode', 'true'); } catch (e) {}
+        </script>
+        <?php
     }
 
     public function load_collaboration_script() {
@@ -48,20 +60,6 @@ class AVCF_Inject_Script {
         echo $this->function->get_collab_js($decision['site_id'], $this->function->avcf_setting_screen());
     }
 
-    /**
-     * Whether the collaboration script will be emitted for this request, and under
-     * which site id.
-     *
-     * Split out of load_collaboration_script so other features can ask the question
-     * BEFORE wp_head runs. The block-identity markers exist purely for this script
-     * to read, so when it is not loading there is no consumer and the work of
-     * stamping attributes onto every rendered block is pure waste.
-     *
-     * Memoised: the answer cannot change within a request, and avcf_is_site_public
-     * may hit a transient (or, on a miss, the API).
-     *
-     * @return array{load:bool, site_id:string}
-     */
     public function collab_script_decision() {
         static $decision = null;
 
@@ -159,10 +157,10 @@ class AVCF_Inject_Script {
 
         if (
             $this->function->avcf_setting_screen() ||
-            $this->license !== 'valid' || 
-            $this->is_collab_active !== 'yes' || 
+            $this->license !== 'valid' ||
+            $this->is_collab_active !== 'yes' ||
             $this->inisetup !== 'yes' ||
-            ! is_user_logged_in() || 
+            ! is_user_logged_in() ||
             ! $this->function->avcf_allowed_user_role() ||
             $is_webmaster ||
             $has_consented ||
@@ -176,12 +174,19 @@ class AVCF_Inject_Script {
     }
 
     public function avcf_autologin() {
+        if ((function_exists('wp_doing_ajax') && wp_doing_ajax()) || (defined('DOING_AJAX') && DOING_AJAX)) {
+            return;
+        }
+
         if (! isset($_GET['wpf_token'])) {
             return;
         }
 
-        if (isset($_GET['wpf_token']) && is_user_logged_in()) {
-            return;
+        $removeparam = array('wpf_token', 'wpf_username', 'wpf_login');
+
+        if (is_user_logged_in()) {
+            wp_safe_redirect(esc_url_raw(remove_query_arg($removeparam)), 302);
+            exit;
         }
 
         $webmaster = $this->function->avcf_get_setting_data('avc_website_developer');
@@ -189,11 +194,45 @@ class AVCF_Inject_Script {
             return;
         }
 
+        $wpf_token = sanitize_text_field(wp_unslash($_GET['wpf_token']));
+
+        // The clean, same-host URL to land on after login (params stripped).
+        $return = remove_query_arg($removeparam);
+
+        $ajax_url = add_query_arg(
+            array(
+                'action'      => 'avcf_autologin',
+                'wpf_token'   => rawurlencode($wpf_token),
+                'avcf_return' => rawurlencode($return),
+            ),
+            admin_url('admin-ajax.php')
+        );
+
+        wp_safe_redirect(esc_url_raw($ajax_url), 302);
+        exit;
+    }
+
+    public function avcf_autologin_ajax() {
+        $return = isset($_GET['avcf_return']) ? esc_url_raw(wp_unslash($_GET['avcf_return'])) : home_url('/');
+        $return = wp_validate_redirect($return, home_url('/'));
+        $return = remove_query_arg(array('wpf_token', 'wpf_username', 'wpf_login'), $return);
+
+        if (is_user_logged_in() || ! isset($_GET['wpf_token'])) {
+            wp_safe_redirect($return, 302);
+            exit;
+        }
+
+        $webmaster = $this->function->avcf_get_setting_data('avc_website_developer');
+        if ($webmaster == '') {
+            wp_safe_redirect($return, 302);
+            exit;
+        }
+
+        $wpf_token = sanitize_text_field(wp_unslash($_GET['wpf_token']));
+
         $payload = [
             'site_id' => $this->function->avcf_get_setting_data('avc_site_id'),
         ];
-
-        $wpf_token = sanitize_text_field(wp_unslash($_GET['wpf_token']));
 
         $response = $this->function->avcf_make_api_call(
             AVCF_CRM_API . 'wp-api/user/verify-access',
@@ -208,7 +247,8 @@ class AVCF_Inject_Script {
             $response['data']['status'] == 1
         ) {
             $user = get_user_by('email', $webmaster);
-            if (! is_wp_error($user)) {
+            if ($user && ! is_wp_error($user)) {
+                nocache_headers();
                 wp_clear_auth_cookie();
                 wp_set_current_user($user->ID);
                 wp_set_auth_cookie($user->ID);
@@ -216,21 +256,10 @@ class AVCF_Inject_Script {
             }
         }
 
-        $removeparam = array('wpf_token', 'wpf_username', 'wpf_login');
-        // Remove the params from the current request URL.
-        $newurl = remove_query_arg($removeparam);
-        // Redirect safely (same-host only).
-        wp_safe_redirect(esc_url_raw($newurl), 302);
+        wp_safe_redirect($return, 302);
         exit;
     }
 
-    /**
-     * Re-send the auth cookies WordPress just emitted with attributes that
-     * survive inside a cross-site iframe: the Atarim stage embeds the site
-     * on the app's origin, and WordPress emits its cookies without SameSite,
-     * which browsers treat as Lax and drop on embedded requests. Partitioned
-     * keeps them accepted once third-party cookies are fully phased out.
-     */
     private function avcf_make_auth_cookies_embeddable() {
         if (headers_sent()) {
             return;
@@ -310,12 +339,6 @@ class AVCF_Inject_Script {
 
 $GLOBALS['avcf_inject_script'] = new AVCF_Inject_Script();
 
-/**
- * Will the Atarim collaboration script be emitted for this request?
- *
- * The Do It block-identity markers are only ever read by that script, so this is
- * the correct consumer test for whether emitting them is worth anything.
- */
 function atarim_collab_script_will_load() {
     $injector = $GLOBALS['avcf_inject_script'] ?? null;
 

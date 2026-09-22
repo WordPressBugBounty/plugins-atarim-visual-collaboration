@@ -80,8 +80,10 @@ class AVCF_Abilities_Themes extends AVCF_Abilities_Base {
                             ],
                         ],
                     ],
+                    'update_check_ran' => [ 'type' => 'boolean' ],
+                    'last_checked'     => [ 'type' => 'integer' ],
                 ],
-                'required' => [ 'total', 'themes' ],
+                'required' => [ 'total', 'themes', 'update_check_ran' ],
             ],
             'execute_callback'    => function( $input = [] ) {
                 $status_filter = isset( $input['status'] ) ? $input['status'] : 'all';
@@ -94,6 +96,14 @@ class AVCF_Abilities_Themes extends AVCF_Abilities_Base {
 
                 $updates       = get_site_transient( 'update_themes' );
                 $update_list   = ( $updates && ! empty( $updates->response ) ) ? $updates->response : [];
+
+                // See atarim/list-plugins: the refresh can still leave the
+                // transient empty, and "no update available" then means "we did
+                // not find out" rather than "current". These two fields separate
+                // the two.
+                $checked          = ( $updates && ! empty( $updates->checked ) ) ? $updates->checked : [];
+                $last_checked     = ( $updates && ! empty( $updates->last_checked ) ) ? (int) $updates->last_checked : 0;
+                $update_check_ran = ! empty( $checked );
 
                 $themes = [];
                 foreach ( $all_themes as $stylesheet => $theme ) {
@@ -127,8 +137,10 @@ class AVCF_Abilities_Themes extends AVCF_Abilities_Base {
                 }
 
                 return [
-                    'total'  => count( $themes ),
-                    'themes' => $themes,
+                    'total'            => count( $themes ),
+                    'themes'           => $themes,
+                    'update_check_ran' => $update_check_ran,
+                    'last_checked'     => $last_checked,
                 ];
             },
             'permission_callback' => function() {

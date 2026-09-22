@@ -20,6 +20,31 @@ if ( ! defined('ABSPATH') ) {
 
 class AVCF_Elementor_Helpers {
 
+    public static function deep_merge_settings( $existing, $patch ) {
+        if ( ! is_array( $existing ) ) {
+            return $patch;
+        }
+        foreach ( $patch as $key => $value ) {
+            if (
+                is_array( $value ) && self::is_assoc_array( $value )
+                && isset( $existing[ $key ] ) && is_array( $existing[ $key ] ) && self::is_assoc_array( $existing[ $key ] )
+            ) {
+                $existing[ $key ] = self::deep_merge_settings( $existing[ $key ], $value );
+            } else {
+                $existing[ $key ] = $value;
+            }
+        }
+        return $existing;
+    }
+
+    private static function is_assoc_array( array $arr ) {
+        if ( $arr === [] ) {
+            return false;
+        }
+        return array_keys( $arr ) !== range( 0, count( $arr ) - 1 );
+    }
+
+
     /** Element ids are 7-char lowercase hex, matching Elementor's own format. */
     public static function generate_id() {
         return substr( md5( uniqid( (string) wp_rand(), true ) ), 0, 7 );

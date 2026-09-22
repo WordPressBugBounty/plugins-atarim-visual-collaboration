@@ -1,7 +1,7 @@
 === Atarim - AI Agency for WordPress: Edit Pages, Fix Code, Update Plugins, SEO & Client Feedback ===
 Contributors: wpfeedback, pratapdungrani
 Tags: ai, agency, client feedback, automation, seo
-Stable tag: 5.1.4
+Stable tag: 5.1.5
 Requires at least: 6.0
 Requires PHP: 7.4
 Tested up to: 7.1
@@ -299,6 +299,13 @@ A free account includes one site and 200 AI credits. The paid plan is $67 a mont
 10. A workflow template. When a page review finishes, open a task for every critical issue and post it to Slack. You see the trigger, the actions and the credit cost before it runs.
 
 == Changelog ==
+
+= 5.1.5 =
+* **Update checks report** - list-plugins / list-themes now indicate whether WordPress's update check actually completed, so a failed or rate-limited check can no longer look like "everything is up to date" (which had made a site several updates behind appear current).
+* **Content edits** - raw content saved through the content tools no longer loses backslashes (Windows paths, regex, JSON, code, LaTeX), and a write whose stored result doesn't match what was sent now reports failure instead of a false success.
+* **Reliable auto-login on cached hosts** - auto-login now works on edge-cached hosts (e.g. Cloudflare / Rocket.net) where the login cookie was being stripped; the admin area always opens in browse mode; and the one-time login token no longer lingers in the address bar.
+* **Remote disconnect** - when a site is removed from the Atarim dashboard, collaboration is now switched off on that site automatically.
+* **Editing one setting** - changing a single nested value on an Elementor, Bricks, or Gutenberg element (for example a button's link, an icon, or a block's spacing) now preserves the element's other settings - SEO/tracking attributes, icon library, remaining styles - instead of dropping them.
 
 = 5.1.4 =
 * **Faster, leaner AI actions** - The AI can now batch many operations into a single request - for example updating alt text on every image, or applying the same change across a page - instead of one round trip each. It can also request only the tool categories it needs, and large reads are trimmed and capped, cutting the time and overhead of bulk work.

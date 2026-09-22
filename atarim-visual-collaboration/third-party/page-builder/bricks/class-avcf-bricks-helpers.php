@@ -26,6 +26,31 @@ if ( ! defined('ABSPATH') ) {
 
 class AVCF_Bricks_Helpers {
 
+    public static function deep_merge_settings( $existing, $patch ) {
+        if ( ! is_array( $existing ) ) {
+            return $patch;
+        }
+        foreach ( $patch as $key => $value ) {
+            if (
+                is_array( $value ) && self::is_assoc_array( $value )
+                && isset( $existing[ $key ] ) && is_array( $existing[ $key ] ) && self::is_assoc_array( $existing[ $key ] )
+            ) {
+                $existing[ $key ] = self::deep_merge_settings( $existing[ $key ], $value );
+            } else {
+                $existing[ $key ] = $value;
+            }
+        }
+        return $existing;
+    }
+
+    private static function is_assoc_array( array $arr ) {
+        if ( $arr === [] ) {
+            return false;
+        }
+        return array_keys( $arr ) !== range( 0, count( $arr ) - 1 );
+    }
+
+
     /** Element ids are 6-char lowercase alphanumeric, matching Bricks. */
     public static function generate_id() {
         return substr( str_replace( [ '0', '1', 'o', 'l' ], [ 'a', 'b', 'c', 'd' ], strtolower( wp_generate_password( 8, false, false ) ) ), 0, 6 );
@@ -76,7 +101,7 @@ class AVCF_Bricks_Helpers {
             if ( is_array( $el ) && isset( $el['id'] ) && (string) $el['id'] === (string) $id ) {
                 if ( isset( $patch['settings'] ) && is_array( $patch['settings'] ) ) {
                     $cur = isset( $el['settings'] ) && is_array( $el['settings'] ) ? $el['settings'] : [];
-                    $el['settings'] = array_merge( $cur, $patch['settings'] );
+                    $el['settings'] = self::deep_merge_settings( $cur, $patch['settings'] );
                 }
                 if ( isset( $patch['label'] ) ) { $el['label'] = (string) $patch['label']; }
                 if ( isset( $patch['name'] ) )  { $el['name'] = (string) $patch['name']; }

@@ -22,6 +22,31 @@ if ( ! defined('ABSPATH') ) {
 
 class AVCF_Gutenberg_Helpers {
 
+    public static function deep_merge_attrs( $existing, $patch ) {
+        if ( ! is_array( $existing ) ) {
+            return $patch;
+        }
+        foreach ( $patch as $key => $value ) {
+            if (
+                is_array( $value ) && self::is_assoc_array( $value )
+                && isset( $existing[ $key ] ) && is_array( $existing[ $key ] ) && self::is_assoc_array( $existing[ $key ] )
+            ) {
+                $existing[ $key ] = self::deep_merge_attrs( $existing[ $key ], $value );
+            } else {
+                $existing[ $key ] = $value;
+            }
+        }
+        return $existing;
+    }
+
+    private static function is_assoc_array( array $arr ) {
+        if ( $arr === [] ) {
+            return false;
+        }
+        return array_keys( $arr ) !== range( 0, count( $arr ) - 1 );
+    }
+
+
     /** Curated static blocks whose canonical markup the bridge can regenerate. */
     public static function curated_blocks() {
         return [
@@ -846,7 +871,7 @@ class AVCF_Abilities_Gutenberg extends AVCF_Abilities_Base {
             return $new === null ? [ 'err' => 'update failed' ] : [ 'blocks' => $new ];
         }
         if ( isset( $op['attrs'] ) && is_array( $op['attrs'] ) ) {
-            $block['attrs'] = ! empty( $op['replace_attrs'] ) ? $op['attrs'] : array_merge( $cur_attrs, $op['attrs'] );
+            $block['attrs'] = ! empty( $op['replace_attrs'] ) ? $op['attrs'] : AVCF_Gutenberg_Helpers::deep_merge_attrs( $cur_attrs, $op['attrs'] );
             $new = AVCF_Gutenberg_Helpers::raw_replace_at( $blocks, $path, $block );
             if ( $new === null ) { return [ 'err' => 'update failed' ]; }
             $res   = [ 'blocks' => $new ];

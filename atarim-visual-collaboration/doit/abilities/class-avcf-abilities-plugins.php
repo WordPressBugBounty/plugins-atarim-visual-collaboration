@@ -79,8 +79,10 @@ class AVCF_Abilities_Plugins extends AVCF_Abilities_Base {
                             ],
                         ],
                     ],
+                    'update_check_ran' => [ 'type' => 'boolean' ],
+                    'last_checked'     => [ 'type' => 'integer' ],
                 ],
-                'required' => [ 'total', 'plugins' ],
+                'required' => [ 'total', 'plugins', 'update_check_ran' ],
             ],
             'execute_callback'    => function( $input = [] ) {
                 if ( ! function_exists( 'get_plugins' ) ) {
@@ -97,6 +99,17 @@ class AVCF_Abilities_Plugins extends AVCF_Abilities_Base {
 
                 $updates       = get_site_transient( 'update_plugins' );
                 $update_list   = ( $updates && ! empty( $updates->response ) ) ? $updates->response : [];
+
+                // wp_update_plugins() can leave the transient empty: a failed or
+                // rate-limited request to api.wordpress.org, or core's own
+                // last_checked early return. Every plugin then reports
+                // update_available false, which reads identically to "checked,
+                // and current" — on 4 September a site nine updates behind was
+                // reported as fully up to date. These two fields are what tells
+                // the caller which of the two it is holding.
+                $checked         = ( $updates && ! empty( $updates->checked ) ) ? $updates->checked : [];
+                $last_checked    = ( $updates && ! empty( $updates->last_checked ) ) ? (int) $updates->last_checked : 0;
+                $update_check_ran = ! empty( $checked );
 
                 $plugins = [];
                 foreach ( $all_plugins as $plugin_file => $data ) {
@@ -134,8 +147,10 @@ class AVCF_Abilities_Plugins extends AVCF_Abilities_Base {
                 }
 
                 return [
-                    'total'   => count( $plugins ),
-                    'plugins' => $plugins,
+                    'total'            => count( $plugins ),
+                    'plugins'          => $plugins,
+                    'update_check_ran' => $update_check_ran,
+                    'last_checked'     => $last_checked,
                 ];
             },
             'permission_callback' => function() {

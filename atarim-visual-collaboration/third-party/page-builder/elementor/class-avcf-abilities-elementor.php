@@ -485,7 +485,7 @@ class AVCF_Abilities_Elementor extends AVCF_Abilities_Base {
         $self = $this;
         wp_register_ability( 'atarim/elementor-edit-element', [
             'label'        => 'Edit Elementor Element',
-            'description'  => 'Update an element\'s settings and/or styles by id. settings and styles are each shallow-merged into the element\'s existing values (top-level keys you send overwrite, others are kept). Provide at least one of settings or styles — pass styles alone to restyle without touching content. For Elementor v4 atomic elements, styles is the atomic styles object and settings uses the atomic prop shape; read the element first with get-content. The save auto-detects atomic elements and writes them safely (a plain Document save would strip them). For v3 widgets, get control names with get-widget-schema.',
+            'description'  => 'Update an element\'s settings and/or styles by id. settings and styles are each deep-merged into the element\'s existing values: top-level keys you send overwrite, and nested objects (e.g. link, selected_icon, background) merge recursively, so sending one nested key keeps its siblings. To clear a nested value, send it explicitly. Provide at least one of settings or styles — pass styles alone to restyle without touching content. For Elementor v4 atomic elements, styles is the atomic styles object and settings uses the atomic prop shape; read the element first with get-content. The save auto-detects atomic elements and writes them safely (a plain Document save would strip them). For v3 widgets, get control names with get-widget-schema.',
             'category'     => 'atarim',
             'input_schema' => [ 'type' => 'object', 'properties' => [
                 'post_id'    => [ 'type' => 'integer', 'minimum' => 1 ],
@@ -512,11 +512,11 @@ class AVCF_Abilities_Elementor extends AVCF_Abilities_Base {
                     $node_type = ( isset( $node['widgetType'] ) && $node['widgetType'] !== '' ) ? (string) $node['widgetType'] : ( isset( $node['elType'] ) ? (string) $node['elType'] : '' );
                     if ( ! empty( $settings_patch ) ) {
                         $current = ( isset( $node['settings'] ) && is_array( $node['settings'] ) ) ? $node['settings'] : [];
-                        $node['settings'] = array_merge( $current, $settings_patch );
+                        $node['settings'] = AVCF_Elementor_Helpers::deep_merge_settings( $current, $settings_patch );
                     }
                     if ( ! empty( $styles_patch ) ) {
                         $current_styles = ( isset( $node['styles'] ) && is_array( $node['styles'] ) ) ? $node['styles'] : [];
-                        $node['styles'] = array_merge( $current_styles, $styles_patch );
+                        $node['styles'] = AVCF_Elementor_Helpers::deep_merge_settings( $current_styles, $styles_patch );
                     }
                     return $node;
                 }, $found );
