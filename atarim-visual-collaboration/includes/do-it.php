@@ -53,20 +53,36 @@ function atarim_doit_markers_wanted() {
     return atarim_collab_script_will_load();
 }
 
+/**
+ * Prints ATARIM_INLINE carrying only an `unavailable` reason, so the collaboration
+ * script can say why Do It is off instead of assuming the visitor is logged out.
+ * wp_localize_script casts scalars to strings, hence a string code, not booleans.
+ */
+function atarim_doit_print_unavailable($handle, $reason) {
+    wp_localize_script($handle, 'ATARIM_INLINE', [ 'unavailable' => $reason ]);
+}
+
 add_action('wp_enqueue_scripts', function () {
 
-    if ( ! is_singular() ) return;
-    if ( ! atarim_doit_markers_wanted() ) return;
-
-    $post_id = get_queried_object_id();
-    if ( ! $post_id ) return;
-
-    $page_builder = atarim_detect_page_builder($post_id);
-    $wrapper_hint = atarim_detect_wrapper_selector_by_theme(); // '' if unknown
+    if ( function_exists('atarim_collab_script_will_load') && ! atarim_collab_script_will_load() ) return;
 
     $handle = 'atarim-do-it';
     wp_register_script($handle, '', [], '0.3.1', false);
     wp_enqueue_script($handle);
+
+    if ( ! atarim_doit_enabled() ) {
+        atarim_doit_print_unavailable($handle, 'disabled');
+        return;
+    }
+
+    $post_id = is_singular() ? get_queried_object_id() : 0;
+    if ( ! $post_id ) {
+        atarim_doit_print_unavailable($handle, 'not_singular');
+        return;
+    }
+
+    $page_builder = atarim_detect_page_builder($post_id);
+    $wrapper_hint = atarim_detect_wrapper_selector_by_theme(); // '' if unknown
 
     // Targeting data is public. Anyone may leave a task, and the task has to
     // record what it points at; postId is not a secret, WordPress already exposes
@@ -83,6 +99,8 @@ add_action('wp_enqueue_scripts', function () {
         $atarim_inline_data['apiSave']        = esc_url_raw(rest_url('atarim/v1/content/save'));
         $atarim_inline_data['apiMediaImport'] = esc_url_raw(rest_url('atarim/v1/media/import'));
         $atarim_inline_data['nonce']          = wp_create_nonce('wp_rest');
+    } else {
+        $atarim_inline_data['unavailable'] = is_user_logged_in() ? 'cannot_edit' : 'logged_out';
     }
 
     $atarim_inline_data = apply_filters('atarim_inline_data', $atarim_inline_data, $post_id);

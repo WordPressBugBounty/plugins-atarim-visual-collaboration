@@ -80,8 +80,15 @@ abstract class AVCF_Abilities_Base {
             if ( $chunk === '' ) {
                 continue;
             }
-            $html     = str_replace( "\n", "<br>", $chunk );
-            $blocks[] = "<!-- wp:paragraph -->\n<p>{$html}</p>\n<!-- /wp:paragraph -->";
+
+            if ( preg_match( '/^<p(?:\s[^>]*)?>(?:(?!<\/p>)[\s\S])*<\/p>$/i', $chunk ) ) {
+                $blocks[] = "<!-- wp:paragraph -->\n{$chunk}\n<!-- /wp:paragraph -->";
+            } elseif ( preg_match( '/<(?:address|article|aside|blockquote|details|dd|div|dl|dt|fieldset|figcaption|figure|footer|form|h[1-6]|header|hgroup|hr|li|main|nav|ol|p|pre|section|table|tbody|td|tfoot|th|thead|tr|ul)\b/i', $chunk ) ) {
+                $blocks[] = "<!-- wp:html -->\n{$chunk}\n<!-- /wp:html -->";
+            } else {
+                $html     = str_replace( "\n", "<br>", $chunk );
+                $blocks[] = "<!-- wp:paragraph -->\n<p>{$html}</p>\n<!-- /wp:paragraph -->";
+            }
         }
 
         return implode( "\n\n", $blocks );
@@ -102,6 +109,18 @@ abstract class AVCF_Abilities_Base {
      * @param string $date
      * @return array{0:?string,1:?string,2:?string}
      */
+    protected function avcf_gmt_or_derive( $gmt, $local ) {
+        $gmt = (string) $gmt;
+        if ( $gmt !== '' && strpos( $gmt, '0000-00-00' ) !== 0 ) {
+            return $gmt;
+        }
+        $local = (string) $local;
+        if ( $local === '' || strpos( $local, '0000-00-00' ) === 0 ) {
+            return $gmt;
+        }
+        return get_gmt_from_date( $local );
+    }
+
     protected function avcf_normalize_post_date( $date ) {
         if ( ! is_string( $date ) || trim( $date ) === '' ) {
             return [ null, null, 'date must be a non-empty string.' ];

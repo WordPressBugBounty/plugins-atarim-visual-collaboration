@@ -1,7 +1,7 @@
 === Atarim - AI Agency for WordPress: Edit Pages, Fix Code, Update Plugins, SEO & Client Feedback ===
 Contributors: wpfeedback, pratapdungrani
 Tags: ai, agency, client feedback, automation, seo
-Stable tag: 5.1.5
+Stable tag: 5.1.6
 Requires at least: 6.0
 Requires PHP: 7.4
 Tested up to: 7.1
@@ -299,6 +299,11 @@ A free account includes one site and 200 AI credits. The paid plan is $67 a mont
 10. A workflow template. When a page review finishes, open a task for every critical issue and post it to Slack. You see the trigger, the actions and the credit cost before it runs.
 
 == Changelog ==
+
+= 5.1.6 =
+* **Clearer Do It status** - when Do It can't run on a page, the plugin now tells Atarim why (Do It is turned off, the page is a blog index or archive, or your account can't edit it), so you no longer see "Log in to your WordPress" while already logged in.
+* **Auto format** - when content written by the AI is turned into blocks, HTML such as headings, lists and tables is kept in an HTML block instead of being wrapped in a broken paragraph.
+* **Draft dates** - posts, pages and media that were never published now report real created and modified dates to the AI instead of 0000-00-00.
 
 = 5.1.5 =
 * **Update checks report** - list-plugins / list-themes now indicate whether WordPress's update check actually completed, so a failed or rate-limited check can no longer look like "everything is up to date" (which had made a site several updates behind appear current).
