@@ -773,7 +773,7 @@ class AVCF_Abilities_Themes extends AVCF_Abilities_Base {
         // ---- set-additional-css ----
         wp_register_ability( 'atarim/set-additional-css', [
             'label'               => 'Set Additional CSS',
-            'description'         => 'Sets the site-wide Additional CSS (Customizer > Additional CSS) for a theme. Accepts RAW CSS ONLY - do NOT pass Gutenberg block markup, HTML tags, <p> / <br>, or block comments. The value is written through the native WordPress custom-CSS pipeline (wp_update_custom_css_post) and printed inline exactly like the Customizer panel; it is not written to a file. Incoming content is defensively normalised (block comments and tags stripped, HTML entities decoded, smart quotes fixed) but callers should still send clean CSS. Defaults to the active theme. mode "replace" (default) overwrites all Additional CSS; "append" adds the given CSS after the existing CSS.',
+            'description'         => 'Sets the site-wide Additional CSS (Customizer > Additional CSS) for a theme. Accepts RAW CSS ONLY - do NOT pass Gutenberg block markup, HTML tags, <p> / <br>, or block comments. The value is written through the native WordPress custom-CSS pipeline (wp_update_custom_css_post) and printed inline exactly like the Customizer panel; it is not written to a file. CSS is stored verbatim - inline SVG data URIs, < / > characters, & and HTML entities are preserved exactly; only a literal </style> is neutralised so the inline <style> output cannot be broken out of. Defaults to the active theme. mode "replace" (default) overwrites all Additional CSS; "append" adds the given CSS after the existing CSS.',
             'category'            => 'atarim',
             'input_schema'        => [
                 'type'       => 'object',
@@ -805,6 +805,7 @@ class AVCF_Abilities_Themes extends AVCF_Abilities_Base {
                 'type'       => 'object',
                 'properties' => [
                     'success'      => [ 'type' => 'boolean' ],
+                    'verified'     => [ 'type' => 'boolean' ],
                     'conflict'     => [ 'type' => 'boolean' ],
                     'stylesheet'   => [ 'type' => 'string' ],
                     'mode'         => [ 'type' => 'string' ],
@@ -866,19 +867,26 @@ class AVCF_Abilities_Themes extends AVCF_Abilities_Base {
                     return [ 'success' => false, 'message' => 'Update failed: ' . $result->get_error_message() ];
                 }
 
-                // Receipt from the re-read stored value (no full-CSS echo).
+                // Receipt from the re-read stored value (no full-CSS echo). verified
+                // compares what we intended to store against what is actually stored,
+                // so a silent alteration on save (e.g. kses for a user without
+                // unfiltered_html) is reported as success:false instead of hidden.
                 $stored      = (string) wp_get_custom_css( $stylesheet );
                 $stored_sha1 = sha1( $stored );
+                $verified    = ( sha1( $css ) === $stored_sha1 );
 
                 return [
-                    'success'      => true,
+                    'success'      => $verified,
+                    'verified'     => $verified,
                     'stylesheet'   => $stylesheet,
                     'mode'         => $mode,
                     'changed'      => ( $before_sha1 !== $stored_sha1 ),
                     'before_sha1'  => $before_sha1,
                     'stored_sha1'  => $stored_sha1,
                     'stored_bytes' => strlen( $stored ),
-                    'message'      => sprintf( 'Additional CSS %s for theme "%s" (%d bytes). Use stored_sha1 as expected_sha1 for your next safe replace.', ( 'append' === $mode ? 'appended' : 'updated' ), $stylesheet, strlen( $stored ) ),
+                    'message'      => $verified
+                        ? sprintf( 'Additional CSS %s for theme "%s" (%d bytes). Use stored_sha1 as expected_sha1 for your next safe replace.', ( 'append' === $mode ? 'appended' : 'updated' ), $stylesheet, strlen( $stored ) )
+                        : sprintf( 'Additional CSS was written but the stored result does not match what was sent (%d bytes stored) - WordPress may have altered it on save. Re-read with get-additional-css to inspect.', strlen( $stored ) ),
                 ];
             },
             'permission_callback' => function() {
@@ -911,52 +919,18 @@ class AVCF_Abilities_Themes extends AVCF_Abilities_Base {
             return '';
         }
 
-        // Normalise line endings.
+        // CSS is stored verbatim. It may legitimately contain "<" / ">" (inline
+        // SVG data URIs, content strings), "&" and HTML entities - none of which
+        // may be stripped or decoded, or valid CSS is corrupted. Only line endings
+        // are normalised, plus one safety guard below.
         $css = str_replace( [ "\r\n", "\r" ], "\n", $css );
 
-        // Protect CSS comment blocks (/* ... */) before any HTML-tag munging:
-        // their contents may legitimately contain "<...>" (e.g. documentation or
-        // selector examples), which the tag-strip below would otherwise destroy.
-        $avcf_css_comments = [];
-        $css = preg_replace_callback( '#/\*.*?\*/#s', function( $m ) use ( &$avcf_css_comments ) {
-            $token = '%%AVCF_CSSCOMMENT_' . count( $avcf_css_comments ) . '%%';
-            $avcf_css_comments[] = $m[0];
-            return $token;
-        }, $css );
+        // The single safety guard: the stored CSS is printed inline inside
+        // <style id="wp-custom-css">, so a literal </style> could break out of the
+        // tag. It is never valid CSS, so neutralise the closing sequence (this only
+        // affects unsafe input, never real CSS).
+        $css = preg_replace( '#</(style)#i', '<\\\\/$1', $css );
 
-        // Remove HTML comments, including Gutenberg block delimiters (<!-- wp:... -->).
-        $css = preg_replace( '/<!--.*?-->/s', '', $css );
-
-        // Convert <br> and closing block tags to newlines before stripping tags.
-        $css = preg_replace( '/<br\s*\/?>/i', "\n", $css );
-        $css = preg_replace( '#</(p|div|pre|code)>#i', "\n", $css );
-
-        // Strip any remaining HTML tags. CSS uses no "< ... >" constructs, so
-        // combinators (>, +, ~) and attribute selectors are left intact.
-        $css = preg_replace( '/<[^>]+>/', '', $css );
-
-        // Decode entities the editor may have introduced (&gt; &amp; &nbsp; ...).
-        $css = html_entity_decode( $css, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
-
-        // Smart quotes -> straight quotes.
-        $css = preg_replace( '/[\x{2018}\x{2019}\x{201A}\x{201B}\x{2032}]/u', "'", $css );
-        $css = preg_replace( '/[\x{201C}\x{201D}\x{201E}\x{201F}\x{2033}]/u', '"', $css );
-
-        // Non-breaking spaces -> normal spaces.
-        $css = str_replace( "\xC2\xA0", ' ', $css );
-
-        // Collapse 3+ newlines to a single blank line, then trim.
-        $css = preg_replace( "/\n{3,}/", "\n\n", $css );
-
-        // Restore protected CSS comment blocks verbatim.
-        if ( $avcf_css_comments ) {
-            $tokens = [];
-            foreach ( array_keys( $avcf_css_comments ) as $i ) {
-                $tokens[] = '%%AVCF_CSSCOMMENT_' . $i . '%%';
-            }
-            $css = str_replace( $tokens, $avcf_css_comments, $css );
-        }
-
-        return trim( $css );
+        return $css;
     }
 }

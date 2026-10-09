@@ -93,6 +93,15 @@ class AVCF_Inject_Script {
 
         if (isset($_GET['collab'])) {
             $allow_collab = filter_var($_GET['collab'], FILTER_VALIDATE_BOOLEAN);
+        } elseif (
+            class_exists('AVCF_Frame_Ancestors') &&
+            isset($_COOKIE[AVCF_Frame_Ancestors::COOKIE])
+        ) {
+            // Inside the Atarim stage the collab param is only on the first
+            // URL. The frame cookie (returned only while framed under the app)
+            // keeps the collaboration layer on the pages navigated to inside
+            // it, which a private site would otherwise skip for collaborators.
+            $allow_collab = true;
         }
 
         if (

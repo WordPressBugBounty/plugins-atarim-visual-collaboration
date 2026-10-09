@@ -2,7 +2,7 @@
 /*
  * Plugin Name: Atarim - AI Agency for WordPress: Edit Pages, Fix Code, Update Plugins, SEO & Client Feedback
  * Description: Give your AI full access to WordPress. It edits pages, fixes code, updates plugins and runs SEO work, with a backup and your approval first.
- * Version: 5.1.6
+ * Version: 5.1.7
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: Atarim
@@ -48,6 +48,7 @@ function avcf_load_textdomain() {
 add_action('plugins_loaded', 'avcf_load_textdomain');
 
 require_once(plugin_dir_path(__FILE__) . 'includes/inject-script.php');
+require_once(plugin_dir_path(__FILE__) . 'includes/class-avcf-frame-ancestors.php');
 require_once( AVCF_PLUGIN_DIR . 'doit/class-avcf-mcp-auth.php' );
 
 // Diagnostic endpoint — loads unconditionally so the Atarim backend can

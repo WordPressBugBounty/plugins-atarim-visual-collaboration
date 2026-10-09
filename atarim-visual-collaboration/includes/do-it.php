@@ -135,8 +135,10 @@ add_action('template_redirect', function () {
 
     if ( atarim_detect_page_builder($post_id) !== 'block' ) return;
 
-    atarim_ensure_post_stamped($post_id);
-
+    // No view-time write: block ids are stamped on SAVE (see
+    // atarim_stamp_block_ids_on_save), never when a page is merely viewed.
+    // Unstamped blocks still resolve via the anchor_index fallback emitted by
+    // the render_block identity injection below.
     $GLOBALS['atarim_block_counters'] = [];
     $GLOBALS['atarim_post_block_index'] = atarim_build_post_block_index($post_id);
 
@@ -229,6 +231,37 @@ function atarim_walk_post_blocks(array $blocks, array &$map, array &$counters, s
  * Costs one write per post, ever. The stamp hash is compared first so the common
  * path is a single meta read with no block parsing.
  */
+/**
+ * Stamp avcBlockIds as part of a SAVE, never on a view.
+ *
+ * Runs inside wp_insert_post_data so the stamping rides on the write that is
+ * already happening (editor save, Do It, or MCP) - no separate wp_update_post,
+ * no extra revision. raw_stamp_ids only adds an id to blocks that lack one and
+ * dedupe only touches genuine collisions, so existing ids are preserved (tasks
+ * keep resolving) and a save of already-stamped content is a no-op. Only acts on
+ * block content, and only when the Do It helpers are loaded. post_content is
+ * slashed here, so it is unslashed to parse and re-slashed to store.
+ */
+function atarim_stamp_block_ids_on_save($data, $postarr) {
+    if ( ! class_exists('AVCF_Gutenberg_Helpers') ) return $data;
+    if ( empty($data['post_content']) ) return $data;
+    if ( isset($data['post_type']) && $data['post_type'] === 'revision' ) return $data;
+
+    $content = wp_unslash($data['post_content']);
+    if ( ! AVCF_Gutenberg_Helpers::is_block_based($content) ) return $data;
+
+    $blocks  = AVCF_Gutenberg_Helpers::parse_raw($content);
+    $blocks  = atarim_dedupe_block_ids(AVCF_Gutenberg_Helpers::raw_stamp_ids($blocks));
+    $stamped = AVCF_Gutenberg_Helpers::serialize_raw($blocks);
+
+    if ( $stamped !== $content ) {
+        $data['post_content'] = wp_slash($stamped);
+    }
+
+    return $data;
+}
+add_filter('wp_insert_post_data', 'atarim_stamp_block_ids_on_save', 10, 2);
+
 function atarim_ensure_post_stamped($post_id) {
 
     // The helpers only load when the Abilities API + MCP Adapter are present
@@ -597,6 +630,7 @@ function atarim_doit_builders(): array {
             'dom_attr' => 'data-id',
             'durable'  => true,
             'detect'   => function ($post_id) {
+                if (get_post_meta($post_id, '_elementor_edit_mode', true) !== 'builder') return false;
                 $d = get_post_meta($post_id, '_elementor_data', true);
                 return (is_string($d) && trim($d) !== '') || (is_array($d) && !empty($d));
             },

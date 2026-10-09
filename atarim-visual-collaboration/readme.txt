@@ -1,7 +1,7 @@
 === Atarim - AI Agency for WordPress: Edit Pages, Fix Code, Update Plugins, SEO & Client Feedback ===
 Contributors: wpfeedback, pratapdungrani
 Tags: ai, agency, client feedback, automation, seo
-Stable tag: 5.1.6
+Stable tag: 5.1.7
 Requires at least: 6.0
 Requires PHP: 7.4
 Tested up to: 7.1
@@ -299,6 +299,12 @@ A free account includes one site and 200 AI credits. The paid plan is $67 a mont
 10. A workflow template. When a page review finishes, open a task for every critical issue and post it to Slack. You see the trigger, the actions and the credit cost before it runs.
 
 == Changelog ==
+
+= 5.1.7 =
+* **Additional CSS kept exactly as written** - CSS saved through the AI tools is no longer altered on save, so inline SVG backgrounds, HTML entities and other valid CSS are preserved instead of being stripped or corrupted. A save whose stored result doesn't match what was sent now reports failure instead of a false success.
+* **No more phantom revisions from viewing a page** - opening a block-editor page (as a visitor or in the Atarim app) no longer rewrites the page, so it can't create unexplained revisions, change the "last modified" date, or affect restore points. Block identifiers are now added when the page is saved, not when it is viewed.
+* **Elementor detection fix** - pages that were switched from Elementor back to the block editor are no longer treated as Elementor, which previously caused editing errors.
+* **Embedding on more hosts** - the Atarim app can now load the site in its editor on hosts that block framing by default (e.g. Seravo), by sending the appropriate security header.
 
 = 5.1.6 =
 * **Clearer Do It status** - when Do It can't run on a page, the plugin now tells Atarim why (Do It is turned off, the page is a blog index or archive, or your account can't edit it), so you no longer see "Log in to your WordPress" while already logged in.

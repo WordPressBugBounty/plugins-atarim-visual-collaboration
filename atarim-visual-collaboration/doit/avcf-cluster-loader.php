@@ -118,6 +118,11 @@ if ( function_exists('wp_get_abilities') && class_exists('\WP\MCP\Core\McpAdapte
     require_once( AVCF_PLUGIN_DIR . 'doit/abilities/class-avcf-abilities-users.php' );
     require_once( AVCF_PLUGIN_DIR . 'doit/abilities/class-avcf-abilities-settings.php' );
     require_once( AVCF_PLUGIN_DIR . 'doit/abilities/class-avcf-abilities-media.php' );
+    require_once( AVCF_PLUGIN_DIR . 'doit/abilities/class-avcf-abilities-preview.php' );
+
+    // Public draft-preview serving runs on every front-end request (bails fast
+    // unless the signed preview token is present).
+    AVCF_Abilities_Preview::boot();
     require_once( AVCF_PLUGIN_DIR . 'doit/abilities/class-avcf-abilities-metadata.php' );
     require_once( AVCF_PLUGIN_DIR . 'doit/abilities/class-avcf-abilities-navigation.php' );
     require_once( AVCF_PLUGIN_DIR . 'doit/abilities/class-avcf-abilities-templates.php' );

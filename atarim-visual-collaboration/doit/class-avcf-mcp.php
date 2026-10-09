@@ -165,6 +165,7 @@ class AVCF_MCP {
         $this->avcf_register_cluster( 'design', new AVCF_Abilities_Templates() );
         $this->avcf_register_cluster( 'design', new AVCF_Abilities_Global_Styles() );
         $this->avcf_register_cluster( 'content', new AVCF_Abilities_Patterns() );
+        $this->avcf_register_cluster( 'content', new AVCF_Abilities_Preview() );
         $this->avcf_register_cluster( 'design', new AVCF_Abilities_Block_Navigation() );
         $this->avcf_register_cluster( 'site', new AVCF_Abilities_Cache() );
         $this->avcf_register_cluster( 'diagnostics', new AVCF_Abilities_ReadOnly() );
