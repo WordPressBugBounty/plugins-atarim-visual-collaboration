@@ -18,6 +18,8 @@ add_action('rest_api_init', function () {
                 'installed'    => true,
                 'connected'    => $connected,
                 'bound'        => $bound,
+                // Accepts a connect started in Atarim (AVCF_Connect::offer).
+                'connect_session' => true,
                 'version'      => defined('AVCF_VERSION') ? AVCF_VERSION : null,
                 'settings_url' => admin_url('options-general.php?page=atarim-visual-collaboration'),
                 'site_url'     => site_url(),

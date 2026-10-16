@@ -1,10 +1,10 @@
 === Atarim - AI Agency for WordPress: Edit Pages, Fix Code, Update Plugins, SEO & Client Feedback ===
 Contributors: wpfeedback, pratapdungrani
 Tags: ai, agency, client feedback, automation, seo
-Stable tag: 5.1.7
+Stable tag: 5.1.8
 Requires at least: 6.0
 Requires PHP: 7.4
-Tested up to: 7.1
+Tested up to: 7.1.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -299,6 +299,12 @@ A free account includes one site and 200 AI credits. The paid plan is $67 a mont
 10. A workflow template. When a page review finishes, open a task for every critical issue and post it to Slack. You see the trigger, the actions and the credit cost before it runs.
 
 == Changelog ==
+
+= 5.1.8 =
+* **Use plugins' own AI tools** - when a site has a plugin that provides its own AI tools (such as Elementor or WS Form), the assistant can now use those native tools directly, falling back to Atarim's own when they aren't available.
+* **Wider timezone support** - setting a site's timezone now accepts all the zones WordPress itself accepts, including regional aliases like America/Montreal and US/Eastern.
+* **Additional CSS saved exactly as written** - CSS with inline SVGs, special characters or HTML entities is no longer altered on save.
+* **No unexpected revisions from viewing a page** - opening a page no longer creates revisions or changes its "last modified" date; identifiers are added when the page is saved instead.
 
 = 5.1.7 =
 * **Additional CSS kept exactly as written** - CSS saved through the AI tools is no longer altered on save, so inline SVG backgrounds, HTML entities and other valid CSS are preserved instead of being stripped or corrupted. A save whose stored result doesn't match what was sent now reports failure instead of a false success.

@@ -324,6 +324,14 @@ class AVCF_Abilities_Plugins extends AVCF_Abilities_Base {
                 $plugin_file = isset( $input['plugin_file'] ) ? $input['plugin_file'] : '';
                 $plugin_file = ltrim( str_replace( [ '..', '\\' ], '', $plugin_file ), '/' );
 
+                if ( defined( 'AVCF_PLUGIN_BASE' ) && $plugin_file === AVCF_PLUGIN_BASE ) {
+                    return [
+                        'success'     => false,
+                        'plugin_file' => $plugin_file,
+                        'message'     => 'Atarim cannot activate itself through this ability. Use the WordPress Plugins screen.',
+                    ];
+                }
+
                 if ( empty( $plugin_file ) ) {
                     return [
                         'success'        => false,
@@ -671,6 +679,14 @@ class AVCF_Abilities_Plugins extends AVCF_Abilities_Base {
                 // Light path normalization without losing the forward slash.
                 $plugin_file = ltrim( str_replace( [ '..', '\\' ], '', $plugin_file ), '/' );
 
+                if ( defined( 'AVCF_PLUGIN_BASE' ) && $plugin_file === AVCF_PLUGIN_BASE ) {
+                    return [
+                        'success'     => false,
+                        'plugin_file' => $plugin_file,
+                        'message'     => 'Atarim cannot deactivate itself through this ability. Use the WordPress Plugins screen.',
+                    ];
+                }
+
                 if ( empty( $plugin_file ) ) {
                     return [
                         'success'     => false,
@@ -763,6 +779,14 @@ class AVCF_Abilities_Plugins extends AVCF_Abilities_Base {
 
                 $plugin_file = isset( $input['plugin_file'] ) ? $input['plugin_file'] : '';
                 $plugin_file = ltrim( str_replace( [ '..', '\\' ], '', $plugin_file ), '/' );
+
+                if ( defined( 'AVCF_PLUGIN_BASE' ) && $plugin_file === AVCF_PLUGIN_BASE ) {
+                    return [
+                        'success'     => false,
+                        'plugin_file' => $plugin_file,
+                        'message'     => 'Atarim cannot delete itself through this ability. Use the WordPress Plugins screen.',
+                    ];
+                }
 
                 if ( empty( $plugin_file ) ) {
                     return [

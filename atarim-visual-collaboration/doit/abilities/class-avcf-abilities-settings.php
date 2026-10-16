@@ -158,7 +158,7 @@ class AVCF_Abilities_Settings extends AVCF_Abilities_Base {
                 }
                 if ( array_key_exists( 'timezone_string', $input ) ) {
                     $tz = (string) $input['timezone_string'];
-                    if ( $tz !== '' && ! in_array( $tz, timezone_identifiers_list(), true ) ) {
+                    if ( $tz !== '' && ! in_array( $tz, timezone_identifiers_list( DateTimeZone::ALL_WITH_BC ), true ) ) {
                         return [ 'success' => false, 'updated' => $updated, 'message' => sprintf( 'Unknown timezone "%s". Use a Region/City identifier (e.g. "America/New_York").', $tz ) ];
                     }
                     update_option( 'timezone_string', $tz );

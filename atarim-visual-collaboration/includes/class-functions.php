@@ -16,6 +16,28 @@ class AVCF_Functions {
         update_option( $key, $value, false );
     }
 
+    /**
+     * Store what Atarim returns when it activates this site, and make the
+     * current admin the site's webmaster. Shared by the server-side connect and
+     * the older browser redirect (avcf_license_activation).
+     *
+     * @param string $license   Decoded licence state, e.g. "valid".
+     * @param string $site_id   Atarim's encrypted site id.
+     * @param string $mcp_token The site's MCP secret.
+     */
+    public function avcf_store_connection($license, $site_id, $mcp_token) {
+        $user_id = $this->avcf_get_user_detail('id');
+        $user_email = $this->avcf_get_user_detail('email');
+        $this->avcf_update_settings('avc_license', $license);
+        $this->avcf_update_settings('avc_site_id', $site_id);
+        $this->avcf_update_settings('avc_atarim_secret_token', $mcp_token);
+        $this->avcf_update_settings('avc_initial_setup_complete', 'yes');
+        $this->avcf_update_settings('avc_collab_active', 'yes');
+        update_user_meta($user_id, 'avc_user_type', 'webmaster', false);
+        $this->avcf_update_settings('avc_website_developer', $user_email);
+        $this->avcf_get_whitelabel();
+    }
+
     public function avcf_setting_screen() {
         if (is_admin()) {
             $wpf_current_screen = get_current_screen();

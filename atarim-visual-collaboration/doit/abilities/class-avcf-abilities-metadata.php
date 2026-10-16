@@ -79,6 +79,14 @@ class AVCF_Abilities_Metadata extends AVCF_Abilities_Base {
      */
     private function avcf_blocked_option_reason( $name ) {
         global $wpdb;
+        // Atarim's own settings (connection secret token, MCP ability blocklist,
+        // license/site/collab state) are managed only through Atarim's own flows,
+        // never the generic option tool. Blocking the whole avc_/avcf_ namespace
+        // keeps the secret token from being read/overwritten and the ability
+        // blocklist from being tampered with.
+        if ( strpos( $name, 'avc_' ) === 0 || strpos( $name, 'avcf_' ) === 0 ) {
+            return "This is an Atarim plugin setting and can't be read or written through the generic option tool.";
+        }
         if ( isset( $this->option_blocklist[ $name ] ) ) {
             return $this->option_blocklist[ $name ];
         }
@@ -817,6 +825,12 @@ class AVCF_Abilities_Metadata extends AVCF_Abilities_Base {
                     return [ 'success' => false, 'message' => 'option_name is required.' ];
                 }
 
+                // Never expose Atarim's own settings (incl. the connection secret
+                // token) through the generic option reader.
+                if ( strpos( $name, 'avc_' ) === 0 || strpos( $name, 'avcf_' ) === 0 ) {
+                    return [ 'success' => false, 'option_name' => $name, 'message' => "This is an Atarim plugin setting and can't be read through the generic option tool." ];
+                }
+
                 // Use a sentinel to distinguish "doesn't exist" from "exists with falsy value".
                 $sentinel = '__avcf_not_found_' . uniqid();
                 $value    = get_option( $name, $sentinel );
@@ -1122,6 +1136,10 @@ class AVCF_Abilities_Metadata extends AVCF_Abilities_Base {
                     return [ 'success' => false, 'message' => 'Permission denied.' ];
                 }
 
+                if ( $this->avcf_is_atarim_meta_key( $key ) ) {
+                    return [ 'success' => false, 'key' => $key, 'message' => "This is an Atarim plugin meta key and cannot be written through the generic meta tool." ];
+                }
+
                 $result = update_user_meta( $user_id, $key, $input['value'] );
                 if ( $result === false ) {
                     // update_user_meta returns false on "same value" OR failure; distinguish.
@@ -1355,6 +1373,12 @@ class AVCF_Abilities_Metadata extends AVCF_Abilities_Base {
      * @param mixed  $value The value to be written.
      * @return string|null Error message if the write must be rejected, otherwise null.
      */
+    private function avcf_is_atarim_meta_key( $key ) {
+        // Normalise a leading underscore so _avc_*, _avcf_*, avc_*, avcf_* all match.
+        $k = ltrim( (string) $key, '_' );
+        return strpos( $k, 'avc_' ) === 0 || strpos( $k, 'avcf_' ) === 0;
+    }
+
     private function avcf_reject_unsafe_meta_write( $field, $value ) {
         // Tier 1: WordPress-managed attachment structures — never writable here.
         $reserved_structures = [

@@ -121,6 +121,10 @@ if ( ! function_exists( 'atarim_connect_screen_render' ) ) {
                     <h1 class="atc-h1"><?php echo $t( 'Connect WordPress to Atarim' ); ?></h1>
                     <p class="atc-desc"><?php echo $t( 'Reviews, tasks and real edits land directly on your live site. Plus any AI your team uses, through the Atarim MCP.' ); ?></p>
                 </div>
+                <div data-on="confirm" hidden style="display:flex;flex-direction:column;align-items:center;width:100%">
+                    <h1 class="atc-h1"><?php echo $t( 'Finish connecting to Atarim' ); ?></h1>
+                    <p class="atc-desc"><?php echo $t( 'You started this from Atarim. Check the workspace and account below, then connect.' ); ?></p>
+                </div>
                 <div data-on="connected" hidden style="display:flex;flex-direction:column;align-items:center;width:100%">
                     <h1 class="atc-h1"><?php echo $t( "You're connected" ); ?></h1>
                     <p class="atc-desc"><b><?php echo $esc( $site_host ); ?></b> <?php echo $t( 'is now linked to Atarim. You can close this window and head back to WordPress.' ); ?></p>
@@ -135,6 +139,20 @@ if ( ! function_exists( 'atarim_connect_screen_render' ) ) {
                             <p class="atc-site-value"><?php echo $esc( $site_host ); ?></p>
                         </div>
                     </div>
+                    <div class="atc-site-row" data-on="confirm" id="atc-confirm-workspace-row" hidden>
+                        <span class="atc-site-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="14" x="2" y="7" rx="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg></span>
+                        <div style="min-width:0">
+                            <p class="atc-site-label"><?php echo $t( 'Atarim workspace' ); ?></p>
+                            <p class="atc-site-value" id="atc-confirm-workspace"></p>
+                        </div>
+                    </div>
+                    <div class="atc-site-row" data-on="confirm" hidden>
+                        <span class="atc-site-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg></span>
+                        <div style="min-width:0">
+                            <p class="atc-site-label"><?php echo $t( 'Atarim account' ); ?></p>
+                            <p class="atc-site-value" id="atc-confirm-account"></p>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- CTA -->
@@ -143,6 +161,13 @@ if ( ! function_exists( 'atarim_connect_screen_render' ) ) {
                         <?php echo $t( 'Connect site' ); ?>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
                     </a>
+                    <button type="button" class="atc-btn" id="atc-confirm-btn" data-on="confirm" hidden>
+                        <?php echo $t( 'Connect site' ); ?>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                    </button>
+                    <button type="button" class="atc-btn atc-btn--secondary" id="atc-confirm-cancel" data-on="confirm" hidden>
+                        <?php echo $t( 'Not you? Cancel' ); ?>
+                    </button>
                     <button type="button" class="atc-btn" data-on="connecting" hidden disabled>
                         <svg class="atc-spin" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>
                         <?php echo $t( 'Connecting...' ); ?>

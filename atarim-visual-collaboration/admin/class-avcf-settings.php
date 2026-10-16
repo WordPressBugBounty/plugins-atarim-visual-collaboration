@@ -42,6 +42,11 @@ class AVCF_Settings {
     public function avcf_redirect_to_settings_page() {
         if ($this->function->avcf_get_setting_data('avc_plugin_activation_redirect', false)) {
             delete_option('avc_plugin_activation_redirect');
+            // Already on the settings page (an Atarim-started connect sends the
+            // window here with ?atarim_connect=1): redirecting would drop that.
+            if (isset($_GET['page']) && 'atarim-visual-collaboration' === $_GET['page']) {
+                return;
+            }
             wp_safe_redirect(admin_url('options-general.php?page=atarim-visual-collaboration'));
             exit();
         }
@@ -99,18 +104,11 @@ class AVCF_Settings {
             $atarim_response = $atarim_response_raw;
         }
 
-        $user_id = $this->function->avcf_get_user_detail('id');
-        $user_email = $this->function->avcf_get_user_detail('email');
-        $this->function->avcf_update_settings('avc_license', base64_decode(sanitize_text_field($atarim_response)));
-        $avc_site_id = sanitize_text_field(wp_unslash($_GET['site_id']));
-        $this->function->avcf_update_settings('avc_site_id', $avc_site_id);
-        $avc_secret_token = sanitize_text_field(wp_unslash($_GET['mcp_token']));
-        $this->function->avcf_update_settings('avc_atarim_secret_token', $avc_secret_token);
-        $this->function->avcf_update_settings('avc_initial_setup_complete', 'yes');
-        $this->function->avcf_update_settings('avc_collab_active', 'yes');
-        update_user_meta($user_id, 'avc_user_type', 'webmaster', false);
-        $this->function->avcf_update_settings('avc_website_developer', $user_email);
-        $this->function->avcf_get_whitelabel();
+        $this->function->avcf_store_connection(
+            base64_decode(sanitize_text_field($atarim_response)),
+            sanitize_text_field(wp_unslash($_GET['site_id'])),
+            sanitize_text_field(wp_unslash($_GET['mcp_token']))
+        );
         wp_safe_redirect(AVCF_HOME_URL);
         exit();
     }
@@ -148,7 +146,9 @@ class AVCF_Settings {
         // success and survives disconnect, so the overlay shows until the first
         // successful connection and never again (existing connected sites never
         // see it).
-        if ( 'yes' === $this->function->avcf_get_setting_data('avc_initial_setup_complete') ) {
+        // An Atarim-started connect (?atarim_connect=1) needs the overlay's
+        // confirm step even on a site that was connected before.
+        if ( 'yes' === $this->function->avcf_get_setting_data('avc_initial_setup_complete') && ! isset( $_GET['atarim_connect'] ) ) {
             return;
         }
 
@@ -166,7 +166,7 @@ class AVCF_Settings {
 
             // Connect-overlay styles: only load for first-time (never-connected)
             // users, matching when the overlay itself is rendered.
-            if ('yes' !== $this->function->avcf_get_setting_data('avc_initial_setup_complete')) {
+            if ('yes' !== $this->function->avcf_get_setting_data('avc_initial_setup_complete') || isset($_GET['atarim_connect'])) {
                 wp_enqueue_style('avc-connect-screen-style', AVCF_PLUGIN_URL . 'assets/css/atarim-connect-screen.css', [], AVCF_VERSION);
             }
             wp_enqueue_script('avc-settings-script', AVCF_PLUGIN_URL . 'assets/build/index.js', [], '1.0.0', true);
@@ -195,8 +195,11 @@ class AVCF_Settings {
                 }
             }
 
-            $crm_api_url = AVCF_CRM_API;
             $app_url = AVCF_APP_SITE_URL;
+            $app_parts = wp_parse_url($app_url);
+            $app_origin = isset($app_parts['scheme'], $app_parts['host'])
+                ? $app_parts['scheme'] . '://' . $app_parts['host'] . (isset($app_parts['port']) ? ':' . $app_parts['port'] : '')
+                : '';
             $registerUrl = $app_url . '/register';
             $pluginVersion = AVCF_VERSION;
 
@@ -205,6 +208,8 @@ class AVCF_Settings {
                 'avc_nonce' => wp_create_nonce('avc-script-nonce'),
                 'isCollabActive' => $isCollabActive,
                 'activationUrl' => $activationUrl,
+                // The only origin allowed to hand this page a connect key.
+                'appOrigin' => $app_origin,
                 'avc_collab_link' => AVCF_HOME_URL . '/?collab=true',
                 'pluginVersion' => $pluginVersion,
                 'notice'      => [
@@ -259,95 +264,212 @@ class AVCF_Settings {
                 ]
             ]);
 
-            wp_add_inline_script('avc-settings-script', "
-                document.addEventListener('DOMContentLoaded', function () {
-                    const btns = document.querySelectorAll('.avc-trigger-activate');
-                    if (!btns.length) return;
+            // The key exchange and the activation run on this server (AVCF_Connect):
+            // the page only opens Atarim's consent and asks whether it is done.
+            wp_add_inline_script('avc-settings-script', <<<'JS'
+document.addEventListener('DOMContentLoaded', function () {
+    const btns = document.querySelectorAll('.avc-trigger-activate');
+    if (!btns.length) return;
 
-                    // Some buttons (the first-run modal CTA) keep their own styled
-                    // label/icon; only change text on the rest.
-                    function setLabel(el, text) {
-                        if (!el.hasAttribute('data-keep-label')) { el.innerText = text; }
+    const settings = window.avcSettings || {};
+    let polling = false;
+    // The attempt this page's consent link belongs to (AVCF_Connect::start).
+    let attempt = '';
+
+    // Some buttons (the first-run modal CTA) keep their own styled
+    // label/icon; only change text on the rest.
+    function setLabel(el, text) {
+        if (!el.hasAttribute('data-keep-label')) { el.innerText = text; }
+    }
+
+    function setButtons(text, enabled) {
+        btns.forEach(function (b) {
+            setLabel(b, text);
+            b.style.pointerEvents = enabled ? 'auto' : 'none';
+        });
+    }
+
+    function ajax(action, fields) {
+        const body = new FormData();
+        body.append('action', action);
+        body.append('avc_nonce', settings.avc_nonce);
+        Object.keys(fields || {}).forEach(function (k) { body.append(k, fields[k]); });
+        return fetch(settings.ajaxurl, { method: 'POST', credentials: 'same-origin', body: body })
+            .then(function (res) { return res.json(); });
+    }
+
+    // With a sign-in key (AVCF_Connect::mint_login_key), the site itself, where
+    // the collaboration layer signs in with it: the connect never gives this
+    // browser an Atarim session on the site otherwise. Without one, the plain
+    // settings page, not a reload: that would keep ?atarim_connect=1 and show
+    // the connect screen again on a site that is now connected.
+    function showConnected(loginKey) {
+        if (loginKey && settings.avc_collab_link) {
+            window.location.replace(settings.avc_collab_link + '&read_key=' + encodeURIComponent(loginKey));
+            return;
+        }
+        console.warn('Atarim connect: connected, but no sign-in key was issued, so the site opens signed out of Atarim.');
+        const url = new URL(window.location.href);
+        url.searchParams.delete('atarim_connect');
+        window.location.replace(url.toString());
+    }
+
+    function prepare() {
+        setButtons('Preparing...', false);
+        return ajax('avcf_connect_start')
+            .then(function (res) {
+                if (!res.success || !res.data || !res.data.connect_url) {
+                    throw new Error((res.data && res.data.message) || 'Failed to prepare activation.');
+                }
+                attempt = res.data.attempt || '';
+                btns.forEach(function (b) { b.href = res.data.connect_url; });
+                setButtons('Connect with Atarim', true);
+            })
+            .catch(function (err) {
+                console.error('Atarim connect: prepare failed', err);
+                setButtons('Connect with Atarim', true);
+                alert(err.message || 'Could not prepare activation.');
+            });
+    }
+
+    function fail(message) {
+        polling = false;
+        if (window.AtarimConnect) { window.AtarimConnect.setState('idle'); }
+        alert(message || 'The connection did not finish. Please try again.');
+        prepare();
+    }
+
+    function poll() {
+        ajax('avcf_connect_poll', { attempt: attempt })
+            .then(function (res) {
+                if (!res.success) { fail(res.data && res.data.message); return; }
+                if (res.data.status === 'connected') {
+                    polling = false;
+                    if (window.AtarimConnect) { window.AtarimConnect.setState('connected'); }
+                    setTimeout(function () { showConnected(res.data.login_key); }, 2200);
+                    return;
+                }
+                setTimeout(poll, 3000);
+            })
+            .catch(function () { setTimeout(poll, 3000); });
+    }
+
+    btns.forEach(function (b) {
+        b.addEventListener('click', function () {
+            if (polling || !b.href || b.href.indexOf('/fetching/') === -1) return;
+            polling = true;
+            // Play the connecting animation in the first-run overlay (if present).
+            if (window.AtarimConnect) { window.AtarimConnect.setState('connecting'); }
+            setButtons('Authenticating...', false);
+            setTimeout(poll, 3000);
+        });
+    });
+
+    // Started in Atarim (V5 onboarding): the key comes from the wizard, so no
+    // key pair is minted unless that hand-off fails or the admin cancels it.
+    const handoffExpected = new URLSearchParams(window.location.search).get('atarim_connect') === '1'
+        && !!window.opener && !!settings.appOrigin && !!document.getElementById('atc-confirm-btn') && !!window.AtarimConnect;
+    let handoffReceived = false;
+    if (handoffExpected) {
+        setButtons('Connect with Atarim', false);
+        // No answer from the wizard (another Atarim origin, a closed tab):
+        // fall back to the manual connect.
+        setTimeout(function () { if (!handoffReceived) prepare(); }, 8000);
+    } else {
+        prepare();
+    }
+
+    // Started in Atarim (V5 onboarding). The wizard hands over an approved key
+    // by postMessage, never in a URL, and only Atarim's own origin, from the
+    // window that opened this one, can do that. The admin still confirms the
+    // workspace and account before anything connects.
+    const confirmBtn = document.getElementById('atc-confirm-btn');
+    const cancelBtn = document.getElementById('atc-confirm-cancel');
+    const fromAtarim = new URLSearchParams(window.location.search).get('atarim_connect') === '1';
+
+    if (fromAtarim && window.opener && settings.appOrigin && confirmBtn && window.AtarimConnect) {
+        let offered = false;
+
+        // Atarim's key was not used, so the connect goes on through this page's
+        // own Connect, where the workspace is chosen in Atarim instead.
+        function declineHandoff() {
+            try {
+                window.opener.postMessage({ type: 'atarim:connect-declined' }, settings.appOrigin);
+            } catch (e) { /* the opener is gone */ }
+        }
+
+        window.addEventListener('message', function (event) {
+            if (offered || event.origin !== settings.appOrigin || event.source !== window.opener) return;
+            const data = event.data || {};
+            if (data.type !== 'atarim:connect-key' || typeof data.key !== 'string') return;
+            offered = true;
+            handoffReceived = true;
+
+            ajax('avcf_connect_offer', { connect_key: data.key })
+                .then(function (res) {
+                    if (!res.success) {
+                        offered = false;
+                        alert((res.data && res.data.message) || 'This connection could not be started.');
+                        declineHandoff();
+                        prepare();
+                        return;
                     }
-
-                    btns.forEach(function (b) {
-                        setLabel(b, 'Preparing...');
-                        b.style.pointerEvents = 'none';
-                    });
-
-                    fetch('{$crm_api_url}wp/auth')
-                        .then(res => res.json())
-                        .then(data => {
-                            const { read_key, write_key, state } = data;
-
-                            if (!read_key || !write_key || !state) {
-                                btns.forEach(function (b) {
-                                    setLabel(b, 'Connect with Atarim');
-                                    b.style.pointerEvents = 'auto';
-                                });
-                                alert('Failed to prepare activation. Please try again.');
-                                return;
-                            }
-
-                            const activationUrl = '{$app_url}/fetching/?_from=wp_plugin&from_wp=true&write_key=' + encodeURIComponent(write_key) + '&state=' + encodeURIComponent(state);
-
-                            btns.forEach(function (b) {
-                                b.href = activationUrl;
-                                setLabel(b, 'Connect with Atarim');
-                                b.style.pointerEvents = 'auto';
-                            });
-
-                            // Save read_key globally
-                            window.avcReadKey = read_key;
-                        })
-                        .catch(err => {
-                            console.error('Auth fetch failed:', err);
-                            btns.forEach(function (b) {
-                                setLabel(b, 'Connect with Atarim');
-                                b.style.pointerEvents = 'auto';
-                            });
-                            alert('Could not prepare activation.');
-                        });
-
-                    // Attach polling on click (once) to every connect button.
-                    btns.forEach(function (b) {
-                        b.addEventListener('click', function () {
-                            if (!window.avcReadKey) return;
-
-                            // Play the connecting animation in the first-run overlay (if present).
-                            if (window.AtarimConnect) { window.AtarimConnect.setState('connecting'); }
-
-                            btns.forEach(function (x) {
-                                setLabel(x, 'Authenticating...');
-                                x.style.pointerEvents = 'none';
-                            });
-
-                            const pollUrl = '{$crm_api_url}wp/pollForAccessToken?read_key=' + window.avcReadKey;
-                            const redirectUrl = '{$activationUrl}';
-
-                            const interval = setInterval(() => {
-                                fetch(pollUrl, { credentials: 'include' })
-                                    .then(res => res.json())
-                                    .then(data => {
-                                        if (data.access_token) {
-                                            clearInterval(interval);
-                                            const url = new URL(redirectUrl);
-
-                                            if (data.workspace_id) {
-                                                url.searchParams.append('workspace_id', data.workspace_id);
-                                            }
-
-                                            // Show the connected payoff in the overlay, then load
-                                            // the connected settings view so the page reflects it.
-                                            if (window.AtarimConnect) { window.AtarimConnect.setState('connected'); }
-                                            setTimeout(function () { window.location.href = url.toString(); }, 2200);
-                                        }
-                                    });
-                            }, 3000);
-                        }, { once: true });
-                    });
+                    const workspace = res.data.workspace && res.data.workspace.name;
+                    const account = res.data.account || {};
+                    document.getElementById('atc-confirm-workspace').textContent = workspace || '';
+                    document.getElementById('atc-confirm-account').textContent =
+                        account.name ? account.name + ' (' + account.email + ')' : (account.email || '');
+                    window.AtarimConnect.setState('confirm');
+                    const workspaceRow = document.getElementById('atc-confirm-workspace-row');
+                    if (workspaceRow && !workspace) workspaceRow.hidden = true;
+                })
+                .catch(function () {
+                    offered = false;
+                    alert('This connection could not be started.');
+                    declineHandoff();
+                    prepare();
                 });
-            ", 'after');
+        });
+
+        confirmBtn.addEventListener('click', function () {
+            window.AtarimConnect.setState('connecting');
+            ajax('avcf_connect_confirm')
+                .then(function (res) {
+                    if (!res.success) {
+                        const error = new Error(res.data && res.data.message);
+                        // Atarim did not answer: the key is kept for another click.
+                        error.retry = !!(res.data && res.data.retry);
+                        throw error;
+                    }
+                    window.AtarimConnect.setState('connected');
+                    setTimeout(function () { showConnected(res.data && res.data.login_key); }, 2200);
+                })
+                .catch(function (err) {
+                    alert((err && err.message) || 'The connection did not finish. Please try again.');
+                    if (err && err.retry) {
+                        window.AtarimConnect.setState('confirm');
+                        return;
+                    }
+                    window.AtarimConnect.setState('idle');
+                    declineHandoff();
+                    prepare();
+                });
+        });
+
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', function () {
+                ajax('avcf_connect_cancel').catch(function () {});
+                window.AtarimConnect.setState('idle');
+                declineHandoff();
+                prepare();
+            });
+        }
+
+        window.opener.postMessage({ type: 'atarim:connect-ready' }, settings.appOrigin);
+    }
+});
+JS
+            , 'after');
         }
     }
 }

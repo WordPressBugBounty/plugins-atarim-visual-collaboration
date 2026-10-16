@@ -544,7 +544,7 @@ class AVCF_MCP {
         }
 
         return sprintf(
-            ' Tools are grouped into clusters. Send the header "X-Atarim-MCP-Clusters: slug,slug" with tools/list to list only those clusters, and "X-Atarim-MCP-Detail: full" for untruncated tool descriptions. Clusters on this site: %s.',
+            ' Tools are grouped into clusters. Send the header "X-Atarim-MCP-Clusters: slug,slug" with tools/list to list only those clusters, and "X-Atarim-MCP-Detail: full" for untruncated tool descriptions. A cluster named after a plugin (e.g. elementor, ws-form) holds that plugin\'s own native tools; when working with that plugin, request its cluster and prefer its native tools, falling back to Atarim\'s tools if a native tool is unavailable. Clusters on this site: %s.',
             implode( ', ', $parts )
         );
     }
@@ -697,17 +697,37 @@ class AVCF_MCP {
                     continue;
                 }
                 $meta = (array) $ability->get_meta();
-                $is_public = isset( $meta['mcp']['public'] ) ? (bool) $meta['mcp']['public'] : false;
-                if ( ! $is_public ) {
-                    continue;
-                }
+                $name = $ability->get_name();
+
+                // Only expose tools, never other ability types.
                 $mcp_type = isset( $meta['mcp']['type'] ) ? (string) $meta['mcp']['type'] : 'tool';
                 if ( $mcp_type !== 'tool' ) {
                     continue;
                 }
 
-                $name    = $ability->get_name();
+                // Atarim's own tools honour their mcp.public flag (some are kept
+                // non-public deliberately). Third-party tools are exposed as long as
+                // they are registered, even when the vendor did not flag them public
+                // for its own MCP server - they are still callable in-process, and
+                // the blocklist below plus each ability's own permission/availability
+                // checks remain the real boundary.
+                $is_atarim = strpos( $name, 'atarim/' ) === 0;
+                $is_public = isset( $meta['mcp']['public'] ) ? (bool) $meta['mcp']['public'] : false;
+                if ( $is_atarim && ! $is_public ) {
+                    continue;
+                }
+
                 $tools[] = $name;
+
+                // Group third-party tools into a cluster named after the vendor
+                // prefix of their id (elementor/..., ws-form/...), so they appear in
+                // the cluster catalogue, are counted, and are narrowable - without
+                // any per-plugin code. Atarim's own tools keep the cluster assigned
+                // at registration (avcf_register_cluster).
+                if ( ! $is_atarim && ! isset( $this->cluster_map[ $name ] ) ) {
+                    $slug = strstr( $name, '/', true );
+                    $this->cluster_map[ $name ] = $slug ? $slug : 'vendor';
+                }
 
                 // Collected here, where the ability object is already in hand,
                 // and applied to the listing in avcf_mcp_shape_tools_list().
